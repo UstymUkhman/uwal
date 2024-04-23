@@ -1,0 +1,66 @@
+{
+  "name": "uwal",
+  "description": "Unopinionated WebGPU Abstraction Library",
+  "homepage": "https://github.com/UstymUkhman/uwal#readme",
+  "packageManager": "^npm@9.8.0",
+  "main": "./dist/uwal.umd.cjs",
+  "module": "./dist/uwal.js",
+  "types": "./types.d.ts",
+  "version": "0.0.0",
+  "private": false,
+  "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "Ustym Ukhman",
+    "email": "ustym.ukhman@gmail.com",
+    "url": "https://github.com/UstymUkhman/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UstymUkhman/uwal.git"
+  },
+  "bugs": {
+    "url": "https://github.com/UstymUkhman/uwal/issues",
+    "email": "ustym.ukhman@gmail.com"
+  },
+  "imports": { "@/*": "./lib/*" },
+  "exports": {
+    ".": {
+      "require": "./dist/uwal.umd.cjs",
+      "default": "./dist/uwal.js",
+      "import": "./dist/uwal.js",
+      "types": "./types.d.ts"
+    }
+  },
+  "directories": {
+    "dist": "dist",
+    "lib": "lib",
+    "src": "src"
+  },
+  "files": [
+    "package.json",
+    "types.d.ts",
+    "README.md",
+    "LICENSE",
+    "dist"
+  ],
+  "keywords": [
+    "webgpu",
+    "library",
+    "javascript"
+  ],
+  "scripts": {
+    "start": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.40",
+    "vite": "^5.2.0",
+    "vite-plugin-glsl": "^1.3.0"
+  },
+  "engines": {
+    "node": ">= 18.12.1",
+    "npm": ">= 9.8.0",
+    "bun": ">= 1.1.4"
+  }
+}

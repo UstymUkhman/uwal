@@ -1,0 +1,15 @@
+.vscode
+lib
+node_modules
+src
+
+.browserslistrc
+.editorconfig
+.gitignore
+
+bun.lockb
+favicon.svg
+index.html
+jsconfig.json
+uwal.code-workspace
+vite.config.js

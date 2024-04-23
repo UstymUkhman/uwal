@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "checkJs": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "paths": { "@/*": ["./lib/*"] },
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["node_modules/@webgpu"]
+  },
+
+  "include": ["lib/**/*.js", "src/**/*.js", "types.d.ts"],
+  "exclude": ["dist", "node_modules"]
+}

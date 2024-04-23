@@ -1,0 +1,15 @@
+{
+  "settings": {
+	"editor.codeActionsOnSave": { "source.fixAll.eslint": "never" },
+	"editor.bracketPairColorization.enabled": false,
+	"javascript.format.semicolons": "insert",
+	"typescript.format.semicolons": "insert",
+	"eslint.validate": ["javascript"],
+	"git.ignoreLimitWarning": true
+  },
+
+  "folders": [{
+	"name": "UWAL",
+	"path": "."
+  }]
+}
