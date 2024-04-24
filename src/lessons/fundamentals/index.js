@@ -6,7 +6,16 @@ import Double from "./Double.wgsl";
 {
     // Drawing triangles to textures
     {
-        const Renderer = new (await UWAL.RenderPipeline(canvas, "Red Triangle Encoder"));
+        /** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
+
+        try
+        {
+            Renderer = new (await UWAL.RenderPipeline(canvas, "Red Triangle Encoder"));
+        }
+        catch (error)
+        {
+            alert(error);
+        }
 
         const colorAttachment = Renderer.CreateColorAttachment(
             undefined,
@@ -28,26 +37,9 @@ import Double from "./Double.wgsl";
             label: "Red Triangle Pipeline", vertex, fragment
         });
 
-        const size = new WeakMap();
-        const { maxTextureDimension2D } = (await UWAL.Device).limits;
-
-        function resize()
-        {
-            let { width, height } = size.get(canvas) ?? canvas;
-
-            width = Math.max(1, Math.min(width, maxTextureDimension2D));
-            height = Math.max(1, Math.min(height, maxTextureDimension2D));
-
-            if (canvas.width !== width || canvas.height !== height)
-            {
-                canvas.height = height;
-                canvas.width = width;
-            }
-        }
-
         function render()
         {
-            resize();
+            UWAL.SetCanvasSize(canvas.width, canvas.height);
 
             descriptor.colorAttachments[0].view = UWAL.CurrentTextureView;
             Renderer.Render(descriptor, pipeline, 3);
@@ -58,7 +50,7 @@ import Double from "./Double.wgsl";
             for (const entry of entries)
             {
                 const { inlineSize, blockSize } = entry.contentBoxSize[0];
-                size.set(entry.target, { width: inlineSize, height: blockSize });
+                UWAL.SetCanvasSize(inlineSize, blockSize);
             }
 
             render();
