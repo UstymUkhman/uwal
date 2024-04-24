@@ -9,7 +9,6 @@ src
 
 bun.lockb
 favicon.svg
-index.html
 jsconfig.json
 uwal.code-workspace
 vite.config.js

@@ -2,7 +2,8 @@
 
 > Unopinionated WebGPU Abstraction Library
 
-![GitHub deployments](https://img.shields.io/github/deployments/UstymUkhman/uwal/github-pages?style=flat-square)
+<!-- ![GitHub deployments](https://img.shields.io/github/deployments/UstymUkhman/uwal/github-pages?style=flat-square) -->
+<!-- ![npm bundle size](https://img.shields.io/bundlephobia/min/uwal?style=flat-square) -->
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/UstymUkhman/uwal?color=orange&style=flat-square)
 ![GitHub License](https://img.shields.io/github/license/UstymUkhman/uwal?color=lightgrey&style=flat-square)
 
