@@ -89,10 +89,13 @@ import Double from "./Double.wgsl";
             entries
         });
 
+        Computation.AddBindGroups(bindGroup);
+
         const encoder = Computation.CreateCommandEncoder();
         const descriptor = Computation.CreateComputePassDescriptor("Double Compute Pass");
 
-        Computation.Compute(encoder, pipeline, input.length, bindGroup, descriptor);
+        Computation.Workgroups = input.length;
+        Computation.Compute(encoder, pipeline, descriptor);
 
         const resultBuffer = Computation.CreateBuffer({
             label: "Double Result Buffer",

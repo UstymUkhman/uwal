@@ -1,4 +1,5 @@
-struct VertexOutput {
+struct VertexOutput
+{
     @builtin(position) position: vec4f
 };
 
@@ -11,6 +12,7 @@ struct VertexOutput {
     );
 
     var output: VertexOutput;
+
     output.position = vec4f(position[index], 0.0, 1.0);
     return output;
 }

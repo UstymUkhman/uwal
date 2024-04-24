@@ -1,4 +1,5 @@
-struct VertexOutput {
+struct VertexOutput
+{
     @builtin(position) position: vec4f,
     @location(0) color: vec4f
 };
@@ -21,6 +22,7 @@ struct VertexOutput {
 
     output.position = vec4f(position[index], 0.0, 1.0);
     output.color = color[index];
+
     return output;
 }
 
