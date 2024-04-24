@@ -13,7 +13,7 @@ export default({ mode }) => defineConfig(
         {
             fileName: name,
             name: name.toUpperCase(),
-            entry: resolve("lib/index.js")
+            entry: resolve("lib/UWAL.js")
         }
     },
 
