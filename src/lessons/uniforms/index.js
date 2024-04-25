@@ -34,46 +34,94 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
         label: "Triangle Uniforms Pipeline", vertex, fragment
     });
 
-    const uniformBufferSize =
-        4 * Float32Array.BYTES_PER_ELEMENT + // color  - 4 32bit floats
-        2 * Float32Array.BYTES_PER_ELEMENT + // scale  - 2 32bit floats
-        2 * Float32Array.BYTES_PER_ELEMENT;  // offset - 2 32bit floats
-
-    const uniformBuffer = Renderer.CreateBuffer({
-        size: uniformBufferSize,
-        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-    });
-
-    const uniformValues = new Float32Array(uniformBufferSize / Float32Array.BYTES_PER_ELEMENT);
-
     const colorOffset = 0;
-    const scaleOffset = 4;
-    const offsetOffset = 6;
+    const offsetOffset = 4;
 
-    uniformValues.set([0, 1, 0, 1], colorOffset);
-    uniformValues.set([-0.5, -0.25], offsetOffset);
+    const constUniformBufferSize =
+        4 * Float32Array.BYTES_PER_ELEMENT + // Color  - 4 32bit floats
+        2 * Float32Array.BYTES_PER_ELEMENT + // Offset - 2 32bit floats
+        2 * Float32Array.BYTES_PER_ELEMENT;  // Padding
 
-    const entries = Renderer.CreateBindGroupEntries({
-        buffer: uniformBuffer
-    });
+    const scaleOffset = 0;
 
-    const bindGroup = Renderer.CreateBindGroup({
-        layout: pipeline.getBindGroupLayout(0),
-        label: "Uniform Buffer Bind Group",
-        entries
-    });
+    const varUniformBufferSize =
+        2 * Float32Array.BYTES_PER_ELEMENT;  // Scale - 2 32bit floats
 
-    Renderer.AddBindGroups(bindGroup);
+    const objectCount = 100;
+    const objectInfos = [];
+
+    for (let o = 0; o < objectCount; ++o)
+    {
+        const constUniformBuffer = Renderer.CreateBuffer({
+            label: `Constant Uniform Object[${o}]`,
+            size: constUniformBufferSize,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+        });
+
+        // Write constant uniforms to the GPUBuffer:
+        {
+            const uniformValues = new Float32Array(constUniformBufferSize / Float32Array.BYTES_PER_ELEMENT);
+
+            uniformValues.set([random(), random(), random(), 1], colorOffset);
+            uniformValues.set([random(-0.9, 0.9), random(-0.9, 0.9)], offsetOffset);
+
+            Renderer.WriteBuffer(constUniformBuffer, uniformValues);
+        }
+
+        const uniformValues = new Float32Array(varUniformBufferSize / Float32Array.BYTES_PER_ELEMENT);
+
+        const varUniformBuffer = Renderer.CreateBuffer({
+            label: `Variable Uniform Object[${o}]`,
+            size: varUniformBufferSize,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+        });
+
+        const entries = Renderer.CreateBindGroupEntries([
+            { buffer: constUniformBuffer },
+            { buffer: varUniformBuffer }
+        ]);
+
+        const bindGroup = Renderer.CreateBindGroup({
+            layout: pipeline.getBindGroupLayout(0),
+            label: "Uniform Buffer Bind Group",
+            entries
+        });
+
+        objectInfos.push({
+            uniformBuffer: varUniformBuffer,
+            scale: random(0.2, 0.5),
+            uniformValues,
+            bindGroup
+        });
+    }
+
+    function random(min = 0, max = 1)
+    {
+        if (max === undefined)
+        {
+            max = min;
+            min = 0;
+        }
+
+        return Math.random() * (max - min) + min;
+    }
 
     function render()
     {
         UWAL.SetCanvasSize(canvas.width, canvas.height);
-        uniformValues.set([0.5 / UWAL.AspectRatio, 0.5], scaleOffset);
 
-        Renderer.WriteBuffer(uniformBuffer, uniformValues);
+        const aspect = UWAL.AspectRatio;
 
         descriptor.colorAttachments[0].view = UWAL.CurrentTextureView;
-        Renderer.Render(descriptor, pipeline, 3);
+
+        for (const [o, { scale, bindGroup, uniformBuffer, uniformValues }] of objectInfos.entries())
+        {
+            uniformValues.set([scale / aspect, scale], scaleOffset);
+
+            Renderer.AddBindGroups(bindGroup);
+            Renderer.WriteBuffer(uniformBuffer, uniformValues);
+            Renderer.Render(descriptor, pipeline, 3, o === objectInfos.length - 1);
+        }
     }
 
     const observer = new ResizeObserver(entries =>
