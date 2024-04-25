@@ -41,7 +41,7 @@ export default({ mode }) => defineConfig(
 
     server:
     {
-        host: '0.0.0.0',
+        host: "0.0.0.0",
         open: false,
         port: 8080
     }
