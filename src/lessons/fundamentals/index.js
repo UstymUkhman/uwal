@@ -4,7 +4,7 @@ import Double from "./Double.wgsl";
 
 (async function(canvas)
 {
-    // Drawing triangles to textures
+    // Drawing triangles to textures:
     {
         /** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
 
@@ -59,7 +59,7 @@ import Double from "./Double.wgsl";
         observer.observe(canvas);
     }
 
-    // Run computations on the GPU
+    // Run computations on the GPU:
     {
         const input = new Float32Array([1, 3, 5]);
 
@@ -90,12 +90,12 @@ import Double from "./Double.wgsl";
         });
 
         Computation.AddBindGroups(bindGroup);
+        Computation.CreateCommandEncoder();
 
-        const encoder = Computation.CreateCommandEncoder();
         const descriptor = Computation.CreateComputePassDescriptor("Double Compute Pass");
 
         Computation.Workgroups = input.length;
-        Computation.Compute(encoder, pipeline, descriptor);
+        Computation.Compute(pipeline, descriptor);
 
         const resultBuffer = Computation.CreateBuffer({
             label: "Double Result Buffer",
@@ -103,14 +103,14 @@ import Double from "./Double.wgsl";
             usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST
         });
 
-        Computation.CopyBufferToBuffer(encoder, computeBuffer, resultBuffer, resultBuffer.size);
-        Computation.SubmitCommandBuffer(encoder);
+        Computation.CopyBufferToBuffer(computeBuffer, resultBuffer, resultBuffer.size);
+        Computation.SubmitCommandBuffer();
 
         await resultBuffer.mapAsync(GPUMapMode.READ);
         const result = new Float32Array(resultBuffer.getMappedRange());
 
-        console.info('Input:', ...input);
-        console.info('Result:', ...result);
+        console.info("Input:", ...input);
+        console.info("Result:", ...result);
 
         resultBuffer.unmap();
     }
