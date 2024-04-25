@@ -1,0 +1,126 @@
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+body {
+  font: normal 400 14px/normal
+    system-ui, -apple-system, sans-serif;
+}
+
+aside.examples {
+  box-shadow: 0 0 10px -8px black;
+  position: relative;
+  background: white;
+  overflow-y: auto;
+
+  min-height: 100dvh;
+  min-width: 240px;
+  height: 100%;
+  width: 20vw;
+}
+
+div.content {
+  margin: 25px auto 50px 20px;
+  max-width: 75%;
+}
+
+a {
+  transform: translateX(0px);
+  transition: transform 200ms ease;
+
+  text-decoration: none;
+  font-weight: bold;
+  overflow: hidden;
+
+  display: block;
+  color: inherit;
+  outline: none;
+}
+
+h1.title {
+  font-weight: 800;
+  font-size: 20px;
+  color: #005a9c;
+  outline: none;
+  margin: 0px;
+}
+
+h2.subtitle {
+  margin: 20px 0 40px;
+  font-weight: 400;
+  font-size: 18px;
+}
+
+ul.list {
+  margin: 0;
+  padding: 0;
+  padding-left: 20px;
+}
+
+ul.list > a::before {
+  transform: translateX(-8px);
+  transition: transform 0.2s ease;
+
+  border-bottom: 5px solid transparent;
+  border-top: 5px solid transparent;
+  border-left: 8px solid black;
+
+  display: inline-block;
+  position: relative;
+  margin-right: 4px;
+
+  content: "";
+  height: 0px;
+  width: 0px;
+}
+
+ul.list > a.active {
+  transform: translateX(10px);
+}
+
+ul.list > a.active::before {
+  transform: translateX(0px);
+}
+
+canvas {
+  min-width: calc(100vw - 240px);
+  position: absolute;
+  width: 80vw;
+
+  bottom: 0;
+  right: 0;
+  top: 0;
+}
+
+button#code {
+  transition: opacity 0.2s ease;
+  box-shadow: 0 0 12px -8px black;
+
+  font-family: monospace;
+  margin: 0 25px 25px 0;
+  letter-spacing: -2px;
+
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+
+  font-weight: 800;
+  font-size: 20px;
+  cursor: pointer;
+
+  padding: 0px;
+  border: none;
+
+  height: 50px;
+  width: 50px;
+
+  bottom: 0;
+  right: 0;
+}
+
+button#code.hidden {
+  pointer-events: none;
+  opacity: 0;
+}
