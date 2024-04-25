@@ -6,7 +6,7 @@
   "main": "./dist/uwal.umd.cjs",
   "module": "./dist/uwal.js",
   "types": "./types.d.ts",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": false,
   "license": "MIT",
   "type": "module",
@@ -23,7 +23,13 @@
     "url": "https://github.com/UstymUkhman/uwal/issues",
     "email": "ustym.ukhman@gmail.com"
   },
-  "imports": { "@/*": "./lib/*" },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "imports": {
+    "@/*": "./lib/*"
+  },
   "exports": {
     ".": {
       "require": "./dist/uwal.umd.cjs",
