@@ -11,5 +11,5 @@
   },
 
   "include": ["lib/**/*.js", "src/**/*.js", "types.d.ts"],
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["build", "node_modules"]
 }

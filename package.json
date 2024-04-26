@@ -3,8 +3,8 @@
   "description": "Unopinionated WebGPU Abstraction Library",
   "homepage": "https://github.com/UstymUkhman/uwal#readme",
   "packageManager": "^npm@9.8.0",
-  "main": "./dist/uwal.umd.cjs",
-  "module": "./dist/uwal.js",
+  "main": "./build/uwal.umd.cjs",
+  "module": "./build/uwal.js",
   "types": "./types.d.ts",
   "version": "0.0.1",
   "private": false,
@@ -32,14 +32,14 @@
   },
   "exports": {
     ".": {
-      "require": "./dist/uwal.umd.cjs",
-      "default": "./dist/uwal.js",
-      "import": "./dist/uwal.js",
+      "require": "./build/uwal.umd.cjs",
+      "default": "./build/uwal.js",
+      "import": "./build/uwal.js",
       "types": "./types.d.ts"
     }
   },
   "directories": {
-    "dist": "dist",
+    "build": "build",
     "lib": "lib",
     "src": "src"
   },
@@ -48,7 +48,7 @@
     "types.d.ts",
     "README.md",
     "LICENSE",
-    "dist"
+    "build"
   ],
   "keywords": [
     "webgpu",

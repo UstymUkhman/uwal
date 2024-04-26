@@ -8,10 +8,10 @@ export default({ mode }) => defineConfig(
     build:
     {
         sourcemap: true,
+        outDir: "build",
 
         lib:
         {
-            fileName: name,
             name: name.toUpperCase(),
             entry: resolve("lib/UWAL.js")
         }
