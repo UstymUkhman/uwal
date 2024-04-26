@@ -57,7 +57,8 @@
   ],
   "scripts": {
     "start": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "build:lib": "bun run build -- --mode=lib"
   },
   "devDependencies": {
     "@webgpu/types": "^0.1.40",

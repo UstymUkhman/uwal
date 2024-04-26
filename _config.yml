@@ -1,4 +1,6 @@
+title: UWAL
+description: 🎨 Unopinionated WebGPU Abstraction Library 📚
 remote_theme: pages-themes/minimal@v0.2.0
-show_downloads: false # true
+show_downloads: true
 plugins:
   - jekyll-remote-theme
