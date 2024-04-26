@@ -16,27 +16,22 @@
 
 _The goal of UWAL is to remove as much boilerplate as possible when working with the WebGPU APIs, while still providing a flexible interface for all configuration options._
 
-## Download
-
-```bash
-git clone https://github.com/UstymUkhman/uwal.git
-cd uwal
-```
-
 ## Install
 
 ```bash
-bun i
+npm i uwal
+# or
+yarn add uwal
+# or
+pnpm add uwal
+# or
+bun add uwal
 ```
 
-## Develop
+## [Examples](https://ustymukhman.github.io/uwal/src/examples/) | [NPM](https://www.npmjs.com/package/uwal)
 
-```bash
-bun start
-```
+### WebGPU Fundamentals
 
-## Build
-
-```bash
-bun run build
-```
+- [Fundamentals](https://github.com/UstymUkhman/uwal/blob/main/src/lessons/fundamentals/index.js)
+- [Inter Stage Variables](https://github.com/UstymUkhman/uwal/blob/main/src/lessons/inter-stage-variables/index.js)
+- [Uniforms](https://github.com/UstymUkhman/uwal/blob/main/src/lessons/uniforms/index.js)
