@@ -28,7 +28,7 @@ pnpm add uwal
 bun add uwal
 ```
 
-## [Examples](https://ustymukhman.github.io/uwal/src/examples/) | [NPM](https://www.npmjs.com/package/uwal)
+## [Examples](https://ustymukhman.github.io/uwal/dist/examples.html) | [NPM](https://www.npmjs.com/package/uwal)
 
 ### WebGPU Fundamentals
 

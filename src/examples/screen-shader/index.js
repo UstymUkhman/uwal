@@ -1,5 +1,5 @@
-import UWAL from "/build/uwal.js";
-import ScreenShader from "./ScreenShader.wgsl?raw";
+import UWAL from "@/UWAL";
+import ScreenShader from "./ScreenShader.wgsl";
 
 /** @type {number} */ let raf;
 

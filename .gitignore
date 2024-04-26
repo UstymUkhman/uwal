@@ -1,7 +1,7 @@
 tmp
 pids
 logs
-dist
+build
 dist-ssr
 node_modules
 
