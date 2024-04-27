@@ -5,20 +5,21 @@
 }
 
 body {
-  font: normal 400 14px/normal
-    system-ui, -apple-system, sans-serif;
+  font: normal 400 14px/normal system-ui, -apple-system, sans-serif;
 }
 
 aside.examples {
   box-shadow: 0 0 10px -8px black;
+  min-height: 100dvh;
   position: relative;
+
   background: white;
   overflow-y: auto;
-
-  min-height: 100dvh;
   min-width: 240px;
+
   height: 100%;
-  width: 20vw;
+  width: 15vw;
+  z-index: 1;
 }
 
 div.content {
@@ -27,8 +28,8 @@ div.content {
 }
 
 a {
-  transform: translateX(0px);
   transition: transform 200ms ease;
+  transform: translateX(0px);
 
   text-decoration: none;
   font-weight: bold;
@@ -41,7 +42,7 @@ a {
 
 h1.title {
   font-weight: 800;
-  font-size: 20px;
+  font-size: 18px;
   color: #005a9c;
   outline: none;
   margin: 0px;
@@ -85,7 +86,7 @@ ul.list > a.active::before {
 }
 
 canvas {
-  min-width: calc(100vw - 240px);
+  max-width: calc(100vw - 240px);
   position: absolute;
   width: 80vw;
 
@@ -96,28 +97,6 @@ canvas {
 
 button#code {
   transition: opacity 0.2s ease;
-  box-shadow: 0 0 12px -8px black;
-
-  font-family: monospace;
-  margin: 0 25px 25px 0;
-  letter-spacing: -2px;
-
-  background: white;
-  border-radius: 50%;
-  position: absolute;
-
-  font-weight: 800;
-  font-size: 20px;
-  cursor: pointer;
-
-  padding: 0px;
-  border: none;
-
-  height: 50px;
-  width: 50px;
-
-  bottom: 0;
-  right: 0;
 }
 
 button#code.hidden {
