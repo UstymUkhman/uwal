@@ -10,6 +10,7 @@ export default({ mode }) =>
 
     const build = mode === "lib"
         ? {
+            sourcemap: true,
             outDir: "build",
             lib:
             {
@@ -17,11 +18,12 @@ export default({ mode }) =>
                 entry: resolve("lib/UWAL.js")
             }
         } : {
+            outDir: `dist/${mode}`,
             rollupOptions:
             {
                 input:
                 {
-                    app: "./examples.html"
+                    app: `./${mode}.html`
                 }
             }
         };
@@ -29,12 +31,7 @@ export default({ mode }) =>
     return defineConfig(
     {
         ...config,
-
-        build:
-        {
-            ...build,
-            sourcemap: true
-        },
+        build,
 
         plugins:
         [

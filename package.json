@@ -40,6 +40,7 @@
   },
   "directories": {
     "build": "build",
+    "dist": "dist",
     "lib": "lib",
     "src": "src"
   },
@@ -58,7 +59,9 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "build:lib": "bun run build -- --mode=lib"
+    "build:lib": "bun run build -- --mode=lib",
+    "build:lessons": "bun run build -- --mode=lessons",
+    "build:examples": "bun run build -- --mode=examples"
   },
   "devDependencies": {
     "@webgpu/types": "^0.1.40",

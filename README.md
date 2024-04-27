@@ -1,22 +1,17 @@
-<!-- <p align="center"> -->
-  <!-- <img alt="GitHub deployments" src="https://img.shields.io/github/deployments/UstymUkhman/uwal/github-pages?style=flat-square" /> -->
-  <!-- <img alt="NPM bundle size" src="https://img.shields.io/bundlephobia/min/uwal?style=flat-square" /> -->
-  <!-- <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/UstymUkhman/uwal?color=orange&style=flat-square" /> -->
-  <!-- <img alt="GitHub License" src="https://img.shields.io/github/license/UstymUkhman/uwal?color=lightgrey&style=flat-square" /> -->
-<!-- </p> -->
+<h1 align="center">UWAL</h1>
 
-# UWAL
+<p align="center">
+  <img alt="GitHub deployments" src="https://img.shields.io/github/deployments/UstymUkhman/uwal/github-pages?style=flat-square" />
+  <img alt="NPM bundle size" src="https://img.shields.io/bundlephobia/min/uwal?style=flat-square" />
+  <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/UstymUkhman/uwal?color=orange&style=flat-square" />
+  <img alt="GitHub License" src="https://img.shields.io/github/license/UstymUkhman/uwal?color=lightgrey&style=flat-square" />
+</p>
 
-> 🎨 Unopinionated WebGPU Abstraction Library 📚
+<p align="center">
+  <i>The goal of UWAL is to remove as much boilerplate as possible when working with the WebGPU APIs, while still providing a flexible interface for all configuration options.</i>
+</p>
 
-![GitHub deployments](https://img.shields.io/github/deployments/UstymUkhman/uwal/github-pages?style=flat-square)
-![npm bundle size](https://img.shields.io/bundlephobia/min/uwal?style=flat-square)
-![GitHub package.json version](https://img.shields.io/github/package-json/v/UstymUkhman/uwal?color=orange&style=flat-square)
-![GitHub License](https://img.shields.io/github/license/UstymUkhman/uwal?color=lightgrey&style=flat-square)
-
-_The goal of UWAL is to remove as much boilerplate as possible when working with the WebGPU APIs, while still providing a flexible interface for all configuration options._
-
-## Install
+## [Installation](https://www.npmjs.com/package/uwal)
 
 ```bash
 npm i uwal
@@ -28,10 +23,10 @@ pnpm add uwal
 bun add uwal
 ```
 
-## [Examples](https://ustymukhman.github.io/uwal/dist/examples.html) | [NPM](https://www.npmjs.com/package/uwal)
+## [Examples](https://ustymukhman.github.io/uwal/dist/examples/examples.html)
 
 ### WebGPU Fundamentals
 
-- [Fundamentals](https://github.com/UstymUkhman/uwal/blob/main/src/lessons/fundamentals/index.js)
-- [Inter Stage Variables](https://github.com/UstymUkhman/uwal/blob/main/src/lessons/inter-stage-variables/index.js)
-- [Uniforms](https://github.com/UstymUkhman/uwal/blob/main/src/lessons/uniforms/index.js)
+- [Fundamentals](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#fundamentals)
+- [Inter-stage Variables](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#inter-stage-variables)
+- [Uniforms](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#uniforms)
