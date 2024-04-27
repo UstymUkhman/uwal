@@ -61,7 +61,8 @@
     "build": "vite build",
     "build:lib": "bun run build -- --mode=lib",
     "build:lessons": "bun run build -- --mode=lessons",
-    "build:examples": "bun run build -- --mode=examples"
+    "build:examples": "bun run build -- --mode=examples",
+    "build:pages": "bun build:lessons && bun build:examples"
   },
   "devDependencies": {
     "@webgpu/types": "^0.1.40",
