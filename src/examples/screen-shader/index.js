@@ -4,7 +4,7 @@
  * @description This example is inspired by OGL's Triangle Screen Shader
  * {@link https://oframe.github.io/ogl/examples/?src=triangle-screen-shader.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
- * may be simplified in future releases thanks to new library APIs.
+ * may be simplified in future thanks to more recent library APIs.
  * @version 0.0.2
  * @license MIT
  */

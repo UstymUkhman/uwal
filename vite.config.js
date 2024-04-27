@@ -18,12 +18,12 @@ export default({ mode }) =>
                 entry: resolve("lib/UWAL.js")
             }
         } : {
-            outDir: `dist/${mode}`,
+            outDir: resolve(`dist/${mode}`),
             rollupOptions:
             {
                 input:
                 {
-                    app: `./${mode}.html`
+                    app: resolve(`./${mode}.html`)
                 }
             }
         };
@@ -38,7 +38,7 @@ export default({ mode }) =>
             glsl(
             {
                 root: "/lib/shaders/",
-                compress: mode === "production"
+                compress: mode !== "development"
             })
         ],
 

@@ -88,7 +88,7 @@ ul.list > a.active::before {
 canvas {
   max-width: calc(100vw - 240px);
   position: absolute;
-  width: 80vw;
+  width: 85vw;
 
   bottom: 0;
   right: 0;
