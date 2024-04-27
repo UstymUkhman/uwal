@@ -1,3 +1,14 @@
+/**
+ * @example Screen Shader
+ * @author Ustym Ukhman <ustym.ukhman@gmail.com>
+ * @description This example is inspired by OGL's Triangle Screen Shader
+ * {@link https://oframe.github.io/ogl/examples/?src=triangle-screen-shader.html}&nbsp;
+ * and developed by using a version listed below. Please note that this code
+ * may be simplified in future releases thanks to new library APIs.
+ * @version 0.0.2
+ * @license MIT
+ */
+
 import UWAL from "@/UWAL";
 import ScreenShader from "./ScreenShader.wgsl";
 
@@ -8,8 +19,14 @@ export async function run(canvas)
 {
     /** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
 
-    try { Renderer = new (await UWAL.RenderPipeline(canvas, "Screen Shader Encoder")) }
-    catch (error) { alert(error) }
+    try
+    {
+        Renderer = new (await UWAL.RenderPipeline(canvas, "Screen Shader Encoder"));
+    }
+    catch (error)
+    {
+        alert(error);
+    }
 
     const descriptor = Renderer.CreateRenderPassDescriptor(
         Renderer.CreateColorAttachment(),

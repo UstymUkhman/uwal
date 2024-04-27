@@ -23,7 +23,7 @@ const runExample = async () =>
     destroyCurrent();
 
     /** @type {HTMLAnchorElement} */
-    const anchor = document.querySelector(`a[data-example=\"${example}\"]`);
+    const anchor = document.querySelector(`a[data-example="${example}"]`);
 
     currentAnchor?.classList.remove("active");
     codeButton.classList.remove("hidden");
@@ -36,13 +36,12 @@ const runExample = async () =>
     run(canvas);
 };
 
-function openExample()
+codeButton.addEventListener("click", () =>
 {
     window.open(`https://github.com/UstymUkhman/uwal/blob/main/src/examples/${
         location.hash.slice(1)
     }/index.js`, "_blank");
-}
+}, false);
 
-codeButton.addEventListener("click", openExample, false);
 addEventListener("hashchange", runExample, false);
 runExample();

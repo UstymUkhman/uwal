@@ -1,3 +1,14 @@
+/**
+ * @module Fundamentals
+ * @author Ustym Ukhman <ustym.ukhman@gmail.com>
+ * @description This lesson is reproduced from WebGPU Fundamentals
+ * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html}&nbsp;
+ * and developed by using a version listed below. Please note that this code
+ * may be simplified in future releases thanks to new library APIs.
+ * @version 0.0.2
+ * @license MIT
+ */
+
 import UWAL from "@/UWAL";
 import RedTriangle from "./RedTriangle.wgsl";
 import Double from "./Double.wgsl";
