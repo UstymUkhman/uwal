@@ -19,33 +19,28 @@ import Checkerboard from "./Checkerboard.frag.wgsl";
 
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(canvas, "Checkerboard Triangle Encoder"));
+        Renderer = new (await UWAL.RenderPipeline(canvas, "Checkerboard Triangle"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const colorAttachment = Renderer.CreateColorAttachment(
-        undefined,
-        "clear",
-        "store",
-        [0.3, 0.3, 0.3, 1]
-    );
-
     const descriptor = Renderer.CreateRenderPassDescriptor(
-        [colorAttachment],
-        "Checkerboard Triangle Render Pass"
+        Renderer.CreateColorAttachment(
+            undefined,
+            "clear",
+            "store",
+            [0.3, 0.3, 0.3, 1]
+        )
     );
 
-    const vertexModule = Renderer.CreateShaderModule(Triangle, "Triangle Shader");
-    const fragmentModule = Renderer.CreateShaderModule(Checkerboard, "Checkerboard Shader");
-
-    const vertex = Renderer.CreateVertexState(vertexModule);
-    const fragment = Renderer.CreateFragmentState(fragmentModule);
+    const vertexModule = Renderer.CreateShaderModule(Triangle);
+    const fragmentModule = Renderer.CreateShaderModule(Checkerboard);
 
     const pipeline = Renderer.CreateRenderPipeline({
-        label: "Checkerboard Triangle Pipeline", vertex, fragment
+        vertex: Renderer.CreateVertexState(vertexModule),
+        fragment: Renderer.CreateFragmentState(fragmentModule)
     });
 
     function render()

@@ -21,24 +21,19 @@ export async function run(canvas)
 
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(canvas, "Screen Shader Encoder"));
+        Renderer = new (await UWAL.RenderPipeline(canvas, "Screen Shader"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const descriptor = Renderer.CreateRenderPassDescriptor(
-        Renderer.CreateColorAttachment(),
-        "Screen Shader Render Pass"
-    );
-
-    const module = Renderer.CreateShaderModule(ScreenShader, "Screen Shader Uniforms");
-    const vertex = Renderer.CreateVertexState(module);
-    const fragment = Renderer.CreateFragmentState(module);
+    const descriptor = Renderer.CreateRenderPassDescriptor(Renderer.CreateColorAttachment());
+    const module = Renderer.CreateShaderModule(ScreenShader);
 
     const pipeline = Renderer.CreateRenderPipeline({
-        label: "Screen Shader Pipeline", vertex, fragment
+        vertex: Renderer.CreateVertexState(module),
+        fragment: Renderer.CreateFragmentState(module)
     });
 
     const screenUniformBufferSize =
@@ -46,13 +41,11 @@ export async function run(canvas)
         Float32Array.BYTES_PER_ELEMENT * 3;
 
     const screenUniformBuffer = Renderer.CreateBuffer({
-        label: "Screen Shader Uniform Buffer",
         size: screenUniformBufferSize,
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
     });
 
     const bindGroup = Renderer.CreateBindGroup({
-        label: "Screen Shader Uniform Buffer Bind Group",
         layout: pipeline.getBindGroupLayout(0),
         entries: Renderer.CreateBindGroupEntries(
             { buffer: screenUniformBuffer }

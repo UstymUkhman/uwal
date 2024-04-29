@@ -18,31 +18,27 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
 
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(canvas, "Triangle Uniforms Encoder"));
+        Renderer = new (await UWAL.RenderPipeline(canvas, "Triangle Uniforms"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const colorAttachment = Renderer.CreateColorAttachment(
-        undefined,
-        "clear",
-        "store",
-        [0.3, 0.3, 0.3, 1]
-    );
-
     const descriptor = Renderer.CreateRenderPassDescriptor(
-        [colorAttachment],
-        "Triangle Uniforms Render Pass"
+        Renderer.CreateColorAttachment(
+            undefined,
+            "clear",
+            "store",
+            [0.3, 0.3, 0.3, 1]
+        )
     );
 
-    const module = Renderer.CreateShaderModule(TriangleUniforms, "Triangle Shader Uniforms");
-    const vertex = Renderer.CreateVertexState(module);
-    const fragment = Renderer.CreateFragmentState(module);
+    const module = Renderer.CreateShaderModule(TriangleUniforms);
 
     const pipeline = Renderer.CreateRenderPipeline({
-        label: "Triangle Uniforms Pipeline", vertex, fragment
+        vertex: Renderer.CreateVertexState(module),
+        fragment: Renderer.CreateFragmentState(module)
     });
 
     const colorOffset = 0;
@@ -64,7 +60,7 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
     for (let o = 0; o < objectCount; ++o)
     {
         const constUniformBuffer = Renderer.CreateBuffer({
-            label: `Constant Uniform Object[${o}]`,
+            label: `Triangle Uniforms Constant Buffer[${o}]`,
             size: constUniformBufferSize,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
         });
@@ -82,7 +78,7 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
         const uniformValues = new Float32Array(varUniformBufferSize / Float32Array.BYTES_PER_ELEMENT);
 
         const varUniformBuffer = Renderer.CreateBuffer({
-            label: `Variable Uniform Object[${o}]`,
+            label: `Triangle Uniforms Variable Buffer[${o}]`,
             size: varUniformBufferSize,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
         });
@@ -94,7 +90,6 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
 
         const bindGroup = Renderer.CreateBindGroup({
             layout: pipeline.getBindGroupLayout(0),
-            label: "Uniform Buffer Bind Group",
             entries
         });
 
