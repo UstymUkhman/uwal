@@ -1,4 +1,3 @@
-<!-- {% if site.favicon %} -->
-  <!-- <link rel="shortcut icon" type="image/svg+xml" href="{{ '/favicon.svg' | relative_url }}" /> -->
-  <link rel="shortcut icon" type="image/svg+xml" href="./favicon.svg" />
-<!-- {% endif %} -->
+{% if site.favicon %}
+  <link rel="shortcut icon" type="image/svg+xml" href="{{ './favicon.svg' | relative_url }}" />
+{% endif %}
