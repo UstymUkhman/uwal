@@ -10,3 +10,7 @@ a {
 a:hover {
   color: #0093ff;
 }
+
+body > div.wrapper > header > h1:first-child {
+  text-align: center;
+}
