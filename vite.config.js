@@ -15,7 +15,7 @@ export default({ mode }) =>
             lib:
             {
                 name: name.toUpperCase(),
-                entry: resolve("lib/UWAL.js")
+                entry: resolve("lib/index.js")
             }
         } : {
             outDir: resolve(`dist/${mode}`),
