@@ -1,6 +1,6 @@
-<p align="center">
+<p align="center" style="margin-bottom: 0px;">
   <a title="UWAL" href="https://ustymukhman.github.io/uwal/" target="_blank" rel="noopener noreferrer">
-    <img alt="UWAL" src="assets/favicon.svg" width="512" height="512" />
+    <img alt="UWAL" src="assets/favicon.svg" width="256" height="256" />
   </a>
 </p>
 

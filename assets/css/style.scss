@@ -11,6 +11,7 @@ a:hover {
   color: #0093ff;
 }
 
-body > div.wrapper > header > h1:first-child {
+body > div.wrapper > header > p:nth-child(2) {
   text-align: center;
+  text-wrap: balance;
 }
