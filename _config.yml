@@ -1,6 +1,16 @@
 title: UWAL
+author: Ustym Ukhman
+username: UstymUkhman
+github_username:  UstymUkhman
+linkedin_username: ustymukhman
+email: ustym.ukhman@gmail.com
+
+url: https://ustymukhman.github.io/uwal/
 description: 🎨 Unopinionated WebGPU Abstraction Library 📚
+github_link: https://github.com/UstymUkhman/uwal
 remote_theme: pages-themes/minimal@v0.2.0
+favicon: /assets/favicon.svg
+logo: /assets/favicon.svg
 show_downloads: true
 plugins:
   - jekyll-remote-theme

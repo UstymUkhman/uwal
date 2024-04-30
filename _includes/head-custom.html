@@ -1,3 +1,13 @@
-{% if site.favicon %}
-  <link rel="shortcut icon" type="image/svg+xml" href="{{ './favicon.svg' | relative_url }}" />
-{% endif %}
+<!-- {% if site.favicon %} -->
+  <link test="1" rel="shortcut icon" type="image/svg+xml" href="{{ './assets/favicon.svg' | relative_url }}" />
+  <link test="4" rel="shortcut icon" type="image/svg+xml" href="{{ 'assets/favicon.svg' | relative_url }}" />
+  <link test="5" rel="shortcut icon" type="image/svg+xml" href="{{ '/assets/favicon.svg' | relative_url }}" />
+
+  <link test="6" rel="shortcut icon" type="image/svg+xml" href="{{ './assets/favicon.svg' }}" />
+  <link test="7" rel="shortcut icon" type="image/svg+xml" href="{{ 'assets/favicon.svg' }}" />
+  <link test="8" rel="shortcut icon" type="image/svg+xml" href="{{ '/assets/favicon.svg' }}" />
+<!-- {% endif %} -->
+
+<link test="2" rel="shortcut icon" type="image/svg+xml" href="{{ site.favicon | relative_url }}" />
+
+<link test="3" rel="shortcut icon" type="image/svg+xml" href="{{ site.baseurl }}/assets/favicon.svg" />
