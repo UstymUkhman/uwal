@@ -4,6 +4,7 @@
 @import "{{ site.theme }}";
 
 a {
+  transition: color 0.2s;
   color: #005a9c;
 }
 
@@ -12,9 +13,15 @@ a:hover {
 }
 
 body > div.wrapper {
-  > header > p:nth-child(2) {
-    text-align: center;
-    text-wrap: balance;
+  > header {
+    > h1:first-child {
+      display: none;
+    }
+
+    > p:nth-child(3) {
+      text-align: center;
+      text-wrap: balance;
+    }
   }
 
   > section > p:first-child {

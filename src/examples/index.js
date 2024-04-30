@@ -1,3 +1,5 @@
+import EXAMPLES from "./examples.json";
+
 /** @type {HTMLAnchorElement} */
 let currentAnchor = null;
 
@@ -14,7 +16,27 @@ const codeButton = (
     (document.getElementById("code"))
 );
 
-const runExample = async () =>
+function createExamples()
+{
+    const baseHref = import.meta.env.PROD && "examples.html" || "";
+
+    const examples = /** @type {Array<{ name: string, slug: string }>} */
+    (/** @type {unknown} */ (EXAMPLES)).map(({ name, slug }) =>
+    {
+        const example = document.createElement("a");
+
+        example.href = `${baseHref}#${slug}`;
+        example.dataset.example = slug;
+        example.textContent = name;
+        example.title = name;
+
+        return example;
+    });
+
+    document.getElementById("list").append(...examples);
+}
+
+async function runExample()
 {
     const example = location.hash.slice(1);
     const same = example === currentAnchor?.dataset.example;
@@ -44,4 +66,5 @@ codeButton.addEventListener("click", () =>
 }, false);
 
 addEventListener("hashchange", runExample, false);
+createExamples();
 runExample();
