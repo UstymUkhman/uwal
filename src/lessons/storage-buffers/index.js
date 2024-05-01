@@ -61,6 +61,10 @@ import StorageBuffers from "./StorageBuffers.wgsl";
 
     const varStorageBufferSize = varStorageStructSize * objectCount;
 
+    const { vertexData, vertices } = createCircleVertices({
+        innerRadius: 0.25, outerRadius: 0.5
+    });
+
     const constStorageBuffer = Renderer.CreateBuffer({
         label: "Constant Storage Buffer",
         size: constStorageBufferSize,
@@ -70,6 +74,12 @@ import StorageBuffers from "./StorageBuffers.wgsl";
     const varStorageBuffer = Renderer.CreateBuffer({
         label: "Variable Storage Buffer",
         size: varStorageBufferSize,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+    });
+
+    const vertStorageBuffer = Renderer.CreateBuffer({
+        label: "Vertices Storage Buffer",
+        size: vertexData.byteLength,
         usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
     });
 
@@ -92,15 +102,63 @@ import StorageBuffers from "./StorageBuffers.wgsl";
 
     const storageValues = new Float32Array(varStorageBufferSize / Float32Array.BYTES_PER_ELEMENT);
 
+    Renderer.WriteBuffer(vertStorageBuffer, vertexData);
+
     const entries = Renderer.CreateBindGroupEntries([
         { buffer: constStorageBuffer },
-        { buffer: varStorageBuffer }
+        { buffer: varStorageBuffer },
+        { buffer: vertStorageBuffer }
     ]);
 
     const bindGroup = Renderer.CreateBindGroup({
         layout: pipeline.getBindGroupLayout(0),
         entries
     });
+
+    function createCircleVertices({
+        endAngle = Math.PI * 2,
+        subdivisions = 24,
+        innerRadius = 0,
+        outerRadius = 1,
+        startAngle = 0,
+    })
+    {
+        // There are 2 triangles per subdivision with 3 vertices
+        // per each triangle, and 2 values (xy) per each vertex.
+        const vertices = subdivisions * 3 * 2;
+        const vertexData = new Float32Array(vertices * 2);
+
+        let offset = 0;
+
+        /** @param {number} x @param {number} y */
+        const addVertex = (x, y) =>
+        {
+            vertexData[offset++] = x;
+            vertexData[offset++] = y;
+        };
+
+        const theta = endAngle - startAngle;
+
+        for (let s = 0; s < subdivisions; s++)
+        {
+            const sa = startAngle + (s + 0) * theta / subdivisions;
+            const ea = startAngle + (s + 1) * theta / subdivisions;
+
+            const cos_sa = Math.cos(sa);
+            const sin_sa = Math.sin(sa);
+            const cos_ea = Math.cos(ea);
+            const sin_ea = Math.sin(ea);
+
+            addVertex(cos_sa * innerRadius, sin_sa * innerRadius); //    4 ______2, 3
+            addVertex(cos_ea * innerRadius, sin_ea * innerRadius); //     |    /|
+            addVertex(cos_ea * outerRadius, sin_ea * outerRadius); //     |   / |
+            addVertex(cos_ea * outerRadius, sin_ea * outerRadius); //     |  /  |
+            addVertex(cos_sa * outerRadius, sin_sa * outerRadius); //     | /   |
+            addVertex(cos_sa * innerRadius, sin_sa * innerRadius); // 0, 5|/____|1
+        }
+
+        return { vertexData, vertices };
+    }
 
     function random(min = 0, max = 1)
     {
@@ -129,7 +187,7 @@ import StorageBuffers from "./StorageBuffers.wgsl";
 
         Renderer.AddBindGroups(bindGroup);
         Renderer.WriteBuffer(varStorageBuffer, storageValues);
-        Renderer.Render(descriptor, pipeline, [3, objectCount]);
+        Renderer.Render(descriptor, pipeline, [vertices, objectCount]);
     }
 
     const observer = new ResizeObserver(entries =>

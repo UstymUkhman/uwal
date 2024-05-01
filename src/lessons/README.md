@@ -7,4 +7,5 @@
 | [Fundamentals](https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#fundamentals) | [Code](./fundamentals/index.js) |
 | [Inter-stage Variables](https://webgpufundamentals.org/webgpu/lessons/webgpu-inter-stage-variables.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#inter-stage-variables) | [Code](./inter-stage-variables/index.js) |
 | [Uniforms](https://webgpufundamentals.org/webgpu/lessons/webgpu-uniforms.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#uniforms) | [Code](./uniforms/index.js) |
+| [Storage Buffers](https://webgpufundamentals.org/webgpu/lessons/webgpu-storage-buffers.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-buffers) | [Code](./storage-buffers/index.js) |
 |   |   |   |
