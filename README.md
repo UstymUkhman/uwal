@@ -37,3 +37,4 @@ bun add uwal
 - [Inter-stage Variables](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#inter-stage-variables)
 - [Uniforms](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#uniforms)
 - [Storage Buffers](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-buffers)
+- [Vertex Buffers](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#vertex-buffers)

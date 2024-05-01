@@ -1,16 +1,16 @@
 /**
- * @module Storage Buffers
+ * @module Vertex Buffers
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
- * @description This lesson is reproduced from WebGPU Storage Buffers
- * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-storage-buffers.html}&nbsp;
+ * @description This lesson is reproduced from WebGPU Vertex Buffers
+ * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-vertex-buffers.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.2
+ * @version 0.0.3
  * @license MIT
  */
 
 import { UWAL } from "@/index";
-import StorageBuffers from "./StorageBuffers.wgsl";
+import VertexBuffers from "./VertexBuffers.wgsl";
 
 (async function(canvas)
 {
@@ -18,7 +18,7 @@ import StorageBuffers from "./StorageBuffers.wgsl";
 
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(canvas, "Storage Buffers"));
+        Renderer = new (await UWAL.RenderPipeline(canvas, "Vertex Buffers"));
     }
     catch (error)
     {
@@ -42,11 +42,15 @@ import StorageBuffers from "./StorageBuffers.wgsl";
         )
     );
 
-    const module = Renderer.CreateShaderModule(StorageBuffers);
+    const module = Renderer.CreateShaderModule(VertexBuffers);
 
     const pipeline = Renderer.CreateRenderPipeline({
-        vertex: Renderer.CreateVertexState(module),
-        fragment: Renderer.CreateFragmentState(module)
+        fragment: Renderer.CreateFragmentState(module),
+        vertex: Renderer.CreateVertexState(module, "vertex",
+        {
+            arrayStride: 2 * Float32Array.BYTES_PER_ELEMENT,
+            attributes: [Renderer.CreateVertexBufferAttribute("float32x2")]
+        })
     });
 
     const constStorageStructSize =
@@ -77,13 +81,13 @@ import StorageBuffers from "./StorageBuffers.wgsl";
         usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
     });
 
-    const vertStorageBuffer = Renderer.CreateBuffer({
-        label: "Vertices Storage Buffer",
+    const vertBuffer = Renderer.CreateBuffer({
+        label: "Vertex Buffer",
         size: vertexData.byteLength,
-        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+        usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
     });
 
-    Renderer.WriteBuffer(vertStorageBuffer, vertexData);
+    Renderer.WriteBuffer(vertBuffer, vertexData);
 
     // Write constant storage values to the GPUBuffer:
     {
@@ -106,8 +110,7 @@ import StorageBuffers from "./StorageBuffers.wgsl";
 
     const entries = Renderer.CreateBindGroupEntries([
         { buffer: constStorageBuffer },
-        { buffer: varStorageBuffer },
-        { buffer: vertStorageBuffer }
+        { buffer: varStorageBuffer }
     ]);
 
     const bindGroup = Renderer.CreateBindGroup({
@@ -186,6 +189,7 @@ import StorageBuffers from "./StorageBuffers.wgsl";
         });
 
         Renderer.AddBindGroups(bindGroup);
+        Renderer.SetVertexBuffers(vertBuffer);
         Renderer.WriteBuffer(varStorageBuffer, storageValues);
         Renderer.Render(descriptor, pipeline, [vertices, objectCount]);
     }
