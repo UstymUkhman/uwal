@@ -25,6 +25,14 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
         alert(error);
     }
 
+    const colorOffset = 0;
+    const offsetOffset = 4;
+
+    const scaleOffset = 0;
+
+    const objectCount = 100;
+    const objectInfos = [];
+
     const descriptor = Renderer.CreateRenderPassDescriptor(
         Renderer.CreateColorAttachment(
             undefined,
@@ -41,21 +49,13 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
         fragment: Renderer.CreateFragmentState(module)
     });
 
-    const colorOffset = 0;
-    const offsetOffset = 4;
-
     const constUniformBufferSize =
         4 * Float32Array.BYTES_PER_ELEMENT + // Color  - 4 32bit floats
         2 * Float32Array.BYTES_PER_ELEMENT + // Offset - 2 32bit floats
         2 * Float32Array.BYTES_PER_ELEMENT;  // Padding
 
-    const scaleOffset = 0;
-
     const varUniformBufferSize =
         2 * Float32Array.BYTES_PER_ELEMENT;  // Scale - 2 32bit floats
-
-    const objectCount = 100;
-    const objectInfos = [];
 
     for (let o = 0; o < objectCount; ++o)
     {
