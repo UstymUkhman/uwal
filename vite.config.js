@@ -38,6 +38,7 @@ export default({ mode }) =>
             glsl(
             {
                 root: "/lib/shaders/",
+                defaultExtension: "wgsl",
                 compress: mode !== "development"
             })
         ],

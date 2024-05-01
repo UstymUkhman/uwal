@@ -28,24 +28,34 @@ div.content {
 }
 
 a {
-  transition: transform 200ms ease;
+  transition: transform 0.2s ease, color 0.2s;
   transform: translateX(0px);
 
   text-decoration: none;
   font-weight: bold;
   overflow: hidden;
 
-  display: block;
+  display: table;
   color: inherit;
   outline: none;
 }
 
+a:hover {
+  color: #005a9c;
+}
+
 h1.title {
+  transition: color 0.2s;
   font-weight: 800;
   font-size: 18px;
+
   color: #005a9c;
   outline: none;
   margin: 0px;
+}
+
+h1.title:hover {
+  color: #0093ff;
 }
 
 h2.subtitle {
@@ -79,6 +89,7 @@ ul#list > a::before {
 
 ul#list > a.active {
   transform: translateX(10px);
+  pointer-events: none;
 }
 
 ul#list > a.active::before {
@@ -96,7 +107,7 @@ canvas {
 }
 
 button#code {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, color 0.2s;
 }
 
 button#code.hidden {
