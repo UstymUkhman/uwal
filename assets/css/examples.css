@@ -44,18 +44,30 @@ a:hover {
   color: #005a9c;
 }
 
+a[title="UWAL"] > img:first-child {
+  vertical-align: text-bottom;
+  display: inline-block;
+  margin-right: 5px;
+
+  height: 32px;
+  width: 32px;
+}
+
+a[title="UWAL"]:hover > h1.title {
+  color: #0093ff;
+}
+
 h1.title {
+  transform: translateY(1px);
   transition: color 0.2s;
+  display: inline-block;
+
   font-weight: 800;
   font-size: 18px;
 
   color: #005a9c;
   outline: none;
   margin: 0px;
-}
-
-h1.title:hover {
-  color: #0093ff;
 }
 
 h2.subtitle {

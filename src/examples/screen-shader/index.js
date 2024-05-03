@@ -5,11 +5,11 @@
  * {@link https://oframe.github.io/ogl/examples/?src=triangle-screen-shader.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.2
+ * @version 0.0.3
  * @license MIT
  */
 
-import { UWAL } from "@/index";
+import { UWAL, Shaders } from "@/index";
 import ScreenShader from "./ScreenShader.wgsl";
 
 /** @type {number} */ let raf;
@@ -29,7 +29,7 @@ export async function run(canvas)
     }
 
     const descriptor = Renderer.CreateRenderPassDescriptor(Renderer.CreateColorAttachment());
-    const module = Renderer.CreateShaderModule(ScreenShader);
+    const module = Renderer.CreateShaderModule([Shaders.Quad, ScreenShader]);
 
     const pipeline = Renderer.CreateRenderPipeline({
         vertex: Renderer.CreateVertexState(module),
@@ -52,11 +52,13 @@ export async function run(canvas)
         )
     });
 
+    Renderer.SetBindGroups(bindGroup);
+
     const screenUniformValues = new Float32Array(
         screenUniformBufferSize / Float32Array.BYTES_PER_ELEMENT
     );
 
-    screenUniformValues.set([0.0, 0.3515625, 0.609375]);
+    screenUniformValues.set([0, 0.3515625, 0.609375]);
 
     /** @param {DOMHighResTimeStamp} time */
     function render(time)
@@ -78,7 +80,6 @@ export async function run(canvas)
             UWAL.SetCanvasSize(inlineSize, blockSize);
         }
 
-        Renderer.AddBindGroups(bindGroup);
         raf = requestAnimationFrame(render);
     });
 
