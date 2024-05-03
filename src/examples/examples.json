@@ -2,5 +2,9 @@
     {
         "name": "Screen Shader",
         "slug": "screen-shader"
+    },
+    {
+        "name": "Game Of Life",
+        "slug": "game-of-life"
     }
 ]
