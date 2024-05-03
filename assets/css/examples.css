@@ -79,7 +79,11 @@ h2.subtitle {
 ul#list {
   margin: 0;
   padding: 0;
+  row-gap: 20px;
+
+  flex-direction: column;
   padding-left: 20px;
+  display: flex;
 }
 
 ul#list > a::before {

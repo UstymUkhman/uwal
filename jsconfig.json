@@ -6,8 +6,8 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "paths": { "@/*": ["./lib/*"] },
-    "allowSyntheticDefaultImports": true,
-    "typeRoots": ["node_modules/@webgpu"]
+    "typeRoots": ["node_modules/@types"],
+    "allowSyntheticDefaultImports": true
   },
 
   "include": ["lib/**/*.js", "src/**/*.js", "types.d.ts"],
