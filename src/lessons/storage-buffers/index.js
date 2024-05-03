@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-storage-buffers.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.2
+ * @version 0.0.3
  * @license MIT
  */
 
@@ -91,7 +91,7 @@ import StorageBuffers from "./StorageBuffers.wgsl";
 
         for (let o = 0; o < objectCount; ++o)
         {
-            const offset = (constStorageStructSize / 4) * o;
+            const offset = constStorageStructSize / 4 * o;
 
             storageValues.set([random(), random(), random(), 1], offset + colorOffset);
             storageValues.set([random(-0.9, 0.9), random(-0.9, 0.9)], offset + offsetOffset);
@@ -114,6 +114,8 @@ import StorageBuffers from "./StorageBuffers.wgsl";
         layout: pipeline.getBindGroupLayout(0),
         entries
     });
+
+    Renderer.SetBindGroups(bindGroup);
 
     function createCircleVertices({
         endAngle = Math.PI * 2,
@@ -185,7 +187,6 @@ import StorageBuffers from "./StorageBuffers.wgsl";
             storageValues.set([scale / aspect, scale], offset + scaleOffset);
         });
 
-        Renderer.AddBindGroups(bindGroup);
         Renderer.WriteBuffer(varStorageBuffer, storageValues);
         Renderer.Render(descriptor, pipeline, [vertices, objectCount]);
     }

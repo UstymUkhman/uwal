@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-uniforms.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.2
+ * @version 0.0.3
  * @license MIT
  */
 
@@ -124,7 +124,7 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
         {
             uniformValues.set([scale / aspect, scale], scaleOffset);
 
-            Renderer.AddBindGroups(bindGroup);
+            Renderer.SetBindGroups(bindGroup);
             Renderer.WriteBuffer(uniformBuffer, uniformValues);
             Renderer.Render(descriptor, pipeline, 3, o === objectInfos.length - 1);
         }

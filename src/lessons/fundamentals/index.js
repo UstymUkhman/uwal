@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.2
+ * @version 0.0.3
  * @license MIT
  */
 
@@ -89,7 +89,7 @@ import Double from "./Double.wgsl";
 
         const descriptor = Computation.CreateComputePassDescriptor();
 
-        Computation.AddBindGroups(bindGroup);
+        Computation.SetBindGroups(bindGroup);
         Computation.CreateCommandEncoder();
 
         Computation.Workgroups = input.length;
