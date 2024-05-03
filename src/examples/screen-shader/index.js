@@ -1,7 +1,7 @@
 /**
  * @example Screen Shader
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
- * @description This example is inspired by OGL's Triangle Screen Shader
+ * @description This example is inspired by OGL's "Triangle Screen Shader"
  * {@link https://oframe.github.io/ogl/examples/?src=triangle-screen-shader.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
@@ -13,6 +13,7 @@ import { UWAL, Shaders } from "@/index";
 import ScreenShader from "./ScreenShader.wgsl";
 
 /** @type {number} */ let raf;
+/** @type {ResizeObserver} */ let observer;
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
@@ -45,12 +46,9 @@ export async function run(canvas)
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
     });
 
-    const bindGroup = Renderer.CreateBindGroup({
-        layout: pipeline.getBindGroupLayout(0),
-        entries: Renderer.CreateBindGroupEntries(
-            { buffer: screenUniformBuffer }
-        )
-    });
+    const bindGroup = Renderer.CreateBindGroup(
+        Renderer.CreateBindGroupEntries({ buffer: screenUniformBuffer })
+    );
 
     Renderer.SetBindGroups(bindGroup);
 
@@ -72,7 +70,7 @@ export async function run(canvas)
         raf = requestAnimationFrame(render);
     }
 
-    const observer = new ResizeObserver(entries =>
+    observer = new ResizeObserver(entries =>
     {
         for (const entry of entries)
         {
@@ -88,6 +86,8 @@ export async function run(canvas)
 
 export function destroy()
 {
+    UWAL.OnDeviceLost = () => void 0;
     cancelAnimationFrame(raf);
+    observer.disconnect();
     UWAL.Destroy();
 }

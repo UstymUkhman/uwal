@@ -83,15 +83,12 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
         });
 
-        const entries = Renderer.CreateBindGroupEntries([
-            { buffer: constUniformBuffer },
-            { buffer: varUniformBuffer }
-        ]);
-
-        const bindGroup = Renderer.CreateBindGroup({
-            layout: pipeline.getBindGroupLayout(0),
-            entries
-        });
+        const bindGroup = Renderer.CreateBindGroup(
+            Renderer.CreateBindGroupEntries([
+                { buffer: constUniformBuffer },
+                { buffer: varUniformBuffer }
+            ])
+        );
 
         objectInfos.push({
             uniformBuffer: varUniformBuffer,

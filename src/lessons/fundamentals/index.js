@@ -82,10 +82,9 @@ import Double from "./Double.wgsl";
         const module = Computation.CreateShaderModule(Double);
         const pipeline = Computation.CreateComputePipeline({ module });
 
-        const bindGroup = Computation.CreateBindGroup({
-            layout: pipeline.getBindGroupLayout(0),
-            entries: Computation.CreateBindGroupEntries({ buffer: computeBuffer })
-        });
+        const bindGroup = Computation.CreateBindGroup(
+            Computation.CreateBindGroupEntries({ buffer: computeBuffer })
+        );
 
         const descriptor = Computation.CreateComputePassDescriptor();
 

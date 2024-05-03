@@ -104,16 +104,13 @@ import StorageBuffers from "./StorageBuffers.wgsl";
 
     const storageValues = new Float32Array(varStorageBufferSize / Float32Array.BYTES_PER_ELEMENT);
 
-    const entries = Renderer.CreateBindGroupEntries([
-        { buffer: constStorageBuffer },
-        { buffer: varStorageBuffer },
-        { buffer: vertStorageBuffer }
-    ]);
-
-    const bindGroup = Renderer.CreateBindGroup({
-        layout: pipeline.getBindGroupLayout(0),
-        entries
-    });
+    const bindGroup = Renderer.CreateBindGroup(
+        Renderer.CreateBindGroupEntries([
+            { buffer: constStorageBuffer },
+            { buffer: varStorageBuffer },
+            { buffer: vertStorageBuffer }
+        ])
+    );
 
     Renderer.SetBindGroups(bindGroup);
 
