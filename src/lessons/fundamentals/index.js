@@ -89,8 +89,6 @@ import Double from "./Double.wgsl";
         const descriptor = Computation.CreateComputePassDescriptor();
 
         Computation.SetBindGroups(bindGroup);
-        Computation.CreateCommandEncoder();
-
         Computation.Workgroups = input.length;
         Computation.Compute(pipeline, descriptor);
 
