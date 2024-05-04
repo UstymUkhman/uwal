@@ -39,9 +39,19 @@ function createExamples()
 async function runExample()
 {
     const example = location.hash.slice(1);
-    const same = example === currentAnchor?.dataset.example;
 
-    if (same || !example) return;
+    if (example === currentAnchor?.dataset.example)
+    {
+        currentAnchor?.classList.add("active");
+        return codeButton.classList.remove("hidden");
+    }
+
+    if (!example)
+    {
+        currentAnchor?.classList.remove("active");
+        return codeButton.classList.add("hidden");
+    }
+
     destroyCurrent();
 
     /** @type {HTMLAnchorElement} */

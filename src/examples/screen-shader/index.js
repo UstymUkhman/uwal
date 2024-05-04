@@ -78,6 +78,7 @@ export async function run(canvas)
             UWAL.SetCanvasSize(inlineSize, blockSize);
         }
 
+        cancelAnimationFrame(raf);
         raf = requestAnimationFrame(render);
     });
 

@@ -32,35 +32,13 @@ export async function run(canvas)
         alert(error);
     }
 
-    const SIZE = 32, INSTANCES = SIZE * SIZE;
-    let step = 0, lastRender = performance.now();
-    const WORKGROUP_SIZE = 8, RENDER_LOOP_INTERVAL = 250;
+    let uniformBuffer, storageBufferIn, storageBufferOut;
+    let INSTANCES, step = 0, lastRender = performance.now();
+    const bindGroups = [], WORKGROUP_SIZE = 8, RENDER_LOOP_INTERVAL = 250;
 
-    const uniformArray = new Float32Array([SIZE, SIZE]);
-
-    const uniformBuffer = Renderer.CreateBuffer({
-        size: uniformArray.byteLength,
-        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-    });
-
-    Renderer.WriteBuffer(uniformBuffer, uniformArray);
-
-    const storageArray = new Uint32Array(INSTANCES);
-
-    const storageBufferIn = Computation.CreateBuffer({
-        size: storageArray.byteLength,
-        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
-    });
-
-    const storageBufferOut = Computation.CreateBuffer({
-        size: storageArray.byteLength,
-        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
-    });
-
-    for (let s = 0; s < storageArray.length; s++)
-        storageArray[s] = +(Math.random() > 0.6);
-
-    Computation.WriteBuffer(storageBufferIn, storageArray);
+    const renderDescriptor = Renderer.CreateRenderPassDescriptor(
+        Renderer.CreateColorAttachment(undefined, "clear", "store", [0, 0, 0.4, 1])
+    );
 
     const bindGroupLayout = Computation.CreateBindGroupLayout([{
         buffer: { type: 'uniform' },
@@ -73,23 +51,25 @@ export async function run(canvas)
         visibility: GPUShaderStage.COMPUTE
     }]);
 
-    const bindGroups = [
-        Computation.CreateBindGroup(
-            Computation.CreateBindGroupEntries([
-                { buffer: uniformBuffer },
-                { buffer: storageBufferIn },
-                { buffer: storageBufferOut }
-            ]), bindGroupLayout
-        ),
+    const pipelineLayout = Computation.CreatePipelineLayout(bindGroupLayout);
 
-        Computation.CreateBindGroup(
-            Computation.CreateBindGroupEntries([
-                { buffer: uniformBuffer },
-                { buffer: storageBufferOut },
-                { buffer: storageBufferIn }
-            ]), bindGroupLayout
-        )
-    ];
+    const renderModule = Renderer.CreateShaderModule(Render);
+    const fragment = Renderer.CreateFragmentState(renderModule);
+
+    const vertex = Renderer.CreateVertexState(renderModule, "vertex", {
+        attributes: [Renderer.CreateVertexBufferAttribute("float32x2")],
+        arrayStride: 8
+    });
+
+    const renderPipeline = Renderer.CreateRenderPipeline({
+        layout: pipelineLayout, vertex, fragment
+    });
+
+    const computeModule = Computation.CreateShaderModule(Compute);
+
+    const computePipeline = Computation.CreateComputePipeline({
+        layout: pipelineLayout, module: computeModule
+    });
 
     const vertices = new Float32Array([
         //  X     Y
@@ -101,47 +81,85 @@ export async function run(canvas)
          -0.8, -0.8  // 0, 5|/____|1
     ]);
 
+    const VERTICES = vertices.length / 2;
+
     const vertexBuffer = Renderer.CreateBuffer({
         size: vertices.byteLength,
         usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
     });
 
     Renderer.WriteBuffer(vertexBuffer, vertices);
-
-    const renderModule = Renderer.CreateShaderModule(Render);
-    const fragment = Renderer.CreateFragmentState(renderModule);
-
-    const vertex = Renderer.CreateVertexState(renderModule, "vertex", {
-        attributes: [Renderer.CreateVertexBufferAttribute("float32x2")],
-        arrayStride: 8
-    });
-
-    const pipelineLayout = Computation.CreatePipelineLayout(bindGroupLayout);
-
-    const renderPipeline = Renderer.CreateRenderPipeline({
-        layout: pipelineLayout, vertex, fragment
-    });
-
-    const renderDescriptor = Renderer.CreateRenderPassDescriptor(
-        Renderer.CreateColorAttachment(
-            undefined, "clear", "store", [0, 0, 0.4, 1]
-        )
-    );
-
-    const computeModule = Computation.CreateShaderModule(Compute);
-
-    const computePipeline = Computation.CreateComputePipeline({
-        layout: pipelineLayout, module: computeModule
-    });
-
-    Computation.Workgroups = [
-        Math.ceil(SIZE / WORKGROUP_SIZE),
-        Math.ceil(SIZE / WORKGROUP_SIZE)
-    ];
-
-    const VERTICES = vertices.length / 2;
-
     Renderer.SetVertexBuffers(vertexBuffer);
+
+    function clean()
+    {
+        cancelAnimationFrame(raf);
+        bindGroups.splice(step = 0);
+        lastRender = performance.now();
+
+        [uniformBuffer, storageBufferIn, storageBufferOut]
+            .forEach(buffer => buffer?.destroy());
+    }
+
+    function start(size = 48)
+    {
+        const ratio = UWAL.AspectRatio;
+        const { width, height } = UWAL.Canvas;
+
+        const uniformArray = width < height
+            ? new Float32Array([size, Math.round(size / ratio)])
+            : new Float32Array([Math.round(size * ratio), size]);
+
+        uniformBuffer = Renderer.CreateBuffer({
+            size: uniformArray.byteLength,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+        });
+
+        Renderer.WriteBuffer(uniformBuffer, uniformArray);
+
+        INSTANCES = uniformArray[0] * uniformArray[1];
+        const storageArray = new Uint32Array(INSTANCES);
+
+        storageBufferIn = Computation.CreateBuffer({
+            size: storageArray.byteLength,
+            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+        });
+
+        storageBufferOut = Computation.CreateBuffer({
+            size: storageArray.byteLength,
+            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+        });
+
+        for (let s = 0; s < storageArray.length; s++)
+            storageArray[s] = +(Math.random() > 0.6);
+
+        Computation.WriteBuffer(storageBufferIn, storageArray);
+
+        Computation.Workgroups = [
+            Math.ceil(uniformArray[0] / WORKGROUP_SIZE),
+            Math.ceil(uniformArray[1] / WORKGROUP_SIZE)
+        ];
+
+        bindGroups.push(
+            Computation.CreateBindGroup(
+                Computation.CreateBindGroupEntries([
+                    { buffer: uniformBuffer },
+                    { buffer: storageBufferIn },
+                    { buffer: storageBufferOut }
+                ]), bindGroupLayout
+            ),
+
+            Computation.CreateBindGroup(
+                Computation.CreateBindGroupEntries([
+                    { buffer: uniformBuffer },
+                    { buffer: storageBufferOut },
+                    { buffer: storageBufferIn }
+                ]), bindGroupLayout
+            )
+        );
+
+        raf = requestAnimationFrame(render);
+    }
 
     /** @param {DOMHighResTimeStamp} time */
     function render(time)
@@ -170,7 +188,7 @@ export async function run(canvas)
             UWAL.SetCanvasSize(inlineSize, blockSize);
         }
 
-        raf = requestAnimationFrame(render);
+        clean(), start();
     });
 
     observer.observe(canvas);
