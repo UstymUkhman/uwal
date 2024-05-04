@@ -121,12 +121,3 @@ canvas {
   right: 0;
   top: 0;
 }
-
-button#code {
-  transition: opacity 0.2s ease, color 0.2s;
-}
-
-button#code.hidden {
-  pointer-events: none;
-  opacity: 0;
-}
