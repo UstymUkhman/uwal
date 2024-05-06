@@ -62,10 +62,10 @@ export async function run(canvas)
     function render(time)
     {
         screenUniformValues.set([time * 0.001], 3);
-        UWAL.SetCanvasSize(canvas.width, canvas.height);
-        descriptor.colorAttachments[0].view = UWAL.CurrentTextureView;
 
+        descriptor.colorAttachments[0].view = UWAL.CurrentTextureView;
         Renderer.WriteBuffer(screenUniformBuffer, screenUniformValues);
+
         Renderer.Render(descriptor, pipeline, 6);
         raf = requestAnimationFrame(render);
     }

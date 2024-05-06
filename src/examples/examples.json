@@ -6,5 +6,9 @@
     {
         "name": "Game Of Life",
         "slug": "game-of-life"
+    },
+    {
+        "name": "2D Shapes",
+        "slug": "2d-shapes"
     }
 ]

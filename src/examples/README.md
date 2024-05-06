@@ -4,4 +4,5 @@
 | - | - |
 | [Screen Shader](https://ustymukhman.github.io/uwal/dist/examples/examples.html#screen-shader) | [Code](./screen-shader/index.js) |
 | [Game Of Life](https://ustymukhman.github.io/uwal/dist/examples/examples.html#game-of-life) | [Code](./game-of-life/index.js) |
+| [2D Shapes](https://ustymukhman.github.io/uwal/dist/examples/examples.html#2d-shapes) | [Code](./2d-shapes/index.js) |
 |   |   |
