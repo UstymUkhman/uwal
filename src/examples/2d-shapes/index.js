@@ -30,19 +30,28 @@ export async function run(canvas)
     /** @type {Shape[]} */
     const shapes = [];
 
-    const descriptor = Renderer.CreateRenderPassDescriptor(
+    const descriptor = Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment()
     );
 
     const module = Renderer.CreateShaderModule(Shaders.Shape);
 
-    const pipeline = Renderer.CreateRenderPipeline({
+    Renderer.CreatePipeline({
         fragment: Renderer.CreateFragmentState(module),
-        vertex: Renderer.CreateVertexState(module, "vertex",
+        vertex: Renderer.CreateVertexState(module, "vertex", [
         {
             arrayStride: 2 * Float32Array.BYTES_PER_ELEMENT,
             attributes: [Renderer.CreateVertexBufferAttribute("float32x2")]
-        })
+        },
+        {
+            arrayStride: (2 + 2 + 4) * Float32Array.BYTES_PER_ELEMENT,
+            stepMode: 'instance',
+            attributes: [
+                Renderer.CreateVertexBufferAttribute("float32x2", 1),
+                Renderer.CreateVertexBufferAttribute("float32x2", 2, 8),
+                Renderer.CreateVertexBufferAttribute("float32x4", 3, 16)
+            ]
+        }])
     });
 
     function clean()
@@ -86,13 +95,11 @@ export async function run(canvas)
 
     function render()
     {
-        const last = shapes.length - 1;
         // raf = requestAnimationFrame(render);
         descriptor.colorAttachments[0].view = UWAL.CurrentTextureView;
+        shapes.forEach(shape => Renderer.Render(shape.Update().Vertices, false));
 
-        shapes.forEach((shape, s) =>
-            Renderer.Render(descriptor, pipeline, shape.Update().Vertices, s === last)
-        );
+        Renderer.Submit();
     }
 
     observer = new ResizeObserver(entries =>
