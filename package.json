@@ -64,6 +64,9 @@
     "build:examples": "bun run build -- --mode=examples",
     "build:pages": "bun build:lessons && bun build:examples"
   },
+  "dependencies": {
+    "wgpu-matrix": "^2.8.0"
+  },
   "devDependencies": {
     "@webgpu/types": "^0.1.40",
     "vite": "^5.2.0",
