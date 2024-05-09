@@ -5,7 +5,7 @@
  * {@link https://codelabs.developers.google.com/your-first-webgpu-app}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.3
+ * @version 0.0.4
  * @license MIT
  */
 
@@ -36,7 +36,7 @@ export async function run(canvas)
     let INSTANCES, step = 0, lastRender = performance.now();
     const bindGroups = [], WORKGROUP_SIZE = 8, RENDER_LOOP_INTERVAL = 250;
 
-    const renderDescriptor = Renderer.CreateRenderPassDescriptor(
+    const renderDescriptor = Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(undefined, "clear", "store", [0, 0, 0.4, 1])
     );
 
@@ -51,8 +51,6 @@ export async function run(canvas)
         visibility: GPUShaderStage.COMPUTE
     }]);
 
-    const pipelineLayout = Computation.CreatePipelineLayout(bindGroupLayout);
-
     const renderModule = Renderer.CreateShaderModule(Render);
     const fragment = Renderer.CreateFragmentState(renderModule);
 
@@ -61,15 +59,11 @@ export async function run(canvas)
         arrayStride: 8
     });
 
-    const renderPipeline = Renderer.CreateRenderPipeline({
-        layout: pipelineLayout, vertex, fragment
-    });
+    const layout = Computation.CreatePipelineLayout(bindGroupLayout);
+    const module = Computation.CreateShaderModule(Compute);
 
-    const computeModule = Computation.CreateShaderModule(Compute);
-
-    const computePipeline = Computation.CreateComputePipeline({
-        layout: pipelineLayout, module: computeModule
-    });
+    Renderer.CreatePipeline({ layout, vertex, fragment });
+    Computation.CreatePipeline({ layout, module });
 
     const vertices = new Float32Array([
         //  X     Y
@@ -103,8 +97,8 @@ export async function run(canvas)
 
     function start(size = 48)
     {
-        const ratio = UWAL.AspectRatio;
-        const { width, height } = UWAL.Canvas;
+        const ratio = Renderer.AspectRatio;
+        const { width, height } = Renderer.Canvas;
 
         const uniformArray = width < height
             ? new Float32Array([size, Math.round(size / ratio)])
@@ -169,13 +163,13 @@ export async function run(canvas)
 
         const encoder = Computation.CreateCommandEncoder();
         Computation.SetBindGroups(bindGroups[step % 2]);
-        Computation.Compute(computePipeline);
+        Computation.Compute();
 
         Renderer.SetCommandEncoder(encoder);
         Renderer.SetBindGroups(bindGroups[++step % 2]);
 
-        renderDescriptor.colorAttachments[0].view = UWAL.CurrentTextureView;
-        Renderer.Render(renderDescriptor, renderPipeline, [VERTICES, INSTANCES]);
+        renderDescriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
+        Renderer.Render([VERTICES, INSTANCES]);
 
         lastRender = time;
     }
@@ -185,7 +179,7 @@ export async function run(canvas)
         for (const entry of entries)
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            UWAL.SetCanvasSize(inlineSize, blockSize);
+            Renderer.SetCanvasSize(inlineSize, blockSize);
         }
 
         clean(), start();

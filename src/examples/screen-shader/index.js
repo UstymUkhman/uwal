@@ -5,7 +5,7 @@
  * {@link https://oframe.github.io/ogl/examples/?src=triangle-screen-shader.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.3
+ * @version 0.0.4
  * @license MIT
  */
 
@@ -29,10 +29,10 @@ export async function run(canvas)
         alert(error);
     }
 
-    const descriptor = Renderer.CreateRenderPassDescriptor(Renderer.CreateColorAttachment());
+    const descriptor = Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment());
     const module = Renderer.CreateShaderModule([Shaders.Quad, ScreenShader]);
 
-    const pipeline = Renderer.CreateRenderPipeline({
+    Renderer.CreatePipeline({
         vertex: Renderer.CreateVertexState(module),
         fragment: Renderer.CreateFragmentState(module)
     });
@@ -61,13 +61,13 @@ export async function run(canvas)
     /** @param {DOMHighResTimeStamp} time */
     function render(time)
     {
+        raf = requestAnimationFrame(render);
         screenUniformValues.set([time * 0.001], 3);
 
-        descriptor.colorAttachments[0].view = UWAL.CurrentTextureView;
+        descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
         Renderer.WriteBuffer(screenUniformBuffer, screenUniformValues);
 
-        Renderer.Render(descriptor, pipeline, 6);
-        raf = requestAnimationFrame(render);
+        Renderer.Render(6);
     }
 
     observer = new ResizeObserver(entries =>
@@ -75,7 +75,7 @@ export async function run(canvas)
         for (const entry of entries)
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            UWAL.SetCanvasSize(inlineSize, blockSize);
+            Renderer.SetCanvasSize(inlineSize, blockSize);
         }
 
         cancelAnimationFrame(raf);

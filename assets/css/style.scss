@@ -22,6 +22,14 @@ body > div.wrapper {
       text-align: center;
       text-wrap: balance;
     }
+
+    @media print, screen and (max-width: 720px) {
+      text-align: center;
+
+      > ul.downloads:last-child {
+        margin: 0 auto 20px;
+      }
+    }
   }
 
   > section > p:first-child {
