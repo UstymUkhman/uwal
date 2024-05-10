@@ -31,10 +31,10 @@ export async function run(canvas)
     const shapes = [];
 
     const descriptor = Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment()
+        Renderer.CreateColorAttachment(undefined, "clear", "store", [0, 0, 0, 1])
     );
 
-    const module = Renderer.CreateShaderModule(Shaders.Shape);
+    const module = Renderer.CreateShaderModule([Shaders.Resolution, Shaders.Shape]);
 
     Renderer.CreatePipeline({
         fragment: Renderer.CreateFragmentState(module),
@@ -42,15 +42,6 @@ export async function run(canvas)
         {
             arrayStride: 2 * Float32Array.BYTES_PER_ELEMENT,
             attributes: [Renderer.CreateVertexBufferAttribute("float32x2")]
-        },
-        {
-            arrayStride: (2 + 2 + 4) * Float32Array.BYTES_PER_ELEMENT,
-            stepMode: 'instance',
-            attributes: [
-                Renderer.CreateVertexBufferAttribute("float32x2", 1),
-                Renderer.CreateVertexBufferAttribute("float32x2", 2, 8),
-                Renderer.CreateVertexBufferAttribute("float32x4", 3, 16)
-            ]
         }])
     });
 
@@ -67,17 +58,42 @@ export async function run(canvas)
 
     function createRandomShapes()
     {
-        for (let s = 0; s < 1; s++)
         {
-            const scale = random(0.2, 0.5);
-            const ratio = UWAL.AspectRatio;
+            const shape = new Shape({
+                segments: SHAPE.SEGMENTS.TRIANGLE,
+                renderer: Renderer,
+                label: "Trangle",
+                radius: 100
+            });
 
-            const shape = new Shape(Renderer, SHAPE.SEGMENTS.TRIANGLE);
+            shape.Color = [random(0.3, 1), random(0.2, 1), random(0.4, 1), 1];
+            shape.Position = [100, 100];
+            shapes.push(shape);
+        }
 
-            shape.Position = [random(-0.9, 0.9), random(-0.9, 0.9)];
-            shape.Color = [random(), random(), random(), 1];
-            shape.Scale = [scale / ratio, scale];
+        {
+            const shape = new Shape({
+                segments: SHAPE.SEGMENTS.PENTAGON,
+                renderer: Renderer,
+                label: "Pentagon",
+                radius: 150
+            });
 
+            shape.Color = [random(0.3, 1), random(0.2, 1), random(0.4, 1), 1];
+            shape.Position = [300, 300];
+            shapes.push(shape);
+        }
+
+        {
+            const shape = new Shape({
+                renderer: Renderer,
+                label: "Custom",
+                segments: 64,
+                radius: 150
+            });
+
+            shape.Color = [random(0.3, 1), random(0.2, 1), random(0.4, 1), 1];
+            shape.Position = [500, 500];
             shapes.push(shape);
         }
     }
@@ -95,8 +111,9 @@ export async function run(canvas)
 
     function render()
     {
+        // shapes[0].Rotation += 0.01;
         // raf = requestAnimationFrame(render);
-        descriptor.colorAttachments[0].view = UWAL.CurrentTextureView;
+        descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
         shapes.forEach(shape => Renderer.Render(shape.Update().Vertices, false));
 
         Renderer.Submit();
@@ -107,7 +124,7 @@ export async function run(canvas)
         for (const entry of entries)
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            UWAL.SetCanvasSize(inlineSize, blockSize);
+            Renderer.SetCanvasSize(inlineSize, blockSize);
         }
 
         clean(), start();

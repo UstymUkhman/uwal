@@ -1,29 +1,20 @@
-struct Vertex
+struct Shape
 {
-    @builtin(position) position: vec4f,
-    @location(0) color: vec4f
+    color: vec4f,
+    matrix: mat3x3f
 };
 
-@vertex fn vertex(
-    @location(0) position: vec2f,
-    @location(1) translation: vec2f,
-    @location(2) scale: vec2f,
-    @location(3) color: vec4f
-) -> Vertex
+@group(0) @binding(1) var<uniform> shape: Shape;
+
+@vertex fn vertex(@location(0) position: vec2f) -> @builtin(position) vec4f
 {
-    var output: Vertex;
+    let matrixPosition = shape.matrix * vec3f(position, 1);
+    let clipSpace = GetClipSpace(matrixPosition.xy);
 
-    output.position = vec4f(
-        position * scale + translation,
-        0.0, 1.0
-    );
-
-    output.color = color;
-
-    return output;
+    return vec4f(clipSpace, 0.0, 1.0);
 }
 
-@fragment fn fragment(@location(0) color: vec4f) -> @location(0) vec4f
+@fragment fn fragment() -> @location(0) vec4f
 {
-    return color;
+    return shape.color;
 }
