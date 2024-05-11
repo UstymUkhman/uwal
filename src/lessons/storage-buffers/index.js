@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-storage-buffers.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.3
+ * @version 0.0.4
  * @license MIT
  */
 
@@ -33,18 +33,13 @@ import StorageBuffers from "./StorageBuffers.wgsl";
     const objectCount = 100;
     const objectInfos = [];
 
-    const descriptor = Renderer.CreateRenderPassDescriptor(
-        Renderer.CreateColorAttachment(
-            undefined,
-            "clear",
-            "store",
-            [0.3, 0.3, 0.3, 1]
-        )
-    );
+    const descriptor = Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
+        undefined, "clear", "store", [0.3, 0.3, 0.3, 1]
+    ));
 
     const module = Renderer.CreateShaderModule(StorageBuffers);
 
-    const pipeline = Renderer.CreateRenderPipeline({
+    Renderer.CreatePipeline({
         vertex: Renderer.CreateVertexState(module),
         fragment: Renderer.CreateFragmentState(module)
     });
@@ -172,11 +167,11 @@ import StorageBuffers from "./StorageBuffers.wgsl";
 
     function render()
     {
-        UWAL.SetCanvasSize(canvas.width, canvas.height);
+        Renderer.SetCanvasSize(canvas.width, canvas.height);
 
-        const aspect = UWAL.AspectRatio;
+        const aspect = Renderer.AspectRatio;
 
-        descriptor.colorAttachments[0].view = UWAL.CurrentTextureView;
+        descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
 
         objectInfos.forEach(({ scale }, o) =>
         {
@@ -185,7 +180,7 @@ import StorageBuffers from "./StorageBuffers.wgsl";
         });
 
         Renderer.WriteBuffer(varStorageBuffer, storageValues);
-        Renderer.Render(descriptor, pipeline, [vertices, objectCount]);
+        Renderer.Render([vertices, objectCount]);
     }
 
     const observer = new ResizeObserver(entries =>
@@ -193,7 +188,7 @@ import StorageBuffers from "./StorageBuffers.wgsl";
         for (const entry of entries)
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            UWAL.SetCanvasSize(inlineSize, blockSize);
+            Renderer.SetCanvasSize(inlineSize, blockSize);
         }
 
         render();

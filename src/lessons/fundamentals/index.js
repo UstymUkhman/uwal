@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.3
+ * @version 0.0.4
  * @license MIT
  */
 
@@ -28,28 +28,22 @@ import Double from "./Double.wgsl";
             alert(error);
         }
 
-        const descriptor = Renderer.CreateRenderPassDescriptor(
-            Renderer.CreateColorAttachment(
-                undefined,
-                "clear",
-                "store",
-                [0.3, 0.3, 0.3, 1]
-            )
-        );
+        const descriptor = Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
+            undefined, "clear", "store", [0.3, 0.3, 0.3, 1]
+        ));
 
         const module = Renderer.CreateShaderModule(RedTriangle);
 
-        const pipeline = Renderer.CreateRenderPipeline({
+        Renderer.CreatePipeline({
             vertex: Renderer.CreateVertexState(module),
             fragment: Renderer.CreateFragmentState(module)
         });
 
         function render()
         {
-            UWAL.SetCanvasSize(canvas.width, canvas.height);
-
-            descriptor.colorAttachments[0].view = UWAL.CurrentTextureView;
-            Renderer.Render(descriptor, pipeline, 3);
+            Renderer.SetCanvasSize(canvas.width, canvas.height);
+            descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
+            Renderer.Render(3);
         }
 
         const observer = new ResizeObserver(entries =>
@@ -57,7 +51,7 @@ import Double from "./Double.wgsl";
             for (const entry of entries)
             {
                 const { inlineSize, blockSize } = entry.contentBoxSize[0];
-                UWAL.SetCanvasSize(inlineSize, blockSize);
+                Renderer.SetCanvasSize(inlineSize, blockSize);
             }
 
             render();
@@ -80,17 +74,16 @@ import Double from "./Double.wgsl";
         Computation.WriteBuffer(computeBuffer, input);
 
         const module = Computation.CreateShaderModule(Double);
-        const pipeline = Computation.CreateComputePipeline({ module });
+        Computation.CreatePipeline({ module });
 
         const bindGroup = Computation.CreateBindGroup(
             Computation.CreateBindGroupEntries({ buffer: computeBuffer })
         );
 
-        const descriptor = Computation.CreateComputePassDescriptor();
-
+        Computation.CreatePassDescriptor();
         Computation.SetBindGroups(bindGroup);
         Computation.Workgroups = input.length;
-        Computation.Compute(pipeline, descriptor);
+        Computation.Compute();
 
         const resultBuffer = Computation.CreateBuffer({
             size: input.byteLength,

@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-inter-stage-variables.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.2
+ * @version 0.0.4
  * @license MIT
  */
 
@@ -26,29 +26,24 @@ import Checkerboard from "./Checkerboard.frag.wgsl";
         alert(error);
     }
 
-    const descriptor = Renderer.CreateRenderPassDescriptor(
-        Renderer.CreateColorAttachment(
-            undefined,
-            "clear",
-            "store",
-            [0.3, 0.3, 0.3, 1]
-        )
-    );
+    const descriptor = Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
+        undefined, "clear", "store", [0.3, 0.3, 0.3, 1]
+    ));
 
     const vertexModule = Renderer.CreateShaderModule(Triangle);
     const fragmentModule = Renderer.CreateShaderModule(Checkerboard);
 
-    const pipeline = Renderer.CreateRenderPipeline({
+    Renderer.CreatePipeline({
         vertex: Renderer.CreateVertexState(vertexModule),
         fragment: Renderer.CreateFragmentState(fragmentModule)
     });
 
     function render()
     {
-        UWAL.SetCanvasSize(canvas.width, canvas.height);
+        Renderer.SetCanvasSize(canvas.width, canvas.height);
 
-        descriptor.colorAttachments[0].view = UWAL.CurrentTextureView;
-        Renderer.Render(descriptor, pipeline, 3);
+        descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
+        Renderer.Render(3);
     }
 
     const observer = new ResizeObserver(entries =>
@@ -56,7 +51,7 @@ import Checkerboard from "./Checkerboard.frag.wgsl";
         for (const entry of entries)
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            UWAL.SetCanvasSize(inlineSize, blockSize);
+            Renderer.SetCanvasSize(inlineSize, blockSize);
         }
 
         render();

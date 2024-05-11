@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-uniforms.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.3
+ * @version 0.0.4
  * @license MIT
  */
 
@@ -33,18 +33,13 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
     const objectCount = 100;
     const objectInfos = [];
 
-    const descriptor = Renderer.CreateRenderPassDescriptor(
-        Renderer.CreateColorAttachment(
-            undefined,
-            "clear",
-            "store",
-            [0.3, 0.3, 0.3, 1]
-        )
-    );
+    const descriptor = Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
+        undefined, "clear", "store", [0.3, 0.3, 0.3, 1]
+    ));
 
     const module = Renderer.CreateShaderModule(TriangleUniforms);
 
-    const pipeline = Renderer.CreateRenderPipeline({
+    Renderer.CreatePipeline({
         vertex: Renderer.CreateVertexState(module),
         fragment: Renderer.CreateFragmentState(module)
     });
@@ -111,20 +106,22 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
 
     function render()
     {
-        UWAL.SetCanvasSize(canvas.width, canvas.height);
+        Renderer.SetCanvasSize(canvas.width, canvas.height);
 
-        const aspect = UWAL.AspectRatio;
+        const aspect = Renderer.AspectRatio;
 
-        descriptor.colorAttachments[0].view = UWAL.CurrentTextureView;
+        descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
 
-        for (const [o, { scale, bindGroup, uniformBuffer, uniformValues }] of objectInfos.entries())
+        for (const { scale, bindGroup, uniformBuffer, uniformValues } of objectInfos.values())
         {
             uniformValues.set([scale / aspect, scale], scaleOffset);
 
             Renderer.SetBindGroups(bindGroup);
             Renderer.WriteBuffer(uniformBuffer, uniformValues);
-            Renderer.Render(descriptor, pipeline, 3, o === objectInfos.length - 1);
+            Renderer.Render(3, false);
         }
+
+        Renderer.Submit();
     }
 
     const observer = new ResizeObserver(entries =>
@@ -132,7 +129,7 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
         for (const entry of entries)
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            UWAL.SetCanvasSize(inlineSize, blockSize);
+            Renderer.SetCanvasSize(inlineSize, blockSize);
         }
 
         render();
