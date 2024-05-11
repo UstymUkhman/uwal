@@ -11,6 +11,7 @@ declare type Vec2 = import("wgpu-matrix").Vec2;
 declare type Vec3 = import("wgpu-matrix").Vec3;
 declare type Vec4 = import("wgpu-matrix").Vec4;
 
+// WebGPU Context Configuration Options:
 declare type ConfigurationOptions =
 {
     /** @default navigator.gpu.getPreferredCanvasFormat() */
