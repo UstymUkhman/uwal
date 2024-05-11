@@ -27,8 +27,7 @@ export async function run(canvas)
         alert(error);
     }
 
-    /** @type {Shape[]} */
-    const shapes = [];
+    const spin = [], speed = [], shapes = [], direction = [];
 
     const descriptor = Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(undefined, "clear", "store", [0, 0, 0, 1])
@@ -40,13 +39,17 @@ export async function run(canvas)
         fragment: Renderer.CreateFragmentState(module),
         vertex: Renderer.CreateVertexState(module, "vertex", [
         {
-            arrayStride: 2 * Float32Array.BYTES_PER_ELEMENT,
+            arrayStride: Float32Array.BYTES_PER_ELEMENT * 2,
             attributes: [Renderer.CreateVertexBufferAttribute("float32x2")]
         }])
     });
 
     function clean()
     {
+        spin.splice(0);
+        speed.splice(0);
+        shapes.splice(0);
+        direction.splice(0);
         cancelAnimationFrame(raf);
     }
 
@@ -58,47 +61,71 @@ export async function run(canvas)
 
     function createRandomShapes()
     {
+        let radius = random(50, 100),
+            rotation = random(Math.PI * 2);
+
+        const position = [
+            random(radius, canvas.width - radius),
+            random(radius, canvas.height - radius)
+        ],
+
+        color = [random(0.3, 1), random(0.2, 1), random(0.4, 1), 1];
+
+        for (const type in SHAPE)
         {
             const shape = new Shape({
-                segments: SHAPE.SEGMENTS.TRIANGLE,
+                segments: SHAPE[type],
                 renderer: Renderer,
-                label: "Trangle",
-                radius: 100
+                label: type,
+                radius
             });
 
-            shape.Color = [random(0.3, 1), random(0.2, 1), random(0.4, 1), 1];
-            shape.Position = [100, 100];
+            shape.Position = [...position];
+            shape.Rotation = rotation;
+
+            speed.push(random(1, 10));
+            spin.push(random(0.1));
+
+            shape.Color = color;
             shapes.push(shape);
+
+            position[1] = random(radius, canvas.height - radius);
+            position[0] = random(radius, canvas.width - radius);
+
+            direction.push([random(-1, 1), random(-1, 1)]);
+            rotation = random(Math.PI * 2);
+
+            color[0] = random(0.3, 1);
+            color[1] = random(0.2, 1);
+            color[2] = random(0.4, 1);
+
+            radius = random(50, 100);
         }
 
-        {
-            const shape = new Shape({
-                segments: SHAPE.SEGMENTS.PENTAGON,
-                renderer: Renderer,
-                label: "Pentagon",
-                radius: 150
-            });
+        const shape = new Shape({
+            renderer: Renderer,
+            label: "Custom",
+            segments: 64,
+            radius
+        });
 
-            shape.Color = [random(0.3, 1), random(0.2, 1), random(0.4, 1), 1];
-            shape.Position = [300, 300];
-            shapes.push(shape);
-        }
+        shape.Position = position;
+        shape.Rotation = rotation;
 
-        {
-            const shape = new Shape({
-                renderer: Renderer,
-                label: "Custom",
-                segments: 64,
-                radius: 150
-            });
+        speed.push(random(1, 10));
+        spin.push(random(0.1));
 
-            shape.Color = [random(0.3, 1), random(0.2, 1), random(0.4, 1), 1];
-            shape.Position = [500, 500];
-            shapes.push(shape);
-        }
+        shape.Color = color;
+        shapes.push(shape);
+
+        direction.push([
+            random(-1, 1),
+            random(-1, 1)
+        ]);
     }
 
-    function random(min = 0, max = 1)
+    /** @param {number} [max = undefined] */
+    function random(min = 0, max)
     {
         if (max === undefined)
         {
@@ -111,10 +138,26 @@ export async function run(canvas)
 
     function render()
     {
-        // shapes[0].Rotation += 0.01;
-        // raf = requestAnimationFrame(render);
+        raf = requestAnimationFrame(render);
         descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
         shapes.forEach(shape => Renderer.Render(shape.Update().Vertices, false));
+
+        for (let s = 0, l = shapes.length; s < l; s++)
+        {
+            const shape = shapes[s], dir = direction[s];
+            const { min, max } = shape.BoundingBox;
+            const [x, y] = shape.Position;
+
+            if (min[0] <= 0 || max[0] >= canvas.width)  dir[0] *= -1;
+            if (min[1] <= 0 || max[1] >= canvas.height) dir[1] *= -1;
+
+            shape.Rotation += spin[s];
+
+            shape.Position = [
+                x + dir[0] * speed[s],
+                y + dir[1] * speed[s]
+            ];
+        }
 
         Renderer.Submit();
     }
