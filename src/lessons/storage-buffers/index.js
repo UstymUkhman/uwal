@@ -154,13 +154,14 @@ import StorageBuffers from "./StorageBuffers.wgsl";
         return { vertexData, vertices };
     }
 
-    function random(min = 0, max = 1)
+    /**
+     * @param {number} [min]
+     * @param {number} [max]
+     */
+    function random(min, max)
     {
-        if (max === undefined)
-        {
-            max = min;
-            min = 0;
-        }
+             if (min === undefined) { min = 0;   max = 1; }
+        else if (max === undefined) { max = min; min = 0; }
 
         return Math.random() * (max - min) + min;
     }
