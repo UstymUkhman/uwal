@@ -1,0 +1,10 @@
+import{U as n}from"./index-BWftAgnI.js";var S="const QUAD=array(vec2f(-1.0,-1.0),vec2f(1.0,-1.0),vec2f(1.0,1.0),vec2f(1.0,1.0),vec2f(-1.0,1.0),vec2f(-1.0,-1.0));fn GetQuadCoord(index: u32)->vec2f{return QUAD[index];}",x="struct Screen{color: vec3f,time: f32};struct VertexOutput{@location(0)coord: vec2f,@builtin(position)position: vec4f};@group(0)@binding(0)var<uniform>screen: Screen;@vertex fn vertex(@builtin(vertex_index)index: u32)->VertexOutput {var output: VertexOutput;let coord=GetQuadCoord(index);output.position=vec4f(coord,0,1);output.coord=coord;return output;}@fragment fn fragment(@location(0)coord: vec2f)->@location(0)vec4f {return vec4f(cos(coord.xyx+screen.time)*0.2+screen.color+0.4,1);}";/**
+ * @example Screen Shader
+ * @author Ustym Ukhman <ustym.ukhman@gmail.com>
+ * @description This example is inspired by OGL's "Triangle Screen Shader"
+ * {@link https://oframe.github.io/ogl/examples/?src=triangle-screen-shader.html}&nbsp;
+ * and developed by using a version listed below. Please note that this code
+ * may be simplified in future thanks to more recent library APIs.
+ * @version 0.0.4
+ * @license MIT
+ */let t,c;async function C(i){let e;try{e=new(await n.RenderPipeline(i,"Screen Shader"))}catch(r){alert(r)}const d=e.CreatePassDescriptor(e.CreateColorAttachment()),a=e.CreateShaderModule([S,x]);e.CreatePipeline({vertex:e.CreateVertexState(a),fragment:e.CreateFragmentState(a)});const u=Float32Array.BYTES_PER_ELEMENT+Float32Array.BYTES_PER_ELEMENT*3,f=e.CreateBuffer({size:u,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST}),l=e.CreateBindGroup(e.CreateBindGroupEntries({buffer:f}));e.SetBindGroups(l);const o=new Float32Array(u/Float32Array.BYTES_PER_ELEMENT);o.set([0,.3515625,.609375]);function s(r){t=requestAnimationFrame(s),o.set([r*.001],3),d.colorAttachments[0].view=e.CurrentTextureView,e.WriteBuffer(f,o),e.Render(6)}c=new ResizeObserver(r=>{for(const v of r){const{inlineSize:m,blockSize:p}=v.contentBoxSize[0];e.SetCanvasSize(m,p)}cancelAnimationFrame(t),t=requestAnimationFrame(s)}),c.observe(i)}function A(){n.OnDeviceLost=()=>{},cancelAnimationFrame(t),c.disconnect(),n.Destroy()}export{A as destroy,C as run};
