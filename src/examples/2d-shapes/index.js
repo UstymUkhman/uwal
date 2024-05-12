@@ -8,7 +8,7 @@
  * @license MIT
  */
 
-import { UWAL, Shape, SHAPE, Shaders } from "@/index";
+import { UWAL, Shaders, Shape } from "@/index";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
@@ -61,77 +61,56 @@ export async function run(canvas)
 
     function createRandomShapes()
     {
-        let radius = random(50, 100),
-            rotation = random(Math.PI * 2);
-
-        const position = [
-            random(radius, canvas.width - radius),
-            random(radius, canvas.height - radius)
-        ],
-
-        color = [random(0.3, 1), random(0.2, 1), random(0.4, 1), 1];
-
-        for (const type in SHAPE)
+        for (let s = 3; s <= 12; s++)
         {
-            const shape = new Shape({
-                segments: SHAPE[type],
-                renderer: Renderer,
-                label: type,
-                radius
-            });
+            const segments = s === 11 && 64 || s;
 
-            shape.Position = [...position];
-            shape.Rotation = rotation;
+            for (let r = 0; r < 2; r++)
+            {
+                const radius = random(50, 100);
+                const inner = radius * random(0.75, 0.95);
 
-            speed.push(random(1, 10));
-            spin.push(random(0.1));
+                const shape = new Shape({
+                    innerRadius: inner * r,
+                    renderer: Renderer,
+                    segments,
+                    radius
+                });
 
-            shape.Color = color;
-            shapes.push(shape);
+                shape.Position = [
+                    random(radius, canvas.width - radius),
+                    random(radius, canvas.height - radius)
+                ];
 
-            position[1] = random(radius, canvas.height - radius);
-            position[0] = random(radius, canvas.width - radius);
+                shape.Rotation = random(Math.PI * 2);
 
-            direction.push([random(-1, 1), random(-1, 1)]);
-            rotation = random(Math.PI * 2);
+                speed.push(random(1, 10));
+                spin.push(random(0.1));
+                shapes.push(shape);
 
-            color[0] = random(0.3, 1);
-            color[1] = random(0.2, 1);
-            color[2] = random(0.4, 1);
+                direction.push([
+                    random(-1, 1),
+                    random(-1, 1)
+                ]);
 
-            radius = random(50, 100);
+                shape.Color = [
+                    random(0.3, 1),
+                    random(0.2, 1),
+                    random(0.4, 1),
+                    1
+                ];
+            }
         }
-
-        const shape = new Shape({
-            renderer: Renderer,
-            label: "Custom",
-            segments: 64,
-            radius
-        });
-
-        shape.Position = position;
-        shape.Rotation = rotation;
-
-        speed.push(random(1, 10));
-        spin.push(random(0.1));
-
-        shape.Color = color;
-        shapes.push(shape);
-
-        direction.push([
-            random(-1, 1),
-            random(-1, 1)
-        ]);
     }
 
-    /** @param {number} [max = undefined] */
-    function random(min = 0, max)
+    /**
+     * @param {number} [min]
+     * @param {number} [max]
+     */
+    function random(min, max)
     {
-        if (max === undefined)
-        {
-            max = min;
-            min = 0;
-        }
+             if (min === undefined) { min = 0;   max = 1; }
+        else if (max === undefined) { max = min; min = 0; }
 
         return Math.random() * (max - min) + min;
     }
