@@ -10,3 +10,5 @@
 | [Storage Buffers](https://webgpufundamentals.org/webgpu/lessons/webgpu-storage-buffers.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-buffers) | [Code](./storage-buffers/index.js) |
 | [Vertex Buffers](https://webgpufundamentals.org/webgpu/lessons/webgpu-vertex-buffers.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#vertex-buffers) | [Code](./vertex-buffers/index.js) |
 |   |   |   |
+<!-- | [Textures](https://webgpufundamentals.org/webgpu/lessons/webgpu-textures.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#textures) | [Code](./textures/index.js) |
+|   |   |   | -->

@@ -38,3 +38,4 @@ bun add uwal
 - [Uniforms](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#uniforms)
 - [Storage Buffers](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-buffers)
 - [Vertex Buffers](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#vertex-buffers)
+<!-- - [Textures](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#textures) -->
