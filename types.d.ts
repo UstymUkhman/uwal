@@ -31,3 +31,5 @@ declare module '*.json'
 {
     export default JSON;
 }
+
+declare const GUI;
