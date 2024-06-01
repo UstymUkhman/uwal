@@ -6,9 +6,19 @@ let currentAnchor = null;
 /** @type {() => void} */
 let destroyCurrent = () => void 0;
 
+const aside = (
+    /** @type {HTMLElement} */
+    (document.getElementsByClassName("examples")[0])
+);
+
 const canvas = (
     /** @type {HTMLCanvasElement} */
     (document.getElementById("example"))
+);
+
+const examplesButton = (
+    /** @type {HTMLButtonElement} */
+    (document.getElementById("examples"))
 );
 
 const codeButton = (
@@ -42,12 +52,18 @@ async function runExample()
 
     if (example === currentAnchor?.dataset.example)
     {
+        aside.classList.add("hidden");
+        examplesButton.innerHTML = '&#62;';
         currentAnchor?.classList.add("active");
+        examplesButton.classList.remove("hidden");
         return codeButton.classList.remove("hidden");
     }
 
     if (!example)
     {
+        aside.classList.remove("hidden");
+        examplesButton.innerHTML = '&#60;';
+        examplesButton.classList.add("hidden");
         currentAnchor?.classList.remove("active");
         return codeButton.classList.add("hidden");
     }
@@ -57,16 +73,26 @@ async function runExample()
     /** @type {HTMLAnchorElement} */
     const anchor = document.querySelector(`a[data-example="${example}"]`);
 
+    examplesButton.classList.remove("hidden");
     currentAnchor?.classList.remove("active");
+
     codeButton.classList.remove("hidden");
+    examplesButton.innerHTML = '&#62;';
 
     anchor?.classList.add("active");
     currentAnchor = anchor || null;
+    aside.classList.add("hidden");
 
     const { run, destroy } = await import(`./${example}/index.js`);
     destroyCurrent = destroy;
     run(canvas);
 };
+
+examplesButton.addEventListener("click", () =>
+{
+    const hidden = aside.classList.toggle("hidden");
+    examplesButton.innerHTML = `&#6${+hidden * 2};`;
+}, false);
 
 codeButton.addEventListener("click", () =>
 {

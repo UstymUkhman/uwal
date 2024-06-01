@@ -28,7 +28,7 @@ body > div.wrapper {
     display: none;
   }
 
-  @media print, screen and (max-width: 720px) {
+  @media print, screen and (max-width: 960px) {
     > header > ul.downloads:last-child {
       margin: 0 auto 20px;
     }

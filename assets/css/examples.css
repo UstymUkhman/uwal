@@ -10,10 +10,12 @@ body {
 
 aside.examples {
   box-shadow: 0 0 10px -8px black;
+  transition: transform 0.2s;
+  background-color: white;
+
   min-height: 100dvh;
   position: relative;
 
-  background: white;
   overflow-y: auto;
   min-width: 240px;
 
@@ -22,13 +24,17 @@ aside.examples {
   z-index: 1;
 }
 
+aside.examples.hidden {
+  transform: translateX(-100%);
+}
+
 div.content {
   margin: 25px auto 50px 20px;
   max-width: 75%;
 }
 
 a {
-  transition: transform 0.2s ease, color 0.2s;
+  transition: transform 0.2s, color 0.2s;
   transform: translateX(0px);
 
   text-decoration: none;
@@ -87,12 +93,12 @@ ul#list {
 }
 
 ul#list > a::before {
-  transform: translateX(-8px);
-  transition: transform 0.2s ease;
-
   border-bottom: 5px solid transparent;
   border-top: 5px solid transparent;
   border-left: 8px solid black;
+
+  transform: translateX(-8px);
+  transition: transform 0.2s;
 
   display: inline-block;
   position: relative;
@@ -120,4 +126,35 @@ canvas {
   bottom: 0;
   right: 0;
   top: 0;
+}
+
+button#examples {
+  margin-bottom: 2.5vw;
+  margin-left: 2.5vw;
+
+  display: none;
+  z-index: 1;
+
+  bottom: 0;
+  left: 0;
+}
+
+@media screen and (max-width: 960px) {
+  aside.examples {
+    width: 100%;
+  }
+
+  div.content {
+    margin-inline: auto;
+    max-width: 240px;
+  }
+
+  canvas {
+    max-width: 100vw;
+    width: 100vw;
+  }
+
+  button#examples {
+    display: block;
+  }
 }
