@@ -10,6 +10,7 @@
  */
 
 import { UWAL, Color, Shaders } from "@/index";
+import { generateMipmaps } from "./mipmaps";
 import Texture from "./Texture.wgsl";
 
 (async function(canvas)
@@ -39,26 +40,31 @@ import Texture from "./Texture.wgsl";
     });
 
     const width = 5;
-    const height = 7;
+    const scaleOffset = 0;
+    const offsetOffset = 2;
 
     const settings = {
-        addressModeU: 'repeat',
-        addressModeV: 'repeat',
-        magFilter: 'linear',
+        addressModeU: "repeat",
+        addressModeV: "repeat",
+        magFilter: "linear",
+        minFilter: "linear",
+        scale: 1
     };
 
-    const addressOptions = ['repeat', 'clamp-to-edge'];
-    const filterOptions = ['nearest', 'linear'];
+    const addressOptions = ["repeat", "clamp-to-edge"];
+    const filterOptions = ["nearest", "linear"];
 
     const gui = new GUI();
-    gui.onChange(render);
 
-    gui.add(settings, 'addressModeU', addressOptions);
-    gui.add(settings, 'addressModeV', addressOptions);
-    gui.add(settings, 'magFilter', filterOptions);
+    gui.add(settings, "addressModeU", addressOptions);
+    gui.add(settings, "addressModeV", addressOptions);
+    gui.add(settings, "magFilter", filterOptions);
+    gui.add(settings, "minFilter", filterOptions);
+    gui.add(settings, "minFilter", filterOptions);
+    gui.add(settings, "scale", 0.5, 6);
 
     Object.assign(gui.domElement.style, {
-        right: 'auto', left: '15px'
+        right: "auto", left: "15px"
     });
 
     const r = new Color(0xff0000).RGBA;
@@ -75,47 +81,86 @@ import Texture from "./Texture.wgsl";
         b, r, r, r, r
     ].flat());
 
+    const mipmaps = generateMipmaps(textureData, width);
+
     const texture = device.createTexture({
-        format: 'rgba8unorm',
-        size: [width, height],
+        format: "rgba8unorm",
+        mipLevelCount: mipmaps.length,
+        size: [mipmaps[0].width, mipmaps[0].height],
         usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST
     });
 
-    device.queue.writeTexture(
-        { texture },
-        textureData,
-        { bytesPerRow: width * 4 },
-        { width, height }
-    );
+    mipmaps.forEach(({ data, width, height }, mipLevel) =>
+    {
+        device.queue.writeTexture(
+            { texture, mipLevel },
+            data,
+            { bytesPerRow: width * 4 },
+            { width, height }
+        );
+    });
 
-    for (let s = 0; s < 8; s++)
+    const transformBufferSize =
+        2 * Float32Array.BYTES_PER_ELEMENT + // Scale  - 2 32bit floats
+        2 * Float32Array.BYTES_PER_ELEMENT;  // Offset - 2 32bit floats
+
+    const transformBuffer = Renderer.CreateBuffer({
+        size: transformBufferSize,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+    });
+
+    const transformValues = new Float32Array(transformBufferSize / Float32Array.BYTES_PER_ELEMENT);
+
+    for (let s = 0; s < 16; s++)
     {
         const sampler = device.createSampler({
-            addressModeU: (s & 1) ? 'repeat' : 'clamp-to-edge',
-            addressModeV: (s & 2) ? 'repeat' : 'clamp-to-edge',
-            magFilter:    (s & 4) ? 'linear' : 'nearest',
+            addressModeU: (s & 1) ? "repeat" : "clamp-to-edge",
+            addressModeV: (s & 2) ? "repeat" : "clamp-to-edge",
+            magFilter:    (s & 4) ? "linear" : "nearest",
+            minFilter:    (s & 8) ? "linear" : "nearest"
         });
 
         Renderer.AddBindGroups(
             Renderer.CreateBindGroup(
                 Renderer.CreateBindGroupEntries([
-                    sampler, texture.createView()
+                    sampler,
+                    texture.createView(),
+                    { buffer: transformBuffer }
                 ])
             )
         );
     }
 
-    function render()
+    /** @param {DOMHighResTimeStamp} time */
+    function updateTransformBuffer(time)
+    {
+        const scaleX = 4 / canvas.width * settings.scale;
+        const scaleY = 4 / canvas.height * settings.scale;
+
+        // Draw the quad of 2x2 pixels onto the canvas:
+        transformValues.set([scaleX, scaleY], scaleOffset);
+
+        // Set the offset to animate the quad back and forth across the canvas:
+        transformValues.set([Math.sin(time * 0.25) * 0.8, -0.8], offsetOffset);
+
+        Renderer.WriteBuffer(transformBuffer, transformValues);
+    }
+
+    /** @param {DOMHighResTimeStamp} time */
+    function render(time)
     {
         descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
 
-        const bindGroup = +(settings.addressModeU === 'repeat') * 1 +
-                          +(settings.addressModeV === 'repeat') * 2 +
-                          +(settings.magFilter    === 'linear') * 4;
+        const bindGroup = +(settings.addressModeU === "repeat") * 1 +
+                          +(settings.addressModeV === "repeat") * 2 +
+                          +(settings.magFilter    === "linear") * 4 +
+                          +(settings.minFilter    === "linear") * 8;
 
         Renderer.SetActiveBindGroups(bindGroup);
-
+        updateTransformBuffer(time * 0.001);
         Renderer.Render(6);
+
+        requestAnimationFrame(render);
     }
 
     const observer = new ResizeObserver(entries =>
@@ -123,13 +168,16 @@ import Texture from "./Texture.wgsl";
         for (const entry of entries)
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            Renderer.SetCanvasSize(inlineSize, blockSize);
+            Renderer.SetCanvasSize(inlineSize / 64 | 0, blockSize / 64 | 0);
         }
 
-        render();
+        requestAnimationFrame(render);
     });
 
     observer.observe(canvas);
+
+    canvas.style.imageRendering = "pixelated";
+    canvas.style.imageRendering = "crisp-edges";
 })(
     /** @type {HTMLCanvasElement} */
     (document.getElementById("lesson"))
