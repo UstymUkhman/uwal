@@ -26,6 +26,11 @@ const codeButton = (
     (document.getElementById("code"))
 );
 
+function hideExamples()
+{
+    innerWidth <= 960 && aside.classList.add("hidden");
+}
+
 function createExamples()
 {
     const baseHref = import.meta.env.PROD && "examples.html" || "";
@@ -52,7 +57,7 @@ async function runExample()
 
     if (example === currentAnchor?.dataset.example)
     {
-        aside.classList.add("hidden");
+        hideExamples();
         examplesButton.innerHTML = '&#62;';
         currentAnchor?.classList.add("active");
         examplesButton.classList.remove("hidden");
@@ -75,16 +80,15 @@ async function runExample()
 
     examplesButton.classList.remove("hidden");
     currentAnchor?.classList.remove("active");
-
     codeButton.classList.remove("hidden");
-    examplesButton.innerHTML = '&#62;';
 
+    examplesButton.innerHTML = '&#62;';
     anchor?.classList.add("active");
     currentAnchor = anchor || null;
-    aside.classList.add("hidden");
 
     const { run, destroy } = await import(`./${example}/index.js`);
     destroyCurrent = destroy;
+    hideExamples();
     run(canvas);
 };
 
