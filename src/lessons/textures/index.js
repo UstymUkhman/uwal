@@ -60,7 +60,6 @@ import Texture from "./Texture.wgsl";
     gui.add(settings, "addressModeV", addressOptions);
     gui.add(settings, "magFilter", filterOptions);
     gui.add(settings, "minFilter", filterOptions);
-    gui.add(settings, "minFilter", filterOptions);
     gui.add(settings, "scale", 0.5, 6);
 
     Object.assign(gui.domElement.style, {
@@ -84,10 +83,10 @@ import Texture from "./Texture.wgsl";
     const mipmaps = generateMipmaps(textureData, width);
 
     const texture = device.createTexture({
-        format: "rgba8unorm",
-        mipLevelCount: mipmaps.length,
+        usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
         size: [mipmaps[0].width, mipmaps[0].height],
-        usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST
+        mipLevelCount: mipmaps.length,
+        format: "rgba8unorm"
     });
 
     mipmaps.forEach(({ data, width, height }, mipLevel) =>
