@@ -9,9 +9,9 @@
  * @license MIT
  */
 
-import { UWAL, Color, Shaders } from "@/index";
+import { UWAL, Color, Shaders, TEXTURE } from "@/index";
 import { generateMipmaps } from "./mipmaps";
-import Texture from "./Texture.wgsl";
+import Shader from "./Texture.wgsl";
 
 (async function(canvas)
 {
@@ -30,9 +30,7 @@ import Texture from "./Texture.wgsl";
         undefined, "clear", "store", new Color(0x4c4c4c).rgba
     ));
 
-    const module = Renderer.CreateShaderModule([Shaders.Quad, Texture]);
-
-    const device = await UWAL.Device;
+    const module = Renderer.CreateShaderModule([Shaders.Quad, Shader]);
 
     Renderer.CreatePipeline({
         vertex: Renderer.CreateVertexState(module),
@@ -44,15 +42,15 @@ import Texture from "./Texture.wgsl";
     const offsetOffset = 2;
 
     const settings = {
-        addressModeU: "repeat",
-        addressModeV: "repeat",
-        magFilter: "linear",
-        minFilter: "linear",
+        addressModeU: TEXTURE.ADDRESS.REPEAT,
+        addressModeV: TEXTURE.ADDRESS.REPEAT,
+        magFilter: TEXTURE.FILTER.LINEAR,
+        minFilter: TEXTURE.FILTER.LINEAR,
         scale: 1
     };
 
-    const addressOptions = ["repeat", "clamp-to-edge"];
-    const filterOptions = ["nearest", "linear"];
+    const addressOptions = [TEXTURE.ADDRESS.REPEAT, TEXTURE.ADDRESS.CLAMP];
+    const filterOptions = [TEXTURE.FILTER.NEAREST, TEXTURE.FILTER.LINEAR];
 
     const gui = new GUI();
 
@@ -77,8 +75,9 @@ import Texture from "./Texture.wgsl";
     ].flat());
 
     const mipmaps = generateMipmaps(textureData, width);
+    const Texture = new (await UWAL.Texture());
 
-    const texture = device.createTexture({
+    const texture = Texture.CreateTexture({
         usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
         size: [mipmaps[0].width, mipmaps[0].height],
         mipLevelCount: mipmaps.length,
@@ -86,14 +85,11 @@ import Texture from "./Texture.wgsl";
     });
 
     mipmaps.forEach(({ data, width, height }, mipLevel) =>
-    {
-        device.queue.writeTexture(
-            { texture, mipLevel },
-            data,
-            { bytesPerRow: width * 4 },
-            { width, height }
-        );
-    });
+        Texture.WriteTexture(data, {
+            bytesPerRow: width * 4,
+            texture, mipLevel,
+            width, height
+        }));
 
     const transformBufferSize =
         2 * Float32Array.BYTES_PER_ELEMENT + // Scale  - 2 32bit floats
@@ -108,11 +104,11 @@ import Texture from "./Texture.wgsl";
 
     for (let s = 0; s < 16; s++)
     {
-        const sampler = device.createSampler({
-            addressModeU: (s & 1) ? "repeat" : "clamp-to-edge",
-            addressModeV: (s & 2) ? "repeat" : "clamp-to-edge",
-            magFilter:    (s & 4) ? "linear" : "nearest",
-            minFilter:    (s & 8) ? "linear" : "nearest"
+        const sampler = Texture.CreateSampler({
+            addressModeU: (s & 1) ? TEXTURE.ADDRESS.REPEAT : TEXTURE.ADDRESS.CLAMP,
+            addressModeV: (s & 2) ? TEXTURE.ADDRESS.REPEAT : TEXTURE.ADDRESS.CLAMP,
+            magFilter:    (s & 4) ? TEXTURE.FILTER.LINEAR : TEXTURE.FILTER.NEAREST,
+            minFilter:    (s & 8) ? TEXTURE.FILTER.LINEAR : TEXTURE.FILTER.NEAREST
         });
 
         Renderer.AddBindGroups(
@@ -146,10 +142,10 @@ import Texture from "./Texture.wgsl";
     {
         descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
 
-        const bindGroup = +(settings.addressModeU === "repeat") * 1 +
-                          +(settings.addressModeV === "repeat") * 2 +
-                          +(settings.magFilter    === "linear") * 4 +
-                          +(settings.minFilter    === "linear") * 8;
+        const bindGroup = +(settings.addressModeU === TEXTURE.ADDRESS.REPEAT) * 1 +
+                          +(settings.addressModeV === TEXTURE.ADDRESS.REPEAT) * 2 +
+                          +(settings.magFilter    === TEXTURE.FILTER.LINEAR)  * 4 +
+                          +(settings.minFilter    === TEXTURE.FILTER.LINEAR)  * 8;
 
         Renderer.SetActiveBindGroups(bindGroup);
         updateTransformBuffer(time * 0.001);

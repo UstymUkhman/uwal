@@ -10,7 +10,7 @@
  */
 
 import { createBlendedMipmap, createCheckedMipmap } from "../textures/mipmaps";
-import { UWAL, Color, Shaders } from "@/index";
+import { UWAL, Color, Shaders, TEXTURE } from "@/index";
 import MipmapFilter from "./MipmapFilter.wgsl";
 import { vec2, mat4 } from "wgpu-matrix";
 
@@ -33,7 +33,7 @@ import { vec2, mat4 } from "wgpu-matrix";
 
     const module = Renderer.CreateShaderModule([Shaders.Quad, MipmapFilter]);
 
-    const device = await UWAL.Device;
+    const Texture = new (await UWAL.Texture());
 
     Renderer.CreatePipeline({
         vertex: Renderer.CreateVertexState(module),
@@ -51,12 +51,12 @@ import { vec2, mat4 } from "wgpu-matrix";
 
     for (let i = 0; i < 8; i++)
     {
-        const sampler = device.createSampler({
-            addressModeU: "repeat",
-            addressModeV: "repeat",
-            magFilter:    (i & 1) ? "linear" : "nearest",
-            minFilter:    (i & 2) ? "linear" : "nearest",
-            mipmapFilter: (i & 4) ? "linear" : "nearest"
+        const sampler = Texture.CreateSampler({
+            addressModeU: TEXTURE.ADDRESS.REPEAT,
+            addressModeV: TEXTURE.ADDRESS.REPEAT,
+            magFilter:    (i & 1) ? TEXTURE.FILTER.LINEAR : TEXTURE.FILTER.NEAREST,
+            minFilter:    (i & 2) ? TEXTURE.FILTER.LINEAR : TEXTURE.FILTER.NEAREST,
+            mipmapFilter: (i & 4) ? TEXTURE.FILTER.LINEAR : TEXTURE.FILTER.NEAREST
         });
 
         const matrixBufferSize = 16 * Float32Array.BYTES_PER_ELEMENT;
@@ -107,7 +107,7 @@ import { vec2, mat4 } from "wgpu-matrix";
      */
     function createTextureWithMipmaps(mipmaps, label)
     {
-        const texture = device.createTexture({
+        const texture = Texture.CreateTexture({
             usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
             size: [mipmaps[0].width, mipmaps[0].height],
             mipLevelCount: mipmaps.length,
@@ -116,14 +116,11 @@ import { vec2, mat4 } from "wgpu-matrix";
         });
 
         mipmaps.forEach(({ data, width, height }, mipLevel) =>
-        {
-            device.queue.writeTexture(
-                { texture, mipLevel },
-                data,
-                { bytesPerRow: width * 4 },
-                { width, height }
-            );
-        });
+            Texture.WriteTexture(data, {
+                bytesPerRow: width * 4,
+                texture, mipLevel,
+                width, height
+            }));
 
         return texture;
     }
