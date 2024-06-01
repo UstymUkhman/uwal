@@ -62,10 +62,6 @@ import Texture from "./Texture.wgsl";
     gui.add(settings, "minFilter", filterOptions);
     gui.add(settings, "scale", 0.5, 6);
 
-    Object.assign(gui.domElement.style, {
-        right: "auto", left: "15px"
-    });
-
     const r = new Color(0xff0000).RGBA;
     const y = new Color(0xffff00).RGBA;
     const b = new Color(0x0000ff).RGBA;

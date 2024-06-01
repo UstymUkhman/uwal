@@ -93,3 +93,69 @@ export const generateMipmaps = (src, srcWidth) =>
 
     return mips;
 };
+
+export const createBlendedMipmap = () =>
+{
+    const w = [255, 255, 255, 255];
+    const r = [255,   0,   0, 255];
+    const b = [  0,  28, 116, 255];
+    const y = [255, 231,   0, 255];
+    const g = [ 58, 181,  75, 255];
+    const a = [ 38, 123, 167, 255];
+
+    const data = new Uint8Array(
+    [
+        w, r, r, r, r, r, r, a, a, r, r, r, r, r, r, w,
+        w, w, r, r, r, r, r, a, a, r, r, r, r, r, w, w,
+        w, w, w, r, r, r, r, a, a, r, r, r, r, w, w, w,
+        w, w, w, w, r, r, r, a, a, r, r, r, w, w, w, w,
+        w, w, w, w, w, r, r, a, a, r, r, w, w, w, w, w,
+        w, w, w, w, w, w, r, a, a, r, w, w, w, w, w, w,
+        w, w, w, w, w, w, w, a, a, w, w, w, w, w, w, w,
+        b, b, b, b, b, b, b, b, a, y, y, y, y, y, y, y,
+        b, b, b, b, b, b, b, g, y, y, y, y, y, y, y, y,
+        w, w, w, w, w, w, w, g, g, w, w, w, w, w, w, w,
+        w, w, w, w, w, w, r, g, g, r, w, w, w, w, w, w,
+        w, w, w, w, w, r, r, g, g, r, r, w, w, w, w, w,
+        w, w, w, w, r, r, r, g, g, r, r, r, w, w, w, w,
+        w, w, w, r, r, r, r, g, g, r, r, r, r, w, w, w,
+        w, w, r, r, r, r, r, g, g, r, r, r, r, r, w, w,
+        w, r, r, r, r, r, r, g, g, r, r, r, r, r, r, w
+    ].flat());
+
+    return generateMipmaps(data, 16);
+};
+
+export const createCheckedMipmap = () =>
+{
+    const context = document.createElement("canvas")
+        .getContext("2d", { willReadFrequently: true });
+
+    const levels =
+    [
+        { size: 64, color: "rgb(128,   0, 255)" },
+        { size: 32, color: "rgb(  0, 255,   0)" },
+        { size: 16, color: "rgb(255,   0,   0)" },
+        { size:  8, color: "rgb(255, 255,   0)" },
+        { size:  4, color: "rgb(  0,   0, 255)" },
+        { size:  2, color: "rgb(  0, 255, 255)" },
+        { size:  1, color: "rgb(255,   0, 255)" }
+    ];
+
+    return levels.map(({ size, color }, l) =>
+    {
+        context.canvas.width = size;
+        context.canvas.height = size;
+
+        context.fillStyle = l & 1 ? "#000" : "#fff";
+        context.fillRect(0, 0, size, size);
+
+        const halfSize = size / 2;
+        context.fillStyle = color;
+
+        context.fillRect(0, 0, halfSize, halfSize);
+        context.fillRect(halfSize, halfSize, halfSize, halfSize);
+
+        return context.getImageData(0, 0, size, size);
+    });
+};
