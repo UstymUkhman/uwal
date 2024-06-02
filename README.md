@@ -38,6 +38,7 @@ bun add uwal
 - [Uniforms](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#uniforms)
 - [Storage Buffers](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-buffers)
 - [Vertex Buffers](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#vertex-buffers)
-- [Textures](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#textures)
-- [Mipmap Filter](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#mipmap-filter)
-- [Loading Images](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-images)
+  - [Textures](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#textures)
+  - [Mipmap Filter](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#mipmap-filter)
+  - [Loading Images](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-images)
+  <!-- - [Generating mipmaps on the GPU](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#gpu-mipmaps) -->

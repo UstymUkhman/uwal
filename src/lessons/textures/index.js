@@ -30,12 +30,7 @@ import Shader from "./Texture.wgsl";
         undefined, "clear", "store", new Color(0x4c4c4c).rgba
     ));
 
-    const module = Renderer.CreateShaderModule([Shaders.Quad, Shader]);
-
-    Renderer.CreatePipeline({
-        vertex: Renderer.CreateVertexState(module),
-        fragment: Renderer.CreateFragmentState(module)
-    });
+    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, Shader]) });
 
     const width = 5;
     const scaleOffset = 0;

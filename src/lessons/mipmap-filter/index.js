@@ -31,14 +31,9 @@ import { vec2, mat4 } from "wgpu-matrix";
         undefined, "clear", "store", new Color(0x4c4c4c).rgba
     ));
 
-    const module = Renderer.CreateShaderModule([Shaders.Quad, MipmapFilter]);
+    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, MipmapFilter]) });
 
     const Texture = new (await UWAL.Texture());
-
-    Renderer.CreatePipeline({
-        vertex: Renderer.CreateVertexState(module),
-        fragment: Renderer.CreateFragmentState(module)
-    });
 
     let bindGroupIndex = 0;
     const matrixOffset = 0;

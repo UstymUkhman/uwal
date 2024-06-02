@@ -30,12 +30,7 @@ import Images from "./Images.wgsl";
         undefined, "clear", "store", new Color(0x4c4c4c).rgba
     ));
 
-    const module = Renderer.CreateShaderModule([Shaders.Quad, Images]);
-
-    Renderer.CreatePipeline({
-        vertex: Renderer.CreateVertexState(module),
-        fragment: Renderer.CreateFragmentState(module)
-    });
+    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, Images]) });
 
     const settings = {
         addressModeU: TEXTURE.ADDRESS.REPEAT,
