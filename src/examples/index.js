@@ -26,11 +26,6 @@ const codeButton = (
     (document.getElementById("code"))
 );
 
-function hideExamples()
-{
-    innerWidth <= 960 && aside.classList.add("hidden");
-}
-
 function createExamples()
 {
     const baseHref = import.meta.env.PROD && "examples.html" || "";
@@ -53,15 +48,16 @@ function createExamples()
 
 async function runExample()
 {
+    const mobile = innerWidth <= 960;
     const example = location.hash.slice(1);
 
     if (example === currentAnchor?.dataset.example)
     {
-        hideExamples();
         examplesButton.innerHTML = '&#62;';
+        codeButton.classList.remove("hidden");
         currentAnchor?.classList.add("active");
         examplesButton.classList.remove("hidden");
-        return codeButton.classList.remove("hidden");
+        return mobile && aside.classList.add("hidden");
     }
 
     if (!example)
@@ -87,8 +83,8 @@ async function runExample()
     currentAnchor = anchor || null;
 
     const { run, destroy } = await import(`./${example}/index.js`);
+    mobile && aside.classList.add("hidden");
     destroyCurrent = destroy;
-    hideExamples();
     run(canvas);
 };
 
@@ -100,9 +96,23 @@ examplesButton.addEventListener("click", () =>
 
 codeButton.addEventListener("click", () =>
 {
-    window.open(`https://github.com/UstymUkhman/uwal/blob/main/src/examples/${
+    open(`https://github.com/UstymUkhman/uwal/blob/main/src/examples/${
         location.hash.slice(1)
     }/index.js`, "_blank");
+}, false);
+
+addEventListener("resize", () =>
+{
+    if (!location.hash.slice(1)) return;
+
+    if (innerWidth > 960)
+        aside.classList.remove("hidden");
+
+    else
+    {
+        examplesButton.innerHTML = '&#62;';
+        aside.classList.add("hidden");
+    }
 }, false);
 
 addEventListener("hashchange", runExample, false);
