@@ -54,7 +54,7 @@ import Images from "./Images.wgsl";
 
     /** @param {string} url */
     const loadImageBitmap = async url =>
-        await createImageBitmap(
+        await Texture.CreateBitmapImage(
             await (await fetch(url)).blob(),
             { colorSpaceConversion: "none" }
         );
@@ -72,12 +72,7 @@ import Images from "./Images.wgsl";
         format: "rgba8unorm"
     });
 
-    Texture.CopyImageToTexture(source, {
-        height: source.height,
-        width: source.width,
-        flipY: true,
-        texture
-    });
+    Texture.CopyImageToTexture(source, { texture, flipY: true });
 
     for (let s = 0; s < 8; s++)
     {

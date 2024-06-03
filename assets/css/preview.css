@@ -18,21 +18,21 @@ button.rounded {
 
   border-radius: 50%;
   position: absolute;
+  user-select: none;
   font-weight: 800;
-  font-size: 20px;
 
+  font-size: 20px;
   cursor: pointer;
   color: #005a9c;
-  padding: 0px;
   border: none;
 
+  padding: 0px;
   height: 50px;
   width: 50px;
 }
 
 button#code.rounded {
   letter-spacing: -2px;
-
   margin-bottom: 2.5vw;
   margin-right: 2.5vw;
 
