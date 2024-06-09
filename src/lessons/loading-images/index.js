@@ -10,8 +10,8 @@
  */
 
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
-import Logo from "/assets/logo.png";
 import Images from "./Images.wgsl";
+import F from "~/assets/f.png";
 
 (async function(canvas)
 {
@@ -60,7 +60,7 @@ import Images from "./Images.wgsl";
         );
 
     const Texture = new (await UWAL.Texture());
-    const source = await loadImageBitmap(Logo);
+    const source = await loadImageBitmap(F);
 
     const texture = Texture.CreateTexture({
         usage:

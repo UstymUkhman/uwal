@@ -130,6 +130,7 @@ import { vec2, mat4 } from "wgpu-matrix";
             const x = o % 4 - 1.5;
             const y = +(o < 4) * 2 - 1;
 
+            const activeGroup = o * textures.length + bindGroupIndex;
             const v = [x * spacing[0], y * spacing[1], -depth * 0.5];
             mat4.translate(viewProjectionMatrix, v, matrix);
 
@@ -137,8 +138,8 @@ import { vec2, mat4 } from "wgpu-matrix";
             mat4.scale(matrix, [1, depth * 2, 1], matrix);
             mat4.translate(matrix, [-0.5, -0.5, 0], matrix);
 
-            Renderer.SetActiveBindGroups(o * 2 + bindGroupIndex);
             Renderer.WriteBuffer(matrixBuffer, matrixValues);
+            Renderer.SetActiveBindGroups(activeGroup);
             Renderer.Render(6, false);
         });
 

@@ -5,9 +5,13 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Node",
-    "paths": { "@/*": ["./lib/*"] },
     "typeRoots": ["node_modules/@types"],
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+
+    "paths": {
+      "@/*": ["./lib/*"],
+      "~/*": ["./src/*"]
+    }
   },
 
   "include": ["lib/**/*.js", "src/**/*.js", "types.d.ts"],
