@@ -170,14 +170,13 @@ import F from "~/assets/f.png";
      */
     function createTextureFromSource(source, { mipmaps, flip } = {})
     {
-        const texture = Texture.CreateTextureFromSource(source,
-        {
-            format: "rgba8unorm",
-            mipmaps,
+        const texture = Texture.CreateTextureFromSource(source, {
             usage:
-                GPUTextureUsage.COPY_DST |
+                GPUTextureUsage.RENDER_ATTACHMENT |
                 GPUTextureUsage.TEXTURE_BINDING |
-                GPUTextureUsage.RENDER_ATTACHMENT,
+                GPUTextureUsage.COPY_DST,
+            format: "rgba8unorm",
+            mipmaps
         });
 
         return copySourceToTexture(source, texture, flip);
