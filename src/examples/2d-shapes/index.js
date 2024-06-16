@@ -33,7 +33,7 @@ export async function run(canvas)
         Renderer.CreateColorAttachment(undefined, "clear", "store", [0.2, 0.1, 0.3, 1])
     );
 
-    const module = Renderer.CreateShaderModule([Shaders.Resolution, Shaders.Shape]);
+    const module = Renderer.CreateShaderModule(Shaders.Shape);
 
     Renderer.CreatePipeline({
         fragment: Renderer.CreateFragmentState(module),
