@@ -8,7 +8,7 @@
  * @license MIT
  */
 
-import { UWAL, Color, Shaders, Shape } from "@/index";
+import { UWAL, Color, Shaders, Shape, TEXTURE } from "@/index";
 import Textures from "./Textures.wgsl";
 import Logo from "~/assets/logo.jpg";
 
@@ -34,7 +34,7 @@ export async function run(canvas)
         translationBuffer,
         translationOffset;
 
-    const radius = 100,
+    const radius = 128,
           textures = 5,
           offset = 1 - 10 / (radius - (
               radius - Math.sqrt(2) * radius / 2
@@ -44,11 +44,11 @@ export async function run(canvas)
         Renderer.CreateColorAttachment(undefined, "clear", "store", new Color(0x19334c).rgba)
     );
 
-    const module = Renderer.CreateShaderModule([Shaders.Resolution, Textures]);
+    const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, Textures]);
 
     Renderer.CreatePipeline({
         fragment: Renderer.CreateFragmentState(module),
-        vertex: Renderer.CreateVertexState(module, "vertex", [
+        vertex: Renderer.CreateVertexState(module, "mainVertex", [
         {
             arrayStride: Float32Array.BYTES_PER_ELEMENT * 2,
             attributes: [Renderer.CreateVertexBufferAttribute("float32x2")]    // Position
@@ -69,8 +69,8 @@ export async function run(canvas)
     {
         createShape();
         createTranslation();
-        // createLogoTexture().then(render);
-        raf = requestAnimationFrame(render);
+        createLogoTexture().then(render);
+        // raf = requestAnimationFrame(render);
     }
 
     function createShape()
@@ -87,8 +87,6 @@ export async function run(canvas)
         ];
 
         shape.Rotation = Math.PI / 4;
-        shape.Color = new Color(0xffffff).rgba;
-
         vertices = shape.Update().Vertices;
     }
 
@@ -112,24 +110,25 @@ export async function run(canvas)
             { colorSpaceConversion: "none" }
         );
 
-        const texture = Texture.CreateTexture({
-            usage:
-                GPUTextureUsage.RENDER_ATTACHMENT |
-                GPUTextureUsage.TEXTURE_BINDING |
-                GPUTextureUsage.COPY_DST,
-
-            size: [logo.width, logo.height],
-            format: "rgba8unorm"
+        const texture = Texture.CopyImageToTexture(logo, {
+            flipY: true,
+            create: {
+                usage:
+                    GPUTextureUsage.RENDER_ATTACHMENT |
+                    GPUTextureUsage.TEXTURE_BINDING |
+                    GPUTextureUsage.COPY_DST,
+                format: "rgba8unorm"
+            }
         });
-
-        Texture.CopyImageToTexture(logo, { texture, flipY: true });
 
         Renderer.AddBindGroups(
             Renderer.CreateBindGroup(
                 Renderer.CreateBindGroupEntries([
-                    Texture.CreateSampler(),
-                    texture.createView()
-                ], [2, 3])
+                    Texture.CreateSampler({
+                        magFilter: TEXTURE.FILTER.LINEAR,
+                        minFilter: TEXTURE.FILTER.LINEAR
+                    }), texture.createView()
+                ]), 1
             )
         );
     }

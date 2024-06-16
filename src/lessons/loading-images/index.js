@@ -62,17 +62,16 @@ import F from "~/assets/f.png";
     const Texture = new (await UWAL.Texture());
     const source = await loadImageBitmap(F);
 
-    const texture = Texture.CreateTexture({
-        usage:
-            GPUTextureUsage.RENDER_ATTACHMENT |
-            GPUTextureUsage.TEXTURE_BINDING |
-            GPUTextureUsage.COPY_DST,
-
-        size: [source.width, source.height],
-        format: "rgba8unorm"
+    const texture = Texture.CopyImageToTexture(source, {
+        flipY: true,
+        create: {
+            usage:
+                GPUTextureUsage.RENDER_ATTACHMENT |
+                GPUTextureUsage.TEXTURE_BINDING |
+                GPUTextureUsage.COPY_DST,
+            format: "rgba8unorm"
+        }
     });
-
-    Texture.CopyImageToTexture(source, { texture, flipY: true });
 
     for (let s = 0; s < 8; s++)
     {

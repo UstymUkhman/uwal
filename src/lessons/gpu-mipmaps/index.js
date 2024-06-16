@@ -154,32 +154,24 @@ import F from "~/assets/f.png";
 
     /**
      * @param {ImageBitmap} source
-     * @param {GPUTexture} texture
-     * @param {boolean} [flip]
-     */
-    function copySourceToTexture(source, texture, flip = false)
-    {
-        Texture.CopyImageToTexture(source, { texture, flipY: flip });
-        texture.mipLevelCount > 1 && generateMipmaps(texture);
-        return texture;
-    }
-
-    /**
-     * @param {ImageBitmap} source
      * @param {{ mipmaps?: boolean; flip?: boolean }} [options]
      */
     function createTextureFromSource(source, { mipmaps, flip } = {})
     {
-        const texture = Texture.CreateTextureFromSource(source, {
-            usage:
-                GPUTextureUsage.RENDER_ATTACHMENT |
-                GPUTextureUsage.TEXTURE_BINDING |
-                GPUTextureUsage.COPY_DST,
-            format: "rgba8unorm",
-            mipmaps
+        const texture = Texture.CopyImageToTexture(source, {
+            flipY: flip,
+            create: {
+                usage:
+                    GPUTextureUsage.RENDER_ATTACHMENT |
+                    GPUTextureUsage.TEXTURE_BINDING |
+                    GPUTextureUsage.COPY_DST,
+                format: "rgba8unorm",
+                mipmaps
+            }
         });
 
-        return copySourceToTexture(source, texture, flip);
+        texture.mipLevelCount > 1 && generateMipmaps(texture);
+        return texture;
     }
 
     /**
