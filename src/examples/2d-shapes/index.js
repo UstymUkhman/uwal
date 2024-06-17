@@ -30,7 +30,7 @@ export async function run(canvas)
     const spin = [], speed = [], shapes = [], direction = [];
 
     const descriptor = Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment(undefined, "clear", "store", [0.2, 0.1, 0.3, 1])
+        Renderer.CreateColorAttachment(undefined, "clear", "store", [0.1, 0.2, 0.3, 1])
     );
 
     const module = Renderer.CreateShaderModule(Shaders.Shape);

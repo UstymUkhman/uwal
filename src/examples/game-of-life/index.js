@@ -33,8 +33,8 @@ export async function run(canvas)
     }
 
     let uniformBuffer, storageBufferIn, storageBufferOut;
-    let INSTANCES, step = 0, lastRender = performance.now();
     const bindGroups = [], WORKGROUP_SIZE = 8, RENDER_LOOP_INTERVAL = 250;
+    let INSTANCES, step = 0, lastRender = performance.now() - RENDER_LOOP_INTERVAL;
 
     const renderDescriptor = Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(undefined, "clear", "store", [0, 0, 0.4, 1])
@@ -89,7 +89,7 @@ export async function run(canvas)
     {
         cancelAnimationFrame(raf);
         bindGroups.splice(step = 0);
-        lastRender = performance.now();
+        lastRender = performance.now() - RENDER_LOOP_INTERVAL;
 
         [uniformBuffer, storageBufferIn, storageBufferOut]
             .forEach(buffer => buffer?.destroy());
