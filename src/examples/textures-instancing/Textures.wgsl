@@ -32,9 +32,5 @@ struct VertexOutput
 ) -> @location(0) vec4f
 {
     if (visible[instance] == 0) { discard; }
-    // return textureSample(Texture, Sampler, textureCoord);
-    let color = textureSample(Texture, Sampler, textureCoord);
-
-    if (color.a == 0) { discard; }
-    return color;
+    return textureSample(Texture, Sampler, textureCoord);
 }
