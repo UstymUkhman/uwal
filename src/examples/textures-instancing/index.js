@@ -29,21 +29,13 @@ export async function run(canvas)
         alert(error);
     }
 
-    let storage,
-        vertices,
-        translation,
-        textureIndex,
-        spawnTimeout,
-        storageBuffer,
-        timeout = 1000,
-        showAll = false,
-        halfCanvasWidth,
-        halfCanvasHeight;
+    const radius = 128, textures = 100;
 
-    const radius = 128, textures = 100, halfSide = Math.sqrt(2) * radius / 2;
+    let storage, storageBuffer, vertices, spawnTimeout, textureIndex,
+        textureUpdate = 500, lastRender = performance.now() - textureUpdate;
 
     const descriptor = Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment(undefined, "clear", "store", new Color(0x33194c).rgba)
+        Renderer.CreateColorAttachment(undefined, "clear", "store", new Color(0x19334c).rgba)
     );
 
     const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, Textures]);
@@ -65,10 +57,8 @@ export async function run(canvas)
     function clean()
     {
         cancelAnimationFrame(raf);
-        halfCanvasWidth = canvas.width / 2;
-        halfCanvasHeight = canvas.height / 2;
-        canvas.removeEventListener("click", onTouch, false);
-        canvas.removeEventListener("mousemove", onTouch, false);
+        clearTimeout(spawnTimeout);
+        lastRender = performance.now() - textureUpdate;
     }
 
     async function start()
@@ -77,12 +67,11 @@ export async function run(canvas)
         createStorageBuffer();
         createTranslationBuffer();
         await createLogoTexture();
+        requestAnimationFrame(render);
 
-        canvas.addEventListener("click", onTouch, false);
-        canvas.addEventListener("mousemove", onTouch, false);
-
-        spawnTimeout = setTimeout(spawnAll, timeout);
-        render();
+        spawnTimeout = setTimeout(() =>
+            textureUpdate = ~(textureIndex = -1)
+        , textureUpdate * 3);
     }
 
     function createShape()
@@ -114,23 +103,21 @@ export async function run(canvas)
 
     function createTranslationBuffer()
     {
-        const x = 1 - halfSide / halfCanvasWidth, y = 1 - halfSide / halfCanvasHeight;
-        const usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST;
+        const y = 1 - Math.sqrt(2) * radius / canvas.height;
+        const x = 1 - Math.sqrt(2) * radius / canvas.width;
         const stride = Float32Array.BYTES_PER_ELEMENT * 2;
         const size = stride * textures;
 
+        const usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST;
         const translationBuffer = Renderer.CreateBuffer({ size, usage });
         const translationOffset = stride / Float32Array.BYTES_PER_ELEMENT;
-        translation = new Float32Array(size / Float32Array.BYTES_PER_ELEMENT);
+        const translation = new Float32Array(size / Float32Array.BYTES_PER_ELEMENT);
 
         for (let t = textures; t--; )
-            translation.set([
-                random(-x, x),
-                random(-y, y)
-            ], translationOffset * t);
+            translation.set([random(-x, x), random(-y, y)], translationOffset * t);
 
-        Renderer.AddVertexBuffers(translationBuffer);
         Renderer.WriteBuffer(translationBuffer, translation);
+        Renderer.AddVertexBuffers(translationBuffer);
     }
 
     async function createLogoTexture()
@@ -167,27 +154,6 @@ export async function run(canvas)
         );
     }
 
-    /** @param {PointerEvent} event */
-    function onTouch({ offsetX, offsetY })
-    {
-        const t = textureIndex * 2;
-        const tx = translation[t] * halfCanvasWidth + halfCanvasWidth;
-        const ty = translation[t + 1] * -1 * halfCanvasHeight + halfCanvasHeight;
-
-        const minX = tx - halfSide;
-        const maxX = tx + halfSide;
-
-        const minY = ty - halfSide;
-        const maxY = ty + halfSide;
-
-        if (minX < offsetX && offsetX < maxX && minY < offsetY && offsetY < maxY)
-        {
-            clearTimeout(spawnTimeout);
-            spawnTimeout = setTimeout(spawnAll, timeout -= 250);
-            render();
-        }
-    }
-
     /**
      * @param {number} [min]
      * @param {number} [max]
@@ -200,27 +166,18 @@ export async function run(canvas)
         return Math.random() * (max - min) + min;
     }
 
-    function spawnAll()
+    /** @param {DOMHighResTimeStamp} time */
+    function render(time)
     {
-        clean();
-        showAll = true;
-        textureIndex = -1;
         raf = requestAnimationFrame(render);
-    }
-
-    function render()
-    {
+        if (time - lastRender < textureUpdate) return;
         descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
 
-        if (showAll)
-            raf = requestAnimationFrame(render),
-            ++textureIndex === storage.length - 1 &&
-            cancelAnimationFrame(raf);
+        textureUpdate
+            ? storage.fill(0) && (textureIndex = random(storage.length) | 0)
+            : ++textureIndex === storage.length - 1 && cancelAnimationFrame(raf);
 
-        else
-            storage.fill(0),
-            textureIndex = random(storage.length) | 0;
-
+        lastRender = time;
         storage[textureIndex] = 1;
 
         Renderer.WriteBuffer(storageBuffer, storage);
