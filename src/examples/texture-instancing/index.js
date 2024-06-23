@@ -1,5 +1,5 @@
 /**
- * @example Textures / Instancing
+ * @example Texture / Instancing
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This example is developed by using a version listed below.
  * Please note that this code may be simplified in future
@@ -9,7 +9,7 @@
  */
 
 import { UWAL, Color, Shaders, Shape, TEXTURE } from "@/index";
-import Textures from "./Textures.wgsl";
+import Texture from "./Texture.wgsl";
 import Logo from "~/assets/logo.jpg";
 
 /** @type {number} */ let raf;
@@ -22,7 +22,7 @@ export async function run(canvas)
 
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(canvas, "Textures / Instancing"));
+        Renderer = new (await UWAL.RenderPipeline(canvas, "Texture / Instancing"));
     }
     catch (error)
     {
@@ -38,7 +38,7 @@ export async function run(canvas)
         Renderer.CreateColorAttachment(undefined, "clear", "store", new Color(0x19334c).rgba)
     );
 
-    const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, Textures]);
+    const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, Texture]);
 
     Renderer.CreatePipeline({
         fragment: Renderer.CreateFragmentState(module),
