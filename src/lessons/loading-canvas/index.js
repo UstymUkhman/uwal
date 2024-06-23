@@ -1,8 +1,8 @@
 /**
- * @module GPU Mipmaps
+ * @module Loading Canvas
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Loading Images into Textures
- * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#generating-mips-on-the-gpu}&nbsp;
+ * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#loading-canvas}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
  * @version 0.0.5
@@ -10,12 +10,9 @@
  */
 
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
-import Granite from "~/assets/granite.jpeg";
-import GPUMipmaps from "./GPUMipmaps.wgsl";
-import GPUMipmap from "./GPUMipmap.wgsl";
+import GPUMipmaps from "../gpu-mipmaps/GPUMipmaps.wgsl";
+import GPUMipmap from "../gpu-mipmaps/GPUMipmap.wgsl";
 import { vec2, mat4 } from "wgpu-matrix";
-import Coins from "~/assets/coins.jpg";
-import F from "~/assets/f.png";
 
 (async function(canvas)
 {
@@ -23,7 +20,7 @@ import F from "~/assets/f.png";
 
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(canvas, "GPU Mipmaps"));
+        Renderer = new (await UWAL.RenderPipeline(canvas, "Loading Canvas"));
     }
     catch (error)
     {
@@ -78,22 +75,17 @@ import F from "~/assets/f.png";
         };
     })();
 
-    /** @param {string} url */
-    const loadImageBitmap = async url =>
-        await Texture.CreateBitmapImage(
-            await (await fetch(url)).blob(),
-            { colorSpaceConversion: "none" }
-        );
+    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, GPUMipmaps]) });
 
-    const Texture = new (await UWAL.Texture());
+    const colorAttachment = Renderer.CreateColorAttachment();
+    colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
+    Renderer.CreatePassDescriptor(colorAttachment);
 
-    const textures = await Promise.all([
-        createTextureFromImage(F, { mipmaps: true }),
-        createTextureFromImage(Coins, { mipmaps: true }),
-        createTextureFromImage(Granite, { mipmaps: true })
-    ]);
+    Renderer.ClearBindGroups();
 
-    let bindGroupIndex = 0;
+    const size = 256;
+    const half = size / 2;
+
     const matrixOffset = 0;
     const objectInfos = [];
 
@@ -111,13 +103,11 @@ import F from "~/assets/f.png";
     const viewMatrix = mat4.inverse(mat4.lookAt(cameraPosition, target, up));
     const viewProjectionMatrix = mat4.multiply(projectionMatrix, viewMatrix);
 
-    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, GPUMipmaps]) });
+    const context2d = document.createElement("canvas").getContext("2d");
+    context2d.canvas.width = context2d.canvas.height = size;
 
-    const colorAttachment = Renderer.CreateColorAttachment();
-    colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
-    Renderer.CreatePassDescriptor(colorAttachment);
-
-    Renderer.ClearBindGroups();
+    const Texture = new (await UWAL.Texture());
+    const texture = createTextureFromSource(context2d.canvas);
 
     for (let i = 0; i < 8; i++)
     {
@@ -139,7 +129,7 @@ import F from "~/assets/f.png";
         const matrixValues = new Float32Array(matrixBufferSize / Float32Array.BYTES_PER_ELEMENT);
         const matrix = matrixValues.subarray(matrixOffset, 16);
 
-        Renderer.AddBindGroups(textures.map(texture =>
+        Renderer.AddBindGroups(
             Renderer.CreateBindGroup(
                 Renderer.CreateBindGroupEntries([
                     sampler,
@@ -147,52 +137,83 @@ import F from "~/assets/f.png";
                     { buffer: matrixBuffer }
                 ])
             )
-        ));
+        );
 
         objectInfos.push({ matrixBuffer, matrixValues, matrix });
     }
 
     /**
-     * @param {ImageBitmap} source
+     * @param {number} h
+     * @param {number} s
+     * @param {number} l
+     */
+    const hsl = (h, s, l) => `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
+
+    /**
+     * @param {HTMLCanvasElement} source
      * @param {{ mipmaps?: boolean; flip?: boolean }} [options]
      */
     function createTextureFromSource(source, { mipmaps, flip } = {})
     {
-        const texture = Texture.CopyImageToTexture(source, {
-            flipY: flip,
-            create: {
-                usage:
-                    GPUTextureUsage.RENDER_ATTACHMENT |
-                    GPUTextureUsage.TEXTURE_BINDING |
-                    GPUTextureUsage.COPY_DST,
-                format: "rgba8unorm",
-                mipmaps
-            }
+        const texture = Texture.CreateTextureFromSource(source, {
+            usage:
+                GPUTextureUsage.RENDER_ATTACHMENT |
+                GPUTextureUsage.TEXTURE_BINDING |
+                GPUTextureUsage.COPY_DST,
+            format: "rgba8unorm",
+            mipmaps
         });
 
-        texture.mipLevelCount > 1 && generateMipmaps(texture);
+        copySourceToTexture(source, texture, flip);
         return texture;
     }
 
     /**
-     * @param {string} url
-     * @param {{ mipmaps?: boolean; flip?: boolean }} [options]
+     * @param {HTMLCanvasElement} source
+     * @param {GPUTexture} texture
+     * @param {boolean} [flipY = false]
      */
-    async function createTextureFromImage(url, options)
+    function copySourceToTexture(source, texture, flipY = false)
     {
-        const source = await loadImageBitmap(url);
-        return createTextureFromSource(source, options);
+        Texture.CopyImageToTexture(source, { texture, flipY });
+        texture.mipLevelCount > 1 && generateMipmaps(texture);
     }
 
-    function render()
+    /** @param {DOMHighResTimeStamp} time */
+    function updateCanvas2d(time)
     {
+        context2d.clearRect(0, 0, size, size);
+        context2d.save();
+        context2d.translate(half, half);
+
+        const rects = 20;
+
+        for (let r = 0; r < rects; r++)
+        {
+            context2d.fillStyle = hsl(r / rects * 0.2 + time * 0.1, 1, r % 2 * 0.5);
+            context2d.fillRect(-half, -half, size, size);
+
+            context2d.rotate(time * 0.5);
+            context2d.scale(0.85, 0.85);
+            context2d.translate(size / 16, 0);
+        }
+
+        context2d.restore();
+    }
+
+    /** @param {DOMHighResTimeStamp} time */
+    function render(time)
+    {
+        updateCanvas2d(time * 1e-4);
+        requestAnimationFrame(render);
+        copySourceToTexture(context2d.canvas, texture);
+
         objectInfos.forEach(({ matrix, matrixBuffer, matrixValues }, o) =>
         {
             const depth = 50;
             const x = o % 4 - 1.5;
             const y = +(o < 4) * 2 - 1;
 
-            const activeGroup = o * textures.length + bindGroupIndex;
             const v = [x * spacing[0], y * spacing[1], -depth * 0.5];
             mat4.translate(viewProjectionMatrix, v, matrix);
 
@@ -201,7 +222,7 @@ import F from "~/assets/f.png";
             mat4.translate(matrix, [-0.5, -0.5, 0], matrix);
 
             Renderer.WriteBuffer(matrixBuffer, matrixValues);
-            Renderer.SetActiveBindGroups(activeGroup);
+            Renderer.SetActiveBindGroups(o);
             Renderer.Render(6, false);
         });
 
@@ -219,16 +240,10 @@ import F from "~/assets/f.png";
         mat4.perspective(fov, Renderer.AspectRatio, near, far, projectionMatrix);
         mat4.multiply(projectionMatrix, viewMatrix, viewProjectionMatrix);
 
-        render();
+        requestAnimationFrame(render);
     });
 
     observer.observe(canvas);
-
-    canvas.addEventListener("click", () =>
-    {
-        bindGroupIndex = (bindGroupIndex + 1) % textures.length;
-        render();
-    });
 })(
     /** @type {HTMLCanvasElement} */
     (document.getElementById("lesson"))
