@@ -34,11 +34,11 @@ export async function run(canvas)
     let storage, storageBuffer, vertices, spawnTimeout, textureIndex,
         textureUpdate = 500, lastRender = performance.now() - textureUpdate;
 
-    Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment(undefined, "clear", "store", new Color(0x19334c).rgba)
-    );
-
     const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, Texture]);
+
+    const colorAttachment = Renderer.CreateColorAttachment();
+    colorAttachment.clearValue = new Color(0x19334c).rgba;
+    Renderer.CreatePassDescriptor(colorAttachment);
 
     Renderer.CreatePipeline({
         fragment: Renderer.CreateFragmentState(module),

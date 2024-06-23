@@ -27,11 +27,11 @@ import { vec2, mat4 } from "wgpu-matrix";
         alert(error);
     }
 
-    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
-        undefined, "clear", "store", new Color(0x4c4c4c).rgba
-    ));
-
     Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, MipmapFilter]) });
+
+    const colorAttachment = Renderer.CreateColorAttachment();
+    colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
+    Renderer.CreatePassDescriptor(colorAttachment);
 
     const Texture = new (await UWAL.Texture());
 

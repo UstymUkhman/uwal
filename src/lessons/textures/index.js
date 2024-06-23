@@ -26,11 +26,11 @@ import Shader from "./Texture.wgsl";
         alert(error);
     }
 
-    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
-        undefined, "clear", "store", new Color(0x4c4c4c).rgba
-    ));
-
     Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, Shader]) });
+
+    const colorAttachment = Renderer.CreateColorAttachment();
+    colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
+    Renderer.CreatePassDescriptor(colorAttachment);
 
     const width = 5;
     const scaleOffset = 0;
