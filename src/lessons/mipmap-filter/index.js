@@ -27,7 +27,7 @@ import { vec2, mat4 } from "wgpu-matrix";
         alert(error);
     }
 
-    const descriptor = Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
+    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
         undefined, "clear", "store", new Color(0x4c4c4c).rgba
     ));
 
@@ -122,8 +122,6 @@ import { vec2, mat4 } from "wgpu-matrix";
 
     function render()
     {
-        descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
-
         objectInfos.forEach(({ matrix, matrixBuffer, matrixValues }, o) =>
         {
             const depth = 50;

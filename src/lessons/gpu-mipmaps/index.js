@@ -70,7 +70,7 @@ import F from "~/assets/f.png";
                 );
 
                 Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
-                    texture.createView({ baseMipLevel, mipLevelCount: 1 }), "clear", "store"
+                    texture.createView({ baseMipLevel, mipLevelCount: 1 }), "clear"
                 ));
 
                 Renderer.Render(6);
@@ -113,7 +113,7 @@ import F from "~/assets/f.png";
 
     Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, GPUMipmaps]) });
 
-    const descriptor = Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
+    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
         undefined, "clear", "store", new Color(0x4c4c4c).rgba
     ));
 
@@ -186,8 +186,6 @@ import F from "~/assets/f.png";
 
     function render()
     {
-        descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
-
         objectInfos.forEach(({ matrix, matrixBuffer, matrixValues }, o) =>
         {
             const depth = 50;

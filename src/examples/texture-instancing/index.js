@@ -34,7 +34,7 @@ export async function run(canvas)
     let storage, storageBuffer, vertices, spawnTimeout, textureIndex,
         textureUpdate = 500, lastRender = performance.now() - textureUpdate;
 
-    const descriptor = Renderer.CreatePassDescriptor(
+    Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(undefined, "clear", "store", new Color(0x19334c).rgba)
     );
 
@@ -171,7 +171,6 @@ export async function run(canvas)
     {
         raf = requestAnimationFrame(render);
         if (time - lastRender < textureUpdate) return;
-        descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
 
         textureUpdate
             ? storage.fill(0) && (textureIndex = random(storage.length) | 0)

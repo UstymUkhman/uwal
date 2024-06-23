@@ -26,7 +26,7 @@ import F from "~/assets/f.png";
         alert(error);
     }
 
-    const descriptor = Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
+    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
         undefined, "clear", "store", new Color(0x4c4c4c).rgba
     ));
 
@@ -92,8 +92,6 @@ import F from "~/assets/f.png";
 
     function render()
     {
-        descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
-
         const bindGroup = +(settings.addressModeU === TEXTURE.ADDRESS.REPEAT) * 1 +
                           +(settings.addressModeV === TEXTURE.ADDRESS.REPEAT) * 2 +
                           +(settings.magFilter    === TEXTURE.FILTER.LINEAR)  * 4;
