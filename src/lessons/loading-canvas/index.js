@@ -75,14 +75,6 @@ import { vec2, mat4 } from "wgpu-matrix";
         };
     })();
 
-    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, GPUMipmaps]) });
-
-    const colorAttachment = Renderer.CreateColorAttachment();
-    colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
-    Renderer.CreatePassDescriptor(colorAttachment);
-
-    Renderer.ClearBindGroups();
-
     const size = 256;
     const half = size / 2;
 
@@ -107,7 +99,15 @@ import { vec2, mat4 } from "wgpu-matrix";
     context2d.canvas.width = context2d.canvas.height = size;
 
     const Texture = new (await UWAL.Texture());
-    const texture = createTextureFromSource(context2d.canvas);
+    const texture = createTextureFromSource(context2d.canvas, { mipmaps: true });
+
+    const pipeline = Renderer.CreatePipeline({
+        module: Renderer.CreateShaderModule([Shaders.Quad, GPUMipmaps])
+    });
+
+    const colorAttachment = Renderer.CreateColorAttachment();
+    colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
+    const descriptor = Renderer.CreatePassDescriptor(colorAttachment);
 
     for (let i = 0; i < 8; i++)
     {
@@ -129,17 +129,16 @@ import { vec2, mat4 } from "wgpu-matrix";
         const matrixValues = new Float32Array(matrixBufferSize / Float32Array.BYTES_PER_ELEMENT);
         const matrix = matrixValues.subarray(matrixOffset, 16);
 
-        Renderer.AddBindGroups(
+        const bindGroup =
             Renderer.CreateBindGroup(
                 Renderer.CreateBindGroupEntries([
                     sampler,
                     texture.createView(),
                     { buffer: matrixBuffer }
                 ])
-            )
-        );
+            );
 
-        objectInfos.push({ matrixBuffer, matrixValues, matrix });
+        objectInfos.push({ matrixBuffer, matrixValues, matrix, bindGroup });
     }
 
     /**
@@ -208,7 +207,17 @@ import { vec2, mat4 } from "wgpu-matrix";
         requestAnimationFrame(render);
         copySourceToTexture(context2d.canvas, texture);
 
-        objectInfos.forEach(({ matrix, matrixBuffer, matrixValues }, o) =>
+        // Using `descriptor.colorAttachments[0].view = undefined` here is an alternative to
+        // setting `Renderer.UseCurrentTextureView` to `true` after calling `Renderer.SetPassDescriptor`.
+        // `Renderer.UseCurrentTextureView` will be still set to `true` in the `SetPassDescriptor` method,
+        // but `descriptor.colorAttachments[0].view` value is cached across render cycles, so we need to reset it
+        // at the beginning of each render pass in order to avoid using a destroyed texture in `Renderer.Submit` method.
+
+        Renderer.SetPassDescriptor(descriptor);
+        Renderer.UseCurrentTextureView = true;
+        Renderer.SetPipeline(pipeline);
+
+        objectInfos.forEach(({ matrix, matrixBuffer, matrixValues, bindGroup }, o) =>
         {
             const depth = 50;
             const x = o % 4 - 1.5;
@@ -222,7 +231,7 @@ import { vec2, mat4 } from "wgpu-matrix";
             mat4.translate(matrix, [-0.5, -0.5, 0], matrix);
 
             Renderer.WriteBuffer(matrixBuffer, matrixValues);
-            Renderer.SetActiveBindGroups(o);
+            Renderer.SetBindGroups(bindGroup);
             Renderer.Render(6, false);
         });
 
