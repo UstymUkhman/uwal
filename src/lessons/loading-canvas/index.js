@@ -11,7 +11,6 @@
 
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
 import GPUMipmaps from "../gpu-mipmaps/GPUMipmaps.wgsl";
-import GPUMipmap from "../gpu-mipmaps/GPUMipmap.wgsl";
 import { vec2, mat4 } from "wgpu-matrix";
 
 (async function(canvas)
@@ -26,54 +25,6 @@ import { vec2, mat4 } from "wgpu-matrix";
     {
         alert(error);
     }
-
-    const generateMipmaps = (() =>
-    {
-        let module, sampler;
-
-        /** @param {GPUTexture} texture */
-        return (texture) =>
-        {
-            if (!module)
-            {
-                module = Renderer.CreateShaderModule([Shaders.Quad, GPUMipmap]);
-                sampler = Texture.CreateSampler({ minFilter: TEXTURE.FILTER.LINEAR });
-            }
-
-            Renderer.CreatePipeline({
-                fragment: Renderer.CreateFragmentState(module, "fragment", { format: texture.format }),
-                vertex: Renderer.CreateVertexState(module)
-            });
-
-            let baseMipLevel = 0;
-            let width = texture.width;
-            let height = texture.height;
-
-            while (1 < width || 1 < height)
-            {
-                width = Math.max(width / 2 | 0, 1);
-                height = Math.max(height / 2 | 0, 1);
-
-                Renderer.SetBindGroups(
-                    Renderer.CreateBindGroup(
-                        Renderer.CreateBindGroupEntries([
-                            sampler,
-                            texture.createView({
-                                baseMipLevel: baseMipLevel++,
-                                mipLevelCount: 1
-                            })
-                        ])
-                    )
-                );
-
-                Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
-                    texture.createView({ baseMipLevel, mipLevelCount: 1 })
-                ));
-
-                Renderer.Render(6);
-            }
-        };
-    })();
 
     const size = 256;
     const half = size / 2;
@@ -99,15 +50,14 @@ import { vec2, mat4 } from "wgpu-matrix";
     context2d.canvas.width = context2d.canvas.height = size;
 
     const Texture = new (await UWAL.Texture());
-    const texture = createTextureFromSource(context2d.canvas, { mipmaps: true });
+    Texture.SetRenderer(Renderer);
 
-    const pipeline = Renderer.CreatePipeline({
-        module: Renderer.CreateShaderModule([Shaders.Quad, GPUMipmaps])
-    });
+    const texture = createTextureFromSource(context2d.canvas, true);
+    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, GPUMipmaps]) });
 
     const colorAttachment = Renderer.CreateColorAttachment();
     colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
-    const descriptor = Renderer.CreatePassDescriptor(colorAttachment);
+    Renderer.CreatePassDescriptor(colorAttachment);
 
     for (let i = 0; i < 8; i++)
     {
@@ -129,16 +79,17 @@ import { vec2, mat4 } from "wgpu-matrix";
         const matrixValues = new Float32Array(matrixBufferSize / Float32Array.BYTES_PER_ELEMENT);
         const matrix = matrixValues.subarray(matrixOffset, 16);
 
-        const bindGroup =
+        Renderer.AddBindGroups(
             Renderer.CreateBindGroup(
                 Renderer.CreateBindGroupEntries([
                     sampler,
                     texture.createView(),
                     { buffer: matrixBuffer }
                 ])
-            );
+            )
+        );
 
-        objectInfos.push({ matrixBuffer, matrixValues, matrix, bindGroup });
+        objectInfos.push({ matrixBuffer, matrixValues, matrix });
     }
 
     /**
@@ -150,32 +101,18 @@ import { vec2, mat4 } from "wgpu-matrix";
 
     /**
      * @param {HTMLCanvasElement} source
-     * @param {{ mipmaps?: boolean; flip?: boolean }} [options]
+     * @param {boolean} [mipmaps]
      */
-    function createTextureFromSource(source, { mipmaps, flip } = {})
+    function createTextureFromSource(source, mipmaps = false)
     {
-        const texture = Texture.CreateTextureFromSource(source, {
+        return Texture.CopyImageToTexture(source, { create: {
             usage:
                 GPUTextureUsage.RENDER_ATTACHMENT |
                 GPUTextureUsage.TEXTURE_BINDING |
                 GPUTextureUsage.COPY_DST,
             format: "rgba8unorm",
             mipmaps
-        });
-
-        copySourceToTexture(source, texture, flip);
-        return texture;
-    }
-
-    /**
-     * @param {HTMLCanvasElement} source
-     * @param {GPUTexture} texture
-     * @param {boolean} [flipY = false]
-     */
-    function copySourceToTexture(source, texture, flipY = false)
-    {
-        Texture.CopyImageToTexture(source, { texture, flipY });
-        texture.mipLevelCount > 1 && generateMipmaps(texture);
+        }});
     }
 
     /** @param {DOMHighResTimeStamp} time */
@@ -205,19 +142,9 @@ import { vec2, mat4 } from "wgpu-matrix";
     {
         updateCanvas2d(time * 1e-4);
         requestAnimationFrame(render);
-        copySourceToTexture(context2d.canvas, texture);
+        Texture.CopyImageToTexture(context2d.canvas, { texture });
 
-        // Using `descriptor.colorAttachments[0].view = undefined` here is an alternative to
-        // setting `Renderer.UseCurrentTextureView` to `true` after calling `Renderer.SetPassDescriptor`.
-        // `Renderer.UseCurrentTextureView` will be still set to `true` in the `SetPassDescriptor` method,
-        // but `descriptor.colorAttachments[0].view` value is cached across render cycles, so we need to reset it
-        // at the beginning of each render pass in order to avoid using a destroyed texture in `Renderer.Submit` method.
-
-        Renderer.SetPassDescriptor(descriptor);
-        Renderer.UseCurrentTextureView = true;
-        Renderer.SetPipeline(pipeline);
-
-        objectInfos.forEach(({ matrix, matrixBuffer, matrixValues, bindGroup }, o) =>
+        objectInfos.forEach(({ matrix, matrixBuffer, matrixValues }, o) =>
         {
             const depth = 50;
             const x = o % 4 - 1.5;
@@ -231,7 +158,7 @@ import { vec2, mat4 } from "wgpu-matrix";
             mat4.translate(matrix, [-0.5, -0.5, 0], matrix);
 
             Renderer.WriteBuffer(matrixBuffer, matrixValues);
-            Renderer.SetBindGroups(bindGroup);
+            Renderer.SetActiveBindGroups(o);
             Renderer.Render(6, false);
         });
 

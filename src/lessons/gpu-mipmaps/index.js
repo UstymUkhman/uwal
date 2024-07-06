@@ -12,7 +12,6 @@
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
 import Granite from "~/assets/granite.jpeg";
 import GPUMipmaps from "./GPUMipmaps.wgsl";
-import GPUMipmap from "./GPUMipmap.wgsl";
 import { vec2, mat4 } from "wgpu-matrix";
 import Coins from "~/assets/coins.jpg";
 import F from "~/assets/f.png";
@@ -30,54 +29,6 @@ import F from "~/assets/f.png";
         alert(error);
     }
 
-    const generateMipmaps = (() =>
-    {
-        let module, sampler;
-
-        /** @param {GPUTexture} texture */
-        return (texture) =>
-        {
-            if (!module)
-            {
-                module = Renderer.CreateShaderModule([Shaders.Quad, GPUMipmap]);
-                sampler = Texture.CreateSampler({ minFilter: TEXTURE.FILTER.LINEAR });
-            }
-
-            Renderer.CreatePipeline({
-                fragment: Renderer.CreateFragmentState(module, "fragment", { format: texture.format }),
-                vertex: Renderer.CreateVertexState(module)
-            });
-
-            let baseMipLevel = 0;
-            let width = texture.width;
-            let height = texture.height;
-
-            while (1 < width || 1 < height)
-            {
-                width = Math.max(width / 2 | 0, 1);
-                height = Math.max(height / 2 | 0, 1);
-
-                Renderer.SetBindGroups(
-                    Renderer.CreateBindGroup(
-                        Renderer.CreateBindGroupEntries([
-                            sampler,
-                            texture.createView({
-                                baseMipLevel: baseMipLevel++,
-                                mipLevelCount: 1
-                            })
-                        ])
-                    )
-                );
-
-                Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(
-                    texture.createView({ baseMipLevel, mipLevelCount: 1 })
-                ));
-
-                Renderer.Render(6);
-            }
-        };
-    })();
-
     /** @param {string} url */
     const loadImageBitmap = async url =>
         await Texture.CreateBitmapImage(
@@ -86,6 +37,7 @@ import F from "~/assets/f.png";
         );
 
     const Texture = new (await UWAL.Texture());
+    Texture.SetRenderer(Renderer);
 
     const textures = await Promise.all([
         createTextureFromImage(F, { mipmaps: true }),
@@ -116,8 +68,6 @@ import F from "~/assets/f.png";
     const colorAttachment = Renderer.CreateColorAttachment();
     colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
     Renderer.CreatePassDescriptor(colorAttachment);
-
-    Renderer.ClearBindGroups();
 
     for (let i = 0; i < 8; i++)
     {
@@ -153,13 +103,16 @@ import F from "~/assets/f.png";
     }
 
     /**
-     * @param {ImageBitmap} source
+     * @param {string} url
      * @param {{ mipmaps?: boolean; flip?: boolean }} [options]
      */
-    function createTextureFromSource(source, { mipmaps, flip } = {})
+    async function createTextureFromImage(url, options)
     {
-        const texture = Texture.CopyImageToTexture(source, {
-            flipY: flip,
+        const { mipmaps, flip: flipY } = options;
+        const source = await loadImageBitmap(url);
+
+        return Texture.CopyImageToTexture(source, {
+            flipY,
             create: {
                 usage:
                     GPUTextureUsage.RENDER_ATTACHMENT |
@@ -169,19 +122,6 @@ import F from "~/assets/f.png";
                 mipmaps
             }
         });
-
-        texture.mipLevelCount > 1 && generateMipmaps(texture);
-        return texture;
-    }
-
-    /**
-     * @param {string} url
-     * @param {{ mipmaps?: boolean; flip?: boolean }} [options]
-     */
-    async function createTextureFromImage(url, options)
-    {
-        const source = await loadImageBitmap(url);
-        return createTextureFromSource(source, options);
     }
 
     function render()
