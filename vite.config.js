@@ -30,8 +30,8 @@ export default({ mode }) =>
 
     return defineConfig(
     {
-        ...config,
         build,
+        ...config,
 
         plugins:
         [
