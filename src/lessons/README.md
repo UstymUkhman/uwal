@@ -15,5 +15,6 @@
 | [Loading Images](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-images) | [Code](./loading-images/index.js) |
 | [Generating mipmaps on the GPU](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#generating-mips-on-the-gpu) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#gpu-mipmaps) | [Code](./gpu-mipmaps/index.js) |
 | [Loading Canvas](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#loading-canvas) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-canvas) | [Code](./loading-canvas/index.js) |
+| [Loading Video](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#loading-video) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-video) | [Code](./loading-video/index.js) |
 |   |   |   |
 |   |   |   |

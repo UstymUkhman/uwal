@@ -43,3 +43,4 @@ bun add uwal
   - [Loading Images](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-images)
   - [Generating mipmaps on the GPU](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#gpu-mipmaps)
   - [Loading Canvas](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-canvas)
+  - [Loading Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-video)
