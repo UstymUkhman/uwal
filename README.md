@@ -45,3 +45,4 @@ bun add uwal
   - [Loading Canvas](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-canvas)
   - [Loading Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-video)
   - Texture Atlases
+  - [Using Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#using-video)
