@@ -102,13 +102,10 @@ import Video from "~/assets/video.mp4";
         });
     }
 
-    const device = await UWAL.Device;
-
     function render()
     {
         requestAnimationFrame(render);
-
-        const texture = device.importExternalTexture({ source: video });
+        const texture = Texture.ImportExternalTexture(video);
 
         objectInfos.forEach(({ matrix, sampler, matrixBuffer, matrixValues }, o) =>
         {
