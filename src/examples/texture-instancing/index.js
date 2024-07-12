@@ -1,5 +1,5 @@
 /**
- * @example Texture / Instancing
+ * @example Texture Instancing
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This example is developed by using a version listed below.
  * Please note that this code may be simplified in future
@@ -22,7 +22,7 @@ export async function run(canvas)
 
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(canvas, "Texture / Instancing"));
+        Renderer = new (await UWAL.RenderPipeline(canvas, "Texture Instancing"));
     }
     catch (error)
     {
