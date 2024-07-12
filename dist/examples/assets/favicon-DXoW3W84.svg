@@ -5,5 +5,5 @@
   <path d="M416 146L324 192V100L416 146Z" fill="#0076CC" />
   <path d="M324 92L416 46V138L324 92Z" fill="#0093FF" />
   <path d="M324 200L416 154V246L324 200Z" fill="#0066B0" />
-  <rect x="96" y="92" width="92" height="162" fill="#005A9C" />
+  <path d="M188 92H96V300H188V92Z" fill="#005A9C" />
 </svg>
