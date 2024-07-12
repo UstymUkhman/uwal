@@ -14,5 +14,9 @@
     {
         "name": "Texture Instancing",
         "slug": "texture-instancing"
+    },
+    {
+        "name": "Video Postprocessing",
+        "slug": "video-postprocessing"
     }
 ]

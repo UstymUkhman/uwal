@@ -2,7 +2,7 @@ struct VertexOutput
 {
     @location(0) textureCoord: vec2f,
     @builtin(position) position: vec4f,
-    @location(1) @interpolate(flat) instance: u32,
+    @location(1) @interpolate(flat) instance: u32
 };
 
 @group(1) @binding(0) var Sampler: sampler;
