@@ -65,11 +65,11 @@
     "build:pages": "bun build:lessons && bun build:examples"
   },
   "dependencies": {
-    "wgpu-matrix": "^2.8.0"
+    "wgpu-matrix": "^3.0.1"
   },
   "devDependencies": {
-    "@webgpu/types": "^0.1.40",
-    "vite": "^5.2.0",
+    "@webgpu/types": "^0.1.44",
+    "vite": "^5.3.3",
     "vite-plugin-glsl": "^1.3.0"
   },
   "engines": {
