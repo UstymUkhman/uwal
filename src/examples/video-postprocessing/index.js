@@ -46,28 +46,11 @@ export async function run(canvas)
 
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment());
 
-    function clean()
-    {
-        cancelAnimationFrame(raf);
-    }
-
     async function start()
     {
         await playVideo();
         createVideoBuffer();
         raf = requestAnimationFrame(render);
-    }
-
-    function createVideoBuffer()
-    {
-        videoValues = new Float32Array(4);
-
-        videoBuffer = Renderer.CreateBuffer({
-            size: Float32Array.BYTES_PER_ELEMENT * 4,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-        });
-
-        videoValues.set([video.videoWidth, video.videoHeight]);
     }
 
     function playVideo()
@@ -91,10 +74,22 @@ export async function run(canvas)
         });
     }
 
+    function createVideoBuffer()
+    {
+        videoValues = new Float32Array(4);
+
+        videoBuffer = Renderer.CreateBuffer({
+            size: Float32Array.BYTES_PER_ELEMENT * 4,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+        });
+
+        videoValues.set([video.videoWidth, video.videoHeight], 2);
+    }
+
     /** @param {DOMHighResTimeStamp} time */
     function render(time)
     {
-        videoValues.set([time * 0.001], 2);
+        videoValues.set([time * 0.001], 1);
         raf = requestAnimationFrame(render);
 
         Renderer.WriteBuffer(videoBuffer, videoValues);
@@ -123,7 +118,7 @@ export async function run(canvas)
             resolutionBuffer = Renderer.ResolutionBuffer;
         }
 
-        clean(), start();
+        cancelAnimationFrame(raf), start();
     });
 
     observer.observe(canvas);

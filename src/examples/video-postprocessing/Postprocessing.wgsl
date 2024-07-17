@@ -1,7 +1,12 @@
+// https://www.youtube.com/shorts/r9tQu77XoGY
+const R = 7.0 / 5.0;
+const B = 8.0 / 5.0;
+
 struct Video
 {
-    size: vec2f,
-    time: f32
+    pad: f32,
+    time: f32,
+    size: vec2f
 };
 
 struct VertexOutput
@@ -32,9 +37,9 @@ struct VertexOutput
 
 @fragment fn fragment(@location(0) coord: vec2f) -> @location(0) vec4f
 {
-    return vec4f(
-        textureSampleBaseClampToEdge(Texture, Sampler, coord).rgb *
-        (vec3f(cos(video.time), sin(video.time + 0.5236), sin(video.time + 4.1888)) + 1) / 2,
-        1
-    );
+    let color = textureSampleBaseClampToEdge(Texture, Sampler, coord);
+    let gradient = vec3f(pow(color.r, R), color.g, pow(color.b, B));
+    let output = mix(color.rgb, gradient, (sin(video.time) + 1) / 2);
+
+    return vec4f(output, color.a);
 }
