@@ -18,5 +18,6 @@
 | [Loading Video](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#loading-video) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-video) | [Code](./loading-video/index.js) |
 | [Texture Atlases](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#texture-atlases) | Preview | Code |
 | [Using Video](https://webgpufundamentals.org/webgpu/lessons/webgpu-textures-external-video.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#using-video) | [Code](./using-video/index.js) |
+| [Cubemaps](https://webgpufundamentals.org/webgpu/lessons/webgpu-cube-maps.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#cubemaps) | [Code](./cubemaps/index.js) |
 |   |   |   |
 |   |   |   |
