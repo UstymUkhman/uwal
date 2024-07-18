@@ -16,20 +16,6 @@ declare type Vec2n = import("wgpu-matrix").Vec2n;
 declare type Vec3n = import("wgpu-matrix").Vec3n;
 declare type Vec4n = import("wgpu-matrix").Vec4n;
 
-// WebGPU Context Configuration Options:
-declare type ConfigurationOptions =
-{
-    /** @default navigator.gpu.getPreferredCanvasFormat() */
-    format?: GPUTextureFormat;
-    /** @default GPUTextureUsage.RENDER_ATTACHMENT */
-    usage?: GPUTextureUsageFlags;
-    viewFormats?: Iterable<GPUTextureFormat>;
-    /** @default "srgb" */
-    colorSpace?: PredefinedColorSpace;
-    /** @default "opaque" */
-    alphaMode?: GPUCanvasAlphaMode;
-};
-
 declare const VERSION: string;
 
 declare module '*.json'
