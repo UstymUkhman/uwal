@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL, Color } from "@/index";
+import { UWAL, TEXTURE, Utils } from "@/index";
 import Cubemap from "./Cubemap.wgsl";
 import { mat4 } from "wgpu-matrix";
 
@@ -28,12 +28,18 @@ import { mat4 } from "wgpu-matrix";
         alert(error);
     }
 
+    const colorAttachment = Renderer.CreateColorAttachment();
     const module = Renderer.CreateShaderModule(Cubemap);
+    colorAttachment.clearValue = [0, 0, 0, 1];
+
+    const descriptor = Renderer.CreatePassDescriptor(colorAttachment, void 0, {
+        view: undefined, depthClearValue: 1, depthLoadOp: "clear", depthStoreOp: "store"
+    });
 
     Renderer.CreatePipeline({
         primitive: { cullMode: "back" },
         fragment: Renderer.CreateFragmentState(module),
-        vertex: Renderer.CreateVertexState(module, "vertex",
+        vertex: Renderer.CreateVertexState(module, void 0,
         {
             arrayStride: Float32Array.BYTES_PER_ELEMENT * 3,
             attributes: [Renderer.CreateVertexBufferAttribute("float32x3")]
@@ -47,10 +53,8 @@ import { mat4 } from "wgpu-matrix";
         }
     });
 
-    // const colorAttachment = Renderer.CreateColorAttachment();
-    // colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
-    // Renderer.CreatePassDescriptor(colorAttachment);
-
+    const fovRad = Utils.DegreesToRadians(60);
+    let depthTexture, aspect;
     const faceSize = 128;
 
     const faces =
@@ -64,42 +68,84 @@ import { mat4 } from "wgpu-matrix";
     ]
     .map(faceOption => generateFace(faceSize, faceOption));
 
-    for (const option of faces) document.body.appendChild(option);
+    const transformBufferSize = Float32Array.BYTES_PER_ELEMENT * 16;
+    const transformValues = new Float32Array(transformBufferSize / Float32Array.BYTES_PER_ELEMENT);
+
+    const { vertexData, indexData, vertices } = createCubeVertices();
+    const transformValue = transformValues.subarray(0, 16);
+
+    const transformBuffer = Renderer.CreateBuffer({
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        size: transformBufferSize
+    });
+
+    const vertexBuffer = Renderer.CreateBuffer({
+        usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+        size: vertexData.byteLength
+    });
+
+    const indexBuffer = Renderer.CreateBuffer({
+        usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
+        size: vertexData.byteLength
+    });
+
+    Renderer.WriteBuffer(vertexBuffer, vertexData);
+    Renderer.WriteBuffer(indexBuffer, indexData);
+
+    Renderer.SetVertexBuffers(vertexBuffer);
+    Renderer.SetIndexBuffer(indexBuffer, "uint16");
 
     const Texture = new (await UWAL.Texture());
-    // Texture.SetRenderer(Renderer);
+    Texture.SetRenderer(Renderer);
 
     const texture = createTextureFromSources(faces);
 
-    /** @param {HTMLCanvasElement[]} sources */
-    function createTextureFromSources(sources)
+    const sampler = Texture.CreateSampler({
+        mipmapFilter: TEXTURE.FILTER.LINEAR,
+        minFilter: TEXTURE.FILTER.LINEAR,
+        magFilter: TEXTURE.FILTER.LINEAR
+    });
+
+    Renderer.SetBindGroups(
+        Renderer.CreateBindGroup(
+            Renderer.CreateBindGroupEntries([
+                sampler,
+                { buffer: transformBuffer },
+                texture.createView({ dimension: "cube" })
+            ])
+        )
+    );
+
+    const view = mat4.lookAt(
+        [0, 1, 5], // Position
+        [0, 0, 0], // Target
+        [0, 1, 0]  // Up
+    );
+
+    const guiSettings =
     {
-        // Assuming all sources are of the same size,
-        // use the first one for width and height:
-        const source = sources[0];
+        rotation:
+        [
+            Utils.DegreesToRadians(20),
+            Utils.DegreesToRadians(25),
+            Utils.DegreesToRadians(0)
+        ]
+    };
 
-        const texture = Texture.CreateTextureFromSource(source, {
-            usage:
-                GPUTextureUsage.RENDER_ATTACHMENT |
-                GPUTextureUsage.TEXTURE_BINDING |
-                GPUTextureUsage.COPY_DST,
-            format: "rgba8unorm",
-            mipmaps: true
-        });
+    const radToDeg =
+    {
+        converters: GUI.converters.radToDeg,
+        min: -360,
+        max: 360,
+        step: 1
+    };
 
-        sources.forEach((source, layer) =>
-            Texture.CopyImageToTexture(source,
-            {
-                destinationOrigin: [0, 0, layer],
-                generateMipmaps: !layer, // false,
-                texture
-            })
-        );
+    const gui = new GUI();
+    gui.onChange(render);
 
-        // this.GenerateMipmaps(texture);
-
-        return texture;
-    }
+    gui.add(guiSettings.rotation, '0', radToDeg).name('rotation.x');
+    gui.add(guiSettings.rotation, '1', radToDeg).name('rotation.y');
+    gui.add(guiSettings.rotation, '2', radToDeg).name('rotation.z');
 
     /**
      * @typedef {Object} FaceOptions
@@ -117,8 +163,6 @@ import { mat4 } from "wgpu-matrix";
         canvas.width = canvas.height = faceSize;
         const halfSize = faceSize * 0.5;
 
-        console.log(faceSize);
-
         context.fillStyle = faceColor;
         context.fillRect(0, 0, faceSize, faceSize);
 
@@ -131,7 +175,38 @@ import { mat4 } from "wgpu-matrix";
         return canvas;
     }
 
-    function createCubeVertices() {
+    /** @param {HTMLCanvasElement[]} sources */
+    function createTextureFromSources(sources)
+    {
+        // Assuming all sources are of the same size,
+        // use the first one for width and height:
+        const source = sources[0];
+
+        const texture = Texture.CreateTextureFromSource(source,
+        {
+            size: [source.width, source.height, sources.length],
+            usage:
+                GPUTextureUsage.RENDER_ATTACHMENT |
+                GPUTextureUsage.TEXTURE_BINDING |
+                GPUTextureUsage.COPY_DST,
+            format: "rgba8unorm",
+            mipmaps: true
+        });
+
+        sources.forEach((source, layer) =>
+            Texture.CopyImageToTexture(source,
+            {
+                generateMipmaps: layer === sources.length - 1,
+                destinationOrigin: [0, 0, layer],
+                texture
+            })
+        );
+
+        return texture;
+    }
+
+    function createCubeVertices()
+    {
         const vertexData = new Float32Array(
         [
             // Top
@@ -189,8 +264,31 @@ import { mat4 } from "wgpu-matrix";
 
     function render()
     {
-        // requestAnimationFrame(render);
-        // Renderer.Render(6);
+        // If there's no depth texture or if its size is different from
+        // the canvasTexture, a new depth texture needs to be created:
+        const canvasTexture = Renderer.CurrentTexture;
+        const { width, height } = canvasTexture;
+
+        if (!depthTexture || depthTexture.width !== width || depthTexture.height !== height)
+        {
+            depthTexture?.destroy();
+
+            depthTexture = Texture.CreateTextureFromSource(canvasTexture, {
+                usage: GPUTextureUsage.RENDER_ATTACHMENT,
+                format: "depth24plus"
+            });
+        }
+
+        descriptor.depthStencilAttachment.view = depthTexture.createView();
+        mat4.perspective(fovRad, aspect, 0.1, 10, transformValue);
+        mat4.multiply(transformValue, view, transformValue);
+
+        mat4.rotateX(transformValue, guiSettings.rotation[0], transformValue);
+        mat4.rotateY(transformValue, guiSettings.rotation[1], transformValue);
+        mat4.rotateZ(transformValue, guiSettings.rotation[2], transformValue);
+
+        Renderer.WriteBuffer(transformBuffer, transformValues);
+        Renderer.Render(vertices);
     }
 
     const observer = new ResizeObserver(entries =>
@@ -201,7 +299,8 @@ import { mat4 } from "wgpu-matrix";
             Renderer.SetCanvasSize(inlineSize, blockSize);
         }
 
-        requestAnimationFrame(render);
+        aspect = Renderer.AspectRatio;
+        render();
     });
 
     observer.observe(canvas);
