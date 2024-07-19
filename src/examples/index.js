@@ -1,3 +1,5 @@
+import "/assets/css/preview.scss";
+import "/assets/css/examples.scss";
 import EXAMPLES from "./examples.json";
 
 /** @type {HTMLAnchorElement} */

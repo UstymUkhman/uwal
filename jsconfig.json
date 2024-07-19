@@ -7,11 +7,7 @@
     "moduleResolution": "Node",
     "typeRoots": ["node_modules/@types"],
     "allowSyntheticDefaultImports": true,
-
-    "paths": {
-      "@/*": ["./lib/*"],
-      "~/*": ["./src/*"]
-    }
+    "paths": { "@/*": ["./lib/*"], "~/*": ["./src/*"] }
   },
 
   "include": ["lib/**/*.js", "src/**/*.js", "types.d.ts"],

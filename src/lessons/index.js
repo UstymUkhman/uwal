@@ -1,4 +1,4 @@
-const runLesson = () => import(`./${location.hash.slice(1)}/index.js`);
+import "/assets/css/preview.scss";
 
 document.getElementById("code").addEventListener("click", () =>
 {
@@ -7,5 +7,6 @@ document.getElementById("code").addEventListener("click", () =>
     }/index.js`, "_blank");
 }, false);
 
+const runLesson = () => import(`./${location.hash.slice(1)}/index.js`);
 addEventListener("hashchange", runLesson, false);
 runLesson();
