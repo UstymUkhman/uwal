@@ -22,10 +22,10 @@ aside.examples {
   height: 100%;
   width: 15vw;
   z-index: 1;
-}
 
-aside.examples.hidden {
-  transform: translateX(-100%);
+  &.hidden {
+    transform: translateX(-100%);
+  }
 }
 
 div.content {
@@ -44,23 +44,23 @@ a {
   display: table;
   color: inherit;
   outline: none;
-}
 
-a:hover {
-  color: #005a9c;
-}
+  &:hover {
+    color: #005a9c;
+  }
 
-a[title="UWAL"] > img:first-child {
-  vertical-align: text-bottom;
-  display: inline-block;
-  margin-right: 5px;
+  &[title="UWAL"] > img:first-child {
+    vertical-align: text-bottom;
+    display: inline-block;
+    margin-right: 5px;
+  
+    height: 32px;
+    width: 32px;
+  }
 
-  height: 32px;
-  width: 32px;
-}
-
-a[title="UWAL"]:hover > h1.title {
-  color: #0093ff;
+  &[title="UWAL"]:hover > h1.title {
+    color: #0093ff;
+  }
 }
 
 h1.title {
@@ -90,32 +90,32 @@ ul#list {
   flex-direction: column;
   padding-left: 20px;
   display: flex;
-}
 
-ul#list > a::before {
-  border-bottom: 5px solid transparent;
-  border-top: 5px solid transparent;
-  border-left: 8px solid black;
+  > a::before {
+    border-bottom: 5px solid transparent;
+    border-top: 5px solid transparent;
+    border-left: 8px solid black;
+  
+    transform: translateX(-8px);
+    transition: transform 0.2s;
+  
+    display: inline-block;
+    position: relative;
+    margin-right: 4px;
+  
+    content: "";
+    height: 0px;
+    width: 0px;
+  }
 
-  transform: translateX(-8px);
-  transition: transform 0.2s;
+  > a.active {
+    transform: translateX(10px);
+    pointer-events: none;
 
-  display: inline-block;
-  position: relative;
-  margin-right: 4px;
-
-  content: "";
-  height: 0px;
-  width: 0px;
-}
-
-ul#list > a.active {
-  transform: translateX(10px);
-  pointer-events: none;
-}
-
-ul#list > a.active::before {
-  transform: translateX(0px);
+    &::before {
+      transform: translateX(0px);
+    }
+  }
 }
 
 canvas {

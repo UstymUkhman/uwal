@@ -29,22 +29,22 @@ button.rounded {
   padding: 0px;
   height: 50px;
   width: 50px;
-}
 
-button#code.rounded {
-  letter-spacing: -2px;
-  margin-bottom: 2.5vw;
-  margin-right: 2.5vw;
+  &#code {
+    letter-spacing: -2px;
+    margin-bottom: 2.5vw;
+    margin-right: 2.5vw;
+  
+    bottom: 0px;
+    right: 0px;
+  }
 
-  bottom: 0px;
-  right: 0px;
-}
+  &:hover {
+    color: #0093ff;
+  }
 
-button.rounded:hover {
-  color: #0093ff;
-}
-
-button.rounded.hidden {
-  pointer-events: none;
-  opacity: 0;
+  &.hidden {
+    pointer-events: none;
+    opacity: 0;
+  }
 }

@@ -28,8 +28,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "imports": {
-    "@/*": "./lib/*",
-    "~/*": "./src/*"
+    "@/*": "./lib/*"
   },
   "exports": {
     ".": {
@@ -40,6 +39,7 @@
     }
   },
   "directories": {
+    "assets": "assets",
     "build": "build",
     "dist": "dist",
     "lib": "lib",

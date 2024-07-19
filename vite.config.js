@@ -3,7 +3,6 @@ import glsl from "vite-plugin-glsl";
 import { defineConfig } from "vite";
 import { name, version } from "./package.json";
 
-/** @param {{ mode: string }} */
 export default({ mode }) =>
 {
     const config = mode !== "lib" && { base: "./" };
@@ -52,8 +51,7 @@ export default({ mode }) =>
         {
             alias:
             {
-                "@": resolve("lib"),
-                "~": resolve("src")
+                "@": resolve("lib")
             }
         },
 
