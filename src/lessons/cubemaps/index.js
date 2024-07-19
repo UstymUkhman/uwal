@@ -36,6 +36,10 @@ import { mat4 } from "wgpu-matrix";
         view: undefined, depthClearValue: 1, depthLoadOp: "clear", depthStoreOp: "store"
     });
 
+    const { vertexData, indexData, vertices } = createCubeVertices();
+    const fov = Utils.DegreesToRadians(60);
+    let depthTexture, aspect;
+
     Renderer.CreatePipeline({
         primitive: { cullMode: "back" },
         fragment: Renderer.CreateFragmentState(module),
@@ -53,26 +57,8 @@ import { mat4 } from "wgpu-matrix";
         }
     });
 
-    const fovRad = Utils.DegreesToRadians(60);
-    let depthTexture, aspect;
-    const faceSize = 128;
-
-    const faces =
-    [
-        { faceColor: "#F00", textColor: "#0FF", text: "+X" },
-        { faceColor: "#FF0", textColor: "#00F", text: "-X" },
-        { faceColor: "#0F0", textColor: "#F0F", text: "+Y" },
-        { faceColor: "#0FF", textColor: "#F00", text: "-Y" },
-        { faceColor: "#00F", textColor: "#FF0", text: "+Z" },
-        { faceColor: "#F0F", textColor: "#0F0", text: "-Z" }
-    ]
-    .map(faceOption => generateFace(faceSize, faceOption));
-
     const transformBufferSize = Float32Array.BYTES_PER_ELEMENT * 16;
     const transformValues = new Float32Array(transformBufferSize / Float32Array.BYTES_PER_ELEMENT);
-
-    const { vertexData, indexData, vertices } = createCubeVertices();
-    const transformValue = transformValues.subarray(0, 16);
 
     const transformBuffer = Renderer.CreateBuffer({
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -86,7 +72,7 @@ import { mat4 } from "wgpu-matrix";
 
     const indexBuffer = Renderer.CreateBuffer({
         usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
-        size: vertexData.byteLength
+        size: indexData.byteLength
     });
 
     Renderer.WriteBuffer(vertexBuffer, vertexData);
@@ -98,12 +84,21 @@ import { mat4 } from "wgpu-matrix";
     const Texture = new (await UWAL.Texture());
     Texture.SetRenderer(Renderer);
 
+    const faces =
+    [
+        { faceColor: "#F00", textColor: "#0FF", text: "+X" },
+        { faceColor: "#FF0", textColor: "#00F", text: "-X" },
+        { faceColor: "#0F0", textColor: "#F0F", text: "+Y" },
+        { faceColor: "#0FF", textColor: "#F00", text: "-Y" },
+        { faceColor: "#00F", textColor: "#FF0", text: "+Z" },
+        { faceColor: "#F0F", textColor: "#0F0", text: "-Z" }
+    ]
+    .map(faceOption => generateFace(faceOption));
+
     const texture = createTextureFromSources(faces);
 
     const sampler = Texture.CreateSampler({
-        mipmapFilter: TEXTURE.FILTER.LINEAR,
-        minFilter: TEXTURE.FILTER.LINEAR,
-        magFilter: TEXTURE.FILTER.LINEAR
+        filter: TEXTURE.FILTER.LINEAR
     });
 
     Renderer.SetBindGroups(
@@ -122,7 +117,7 @@ import { mat4 } from "wgpu-matrix";
         [0, 1, 0]  // Up
     );
 
-    const guiSettings =
+    const settings =
     {
         rotation:
         [
@@ -143,34 +138,31 @@ import { mat4 } from "wgpu-matrix";
     const gui = new GUI();
     gui.onChange(render);
 
-    gui.add(guiSettings.rotation, '0', radToDeg).name('rotation.x');
-    gui.add(guiSettings.rotation, '1', radToDeg).name('rotation.y');
-    gui.add(guiSettings.rotation, '2', radToDeg).name('rotation.z');
+    gui.add(settings.rotation, '0', radToDeg).name('rotation.x');
+    gui.add(settings.rotation, '1', radToDeg).name('rotation.y');
+    gui.add(settings.rotation, '2', radToDeg).name('rotation.z');
 
     /**
      * @typedef {Object} FaceOptions
      * @property {string} faceColor
      * @property {string} textColor
      * @property {string} text
-     *
-     * @param {number} faceSize
      * @param {FaceOptions} options
      */
-    function generateFace(faceSize, { faceColor, textColor, text })
+    function generateFace({ faceColor, textColor, text })
     {
         const canvas = document.createElement("canvas");
         const context = canvas.getContext("2d");
-        canvas.width = canvas.height = faceSize;
-        const halfSize = faceSize * 0.5;
 
+        canvas.width = canvas.height = 128;
         context.fillStyle = faceColor;
-        context.fillRect(0, 0, faceSize, faceSize);
+        context.fillRect(0, 0, 128, 128);
 
         context.textAlign = "center";
         context.fillStyle = textColor;
         context.textBaseline = "middle";
-        context.font = `${faceSize * 0.7}px sans-serif`;
-        context.fillText(text, halfSize, halfSize);
+        context.font = "90px sans-serif";
+        context.fillText(text, 64, 64);
 
         return canvas;
     }
@@ -280,12 +272,12 @@ import { mat4 } from "wgpu-matrix";
         }
 
         descriptor.depthStencilAttachment.view = depthTexture.createView();
-        mat4.perspective(fovRad, aspect, 0.1, 10, transformValue);
-        mat4.multiply(transformValue, view, transformValue);
+        mat4.perspective(fov, aspect, 0.1, 10, transformValues);
+        mat4.multiply(transformValues, view, transformValues);
 
-        mat4.rotateX(transformValue, guiSettings.rotation[0], transformValue);
-        mat4.rotateY(transformValue, guiSettings.rotation[1], transformValue);
-        mat4.rotateZ(transformValue, guiSettings.rotation[2], transformValue);
+        mat4.rotateX(transformValues, settings.rotation[0], transformValues);
+        mat4.rotateY(transformValues, settings.rotation[1], transformValues);
+        mat4.rotateZ(transformValues, settings.rotation[2], transformValues);
 
         Renderer.WriteBuffer(transformBuffer, transformValues);
         Renderer.Render(vertices);

@@ -61,10 +61,9 @@ import Video from "~/assets/video.mp4";
     for (let i = 0; i < 4; i++)
     {
         const sampler = Texture.CreateSampler({
-            addressModeU: TEXTURE.ADDRESS.REPEAT,
-            addressModeV: TEXTURE.ADDRESS.REPEAT,
-            magFilter:    (i & 1) ? TEXTURE.FILTER.LINEAR : TEXTURE.FILTER.NEAREST,
-            minFilter:    (i & 2) ? TEXTURE.FILTER.LINEAR : TEXTURE.FILTER.NEAREST
+            magFilter: (i & 1) ? TEXTURE.FILTER.LINEAR : TEXTURE.FILTER.NEAREST,
+            minFilter: (i & 2) ? TEXTURE.FILTER.LINEAR : TEXTURE.FILTER.NEAREST,
+            addressModeUV: TEXTURE.ADDRESS.REPEAT
         });
 
         const matrixBufferSize = 16 * Float32Array.BYTES_PER_ELEMENT;
@@ -124,8 +123,7 @@ import Video from "~/assets/video.mp4";
             Renderer.SetBindGroups(
                 Renderer.CreateBindGroup(
                     Renderer.CreateBindGroupEntries([
-                        sampler,
-                        texture,
+                        sampler, texture,
                         { buffer: matrixBuffer }
                     ])
                 )
