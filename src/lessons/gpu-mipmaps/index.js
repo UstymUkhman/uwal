@@ -10,11 +10,11 @@
  */
 
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
-import Granite from "~/assets/granite.jpeg";
+import Granite from "/assets/image/granite.jpeg";
+import Coins from "/assets/image/coins.jpg";
 import GPUMipmaps from "./GPUMipmaps.wgsl";
 import { vec2, mat4 } from "wgpu-matrix";
-import Coins from "~/assets/coins.jpg";
-import F from "~/assets/f.png";
+import F from "/assets/image/f.png";
 
 (async function(canvas)
 {

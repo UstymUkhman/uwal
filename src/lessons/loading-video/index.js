@@ -11,8 +11,8 @@
 
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
 import GPUMipmaps from "../gpu-mipmaps/GPUMipmaps.wgsl";
+import Video from "/assets/video/retriever.webm";
 import { vec2, mat4 } from "wgpu-matrix";
-import Video from "~/assets/video.webm";
 
 (async function(canvas)
 {

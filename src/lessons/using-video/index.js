@@ -10,9 +10,9 @@
  */
 
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
+import Video from "/assets/video/pomeranian.mp4";
 import VideoTexture from "./VideoTexture.wgsl";
 import { vec2, mat4 } from "wgpu-matrix";
-import Video from "~/assets/video.mp4";
 
 (async function(canvas)
 {

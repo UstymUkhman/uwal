@@ -9,8 +9,8 @@
  */
 
 import Postprocessing from "./Postprocessing.wgsl";
+import Video from "/assets/video/pomeranian.mp4";
 import { UWAL, Shaders } from "@/index";
-import Video from "~/assets/video.mp4";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;

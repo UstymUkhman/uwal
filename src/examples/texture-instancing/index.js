@@ -9,8 +9,8 @@
  */
 
 import { UWAL, Color, Shaders, Shape, TEXTURE } from "@/index";
+import Logo from "/assets/image/logo.jpg";
 import Texture from "./Texture.wgsl";
-import Logo from "~/assets/logo.jpg";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
