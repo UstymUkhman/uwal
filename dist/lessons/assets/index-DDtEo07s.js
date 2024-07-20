@@ -1,4 +1,4 @@
-import{U as s}from"./index-C4iHMEF5.js";var l="@vertex fn vertex(@builtin(vertex_index)index: u32)->@builtin(position)vec4f {let position=array(vec2f(0.0,0.5),vec2f(-0.5,-0.5),vec2f(0.5,-0.5));return vec4f(position[index],0.0,1.0);}@fragment fn fragment()->@location(0)vec4f {return vec4f(1.0,0.0,0.0,1.0);}",d="@group(0)@binding(0)var<storage,read_write>data: array<f32>;@compute @workgroup_size(1)fn compute(@builtin(global_invocation_id)id: vec3u){let i=id.x;data[i]*=2;}";/**
+import{U as s}from"./index-D5rMI4n5.js";var l="@vertex fn vertex(@builtin(vertex_index)index: u32)->@builtin(position)vec4f {let position=array(vec2f(0.0,0.5),vec2f(-0.5,-0.5),vec2f(0.5,-0.5));return vec4f(position[index],0.0,1.0);}@fragment fn fragment()->@location(0)vec4f {return vec4f(1.0,0.0,0.0,1.0);}",d="@group(0)@binding(0)var<storage,read_write>data: array<f32>;@compute @workgroup_size(1)fn compute(@builtin(global_invocation_id)id: vec3u){let i=id.x;data[i]*=2;}";/**
  * @module Fundamentals
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Fundamentals
