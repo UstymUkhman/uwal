@@ -9,13 +9,13 @@
  * @license MIT
  */
 
-import { UWAL, TEXTURE, Utils } from "@/index";
+import { UWAL, Primitives, Utils } from "@/index";
 import Cubemap from "./Cubemap.wgsl";
 import { mat4 } from "wgpu-matrix";
 
 (async function(canvas)
 {
-    /** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
+    /** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer, aspect;
 
     try
     {
@@ -29,16 +29,11 @@ import { mat4 } from "wgpu-matrix";
     }
 
     const colorAttachment = Renderer.CreateColorAttachment();
-    const module = Renderer.CreateShaderModule(Cubemap);
     colorAttachment.clearValue = [0, 0, 0, 1];
 
-    const descriptor = Renderer.CreatePassDescriptor(colorAttachment, void 0, {
-        view: undefined, depthClearValue: 1, depthLoadOp: "clear", depthStoreOp: "store"
-    });
-
-    const { vertexData, indexData, vertices } = createCubeVertices();
+    Renderer.CreatePassDescriptor(colorAttachment, void 0, Renderer.CreateDepthAttachment());
+    const module = Renderer.CreateShaderModule(Cubemap);
     const fov = Utils.DegreesToRadians(60);
-    let depthTexture, aspect;
 
     Renderer.CreatePipeline({
         primitive: { cullMode: "back" },
@@ -57,32 +52,12 @@ import { mat4 } from "wgpu-matrix";
         }
     });
 
-    const transformBufferSize = Float32Array.BYTES_PER_ELEMENT * 16;
-    const transformValues = new Float32Array(transformBufferSize / Float32Array.BYTES_PER_ELEMENT);
-
-    const transformBuffer = Renderer.CreateBuffer({
-        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-        size: transformBufferSize
-    });
-
-    const vertexBuffer = Renderer.CreateBuffer({
-        usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-        size: vertexData.byteLength
-    });
-
-    const indexBuffer = Renderer.CreateBuffer({
-        usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
-        size: indexData.byteLength
-    });
-
-    Renderer.WriteBuffer(vertexBuffer, vertexData);
-    Renderer.WriteBuffer(indexBuffer, indexData);
-
-    Renderer.SetVertexBuffers(vertexBuffer);
-    Renderer.SetIndexBuffer(indexBuffer, "uint16");
-
     const Texture = new (await UWAL.Texture());
+    const cube = new Primitives.Cube(Renderer);
+    const transform = cube.Transform;
+
     Texture.SetRenderer(Renderer);
+    cube.SetGeometryBuffers();
 
     const faces =
     [
@@ -95,17 +70,14 @@ import { mat4 } from "wgpu-matrix";
     ]
     .map(faceOption => generateFace(faceOption));
 
+    const sampler = Texture.CreateSampler({ filter: "linear" });
     const texture = createTextureFromSources(faces);
-
-    const sampler = Texture.CreateSampler({
-        filter: TEXTURE.FILTER.LINEAR
-    });
 
     Renderer.SetBindGroups(
         Renderer.CreateBindGroup(
             Renderer.CreateBindGroupEntries([
                 sampler,
-                { buffer: transformBuffer },
+                { buffer: cube.TransformBuffer },
                 texture.createView({ dimension: "cube" })
             ])
         )
@@ -197,90 +169,17 @@ import { mat4 } from "wgpu-matrix";
         return texture;
     }
 
-    function createCubeVertices()
-    {
-        const vertexData = new Float32Array(
-        [
-            // Top
-            -1,  1,  1,
-             1,  1,  1,
-            -1,  1, -1,
-             1,  1, -1,
-
-             // Bottom
-             1, -1,  1,
-            -1, -1,  1,
-             1, -1, -1,
-            -1, -1, -1,
-
-            // Front
-            -1,  1,  1,
-            -1, -1,  1,
-             1,  1,  1,
-             1, -1,  1,
-
-             // Back
-             1,  1, -1,
-             1, -1, -1,
-            -1,  1, -1,
-            -1, -1, -1,
-
-            // Left
-            -1,  1,  1,
-            -1,  1, -1,
-            -1, -1,  1,
-            -1, -1, -1,
-
-            // Right
-            1,  1, -1,
-            1,  1,  1,
-            1, -1, -1,
-            1, -1,  1
-        ]);
-
-        const indexData = new Uint16Array(
-        [
-             0,  1,  2,  2,  1,  3, // Top
-             4,  5,  6,  6,  5,  7, // Bottom
-             8,  9, 10, 10,  9, 11, // Front
-            12, 13, 14, 14, 13, 15, // Back
-            16, 17, 18, 18, 17, 19, // Left
-            20, 21, 22, 22, 21, 23  // Right
-        ]);
-
-        return {
-            vertexData, indexData,
-            vertices: indexData.length
-        };
-    }
-
     function render()
     {
-        // If there's no depth texture or if its size is different from
-        // the canvasTexture, a new depth texture needs to be created:
-        const canvasTexture = Renderer.CurrentTexture;
-        const { width, height } = canvasTexture;
+        mat4.perspective(fov, aspect, 0.1, 10, transform);
+        mat4.multiply(transform, view, transform);
 
-        if (!depthTexture || depthTexture.width !== width || depthTexture.height !== height)
-        {
-            depthTexture?.destroy();
+        mat4.rotateX(transform, settings.rotation[0], transform);
+        mat4.rotateY(transform, settings.rotation[1], transform);
+        mat4.rotateZ(transform, settings.rotation[2], transform);
 
-            depthTexture = Texture.CreateTextureFromSource(canvasTexture, {
-                usage: GPUTextureUsage.RENDER_ATTACHMENT,
-                format: "depth24plus"
-            });
-        }
-
-        descriptor.depthStencilAttachment.view = depthTexture.createView();
-        mat4.perspective(fov, aspect, 0.1, 10, transformValues);
-        mat4.multiply(transformValues, view, transformValues);
-
-        mat4.rotateX(transformValues, settings.rotation[0], transformValues);
-        mat4.rotateY(transformValues, settings.rotation[1], transformValues);
-        mat4.rotateZ(transformValues, settings.rotation[2], transformValues);
-
-        Renderer.WriteBuffer(transformBuffer, transformValues);
-        Renderer.Render(vertices);
+        cube.UpdateTransformBuffer();
+        Renderer.Render(cube.Vertices);
     }
 
     const observer = new ResizeObserver(entries =>
