@@ -6,7 +6,7 @@
   "main": "./build/uwal.umd.cjs",
   "module": "./build/uwal.js",
   "types": "./types.d.ts",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": false,
   "license": "MIT",
   "type": "module",
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/UstymUkhman/uwal.git"
+    "url": "git+https://github.com/UstymUkhman/uwal.git"
   },
   "bugs": {
     "url": "https://github.com/UstymUkhman/uwal/issues",
