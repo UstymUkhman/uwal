@@ -47,3 +47,4 @@ bun add uwal
   - Texture Atlases
   - [Using Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#using-video)
   - [Cubemaps](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#cubemaps)
+  - [Storage Textures](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-textures)
