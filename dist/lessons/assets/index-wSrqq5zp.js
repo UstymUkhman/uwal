@@ -1,4 +1,4 @@
-import{U as B,A as w,F as n}from"./index-D5rMI4n5.js";import{G as N}from"./GPUMipmaps-Sf4roZHW.js";import{v as F,m as a}from"./wgpu-matrix.module-BCZfl02X.js";import{F as L}from"./f-CdSZvatx.js";import{Q as _,C as D}from"./Quad-BFiS1mN9.js";const z=""+new URL("granite-Bhx_bMIh.jpeg",import.meta.url).href,j=""+new URL("coins-DSWNLmZu.jpg",import.meta.url).href;/**
+import{U as B,A as w,F as n}from"./index-7_ieeE14.js";import{G as N}from"./GPUMipmaps-Sf4roZHW.js";import{v as F,m as a}from"./wgpu-matrix.module-BCZfl02X.js";import{F as L}from"./f-CdSZvatx.js";import{Q as _,C as D}from"./Quad-BFiS1mN9.js";const z=""+new URL("granite-Bhx_bMIh.jpeg",import.meta.url).href,j=""+new URL("coins-DSWNLmZu.jpg",import.meta.url).href;/**
  * @module GPU Mipmaps
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Loading Images into Textures
