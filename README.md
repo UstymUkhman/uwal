@@ -48,3 +48,4 @@ bun add uwal
   - [Using Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#using-video)
   - [Cubemaps](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#cubemaps)
   - [Storage Textures](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-textures)
+  - [Multisampling](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#multisampling)

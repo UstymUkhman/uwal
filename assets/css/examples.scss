@@ -53,7 +53,7 @@ a {
     vertical-align: text-bottom;
     display: inline-block;
     margin-right: 5px;
-  
+
     height: 32px;
     width: 32px;
   }
@@ -95,14 +95,14 @@ ul#list {
     border-bottom: 5px solid transparent;
     border-top: 5px solid transparent;
     border-left: 8px solid black;
-  
+
     transform: translateX(-8px);
     transition: transform 0.2s;
   
     display: inline-block;
     position: relative;
     margin-right: 4px;
-  
+
     content: "";
     height: 0px;
     width: 0px;
