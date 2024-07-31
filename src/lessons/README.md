@@ -22,4 +22,5 @@
 | [Storage Textures](https://webgpufundamentals.org/webgpu/lessons/webgpu-storage-textures.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-textures) | [Code](./storage-textures/index.js) |
 | [Multisampling](https://webgpufundamentals.org/webgpu/lessons/webgpu-multisampling.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#multisampling) | [Code](./multisampling/index.js) |
 |   |   |   |
+| [Shader Constants](https://webgpufundamentals.org/webgpu/lessons/webgpu-constants.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#shader-constants) | [Code](./shader-constants/index.js) |
 |   |   |   |
