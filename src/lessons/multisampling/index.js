@@ -28,8 +28,9 @@ import Triangle from "./Triangle.wgsl";
         alert(error);
     }
 
+    const multisample = Renderer.CreateMultisampleState();
     const module = Renderer.CreateShaderModule(Triangle);
-    Renderer.CreatePipeline({ module, multisample: { count: 4 }});
+    Renderer.CreatePipeline({ module, multisample });
 
     const background = Renderer.CreateColorAttachment();
     background.clearValue = new Color(0x4c4c4c).rgba;
