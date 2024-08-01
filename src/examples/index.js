@@ -8,6 +8,8 @@ let currentAnchor = null;
 /** @type {() => void} */
 let destroyCurrent = () => void 0;
 
+const examplesTitle = document.title;
+
 const aside = (
     /** @type {HTMLElement} */
     (document.getElementsByClassName("examples")[0])
@@ -64,6 +66,7 @@ async function runExample()
 
     if (!example)
     {
+        document.title = examplesTitle;
         aside.classList.remove("hidden");
         examplesButton.innerHTML = '&#60;';
         examplesButton.classList.add("hidden");
@@ -73,20 +76,25 @@ async function runExample()
 
     destroyCurrent();
 
+    const { name } = /** @type {Array<{ name: string, slug: string }>} */
+        (/** @type {unknown} */ (EXAMPLES)).find(({ slug }) => example === slug);
+
     /** @type {HTMLAnchorElement} */
     const anchor = document.querySelector(`a[data-example="${example}"]`);
+    const { run, destroy } = await import(`./${example}/index.js`);
 
+    document.title = `${examplesTitle} | ${name}`;
     examplesButton.classList.remove("hidden");
     currentAnchor?.classList.remove("active");
-    codeButton.classList.remove("hidden");
 
+    mobile && aside.classList.add("hidden");
+    codeButton.classList.remove("hidden");
     examplesButton.innerHTML = '&#62;';
+
     anchor?.classList.add("active");
     currentAnchor = anchor || null;
-
-    const { run, destroy } = await import(`./${example}/index.js`);
-    mobile && aside.classList.add("hidden");
     destroyCurrent = destroy;
+
     run(canvas);
 };
 

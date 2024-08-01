@@ -65,14 +65,13 @@
     "build:examples": "bun run build -- --mode=examples",
     "build:pages": "bun build:lessons && bun build:examples"
   },
-  "dependencies": {
-    "wgpu-matrix": "^3.0.1"
-  },
   "devDependencies": {
     "@webgpu/types": "^0.1.44",
     "sass": "^1.77.8",
     "vite": "^5.3.3",
-    "vite-plugin-glsl": "^1.3.0"
+    "vite-plugin-glsl": "^1.3.0",
+    "wgpu-matrix": "^3.0.2",
+    "wgsl_reflect": "^1.0.8"
   },
   "engines": {
     "node": ">= 18.12.1",
