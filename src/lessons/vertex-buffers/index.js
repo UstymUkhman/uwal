@@ -53,14 +53,14 @@ import VertexBuffers from "./VertexBuffers.wgsl";
             {
                 // 4 bytes for color + 2 floats for offset, 4 bytes each:
                 arrayStride: 4 + 2 * Float32Array.BYTES_PER_ELEMENT,
-                stepMode: 'instance',
+                stepMode: "instance",
                 attributes: [
                     Renderer.CreateVertexBufferAttribute("unorm8x4", 1),           // Color
                     Renderer.CreateVertexBufferAttribute("float32x2", 2, 4),       // Offset
                 ]
             },
             {
-                stepMode: 'instance',
+                stepMode: "instance",
                 // 2 floats for scale, 4 bytes each:
                 arrayStride: 2 * Float32Array.BYTES_PER_ELEMENT,
                 attributes: [Renderer.CreateVertexBufferAttribute("float32x2", 3)] // Scale

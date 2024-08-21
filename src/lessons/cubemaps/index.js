@@ -110,9 +110,9 @@ import { mat4 } from "wgpu-matrix";
     const gui = new GUI();
     gui.onChange(render);
 
-    gui.add(settings.rotation, '0', radToDeg).name('rotation.x');
-    gui.add(settings.rotation, '1', radToDeg).name('rotation.y');
-    gui.add(settings.rotation, '2', radToDeg).name('rotation.z');
+    gui.add(settings.rotation, "0", radToDeg).name("rotation.x");
+    gui.add(settings.rotation, "1", radToDeg).name("rotation.y");
+    gui.add(settings.rotation, "2", radToDeg).name("rotation.z");
 
     /**
      * @typedef {Object} FaceOptions
