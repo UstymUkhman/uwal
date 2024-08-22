@@ -48,7 +48,7 @@ export async function run(canvas)
             attributes: [Renderer.CreateVertexBufferAttribute("float32x2")]    // Position
         },
         {
-            stepMode: 'instance',
+            stepMode: "instance",
             arrayStride: Float32Array.BYTES_PER_ELEMENT * 2,
             attributes: [Renderer.CreateVertexBufferAttribute("float32x2", 1)] // Translation
         }])
