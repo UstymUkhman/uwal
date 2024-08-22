@@ -10,6 +10,8 @@
  */
 
 import { UWAL, Color } from "@/index";
+import Checkerboard from "./Checkerboard.frag.wgsl";
+import Triangle from "../inter-stage-variables/Triangle.vert.wgsl";
 
 (async function(canvas)
 {
@@ -28,7 +30,7 @@ import { UWAL, Color } from "@/index";
     try
     {
         Renderer = new (await UWAL.RenderPipeline(
-            canvas, "Transparency Blending", { alphaMode: "premultiplied" }
+            canvas, "Transparency", { alphaMode: "premultiplied" }
         ));
     }
     catch (error)
@@ -37,9 +39,9 @@ import { UWAL, Color } from "@/index";
     }
 
     const premultiplied = new Color();
-    const clearColor = new Color(0xff, 0, 0, 0.01);
+    const clearColor = new Color(0, 0, 0, 0);
     const background = Renderer.CreateColorAttachment();
-    const module = Renderer.CreateShaderModule();
+    const module = Renderer.CreateShaderModule([Triangle, Checkerboard]);
 
     background.clearValue = clearColor.rgba;
     Renderer.CreatePassDescriptor(background);
@@ -47,8 +49,8 @@ import { UWAL, Color } from "@/index";
 
     const settings = {
         color: clearColor.rgb,
-        premultiply: false,
-        alpha: 0.01
+        premultiply: true,
+        alpha: 0
     };
 
     const gui = new GUI().onChange(render);
@@ -66,7 +68,7 @@ import { UWAL, Color } from "@/index";
             ? clearColor.Premultiply(alpha, premultiplied).rgba
             : clearColor.rgba;
 
-        Renderer.Render(0);
+        Renderer.Render(3);
     }
 
     const observer = new ResizeObserver(entries =>
