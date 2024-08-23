@@ -24,4 +24,5 @@
 |   |   |   |
 | [Shader Constants](https://webgpufundamentals.org/webgpu/lessons/webgpu-constants.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#shader-constants) | [Code](./shader-constants/index.js) |
 | [Transparency and Blending](https://webgpufundamentals.org/webgpu/lessons/webgpu-transparency.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#transparency) | [Code](./transparency/index.js) |
+<!-- | [Blend Settings](https://webgpufundamentals.org/webgpu/lessons/webgpu-transparency.html#blend-settings) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#blend-settings) | [Code](./blend-settings/index.js) | -->
 |   |   |   |
