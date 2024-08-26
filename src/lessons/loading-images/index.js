@@ -69,7 +69,8 @@ import Images from "./Images.wgsl";
                 GPUTextureUsage.RENDER_ATTACHMENT |
                 GPUTextureUsage.TEXTURE_BINDING |
                 GPUTextureUsage.COPY_DST,
-            format: "rgba8unorm"
+            format: "rgba8unorm",
+            mipmaps: false
         }
     });
 

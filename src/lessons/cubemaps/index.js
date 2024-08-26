@@ -153,8 +153,7 @@ import { mat4 } from "wgpu-matrix";
                 GPUTextureUsage.RENDER_ATTACHMENT |
                 GPUTextureUsage.TEXTURE_BINDING |
                 GPUTextureUsage.COPY_DST,
-            format: "rgba8unorm",
-            mipmaps: true
+            format: "rgba8unorm"
         });
 
         sources.forEach((source, layer) =>
