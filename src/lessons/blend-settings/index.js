@@ -9,7 +9,8 @@
  * @license MIT
  */
 
-import { UWAL } from "@/index";
+import { UWAL, Color, Shaders, TEXTURE } from "@/index";
+import Blending from "./Blending.wgsl";
 
 (async function(canvas)
 {
@@ -110,33 +111,145 @@ import { UWAL } from "@/index";
         return canvas;
     }
 
+    /**
+     * @param {HTMLCanvasElement} source
+     * @param {boolean} [premultipliedAlpha]
+     */
+    function createTextureFromSource(source, premultipliedAlpha = false)
+    {
+        return Texture.CopyImageToTexture(source, {
+            premultipliedAlpha,
+            create: {
+                usage:
+                    GPUTextureUsage.RENDER_ATTACHMENT |
+                    GPUTextureUsage.TEXTURE_BINDING |
+                    GPUTextureUsage.COPY_DST,
+                format: "rgba8unorm"
+            }
+        });
+    }
+
+    function createMatrixUniformBuffer()
+    {
+        const { value } = /** @type {Record<String, Float32Array>} */ (
+            /** @type {import("@/pipelines/BasePipeline").UniformLayout} */ (
+                Renderer.CreateUniformBufferLayout("matrix")
+            )
+        );
+
+        const buffer = Renderer.CreateBuffer({
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+            size: value.buffer.byteLength
+        });
+
+        return { value, buffer };
+    }
+
     const size = 300;
-    const source = createSourceImage(size);
-    const destination = createDestinationImage(size);
+    const sourceImage = createSourceImage(size);
+    const destinationImage = createDestinationImage(size);
 
-    source.style.top = "8px";
-    source.style.left = "8px";
-    source.style.width = `${size}px`;
-    source.style.height = `${size}px`;
-    source.style.position = "absolute";
+    sourceImage.style.top = "8px";
+    sourceImage.style.left = "8px";
+    sourceImage.style.width = `${size}px`;
+    sourceImage.style.height = `${size}px`;
+    sourceImage.style.position = "absolute";
 
-    destination.style.position = "absolute";
-    destination.style.height = `${size}px`;
-    destination.style.width = `${size}px`;
-    destination.style.left = "8px";
-    destination.style.top = "8px";
+    destinationImage.style.position = "absolute";
+    destinationImage.style.height = `${size}px`;
+    destinationImage.style.width = `${size}px`;
+    destinationImage.style.left = "8px";
+    destinationImage.style.top = "8px";
 
-    document.body.appendChild(source);
-    document.body.appendChild(destination);
+    document.body.appendChild(sourceImage);
+    document.body.appendChild(destinationImage);
 
-    const background = Renderer.CreateColorAttachment();
-    const module = Renderer.CreateShaderModule();
+    const Texture = new (await UWAL.Texture());
+    const module = Renderer.CreateShaderModule([Shaders.Quad, Blending]);
+    const background = (Texture.Renderer = Renderer).CreateColorAttachment();
 
+    const sourceTextureUnpremultipliedAlpha = createTextureFromSource(sourceImage);
+    const destinationTextureUnpremultipliedAlpha = createTextureFromSource(destinationImage);
+
+    const destinationTexturePremultipliedAlpha = createTextureFromSource(destinationImage, true);
+    const sourceTexturePremultipliedAlpha = createTextureFromSource(sourceImage, true);
+
+    const sourceUniform = createMatrixUniformBuffer();
+    const destinationUniform = createMatrixUniformBuffer();
+
+    const bindGroupLayout = Renderer.CreateBindGroupLayout([
+        { visibility: GPUShaderStage.FRAGMENT, sampler: { }, },
+        { visibility: GPUShaderStage.VERTEX, buffer: { } },
+        { visibility: GPUShaderStage.FRAGMENT, texture: { } }
+    ]);
+
+    const layout = Renderer.CreatePipelineLayout(bindGroupLayout);
+    const sampler = Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR });
+
+    const sourceBindGroupUnpremultipliedAlpha = Renderer.CreateBindGroup(
+        Renderer.CreateBindGroupEntries([
+            sampler,
+            { buffer: sourceUniform.buffer },
+            sourceTextureUnpremultipliedAlpha.createView()
+        ]),
+        bindGroupLayout
+    );
+
+    const destinationBindGroupUnpremultipliedAlpha = Renderer.CreateBindGroup(
+        Renderer.CreateBindGroupEntries([
+            sampler,
+            { buffer: destinationUniform.buffer },
+            destinationTextureUnpremultipliedAlpha.createView()
+        ]),
+        bindGroupLayout
+    );
+
+    const sourceBindGroupPremultipliedAlpha = Renderer.CreateBindGroup(
+        Renderer.CreateBindGroupEntries([
+            sampler,
+            { buffer: sourceUniform.buffer },
+            sourceTexturePremultipliedAlpha.createView()
+        ]),
+        bindGroupLayout
+    );
+
+    const destinationBindGroupPremultipliedAlpha = Renderer.CreateBindGroup(
+        Renderer.CreateBindGroupEntries([
+            sampler,
+            { buffer: destinationUniform.buffer },
+            destinationTexturePremultipliedAlpha.createView()
+        ]),
+        bindGroupLayout
+    );
+
+    const textureSets = [{
+        sourceTexture: sourceTexturePremultipliedAlpha,
+        destinationTexture: destinationTexturePremultipliedAlpha,
+        sourceBindGroup: sourceBindGroupPremultipliedAlpha,
+        destinationBindGroup: destinationBindGroupPremultipliedAlpha,
+    }, {
+        sourceTexture: sourceTextureUnpremultipliedAlpha,
+        destinationTexture: destinationTextureUnpremultipliedAlpha,
+        sourceBindGroup: sourceBindGroupUnpremultipliedAlpha,
+        destinationBindGroup: destinationBindGroupUnpremultipliedAlpha,
+    }];
+
+    const clearColor = new Color(0, 0, 0, 0);
+    background.clearValue = clearColor.rgba;
     Renderer.CreatePassDescriptor(background);
-    Renderer.CreatePipeline({ module });
+
+    const vertex = Renderer.CreateVertexState(module);
+    const destinationPipeline = Renderer.CreatePipeline({ module, layout });
+
+    const color = Renderer.CreateBlendComponent(void 0, void 0, "one-minus-src");
+    const alpha = Renderer.CreateBlendComponent(void 0, void 0, "one-minus-src");
 
     function render()
     {
+        const target = Renderer.CreateTargetState(void 0, { color, alpha });
+        const fragment = Renderer.CreateFragmentState(module, void 0, target);
+        const sourcePipeline = Renderer.CreatePipeline({ vertex, fragment, layout });
+
         Renderer.Render(0);
     }
 

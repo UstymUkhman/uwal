@@ -9,10 +9,10 @@
  * @license MIT
  */
 
+import GPUMipmaps from "../mipmap-filter/MipmapFilter.wgsl";
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
 import Granite from "/assets/image/granite.jpeg";
 import Coins from "/assets/image/coins.jpg";
-import GPUMipmaps from "./GPUMipmaps.wgsl";
 import { vec2, mat4 } from "wgpu-matrix";
 import F from "/assets/image/f.png";
 

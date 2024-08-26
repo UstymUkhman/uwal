@@ -1,6 +1,6 @@
-struct Transform
+struct Matrix
 {
-    matrix: mat4x4f
+    value: mat4x4f
 };
 
 struct VertexOutput
@@ -10,8 +10,8 @@ struct VertexOutput
 };
 
 @group(0) @binding(0) var Sampler: sampler;
-@group(0) @binding(1) var Texture: texture_2d<f32>;
-@group(0) @binding(2) var<uniform> transform: Transform;
+@group(0) @binding(1) var<uniform> matrix: Matrix;
+@group(0) @binding(2) var Texture: texture_2d<f32>;
 
 @vertex fn vertex(@builtin(vertex_index) index: u32) -> VertexOutput
 {
@@ -21,8 +21,8 @@ struct VertexOutput
     // Move quad to top-right corner:
     position = (position + 1) * 0.5;
 
-    output.position = transform.matrix * vec4f(position, 0.0, 1.0);
-    output.textureCoord = position * vec2f(1, 50);
+    output.position = matrix.value * vec4f(position, 0.0, 1.0);
+    output.textureCoord = position;
 
     return output;
 }
