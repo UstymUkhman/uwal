@@ -1,6 +1,6 @@
 struct Matrix
 {
-    value: mat4x4f
+    values: mat4x4f
 };
 
 struct VertexOutput
@@ -21,7 +21,7 @@ struct VertexOutput
     // Move quad to top-right corner:
     position = (position + 1) * 0.5;
 
-    output.position = matrix.value * vec4f(position, 0.0, 1.0);
+    output.position = matrix.values * vec4f(position, 0.0, 1.0);
     output.textureCoord = position;
 
     return output;

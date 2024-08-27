@@ -11,6 +11,7 @@
 
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
 import Blending from "./Blending.wgsl";
+import { mat4 } from "wgpu-matrix";
 
 (async function(canvas)
 {
@@ -131,7 +132,7 @@ import Blending from "./Blending.wgsl";
 
     function createMatrixUniformBuffer()
     {
-        const { value } = /** @type {Record<String, Float32Array>} */ (
+        const { values } = /** @type {Record<String, Float32Array>} */ (
             /** @type {import("@/pipelines/BasePipeline").UniformLayout} */ (
                 Renderer.CreateUniformBufferLayout("matrix")
             )
@@ -139,10 +140,37 @@ import Blending from "./Blending.wgsl";
 
         const buffer = Renderer.CreateBuffer({
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-            size: value.buffer.byteLength
+            size: values.buffer.byteLength
         });
 
-        return { value, buffer };
+        return { values, buffer };
+    }
+
+    /**
+     * @param {{ values: Float32Array, buffer: GPUBuffer }} uniform
+     * @param {GPUTexture} canvas
+     * @param {GPUTexture} texture
+     */
+    function updateMatrixUniform(uniform, canvas, texture)
+    {
+        const projectionMatrix = mat4.ortho(0, canvas.width, canvas.height, 0, -1, 1);
+        mat4.scale(projectionMatrix, [texture.width, texture.height, 1], uniform.values);
+        Renderer.WriteBuffer(uniform.buffer, uniform.values);
+    }
+
+    /** @param {GPUBlendComponent} blend */
+    function checkBlendComponentValues(blend)
+    {
+        const { operation } = blend;
+
+        if (operation === "min" || operation === "max")
+            blend.srcFactor = blend.dstFactor = "one";
+    }
+
+    function setBlendConstant()
+    {
+        const { color, alpha } = constant;
+        Renderer.BlendConstant = [...color, alpha];
     }
 
     const size = 300;
@@ -164,9 +192,9 @@ import Blending from "./Blending.wgsl";
     document.body.appendChild(sourceImage);
     document.body.appendChild(destinationImage);
 
-    const Texture = new (await UWAL.Texture());
+    const Texture = new (await UWAL.Texture(Renderer));
+    const background = Renderer.CreateColorAttachment();
     const module = Renderer.CreateShaderModule([Shaders.Quad, Blending]);
-    const background = (Texture.Renderer = Renderer).CreateColorAttachment();
 
     const sourceTextureUnpremultipliedAlpha = createTextureFromSource(sourceImage);
     const destinationTextureUnpremultipliedAlpha = createTextureFromSource(destinationImage);
@@ -178,31 +206,14 @@ import Blending from "./Blending.wgsl";
     const destinationUniform = createMatrixUniformBuffer();
 
     const bindGroupLayout = Renderer.CreateBindGroupLayout([
-        { visibility: GPUShaderStage.FRAGMENT, sampler: { }, },
+        { visibility: GPUShaderStage.FRAGMENT, sampler: { } },
         { visibility: GPUShaderStage.VERTEX, buffer: { } },
         { visibility: GPUShaderStage.FRAGMENT, texture: { } }
     ]);
 
+    const vertex = Renderer.CreateVertexState(module);
     const layout = Renderer.CreatePipelineLayout(bindGroupLayout);
     const sampler = Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR });
-
-    const sourceBindGroupUnpremultipliedAlpha = Renderer.CreateBindGroup(
-        Renderer.CreateBindGroupEntries([
-            sampler,
-            { buffer: sourceUniform.buffer },
-            sourceTextureUnpremultipliedAlpha.createView()
-        ]),
-        bindGroupLayout
-    );
-
-    const destinationBindGroupUnpremultipliedAlpha = Renderer.CreateBindGroup(
-        Renderer.CreateBindGroupEntries([
-            sampler,
-            { buffer: destinationUniform.buffer },
-            destinationTextureUnpremultipliedAlpha.createView()
-        ]),
-        bindGroupLayout
-    );
 
     const sourceBindGroupPremultipliedAlpha = Renderer.CreateBindGroup(
         Renderer.CreateBindGroupEntries([
@@ -222,35 +233,107 @@ import Blending from "./Blending.wgsl";
         bindGroupLayout
     );
 
+    const sourceBindGroupUnpremultipliedAlpha = Renderer.CreateBindGroup(
+        Renderer.CreateBindGroupEntries([
+            sampler,
+            { buffer: sourceUniform.buffer },
+            sourceTextureUnpremultipliedAlpha.createView()
+        ]),
+        bindGroupLayout
+    );
+
+    const destinationBindGroupUnpremultipliedAlpha = Renderer.CreateBindGroup(
+        Renderer.CreateBindGroupEntries([
+            sampler,
+            { buffer: destinationUniform.buffer },
+            destinationTextureUnpremultipliedAlpha.createView()
+        ]),
+        bindGroupLayout
+    );
+
+    Renderer.AddBindGroups([
+        sourceBindGroupPremultipliedAlpha,
+        destinationBindGroupPremultipliedAlpha,
+        sourceBindGroupUnpremultipliedAlpha,
+        destinationBindGroupUnpremultipliedAlpha
+    ]);
+
     const textureSets = [{
+        sourceBindGroup: 0,
+        destinationBindGroup: 1,
         sourceTexture: sourceTexturePremultipliedAlpha,
-        destinationTexture: destinationTexturePremultipliedAlpha,
-        sourceBindGroup: sourceBindGroupPremultipliedAlpha,
-        destinationBindGroup: destinationBindGroupPremultipliedAlpha,
+        destinationTexture: destinationTexturePremultipliedAlpha
     }, {
+        sourceBindGroup: 2,
+        destinationBindGroup: 3,
         sourceTexture: sourceTextureUnpremultipliedAlpha,
-        destinationTexture: destinationTextureUnpremultipliedAlpha,
-        sourceBindGroup: sourceBindGroupUnpremultipliedAlpha,
-        destinationBindGroup: destinationBindGroupUnpremultipliedAlpha,
+        destinationTexture: destinationTextureUnpremultipliedAlpha
     }];
 
+    const settings = { textureSet: 0 };
     const clearColor = new Color(0, 0, 0, 0);
+    const constant = { color: [1, 0.5, 0.25], alpha: 1 };
+
     background.clearValue = clearColor.rgba;
     Renderer.CreatePassDescriptor(background);
-
-    const vertex = Renderer.CreateVertexState(module);
-    const destinationPipeline = Renderer.CreatePipeline({ module, layout });
+    Renderer.CreatePipeline({ module, layout });
 
     const color = Renderer.CreateBlendComponent(void 0, void 0, "one-minus-src");
     const alpha = Renderer.CreateBlendComponent(void 0, void 0, "one-minus-src");
 
+    const operations = ["add", "subtract", "reverse-subtract", "min", "max"];
+
+    const factors = [
+        "zero", "one", "src", "one-minus-src", "src-alpha", "one-minus-src-alpha", "dst", "one-minus-dst",
+        "dst-alpha", "one-minus-dst-alpha", "src-alpha-saturated", "constant", "one-minus-constant"
+    ];
+
+    const gui = new GUI().onChange(render);
+    gui.add(settings, "textureSet", ["premultiplied alpha", "un-premultiplied alpha"]);
+
+    const colorFolder = gui.addFolder("color");
+    colorFolder.add(color, "operation", operations);
+    colorFolder.add(color, "srcFactor", factors);
+    colorFolder.add(color, "dstFactor", factors);
+
+    const alphaFolder = gui.addFolder("alpha");
+    alphaFolder.add(alpha, "operation", operations);
+    alphaFolder.add(alpha, "srcFactor", factors);
+    alphaFolder.add(alpha, "dstFactor", factors);
+
+    const constantFolder = gui.addFolder("constant");
+    constantFolder.addColor(constant, "color").onChange(setBlendConstant);
+    constantFolder.add(constant, "alpha", 0, 1).onChange(setBlendConstant);
+
     function render()
     {
+        checkBlendComponentValues(color);
+        checkBlendComponentValues(alpha);
+
+        gui.updateDisplay();
+
+        const { sourceTexture, destinationTexture, destinationBindGroup, sourceBindGroup } =
+            textureSets[settings.textureSet];
+
+        const texture = Renderer.CurrentTexture;
+        updateMatrixUniform(sourceUniform, texture, sourceTexture);
+        updateMatrixUniform(destinationUniform, texture, destinationTexture);
+
+        // Draw in destination pipeline (no blending):
+        Renderer.SetActiveBindGroups(destinationBindGroup);
+        Renderer.Render(6, false);
+        Renderer.SavePipelineState();
+
+        // Draw in source pipeline (with blending):
         const target = Renderer.CreateTargetState(void 0, { color, alpha });
         const fragment = Renderer.CreateFragmentState(module, void 0, target);
-        const sourcePipeline = Renderer.CreatePipeline({ vertex, fragment, layout });
 
-        Renderer.Render(0);
+        Renderer.CreatePipeline({ vertex, fragment, layout });
+        Renderer.SetActiveBindGroups(sourceBindGroup);
+        Renderer.Render(6);
+
+        // Switch back to destination pipeline:
+        Renderer.RestorePipelineState();
     }
 
     const observer = new ResizeObserver(entries =>
