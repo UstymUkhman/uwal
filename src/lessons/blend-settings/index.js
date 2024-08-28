@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL, Color, Shaders, TEXTURE } from "@/index";
+import { UWAL, Shaders, TEXTURE, BLEND_STATE } from "@/index";
 import Blending from "./Blending.wgsl";
 import { mat4 } from "wgpu-matrix";
 
@@ -54,80 +54,74 @@ import { mat4 } from "wgpu-matrix";
     const hsla = (h, s, l, a) => `hsla${hsl(h, s, l).slice(3, -1)}, ${a})`;
 
     /** @param {number} size */
-    function createDestinationImage(size)
-    {
-        const canvas = document.createElement("canvas");
-        canvas.width = canvas.height = size;
-
-        const ctx = canvas.getContext("2d");
-        const gradient = ctx.createLinearGradient(0, 0, size, size);
-
-        for (let i = 0; i <= 6; ++i)
-          gradient.addColorStop(i / 6, hsl(i / -6, 1, 0.5));
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, size, size);
-        ctx.fillStyle = "rgba(0, 0, 0, 255)";
-        ctx.globalCompositeOperation = "destination-out";
-        ctx.rotate(Math.PI / -4);
-
-        for (let i = 0; i < size * 2; i += 32)
-          ctx.fillRect(-size, i, size * 2, 16);
-
-        return canvas;
-    }
-
-    /** @param {number} size */
     function createSourceImage(size)
     {
         const canvas = document.createElement("canvas");
         canvas.width = canvas.height = size;
 
-        const ctx = canvas.getContext("2d");
-        ctx.translate(size / 2, size / 2);
+        const context = canvas.getContext("2d");
+        context.translate(size / 2, size / 2);
 
-        ctx.globalCompositeOperation = "screen";
+        context.globalCompositeOperation = "screen";
         const PI2 = Math.PI * 2, numCircles = 3;
 
         for (let i = 0; i < numCircles; ++i)
         {
-            ctx.rotate(PI2 / numCircles);
-            ctx.save();
-            ctx.translate(size / 6, 0);
-            ctx.beginPath();
+            context.rotate(PI2 / numCircles);
+            context.save();
+            context.translate(size / 6, 0);
+            context.beginPath();
 
             const radius = size / 3;
             const h = i / numCircles;
-            ctx.arc(0, 0, radius, 0, PI2);
+            context.arc(0, 0, radius, 0, PI2);
 
-            const gradient = ctx.createRadialGradient(0, 0, radius / 2, 0, 0, radius);
+            const gradient = context.createRadialGradient(0, 0, radius / 2, 0, 0, radius);
             gradient.addColorStop(0.5, hsla(h, 1, 0.5, 1));
             gradient.addColorStop(1, hsla(h, 1, 0.5, 0));
 
-            ctx.fillStyle = gradient;
-            ctx.fill();
-            ctx.restore();
+            context.fillStyle = gradient;
+            context.fill();
+            context.restore();
         }
+
+        canvas.style.position = "absolute";
+        canvas.style.height = `${size}px`;
+        canvas.style.width = `${size}px`;
+        canvas.style.left = "8px";
+        canvas.style.top = "8px";
 
         return canvas;
     }
 
-    /**
-     * @param {HTMLCanvasElement} source
-     * @param {boolean} [premultipliedAlpha]
-     */
-    function createTextureFromSource(source, premultipliedAlpha = false)
+    /** @param {number} size */
+    function createDestinationImage(size)
     {
-        return Texture.CopyImageToTexture(source, {
-            premultipliedAlpha,
-            create: {
-                usage:
-                    GPUTextureUsage.RENDER_ATTACHMENT |
-                    GPUTextureUsage.TEXTURE_BINDING |
-                    GPUTextureUsage.COPY_DST,
-                format: "rgba8unorm"
-            }
-        });
+        const canvas = document.createElement("canvas");
+        canvas.width = canvas.height = size;
+
+        const context = canvas.getContext("2d");
+        const gradient = context.createLinearGradient(0, 0, size, size);
+
+        for (let i = 0; i <= 6; ++i)
+          gradient.addColorStop(i / 6, hsl(i / -6, 1, 0.5));
+
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, size, size);
+        context.fillStyle = "rgba(0, 0, 0, 255)";
+        context.globalCompositeOperation = "destination-out";
+        context.rotate(Math.PI / -4);
+
+        for (let i = 0; i < size * 2; i += 32)
+          context.fillRect(-size, i, size * 2, 16);
+
+        canvas.style.position = "absolute";
+        canvas.style.height = `${size}px`;
+        canvas.style.width = `${size}px`;
+        canvas.style.left = "8px";
+        canvas.style.top = "8px";
+
+        return canvas;
     }
 
     function createMatrixUniformBuffer()
@@ -147,15 +141,42 @@ import { mat4 } from "wgpu-matrix";
     }
 
     /**
-     * @param {{ values: Float32Array, buffer: GPUBuffer }} uniform
-     * @param {GPUTexture} canvas
-     * @param {GPUTexture} texture
+     * @param {HTMLCanvasElement} source
+     * @param {boolean} [premultipliedAlpha]
      */
-    function updateMatrixUniform(uniform, canvas, texture)
+    function createTextureFromSource(source, premultipliedAlpha = true)
     {
-        const projectionMatrix = mat4.ortho(0, canvas.width, canvas.height, 0, -1, 1);
-        mat4.scale(projectionMatrix, [texture.width, texture.height, 1], uniform.values);
-        Renderer.WriteBuffer(uniform.buffer, uniform.values);
+        return Texture.CopyImageToTexture(source, {
+            premultipliedAlpha,
+            create: {
+                usage:
+                    GPUTextureUsage.RENDER_ATTACHMENT |
+                    GPUTextureUsage.TEXTURE_BINDING |
+                    GPUTextureUsage.COPY_DST,
+                format: "rgba8unorm",
+                mipmaps: false
+            }
+        });
+    }
+
+    /** @param {string | number | number[]} value */
+    function setBlendConstant(value)
+    {
+        const factors = ["constant", "one-minus-constant"];
+        if (typeof value === "string" && !factors.includes(value)) return;
+        Renderer.BlendConstant = [...constant.color, constant.alpha];
+    }
+
+    function setClearColor()
+    {
+        const { premultiply, alpha, color } = clear;
+        const a = premultiply && alpha || 1;
+        const [r, g, b] = color;
+
+        background.clearValue[0] = r * a;
+        background.clearValue[1] = g * a;
+        background.clearValue[2] = b * a;
+        background.clearValue[3] = alpha;
     }
 
     /** @param {GPUBlendComponent} blend */
@@ -167,43 +188,31 @@ import { mat4 } from "wgpu-matrix";
             blend.srcFactor = blend.dstFactor = "one";
     }
 
-    function setBlendConstant()
+    /**
+     * @param {{ values: Float32Array, buffer: GPUBuffer }} uniform
+     * @param {GPUTexture} canvas
+     * @param {GPUTexture} texture
+     */
+    function updateMatrixUniform(uniform, canvas, texture)
     {
-        const { color, alpha } = constant;
-        Renderer.BlendConstant = [...color, alpha];
+        const projectionMatrix = mat4.ortho(0, canvas.width, canvas.height, 0, -1, 1);
+        mat4.scale(projectionMatrix, [texture.width, texture.height, 1], uniform.values);
+        Renderer.WriteBuffer(uniform.buffer, uniform.values);
     }
 
-    const size = 300;
-    const sourceImage = createSourceImage(size);
-    const destinationImage = createDestinationImage(size);
-
-    sourceImage.style.top = "8px";
-    sourceImage.style.left = "8px";
-    sourceImage.style.width = `${size}px`;
-    sourceImage.style.height = `${size}px`;
-    sourceImage.style.position = "absolute";
-
-    destinationImage.style.position = "absolute";
-    destinationImage.style.height = `${size}px`;
-    destinationImage.style.width = `${size}px`;
-    destinationImage.style.left = "8px";
-    destinationImage.style.top = "8px";
-
-    document.body.appendChild(sourceImage);
-    document.body.appendChild(destinationImage);
-
     const Texture = new (await UWAL.Texture(Renderer));
-    const background = Renderer.CreateColorAttachment();
     const module = Renderer.CreateShaderModule([Shaders.Quad, Blending]);
+    const sampler = Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR });
 
-    const sourceTextureUnpremultipliedAlpha = createTextureFromSource(sourceImage);
-    const destinationTextureUnpremultipliedAlpha = createTextureFromSource(destinationImage);
-
-    const destinationTexturePremultipliedAlpha = createTextureFromSource(destinationImage, true);
-    const sourceTexturePremultipliedAlpha = createTextureFromSource(sourceImage, true);
-
+    const sourceImage = createSourceImage(300);
+    const destinationImage = createDestinationImage(300);
     const sourceUniform = createMatrixUniformBuffer();
     const destinationUniform = createMatrixUniformBuffer();
+
+    const sourceTexturePremultipliedAlpha = createTextureFromSource(sourceImage);
+    const destinationTexturePremultipliedAlpha = createTextureFromSource(destinationImage);
+    const sourceTextureUnpremultipliedAlpha = createTextureFromSource(sourceImage, false);
+    const destinationTextureUnpremultipliedAlpha = createTextureFromSource(destinationImage, false);
 
     const bindGroupLayout = Renderer.CreateBindGroupLayout([
         { visibility: GPUShaderStage.FRAGMENT, sampler: { } },
@@ -211,51 +220,42 @@ import { mat4 } from "wgpu-matrix";
         { visibility: GPUShaderStage.FRAGMENT, texture: { } }
     ]);
 
-    const vertex = Renderer.CreateVertexState(module);
-    const layout = Renderer.CreatePipelineLayout(bindGroupLayout);
-    const sampler = Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR });
-
-    const sourceBindGroupPremultipliedAlpha = Renderer.CreateBindGroup(
-        Renderer.CreateBindGroupEntries([
-            sampler,
-            { buffer: sourceUniform.buffer },
-            sourceTexturePremultipliedAlpha.createView()
-        ]),
-        bindGroupLayout
-    );
-
-    const destinationBindGroupPremultipliedAlpha = Renderer.CreateBindGroup(
-        Renderer.CreateBindGroupEntries([
-            sampler,
-            { buffer: destinationUniform.buffer },
-            destinationTexturePremultipliedAlpha.createView()
-        ]),
-        bindGroupLayout
-    );
-
-    const sourceBindGroupUnpremultipliedAlpha = Renderer.CreateBindGroup(
-        Renderer.CreateBindGroupEntries([
-            sampler,
-            { buffer: sourceUniform.buffer },
-            sourceTextureUnpremultipliedAlpha.createView()
-        ]),
-        bindGroupLayout
-    );
-
-    const destinationBindGroupUnpremultipliedAlpha = Renderer.CreateBindGroup(
-        Renderer.CreateBindGroupEntries([
-            sampler,
-            { buffer: destinationUniform.buffer },
-            destinationTextureUnpremultipliedAlpha.createView()
-        ]),
-        bindGroupLayout
-    );
-
     Renderer.AddBindGroups([
-        sourceBindGroupPremultipliedAlpha,
-        destinationBindGroupPremultipliedAlpha,
-        sourceBindGroupUnpremultipliedAlpha,
-        destinationBindGroupUnpremultipliedAlpha
+        Renderer.CreateBindGroup(
+            Renderer.CreateBindGroupEntries([
+                sampler,
+                { buffer: sourceUniform.buffer },
+                sourceTexturePremultipliedAlpha.createView()
+            ]),
+            bindGroupLayout
+        ),
+
+        Renderer.CreateBindGroup(
+            Renderer.CreateBindGroupEntries([
+                sampler,
+                { buffer: destinationUniform.buffer },
+                destinationTexturePremultipliedAlpha.createView()
+            ]),
+            bindGroupLayout
+        ),
+
+        Renderer.CreateBindGroup(
+            Renderer.CreateBindGroupEntries([
+                sampler,
+                { buffer: sourceUniform.buffer },
+                sourceTextureUnpremultipliedAlpha.createView()
+            ]),
+            bindGroupLayout
+        ),
+
+        Renderer.CreateBindGroup(
+            Renderer.CreateBindGroupEntries([
+                sampler,
+                { buffer: destinationUniform.buffer },
+                destinationTextureUnpremultipliedAlpha.createView()
+            ]),
+            bindGroupLayout
+        )
     ]);
 
     const textureSets = [{
@@ -270,17 +270,41 @@ import { mat4 } from "wgpu-matrix";
         destinationTexture: destinationTextureUnpremultipliedAlpha
     }];
 
-    const settings = { textureSet: 0 };
-    const clearColor = new Color(0, 0, 0, 0);
-    const constant = { color: [1, 0.5, 0.25], alpha: 1 };
+    const gui = new GUI().onChange(render);
+    const settings = { textureSet: 0, alphaMode: "premultiplied", preset: "Copy (Default)" };
 
-    background.clearValue = clearColor.rgba;
-    Renderer.CreatePassDescriptor(background);
-    Renderer.CreatePipeline({ module, layout });
+    gui.add(settings, "alphaMode", ["opaque", "premultiplied"]).name("Canvas Alpha Mode")
+        .onChange((/** @type {GPUCanvasAlphaMode} */ alphaMode) => Renderer.ConfigureContext({ alphaMode }));
 
-    const color = Renderer.CreateBlendComponent(void 0, void 0, "one-minus-src");
-    const alpha = Renderer.CreateBlendComponent(void 0, void 0, "one-minus-src");
+    gui.add(settings, "textureSet", ["premultiplied alpha", "un-premultiplied alpha"]).name("Texture Set");
 
+    const unPremultipliedColor = Renderer.CreateBlendComponent("add", "src-alpha", "one-minus-src-alpha");
+    const unPremultipliedAlpha = Renderer.CreateBlendComponent("add", "src-alpha", "one-minus-src-alpha");
+
+    const presets = {
+        "Copy (Default)": BLEND_STATE.COPY,
+        "Additive (Lighten)": BLEND_STATE.ADDITIVE,
+        "Un-premultiplied Blend": { color: unPremultipliedColor, alpha: unPremultipliedAlpha },
+        "Source Over (Premultiplied Blend)": BLEND_STATE.SOURCE_OVER,
+        "Destination Over": BLEND_STATE.DESTINATION_OVER,
+        "Source In": BLEND_STATE.SOURCE_IN,
+        "Destination In": BLEND_STATE.DESTINATION_IN,
+        "Source Out": BLEND_STATE.SOURCE_OUT,
+        "Destination Out": BLEND_STATE.DESTINATION_OUT,
+        "Source Atop": BLEND_STATE.SOURCE_ATOP,
+        "Destination Atop": BLEND_STATE.DESTINATION_ATOP
+    };
+
+    gui.add(settings, "preset", Object.keys(presets)).name("Blending Preset")
+        .onChange((/** @type {string} */ preset) =>
+        {
+            const blending = presets[preset];
+            Object.assign(color, blending.color);
+            Object.assign(alpha, blending.alpha);
+        });
+
+    const colorFolder = gui.addFolder("Color");
+    const color = Renderer.CreateBlendComponent();
     const operations = ["add", "subtract", "reverse-subtract", "min", "max"];
 
     const factors = [
@@ -288,22 +312,34 @@ import { mat4 } from "wgpu-matrix";
         "dst-alpha", "one-minus-dst-alpha", "src-alpha-saturated", "constant", "one-minus-constant"
     ];
 
-    const gui = new GUI().onChange(render);
-    gui.add(settings, "textureSet", ["premultiplied alpha", "un-premultiplied alpha"]);
+    colorFolder.add(color, "operation", operations).name("Operation");
+    colorFolder.add(color, "srcFactor", factors).name("Source Factor").onChange(setBlendConstant);
+    colorFolder.add(color, "dstFactor", factors).name("Destination Factor").onChange(setBlendConstant);
 
-    const colorFolder = gui.addFolder("color");
-    colorFolder.add(color, "operation", operations);
-    colorFolder.add(color, "srcFactor", factors);
-    colorFolder.add(color, "dstFactor", factors);
+    const alphaFolder = gui.addFolder("Alpha");
+    const alpha = Renderer.CreateBlendComponent();
+    alphaFolder.add(alpha, "operation", operations).name("Operation");
+    alphaFolder.add(alpha, "srcFactor", factors).name("Source Factor").onChange(setBlendConstant);
+    alphaFolder.add(alpha, "dstFactor", factors).name("Destination Factor").onChange(setBlendConstant);
 
-    const alphaFolder = gui.addFolder("alpha");
-    alphaFolder.add(alpha, "operation", operations);
-    alphaFolder.add(alpha, "srcFactor", factors);
-    alphaFolder.add(alpha, "dstFactor", factors);
+    const constantFolder = gui.addFolder("Constant");
+    const constant = { color: [1, 0.5, 0.25], alpha: 1 };
+    constantFolder.addColor(constant, "color").name("Color").onChange(setBlendConstant);
+    constantFolder.add(constant, "alpha", 0, 1).name("Alpha").onChange(setBlendConstant);
 
-    const constantFolder = gui.addFolder("constant");
-    constantFolder.addColor(constant, "color").onChange(setBlendConstant);
-    constantFolder.add(constant, "alpha", 0, 1).onChange(setBlendConstant);
+    const clearFolder = gui.addFolder("Canvas Clear Color");
+    const clear = { color: [0, 0, 0], alpha: 0, premultiply: true };
+    clearFolder.addColor(clear, "color").name("Color").onChange(setClearColor);
+    clearFolder.add(clear, "alpha", 0, 1).name("Alpha").onChange(setClearColor);
+    clearFolder.add(clear, "premultiply").name("Premultiply").onChange(setClearColor);
+
+    const background = Renderer.CreateColorAttachment();
+    background.clearValue = [...clear.color, clear.alpha];
+    const layout = Renderer.CreatePipelineLayout(bindGroupLayout);
+
+    Renderer.CreatePassDescriptor(background);
+    Renderer.CreatePipeline({ module, layout });
+    const vertex = Renderer.CreateVertexState(module);
 
     function render()
     {
@@ -328,7 +364,7 @@ import { mat4 } from "wgpu-matrix";
         const target = Renderer.CreateTargetState(void 0, { color, alpha });
         const fragment = Renderer.CreateFragmentState(module, void 0, target);
 
-        Renderer.CreatePipeline({ vertex, fragment, layout });
+        Renderer.CreatePipeline({ vertex, fragment, layout }, true);
         Renderer.SetActiveBindGroups(sourceBindGroup);
         Renderer.Render(6);
 
