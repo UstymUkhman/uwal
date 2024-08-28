@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import GPUMipmaps from "../mipmap-filter/MipmapFilter.wgsl";
+import MipmapFilter from "../mipmap-filter/MipmapFilter.wgsl";
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
 import Granite from "/assets/image/granite.jpeg";
 import Coins from "/assets/image/coins.jpg";
@@ -63,7 +63,7 @@ import F from "/assets/image/f.png";
     const viewMatrix = mat4.inverse(mat4.lookAt(cameraPosition, target, up));
     const viewProjectionMatrix = mat4.multiply(projectionMatrix, viewMatrix);
 
-    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, GPUMipmaps]) });
+    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, MipmapFilter]) });
 
     const colorAttachment = Renderer.CreateColorAttachment();
     colorAttachment.clearValue = new Color(0x4c4c4c).rgba;

@@ -9,8 +9,8 @@
  * @license MIT
  */
 
+import MipmapFilter from "../mipmap-filter/MipmapFilter.wgsl";
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
-import GPUMipmaps from "../gpu-mipmaps/GPUMipmaps.wgsl";
 import { vec2, mat4 } from "wgpu-matrix";
 
 (async function(canvas)
@@ -53,7 +53,7 @@ import { vec2, mat4 } from "wgpu-matrix";
     Texture.SetRenderer(Renderer);
 
     const texture = createTextureFromSource(context2d.canvas, true);
-    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, GPUMipmaps]) });
+    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, MipmapFilter]) });
 
     const colorAttachment = Renderer.CreateColorAttachment();
     colorAttachment.clearValue = new Color(0x4c4c4c).rgba;

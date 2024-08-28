@@ -9,8 +9,8 @@
  * @license MIT
  */
 
+import MipmapFilter from "../mipmap-filter/MipmapFilter.wgsl";
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
-import GPUMipmaps from "../gpu-mipmaps/GPUMipmaps.wgsl";
 import Video from "/assets/video/retriever.webm";
 import { vec2, mat4 } from "wgpu-matrix";
 
@@ -57,7 +57,7 @@ import { vec2, mat4 } from "wgpu-matrix";
     const texture = createTextureFromSource(video, true);
     const alwaysUpdateVideo = !("requestVideoFrameCallback" in video);
 
-    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, GPUMipmaps]) });
+    Renderer.CreatePipeline({ module: Renderer.CreateShaderModule([Shaders.Quad, MipmapFilter]) });
 
     const colorAttachment = Renderer.CreateColorAttachment();
     colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
