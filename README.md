@@ -14,12 +14,12 @@
 </p>
 
 <p align="center">
-  <i>The goal of UWAL is to remove as much boilerplate as possible when working with the WebGPU APIs, while still providing a flexible interface for all configuration options.</i>
+  <i>The goal of UWAL is to remove as much boilerplate as possible when working with the WebGPU APIs, while still providing a flexible interface with reasonable defaults for all configuration options.</i>
 </p>
 
-<!-- ## Before Getting Started
+<!-- ## Introduction
 
-UWAL is inspired by the awesome [OGL](https://github.com/oframe/ogl) library and shares with it the following philosophy points:
+UWAL is inspired by the fantastic [OGL](https://github.com/oframe/ogl) library and shares with it the following philosophy points:
 
 - It is aimed at developers who like minimal layers of abstraction and are interested in writing their own shaders.
 - It comes with much fewer features than some popular libraries like [three.js](https://threejs.org/) or [Babylon.js](https://www.babylonjs.com/).
@@ -70,4 +70,4 @@ bun add uwal
   - [Multisampling](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#multisampling)
 - [Shader Constants](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#shader-constants)
 - [Transparency and Blending](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#transparency)
-<!-- - [Blend Settings](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#blend-settings) -->
+- [Blend Settings](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#blend-settings)
