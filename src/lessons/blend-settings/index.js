@@ -220,7 +220,7 @@ import { mat4 } from "wgpu-matrix";
         { visibility: GPUShaderStage.FRAGMENT, texture: { } }
     ]);
 
-    Renderer.AddBindGroups([
+    Renderer.SetBindGroups([
         Renderer.CreateBindGroup(
             Renderer.CreateBindGroupEntries([
                 sampler,
