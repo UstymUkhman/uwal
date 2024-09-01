@@ -1,0 +1,40 @@
+{
+    "include": ["lib/**/*", "types.d.ts"],
+    "exclude": ["node_modules"],
+
+    "compilerOptions":
+    {
+        "forceConsistentCasingInFileNames": true,
+        "allowSyntheticDefaultImports": true,
+        "typeRoots": ["node_modules/@types"],
+        "paths": { "@/*": ["lib/*"] },
+        "verbatimModuleSyntax": true,
+
+        "emitDeclarationOnly": true,
+        "noUnusedParameters": false,
+        "noImplicitOverride": true,
+        "moduleResolution": "Node",
+        "noImplicitReturns": true,
+
+        "resolveJsonModule": true,
+        "strictNullChecks": true,
+        "lib": ["ESNext", "DOM"],
+        "esModuleInterop": true,
+        "declarationMap": true,
+        "noUnusedLocals": true,
+
+        "importHelpers": true,
+        "noImplicitAny": true,
+        "skipLibCheck": true,
+        "declaration": true,
+        "module": "ESNext",
+        "target": "ESNext",
+
+        "sourceMap": true,
+        "outDir": "types",
+        "checkJs": false,
+        "allowJs": true,
+        "baseUrl": "/",
+        "strict": true
+    }
+}

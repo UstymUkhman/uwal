@@ -16,8 +16,8 @@ declare type Vec2n = import("wgpu-matrix").Vec2n;
 declare type Vec3n = import("wgpu-matrix").Vec3n;
 declare type Vec4n = import("wgpu-matrix").Vec4n;
 
-declare type Renderer = import("@/UWAL").Renderer;
-declare type Computation = import("@/UWAL").Computation;
+declare type Renderer = import("./lib/UWAL").Renderer;
+declare type Computation = import("./lib/UWAL").Computation;
 
 declare const VERSION: string;
 

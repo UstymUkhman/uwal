@@ -1,15 +1,16 @@
 {
-  "compilerOptions": {
-    "baseUrl": ".",
-    "checkJs": true,
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "paths": { "@/*": ["./lib/*"] },
-    "typeRoots": ["node_modules/@types"],
-    "allowSyntheticDefaultImports": true
-  },
+    "include": ["lib/**/*.js", "src/**/*.js", "types.d.ts"],
+    "exclude": ["build", "dist", "node_modules"],
 
-  "include": ["lib/**/*.js", "src/**/*.js", "types.d.ts"],
-  "exclude": ["build", "dist", "node_modules"]
+    "compilerOptions":
+    {
+        "allowSyntheticDefaultImports": true,
+        "typeRoots": ["node_modules/@types"],
+        "paths": { "@/*": ["lib/*"] },
+        "moduleResolution": "Node",
+        "module": "ESNext",
+        "target": "ESNext",
+        "checkJs": true,
+        "baseUrl": "/"
+    }
 }
