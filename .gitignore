@@ -2,9 +2,9 @@ tmp
 pids
 logs
 build
+types
 dist-ssr
 node_modules
-types/**/*.map
 
 *.sw?
 *.sln
