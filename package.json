@@ -43,19 +43,26 @@
     "build": "build",
     "dist": "dist",
     "lib": "lib",
-    "src": "src"
+    "src": "src",
+    "types": "types"
   },
   "files": [
     "package.json",
     "types.d.ts",
     "README.md",
     "LICENSE",
-    "build"
+    "build",
+    "types"
   ],
   "keywords": [
+    "wgsl",
     "webgpu",
+    "shaders",
     "library",
-    "javascript"
+    "renderer",
+    "javascript",
+    "typescript",
+    "computation"
   ],
   "scripts": {
     "start": "vite",

@@ -1,0 +1,48 @@
+export namespace ERROR {
+    let CANVAS_NOT_FOUND: string;
+    let CONTEXT_NOT_FOUND: string;
+    let SHADER_CODE_NOT_FOUND: string;
+    let SHADER_MODULE_NOT_FOUND: string;
+    let VERTEX_ENTRY_NOT_FOUND: string;
+    let VERTEX_ATTRIBUTE_NOT_FOUND: string;
+    let RENDER_PASS_NOT_FOUND: string;
+    let UNIFORM_NOT_FOUND: string;
+    let INVALID_UNIFORM_NAME: string;
+    let PIPELINE_NOT_FOUND: string;
+    let COMMAND_ENCODER_NOT_FOUND: string;
+}
+export namespace ERROR_MESSAGE {
+    let CANVAS_NOT_FOUND_1: string;
+    export { CANVAS_NOT_FOUND_1 as CANVAS_NOT_FOUND };
+    let CONTEXT_NOT_FOUND_1: string;
+    export { CONTEXT_NOT_FOUND_1 as CONTEXT_NOT_FOUND };
+    let SHADER_CODE_NOT_FOUND_1: string;
+    export { SHADER_CODE_NOT_FOUND_1 as SHADER_CODE_NOT_FOUND };
+    let SHADER_MODULE_NOT_FOUND_1: string;
+    export { SHADER_MODULE_NOT_FOUND_1 as SHADER_MODULE_NOT_FOUND };
+    let VERTEX_ENTRY_NOT_FOUND_1: string;
+    export { VERTEX_ENTRY_NOT_FOUND_1 as VERTEX_ENTRY_NOT_FOUND };
+    let VERTEX_ATTRIBUTE_NOT_FOUND_1: string;
+    export { VERTEX_ATTRIBUTE_NOT_FOUND_1 as VERTEX_ATTRIBUTE_NOT_FOUND };
+    let RENDER_PASS_NOT_FOUND_1: string;
+    export { RENDER_PASS_NOT_FOUND_1 as RENDER_PASS_NOT_FOUND };
+    let UNIFORM_NOT_FOUND_1: string;
+    export { UNIFORM_NOT_FOUND_1 as UNIFORM_NOT_FOUND };
+    let INVALID_UNIFORM_NAME_1: string;
+    export { INVALID_UNIFORM_NAME_1 as INVALID_UNIFORM_NAME };
+    let PIPELINE_NOT_FOUND_1: string;
+    export { PIPELINE_NOT_FOUND_1 as PIPELINE_NOT_FOUND };
+    let COMMAND_ENCODER_NOT_FOUND_1: string;
+    export { COMMAND_ENCODER_NOT_FOUND_1 as COMMAND_ENCODER_NOT_FOUND };
+}
+export namespace ERROR_CAUSE {
+    let CANVAS_NOT_FOUND_2: number;
+    export { CANVAS_NOT_FOUND_2 as CANVAS_NOT_FOUND };
+    let CONTEXT_NOT_FOUND_2: number;
+    export { CONTEXT_NOT_FOUND_2 as CONTEXT_NOT_FOUND };
+    let PIPELINE_NOT_FOUND_2: number;
+    export { PIPELINE_NOT_FOUND_2 as PIPELINE_NOT_FOUND };
+    let COMMAND_ENCODER_NOT_FOUND_2: number;
+    export { COMMAND_ENCODER_NOT_FOUND_2 as COMMAND_ENCODER_NOT_FOUND };
+}
+//# sourceMappingURL=Errors.d.ts.map

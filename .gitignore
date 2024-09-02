@@ -4,6 +4,7 @@ logs
 build
 dist-ssr
 node_modules
+types/**/*.map
 
 *.sw?
 *.sln
