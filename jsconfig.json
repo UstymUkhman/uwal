@@ -1,5 +1,5 @@
 {
-    "include": ["lib/**/*.js", "src/**/*.js", "types.d.ts"],
+    "include": ["lib/**/*.js", "src/**/*.js"],
     "exclude": ["build", "dist", "node_modules"],
 
     "compilerOptions":
