@@ -127,9 +127,7 @@ import { mat4 } from "wgpu-matrix";
     function createMatrixUniformBuffer()
     {
         const { values } = /** @type {Record<String, Float32Array>} */ (
-            /** @type {import("@/pipelines/BasePipeline").UniformLayout} */ (
-                Renderer.CreateUniformBufferLayout("matrix")
-            )
+            Renderer.CreateUniformBufferLayout("matrix")
         );
 
         const buffer = Renderer.CreateBuffer({
