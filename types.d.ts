@@ -1,7 +1,7 @@
 /// <reference types="./typings" />
 
+import { BLEND_STATE } from "./types/pipelines/Constants";
 import * as TEXTURE from "./types/textures/Constants";
-import BLEND_STATE from "./types/pipelines/Constants";
 import SHAPE from "./types/shapes/Constants";
 import { ERROR_CAUSE } from "./types/Errors";
 import * as Shaders from "./types/shaders";
