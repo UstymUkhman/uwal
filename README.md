@@ -17,7 +17,7 @@
   <i>The goal of UWAL is to remove as much boilerplate as possible when working with the WebGPU APIs, while still providing a flexible interface with reasonable defaults for all configuration options.</i>
 </p>
 
-<!-- ## Introduction
+## Introduction
 
 UWAL is inspired by the fantastic [OGL](https://github.com/oframe/ogl) library and shares with it the following philosophy points:
 
@@ -32,7 +32,7 @@ On the other hand, it adds some precautions developers should be warn about befo
 - There are no plans to implement any WebGL fallback, so keep an eye on [browsers that support](https://caniuse.com/webgpu) WebGPU APIs.
 - UWAL is in early alpha stage at the moment, so expect breaking changes in near future.
 
-Other than that, have fun! -->
+Other than that, have fun!
 
 ## [Installation](https://www.npmjs.com/package/uwal)
 
@@ -48,7 +48,7 @@ bun add uwal
 
 ## [Examples](https://ustymukhman.github.io/uwal/dist/examples/examples.html)
 
-<!-- [![Basic Program](https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID) -->
+[![Basic Program](https://img.youtube.com/vi/TOCvJR07H6k/0.jpg)](https://www.youtube.com/watch?v=TOCvJR07H6k)
 
 ### WebGPU Fundamentals
 
