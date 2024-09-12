@@ -48,7 +48,9 @@ bun add uwal
 
 ## [Examples](https://ustymukhman.github.io/uwal/dist/examples/examples.html)
 
-[![Basic Program](https://img.youtube.com/vi/TOCvJR07H6k/0.jpg)](https://www.youtube.com/watch?v=TOCvJR07H6k)
+<a title="Basic Program" href="https://www.youtube.com/watch?v=TOCvJR07H6k" target="_blank" rel="noopener noreferrer">
+  <img alt="Basic Program" src="https://img.youtube.com/vi/TOCvJR07H6k/0.jpg" style="width:100%" />
+</a>
 
 ### WebGPU Fundamentals
 
