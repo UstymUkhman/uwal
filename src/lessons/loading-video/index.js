@@ -11,7 +11,7 @@
 
 import MipmapFilter from "../mipmap-filter/MipmapFilter.wgsl";
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
-import Video from "/assets/video/retriever.webm";
+import Video from "/assets/videos/retriever.webm";
 import { vec2, mat4 } from "wgpu-matrix";
 
 (async function(canvas)

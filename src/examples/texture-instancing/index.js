@@ -9,7 +9,7 @@
  */
 
 import { UWAL, Color, Shaders, Shape, TEXTURE } from "@/index";
-import Logo from "/assets/image/logo.jpg";
+import Logo from "/assets/images/logo.jpg";
 import Texture from "./Texture.wgsl";
 
 /** @type {number} */ let raf;

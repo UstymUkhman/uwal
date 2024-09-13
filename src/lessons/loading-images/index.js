@@ -10,7 +10,7 @@
  */
 
 import { UWAL, Color, Shaders, TEXTURE } from "@/index";
-import F from "/assets/image/f.png";
+import F from "/assets/images/f.png";
 import Images from "./Images.wgsl";
 
 (async function(canvas)
