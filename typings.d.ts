@@ -1,5 +1,3 @@
-// Internal global types:
-
 /// <reference types="vite/client" />
 /// <reference types="wgpu-matrix" />
 /// <reference types="@webgpu/types" />

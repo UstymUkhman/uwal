@@ -73,3 +73,4 @@ bun add uwal
 - [Shader Constants](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#shader-constants)
 - [Transparency and Blending](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#transparency)
 - [Blend Settings](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#blend-settings)
+- Bind Group Layouts
