@@ -1,4 +1,4 @@
-import{U as d,C as l}from"./index-CT6toc-h.js";var f="override RED: f32;@id(123)override GREEN=0.0;override BLUE=1.0;@vertex fn vertex(@builtin(vertex_index)index: u32)->@builtin(position)vec4f {let position=array(vec2f(0.0,0.5),vec2f(-0.5,-0.5),vec2f(0.5,-0.5));return vec4f(position[index],0.0,1.0);}@fragment fn fragment()->@location(0)vec4f {return vec4f(RED,GREEN,BLUE,1.0);}";/**
+import{U as d,C as l}from"./index-CDSOL_j-.js";var f="override RED: f32;@id(123)override GREEN=0.0;override BLUE=1.0;@vertex fn vertex(@builtin(vertex_index)index: u32)->@builtin(position)vec4f {let position=array(vec2f(0.0,0.5),vec2f(-0.5,-0.5),vec2f(0.5,-0.5));return vec4f(position[index],0.0,1.0);}@fragment fn fragment()->@location(0)vec4f {return vec4f(RED,GREEN,BLUE,1.0);}";/**
  * @module Shader Constants
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Shader Constants

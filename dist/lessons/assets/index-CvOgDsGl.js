@@ -1,4 +1,4 @@
-import{U as o}from"./index-CT6toc-h.js";var g="@compute @workgroup_size(1)fn compute(@builtin(global_invocation_id)id: vec3u){let center=vec2f(textureDimensions(Texture))/2.0;let dist=distance(vec2f(id.xy),center);textureStore(Texture,id.xy,select(vec4f(1,0,0,1),vec4f(0,1,1,1),dist/32.0 % 2.0<1.0));}";/**
+import{U as o}from"./index-CDSOL_j-.js";var g="@compute @workgroup_size(1)fn compute(@builtin(global_invocation_id)id: vec3u){let center=vec2f(textureDimensions(Texture))/2.0;let dist=distance(vec2f(id.xy),center);textureStore(Texture,id.xy,select(vec4f(1,0,0,1),vec4f(0,1,1,1),dist/32.0 % 2.0<1.0));}";/**
  * @module Storage Textures
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Storage Textures

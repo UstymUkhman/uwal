@@ -1,4 +1,4 @@
-import{U as p}from"./index-D0d0R1W9.js";import{S as P,a as b}from"./Shape-BKVj3FaT.js";var v="@fragment fn fragment()->@location(0)vec4f {return shape.color;}";const E=`${P}
+import{U as p}from"./index-DyK24pA6.js";import{S as P,a as b}from"./Shape-Cw7KHeMB.js";var v="@fragment fn fragment()->@location(0)vec4f {return shape.color;}";const E=`${P}
 
 ${v}`;/**
  * @example 2D Shapes
