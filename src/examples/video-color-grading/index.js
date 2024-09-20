@@ -1,5 +1,5 @@
 /**
- * @example Video Postprocessing
+ * @example Video Color Grading
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This example is developed by using a version listed below.
  * Please note that this code may be simplified in future
@@ -8,8 +8,8 @@
  * @license MIT
  */
 
-import Postprocessing from "./Postprocessing.wgsl";
 import Video from "/assets/videos/pomeranian.mp4";
+import ColorGrading from "./ColorGrading.wgsl";
 import { UWAL, Shaders } from "@/index";
 
 /** @type {number} */ let raf;
@@ -22,7 +22,7 @@ export async function run(canvas)
 
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(canvas, "Video Postprocessing"));
+        Renderer = new (await UWAL.RenderPipeline(canvas, "Video Color Grading"));
     }
     catch (error)
     {
@@ -40,7 +40,7 @@ export async function run(canvas)
 
     Renderer.CreatePipeline({
         module: Renderer.CreateShaderModule([
-            Shaders.Quad, Shaders.Resolution, Postprocessing
+            Shaders.Quad, Shaders.Resolution, ColorGrading
         ])
     });
 

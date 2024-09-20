@@ -12,11 +12,11 @@
         "slug": "2d-shapes"
     },
     {
-        "name": "Texture Instancing",
-        "slug": "texture-instancing"
+        "name": "Textures / Instancing",
+        "slug": "textures-instancing"
     },
     {
-        "name": "Video Postprocessing",
-        "slug": "video-postprocessing"
+        "name": "Video Color Grading",
+        "slug": "video-color-grading"
     }
 ]
