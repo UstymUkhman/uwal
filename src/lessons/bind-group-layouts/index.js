@@ -9,9 +9,11 @@
  * @license MIT
  */
 
+import Double from "../fundamentals/Double.wgsl";
 import { UWAL, Shaders, Color } from "@/index";
+import DoubleToDst from "./DoubleToDst.wgsl";
+import AddThree from "./AddThree.wgsl";
 import Shader from "./Texture.wgsl";
-import Double from "./Double.wgsl";
 
 (async function(canvas)
 {
@@ -28,118 +30,185 @@ import Double from "./Double.wgsl";
         alert(error);
     }
 
-    const Texture = new (await UWAL.Texture()), width = 5;
-    const colorAttachment = Renderer.CreateColorAttachment();
-    colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
-    Renderer.CreatePassDescriptor(colorAttachment);
+    // Using a bind group layout different than layout: "auto" - "rgba32float":
+    {
+        const Texture = new (await UWAL.Texture()), width = 5;
+        const colorAttachment = Renderer.CreateColorAttachment();
+        colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
+        Renderer.CreatePassDescriptor(colorAttachment);
 
-    const sampler = Texture.CreateSampler();
+        const sampler = Texture.CreateSampler();
 
-    const texture = Texture.CreateTexture({
-        format: "rgba32float",
-        size: [width, 7]
-    });
+        const texture = Texture.CreateTexture({
+            format: "rgba32float",
+            size: [width, 7]
+        });
 
-    const r = new Color(0xff0000).RGBA;
-    const y = new Color(0xffff00).RGBA;
-    const b = new Color(0x0000ff).RGBA;
+        const r = new Color(0xff0000).RGBA;
+        const y = new Color(0xffff00).RGBA;
+        const b = new Color(0x0000ff).RGBA;
 
-    const textureData = new Float32Array([
-        b, r, r, r, r,
-        r, y, y, y, r,
-        r, y, r, r, r,
-        r, y, y, r, r,
-        r, y, r, r, r,
-        r, y, r, r, r,
-        r, r, r, r, r
-    ].flat());
+        const textureData = new Float32Array([
+            b, r, r, r, r,
+            r, y, y, y, r,
+            r, y, r, r, r,
+            r, y, y, r, r,
+            r, y, r, r, r,
+            r, y, r, r, r,
+            r, r, r, r, r
+        ].flat());
 
-    Texture.WriteTexture(textureData, { texture, bytesPerRow: width * 4 * 4 });
+        Texture.WriteTexture(textureData, { texture, bytesPerRow: width * 4 * 4 });
 
-    Renderer.CreatePipeline({
-        module: Renderer.CreateShaderModule([Shaders.Quad, Shader]),
-        layout: Renderer.CreatePipelineLayout(
-            Renderer.CreateBindGroupLayout([
-                {
-                    visibility: GPUShaderStage.FRAGMENT,
-                    sampler: { type: "non-filtering" }
-                },
-                {
-                    visibility: GPUShaderStage.FRAGMENT,
-                    texture: {
-                        sampleType: "unfilterable-float",
-                        viewDimension: "2d",
-                        multisampled: false
+        Renderer.CreatePipeline({
+            module: Renderer.CreateShaderModule([Shaders.Quad, Shader]),
+            layout: Renderer.CreatePipelineLayout(
+                Renderer.CreateBindGroupLayout([
+                    {
+                        visibility: GPUShaderStage.FRAGMENT,
+                        sampler: { type: "non-filtering" }
+                    },
+                    {
+                        visibility: GPUShaderStage.FRAGMENT,
+                        texture: {
+                            sampleType: "unfilterable-float",
+                            viewDimension: "2d",
+                            multisampled: false
+                        }
                     }
-                }
-            ])
-        )
-    });
+                ])
+            )
+        });
 
-    Renderer.SetBindGroups(
-        Renderer.CreateBindGroup(
-            Renderer.CreateBindGroupEntries([
-                sampler,
-                texture.createView()
-            ])
-        )
-    );
+        Renderer.SetBindGroups(
+            Renderer.CreateBindGroup(
+                Renderer.CreateBindGroupEntries([
+                    sampler,
+                    texture.createView()
+                ])
+            )
+        );
+    }
 
-    Computation.CreatePipeline({
-        module: Renderer.CreateShaderModule(Double),
-        layout: Renderer.CreatePipelineLayout(
-            Renderer.CreateBindGroupLayout(
-                Array.from({ length: 3 }).fill({
-                    visibility: GPUShaderStage.COMPUTE,
-                    buffer: {
-                        hasDynamicOffset: true,
-                        type: 'storage'
-                    }
+    // Using a bind group layout different than layout: "auto" - dynamic offsets:
+    {
+        Computation.CreatePipeline({
+            module: Computation.CreateShaderModule(DoubleToDst),
+            layout: Computation.CreatePipelineLayout(
+                Computation.CreateBindGroupLayout(
+                    Array.from({ length: 3 }).fill({
+                        visibility: GPUShaderStage.COMPUTE,
+                        buffer: {
+                            hasDynamicOffset: true,
+                            type: 'storage'
+                        }
+                    })
+                )
+            )
+        });
+
+        const input = new Float32Array(64 * 3);
+
+        input.set([1, 3, 5]);
+        input.set([11, 12, 13], 64);
+
+        const computeBuffer = Computation.CreateBuffer({
+            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+            size: input.byteLength
+        });
+
+        const resultBuffer = Computation.CreateReadableBuffer(input.byteLength);
+
+        Computation.WriteBuffer(computeBuffer, input);
+
+        Computation.SetBindGroups(
+            Computation.CreateBindGroup(
+                Computation.CreateBindGroupEntries(
+                    Array.from({ length: 3 }).fill({
+                        buffer: computeBuffer,
+                        size: 256
+                    })
+                )
+            ),
+            [0, 256, 512]
+        );
+
+        Computation.Workgroups = 3;
+        Computation.Compute();
+
+        Computation.CopyBufferToBuffer(computeBuffer, resultBuffer);
+        Computation.Submit();
+
+        await resultBuffer.mapAsync(GPUMapMode.READ);
+        const result = new Float32Array(resultBuffer.getMappedRange());
+
+        console.log('src0:', input.slice(0, 3));
+        console.log('src1:', input.slice(64, 64 + 3));
+        console.log('dst:', result.slice(128, 128 + 3));
+
+        resultBuffer.unmap();
+    }
+
+    // Using a bind group with more than 1 pipeline:
+    {
+        const bindGroupLayout = Computation.CreateBindGroupLayout({
+            visibility: GPUShaderStage.COMPUTE,
+            buffer: {
+                minBindingSize: 0,
+                type: 'storage'
+            }
+        });
+
+        const pipelineLayout = Computation.CreatePipelineLayout(
+            bindGroupLayout
+        );
+
+        const addThreePipeline = Computation.CreatePipeline({
+            module: Computation.CreateShaderModule(AddThree),
+            layout: pipelineLayout
+        });
+
+        Computation.CreatePipeline({
+            module: Computation.CreateShaderModule(Double),
+            layout: pipelineLayout
+        });
+
+        const input = new Float32Array([1, 3, 5]);
+
+        const computeBuffer = Computation.CreateBuffer({
+            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+            size: input.byteLength
+        });
+
+        Computation.WriteBuffer(computeBuffer, input);
+
+        const resultBuffer = Computation.CreateReadableBuffer(input.byteLength);
+
+        Computation.SetBindGroups(
+            Computation.CreateBindGroup(
+                Computation.CreateBindGroupEntries({
+                    buffer: computeBuffer
                 })
             )
-        )
-    });
+        );
 
-    const input = new Float32Array(64 * 3);
+        Computation.Workgroups = input.length;
+        Computation.Compute();
 
-    input.set([1, 3, 5]);
-    input.set([11, 12, 13], 64);
+        Computation.SetPipeline(addThreePipeline);
+        Computation.Compute();
 
-    const computeBuffer = Computation.CreateBuffer({
-        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
-        size: input.byteLength
-    });
+        Computation.CopyBufferToBuffer(computeBuffer, resultBuffer);
+        Computation.Submit();
 
-    const resultBuffer = Computation.CreateReadableBuffer(input.byteLength);
+        await resultBuffer.mapAsync(GPUMapMode.READ);
+        const result = new Float32Array(resultBuffer.getMappedRange());
 
-    Computation.WriteBuffer(computeBuffer, input);
+        console.log('input:', input);
+        console.log('result:', result);
 
-    Computation.SetBindGroups(
-        Computation.CreateBindGroup(
-            Computation.CreateBindGroupEntries(
-                Array.from({ length: 3 }).fill({
-                    buffer: computeBuffer,
-                    size: 256
-                })
-            )
-        ),
-        [0, 256, 512]
-    );
-
-    Computation.Workgroups = 3;
-    Computation.Compute();
-
-    Computation.CopyBufferToBuffer(computeBuffer, resultBuffer, resultBuffer.size);
-    Computation.SubmitCommandBuffer();
-
-    await resultBuffer.mapAsync(GPUMapMode.READ);
-    const result = new Float32Array(resultBuffer.getMappedRange());
-
-    console.log('src0:', input.slice(0, 3));
-    console.log('src1:', input.slice(64, 64 + 3));
-    console.log('dst:', result.slice(128, 128 + 3));
-
-    resultBuffer.unmap();
+        resultBuffer.unmap();
+    }
 
     const observer = new ResizeObserver(entries =>
     {
