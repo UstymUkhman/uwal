@@ -123,7 +123,7 @@ import Double from "./Double.wgsl";
                 })
             )
         ),
-        [[0, 256, 512]]
+        [0, 256, 512]
     );
 
     Computation.Workgroups = 3;
