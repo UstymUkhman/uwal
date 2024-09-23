@@ -64,18 +64,8 @@ import Shader from "./Texture.wgsl";
             module: Renderer.CreateShaderModule([Shaders.Quad, Shader]),
             layout: Renderer.CreatePipelineLayout(
                 Renderer.CreateBindGroupLayout([
-                    {
-                        visibility: GPUShaderStage.FRAGMENT,
-                        sampler: { type: "non-filtering" }
-                    },
-                    {
-                        visibility: GPUShaderStage.FRAGMENT,
-                        texture: {
-                            sampleType: "unfilterable-float",
-                            viewDimension: "2d",
-                            multisampled: false
-                        }
-                    }
+                    Renderer.CreateSamplerBindingLayout("non-filtering"),
+                    Renderer.CreateTextureBindingLayout("unfilterable-float")
                 ])
             )
         });
@@ -96,13 +86,9 @@ import Shader from "./Texture.wgsl";
             module: Computation.CreateShaderModule(DoubleToDst),
             layout: Computation.CreatePipelineLayout(
                 Computation.CreateBindGroupLayout(
-                    Array.from({ length: 3 }).fill({
-                        visibility: GPUShaderStage.COMPUTE,
-                        buffer: {
-                            hasDynamicOffset: true,
-                            type: 'storage'
-                        }
-                    })
+                    Array.from({ length: 3 }).fill(
+                        Computation.CreateBufferBindingLayout("storage", true)
+                    )
                 )
             )
         });
@@ -151,13 +137,9 @@ import Shader from "./Texture.wgsl";
 
     // Using a bind group with more than 1 pipeline:
     {
-        const bindGroupLayout = Computation.CreateBindGroupLayout({
-            visibility: GPUShaderStage.COMPUTE,
-            buffer: {
-                minBindingSize: 0,
-                type: 'storage'
-            }
-        });
+        const bindGroupLayout = Computation.CreateBindGroupLayout(
+            Computation.CreateBufferBindingLayout("storage")
+        );
 
         const pipelineLayout = Computation.CreatePipelineLayout(
             bindGroupLayout
