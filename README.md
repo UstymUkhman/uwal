@@ -19,9 +19,9 @@
 
 ## Introduction
 
-- UWAL is aimed at developers who like minimal layers of abstraction and are interested in writing their own shaders.
+- UWAL is very minimal, under development and in early alpha stage, so expect breaking changes in the future.
 - There are no plans to implement any WebGL fallback, so keep an eye on [browsers that support](https://caniuse.com/webgpu) WebGPU APIs.
-- It is very minimal, under development and in early alpha stage at the moment, so expect breaking changes in the future.
+- It is aimed at developers who like minimal layers of abstraction and are interested in writing their own shaders.
 
 ## [Installation](https://www.npmjs.com/package/uwal)
 
