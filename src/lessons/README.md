@@ -1,7 +1,5 @@
 # WebGPU Fundamentals In UWAL
 
-## [Table of Contents](https://webgpufundamentals.org/)
-
 | Lesson | Live | Source |
 | - | - | - |
 | [Fundamentals](https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#fundamentals) | [Code](./fundamentals/index.js) |

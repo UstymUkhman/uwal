@@ -41,7 +41,7 @@ bun add uwal
   <img alt="Basic Program" src="assets/images/thumbnail.jpg" />
 </a>
 
-### WebGPU Fundamentals
+### [WebGPU Fundamentals](https://webgpufundamentals.org/)
 
 - [Fundamentals](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#fundamentals)
 - [Inter-stage Variables](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#inter-stage-variables)
