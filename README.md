@@ -63,3 +63,4 @@ bun add uwal
 - [Transparency and Blending](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#transparency)
 - [Blend Settings](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#blend-settings)
 - [Bind Group Layouts](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#bind-group-layouts)
+- [Timing Performance](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#timing-performance)
