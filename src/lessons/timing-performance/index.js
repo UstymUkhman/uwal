@@ -9,8 +9,8 @@
  * @license MIT
  */
 
-import { UWAL, Color } from "@/index";
-import VertexBuffers from "../vertex-buffers/VertexBuffers.wgsl";
+import { UWAL, Shaders, Color, Shape } from "@/index";
+import TimingPerformance from "./TimingPerformance.wgsl";
 
 (async function(canvas)
 {
@@ -25,49 +25,51 @@ import VertexBuffers from "../vertex-buffers/VertexBuffers.wgsl";
         alert(error);
     }
 
+    const segments = 24;
     const colorOffset = 0;
     const offsetOffset = 1;
-
     const scaleOffset = 0;
 
     const objectCount = 100;
     const objectInfos = [];
 
-    const module = Renderer.CreateShaderModule(VertexBuffers);
+    const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, TimingPerformance]);
     const colorAttachment = Renderer.CreateColorAttachment();
     colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
     Renderer.CreatePassDescriptor(colorAttachment);
 
-    const { vertexData, indexData } = createCircleVertices({
-        innerRadius: 0.25, outerRadius: 0.5
-    });
-
-    const vertBuffer = Renderer.CreateVertexBuffer(vertexData);
-    const indexBuffer = Renderer.CreateIndexBuffer(indexData);
-
-    Renderer.WriteBuffer(vertBuffer, vertexData);
-    Renderer.WriteBuffer(indexBuffer, indexData);
-    Renderer.SetIndexBuffer(indexBuffer);
-
-    const vertexLayout =
-        Renderer.CreateVertexBufferLayout(["position", { name: "vertexColor", format: "unorm8x4" }]);
+    const vertexLayout = Renderer.CreateVertexBufferLayout("position", void 0, "mainVertex");
 
     const { buffer: constBuffer, layout: constLayout } =
         Renderer.CreateVertexBuffer(
             [{ name: "color", format: "unorm8x4" }, "offset"],
-            objectCount,
-            "instance"
+            objectCount, "instance", "mainVertex"
         );
 
     const { buffer: varBuffer, layout: varLayout } =
-        Renderer.CreateVertexBuffer("scale", objectCount, "instance");
+        Renderer.CreateVertexBuffer("scale", objectCount, "instance", "mainVertex");
+
+    const { buffer: colorBuffer, layout: colorLayout } =
+        Renderer.CreateVertexBuffer(
+            { name: "vertexColor", format: "unorm8x4" },
+            objectCount,
+            void 0,
+            "mainVertex"
+        );
 
     Renderer.CreatePipeline({
         fragment: Renderer.CreateFragmentState(module),
-        vertex: Renderer.CreateVertexState(module, void 0, [vertexLayout, constLayout, varLayout])
+        vertex: Renderer.CreateVertexState(module, "mainVertex", [
+            vertexLayout, constLayout, varLayout, colorLayout
+        ])
     });
 
-    Renderer.SetVertexBuffers([vertBuffer, constBuffer, varBuffer]);
+    const vertices = new Shape({ renderer: Renderer, innerRadius: 120, radius: 240, segments })
+        .Update().Vertices;
+
+    const vertexValues = new Float32Array(varBuffer.size / Float32Array.BYTES_PER_ELEMENT);
+
+    Renderer.AddVertexBuffers([constBuffer, varBuffer, colorBuffer]);
 
     // Write constant vertex values to the GPUBuffer:
     {
@@ -78,92 +80,29 @@ import VertexBuffers from "../vertex-buffers/VertexBuffers.wgsl";
         for (let o = 0; o < objectCount; ++o)
         {
             const offsetU8 = constStructSize * o;
-            const offsetF32 = offsetU8 / 4;
 
             vertexValuesU8.set([random(255), random(255), random(255), 255], offsetU8 + colorOffset);
-            vertexValuesF32.set([random(-0.9, 0.9), random(-0.9, 0.9)], offsetF32 + offsetOffset);
-
+            vertexValuesF32.set([random(), random()], offsetU8 / 4 + offsetOffset);
             objectInfos.push({ scale: random(0.2, 0.5) });
         }
 
         Renderer.WriteBuffer(constBuffer, vertexValuesF32);
     }
 
-    const vertexValues = new Float32Array(varBuffer.size / Float32Array.BYTES_PER_ELEMENT);
-
-    const vertices = indexData.length;
-
-    function createCircleVertices({
-        endAngle = Math.PI * 2,
-        subdivisions = 24,
-        innerRadius = 0,
-        outerRadius = 1,
-        startAngle = 0
-    })
+    // Write vertex color values to the GPUBuffer:
     {
-        // 2 vertices per subdivision, + 1 to wrap around the circle.
-        const vertices = (subdivisions + 1) * 2;
+        const outerColor = new Color(0x191919);
+        const innerColor = new Color(0xffffff);
 
-        // 1 32-bit color value will be written and read as 4 8-bit values.
-        const vertexData = new Float32Array(vertices * (2 + 1));
-        const colorData = new Uint8Array(vertexData.buffer);
+        const colorData = new Uint8Array((segments + 1) * 8);
 
-        let offset = 0;
-        // 2 bytes for xy:
-        let colorOffset = 8;
-
-        /**
-         * @param {number} x
-         * @param {number} y
-         * @param {number[]} color
-         */
-        const addVertex = (x, y, color) =>
+        for (let s = 0, o = 0; s <= segments; s++, o += 8)
         {
-            vertexData[offset++] = x;
-            vertexData[offset++] = y;
-
-            colorData[colorOffset++] = color[0] * 255;
-            colorData[colorOffset++] = color[1] * 255;
-            colorData[colorOffset++] = color[2] * 255;
-
-            // Skip extra byte (alpha value, defaults to `1`)
-            // and the next vertex position (8 bytes):
-            colorOffset += 9;
-
-            // Skip the color (1 byte):
-            offset += 1;
-        };
-
-        const innerColor = [1, 1, 1];
-        const outerColor = [0.1, 0.1, 0.1];
-        const theta = endAngle - startAngle;
-
-        for (let s = 0; s <= subdivisions; s++)
-        {
-            const angle = startAngle + s * theta / subdivisions;
-
-            const cos = Math.cos(angle);
-            const sin = Math.sin(angle);
-
-            addVertex(cos * outerRadius, sin * outerRadius, outerColor);
-            addVertex(cos * innerRadius, sin * innerRadius, innerColor);
+            colorData.set(outerColor.RGBA, o);
+            colorData.set(innerColor.RGBA, o + 4);
         }
 
-        const indexData = new Uint32Array(subdivisions * 6);
-
-        for (let index = 0, i = 0; i < subdivisions; i++)
-        {
-            const indexOffset = i * 2;
-
-            indexData[index++] = indexOffset + 1; // 0 _____ 2
-            indexData[index++] = indexOffset + 3; //  |    /|
-            indexData[index++] = indexOffset + 2; //  |   / |
-            indexData[index++] = indexOffset + 2; //  |  /  |
-            indexData[index++] = indexOffset + 0; //  | /   |
-            indexData[index++] = indexOffset + 1; // 1|/____|3
-        }
-
-        return { vertexData, indexData };
+        Renderer.WriteBuffer(colorBuffer, colorData);
     }
 
     /**
@@ -180,14 +119,11 @@ import VertexBuffers from "../vertex-buffers/VertexBuffers.wgsl";
 
     function render()
     {
-        const aspect = Renderer.AspectRatio;
-        const varStructSize = varBuffer.size / objectCount;
+        const varStructOffset = varBuffer.size / objectCount / 4;
 
         objectInfos.forEach(({ scale }, o) =>
-        {
-            const offset = (varStructSize / 4) * o;
-            vertexValues.set([scale / aspect, scale], offset + scaleOffset);
-        });
+            vertexValues.set([scale, scale], varStructOffset * o + scaleOffset)
+        );
 
         Renderer.WriteBuffer(varBuffer, vertexValues);
         Renderer.Render([vertices, objectCount]);
