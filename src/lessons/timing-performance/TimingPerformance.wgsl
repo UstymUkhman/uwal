@@ -13,13 +13,11 @@ struct VertexOutput
 ) -> VertexOutput
 {
     var output: VertexOutput;
-    let topLeftBound = vec2f(1, -1) * scale * 0.4;
-    let bottomRightBound = vec2f(2, -2) - topLeftBound * 2;
     let clipSpace = GetVertexClipSpace(position * scale).xy;
 
     output.position = vec4f(
-        clipSpace + topLeftBound +
-        offset * bottomRightBound,
+        clipSpace + (offset + 0.9) /
+        1.8 * vec2f(2, -2),
         0.0, 1.0
     );
 

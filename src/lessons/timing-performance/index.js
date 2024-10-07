@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL, Shaders, Color, Shape } from "@/index";
+import { UWAL, Shaders, Color, Shape, Utils } from "@/index";
 import TimingPerformance from "./TimingPerformance.wgsl";
 
 (async function(canvas)
@@ -27,11 +27,31 @@ import TimingPerformance from "./TimingPerformance.wgsl";
 
     const segments = 24;
     const colorOffset = 0;
-    const offsetOffset = 1;
-    const scaleOffset = 0;
+    const offsetOffset = 0;
+    const scaleOffset = 2;
 
-    const objectCount = 100;
+    const objectCount = 10000;
     const objectInfos = [];
+
+    const gui = new GUI();
+    const settings = { objects: 100 };
+    gui.add(settings, 'objects', 0, objectCount, 1);
+
+    const info = document.createElement("pre");
+    const fps = document.createElement("span");
+    const js = document.createElement("span");
+
+    info.style.backgroundColor = "rgb(0 0 0 / 0.8)";
+    info.style.position = "absolute";
+    info.style.padding = "0.5em";
+    info.style.display = "grid";
+    info.style.color = "white";
+    info.style.margin = "0px";
+    info.style.left = "0px";
+    info.style.top = "0px";
+
+    info.append(fps, js);
+    document.body.appendChild(info);
 
     const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, TimingPerformance]);
     const colorAttachment = Renderer.CreateColorAttachment();
@@ -42,19 +62,17 @@ import TimingPerformance from "./TimingPerformance.wgsl";
 
     const { buffer: constBuffer, layout: constLayout } =
         Renderer.CreateVertexBuffer(
-            [{ name: "color", format: "unorm8x4" }, "offset"],
+            [{ name: "color", format: "unorm8x4" }],
             objectCount, "instance", "mainVertex"
         );
 
     const { buffer: varBuffer, layout: varLayout } =
-        Renderer.CreateVertexBuffer("scale", objectCount, "instance", "mainVertex");
+        Renderer.CreateVertexBuffer(["offset", "scale"], objectCount, "instance", "mainVertex");
 
     const { buffer: colorBuffer, layout: colorLayout } =
         Renderer.CreateVertexBuffer(
             { name: "vertexColor", format: "unorm8x4" },
-            objectCount,
-            void 0,
-            "mainVertex"
+            objectCount, void 0, "mainVertex"
         );
 
     Renderer.CreatePipeline({
@@ -75,18 +93,22 @@ import TimingPerformance from "./TimingPerformance.wgsl";
     {
         const constStructSize = constBuffer.size / objectCount;
         const vertexValuesU8 = new Uint8Array(constBuffer.size);
-        const vertexValuesF32 = new Float32Array(vertexValuesU8.buffer);
 
         for (let o = 0; o < objectCount; ++o)
         {
-            const offsetU8 = constStructSize * o;
+            vertexValuesU8.set(
+                [random(255), random(255), random(255), 255],
+                constStructSize * o + colorOffset
+            );
 
-            vertexValuesU8.set([random(255), random(255), random(255), 255], offsetU8 + colorOffset);
-            vertexValuesF32.set([random(), random()], offsetU8 / 4 + offsetOffset);
-            objectInfos.push({ scale: random(0.2, 0.5) });
+            objectInfos.push({
+                scale: random(0.2, 0.5),
+                offset: [random(-0.9, 0.9), random(-0.9, 0.9)],
+                velocity: [random(-0.1, 0.1), random(-0.1, 0.1)]
+            });
         }
 
-        Renderer.WriteBuffer(constBuffer, vertexValuesF32);
+        Renderer.WriteBuffer(constBuffer, vertexValuesU8);
     }
 
     // Write vertex color values to the GPUBuffer:
@@ -117,16 +139,35 @@ import TimingPerformance from "./TimingPerformance.wgsl";
         return Math.random() * (max - min) + min;
     }
 
-    function render()
-    {
-        const varStructOffset = varBuffer.size / objectCount / 4;
+    let then = 0;
 
-        objectInfos.forEach(({ scale }, o) =>
-            vertexValues.set([scale, scale], varStructOffset * o + scaleOffset)
-        );
+    function render(now)
+    {
+        now *= 0.001;
+        const deltaTime = now - then;
+        const startTime = performance.now();
+        const varStructSize = varBuffer.size / objectCount / 4;
+
+        for (let o = 0; o < settings.objects; o++)
+        {
+            const { scale, offset, velocity } = objectInfos[o];
+
+            offset[0] = Utils.EuclideanModulo(offset[0] + velocity[0] * deltaTime + 1.5, 3) - 1.5;
+            offset[1] = Utils.EuclideanModulo(offset[1] + velocity[1] * deltaTime + 1.5, 3) - 1.5;
+
+            const off = o * varStructSize;
+            vertexValues.set(offset, off + offsetOffset);
+            vertexValues.set([scale, scale], off + scaleOffset);
+        }
 
         Renderer.WriteBuffer(varBuffer, vertexValues);
-        Renderer.Render([vertices, objectCount]);
+        Renderer.Render([vertices, settings.objects]);
+
+        fps.textContent = `FPS: ${(1 / deltaTime).toFixed(1)}`;
+        js.textContent = `JS: ${(performance.now() - startTime).toFixed(1)}ms`;
+
+        requestAnimationFrame(render);
+        then = now;
     }
 
     const observer = new ResizeObserver(entries =>
@@ -137,7 +178,7 @@ import TimingPerformance from "./TimingPerformance.wgsl";
             Renderer.SetCanvasSize(inlineSize, blockSize);
         }
 
-        render();
+        requestAnimationFrame(render);
     });
 
     observer.observe(canvas);
