@@ -11,13 +11,15 @@
 
 import { UWAL, Shaders, Color, Shape, Utils } from "@/index";
 import TimingPerformance from "./TimingPerformance.wgsl";
+import RollingAverage from './RollingAverage';
 
 (async function(canvas)
 {
-    /** @type {Renderer} */ let Renderer;
+    /** @type {Renderer} */ let Renderer, canTimestamp;
 
     try
     {
+        canTimestamp = !!(await UWAL.SetRequiredFeatures("timestamp-query")).length;
         Renderer = new (await UWAL.RenderPipeline(canvas, "Timing Performance"));
     }
     catch (error)
@@ -25,11 +27,31 @@ import TimingPerformance from "./TimingPerformance.wgsl";
         alert(error);
     }
 
+    const { querySet, resolveBuffer, resultBuffer } = await (async function ()
+    {
+        if (!canTimestamp) return {};
+
+        const querySet = await UWAL.CreateQuerySet("timestamp", 2);
+
+        const resolveBuffer = Renderer.CreateBuffer({
+            usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC,
+            size: querySet.count * 8
+        });
+
+        const resultBuffer = Renderer.CreateBuffer({
+            usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
+            size: resolveBuffer.size
+        });
+
+        return { querySet, resolveBuffer, resultBuffer };
+    })();
+
     const segments = 24;
     const colorOffset = 0;
     const offsetOffset = 0;
     const scaleOffset = 2;
 
+    let gpuTime = 0, then = 0;
     const objectCount = 10000;
     const objectInfos = [];
 
@@ -39,6 +61,7 @@ import TimingPerformance from "./TimingPerformance.wgsl";
 
     const info = document.createElement("pre");
     const fps = document.createElement("span");
+    const gpu = document.createElement("span");
     const js = document.createElement("span");
 
     info.style.backgroundColor = "rgb(0 0 0 / 0.8)";
@@ -50,13 +73,20 @@ import TimingPerformance from "./TimingPerformance.wgsl";
     info.style.left = "0px";
     info.style.top = "0px";
 
-    info.append(fps, js);
+    info.append(fps, gpu, js);
     document.body.appendChild(info);
+
+    const fpsAverage = new RollingAverage();
+    const gpuAverage = new RollingAverage();
+    const jsAverage = new RollingAverage();
 
     const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, TimingPerformance]);
     const colorAttachment = Renderer.CreateColorAttachment();
     colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
-    Renderer.CreatePassDescriptor(colorAttachment);
+
+    Renderer.CreatePassDescriptor(
+        colorAttachment, void 0, void 0, void 0, Renderer.CreateTimestampWrites(querySet, 0, 1)
+    );
 
     const vertexLayout = Renderer.CreateVertexBufferLayout("position", void 0, "mainVertex");
 
@@ -139,8 +169,6 @@ import TimingPerformance from "./TimingPerformance.wgsl";
         return Math.random() * (max - min) + min;
     }
 
-    let then = 0;
-
     function render(now)
     {
         now *= 0.001;
@@ -161,10 +189,34 @@ import TimingPerformance from "./TimingPerformance.wgsl";
         }
 
         Renderer.WriteBuffer(varBuffer, vertexValues);
-        Renderer.Render([vertices, settings.objects]);
+        Renderer.Render([vertices, settings.objects], false);
+        Renderer.DestroyCurrentPass();
 
-        fps.textContent = `FPS: ${(1 / deltaTime).toFixed(1)}`;
-        js.textContent = `JS: ${(performance.now() - startTime).toFixed(1)}ms`;
+        if (canTimestamp)
+        {
+            Renderer.ResolveQuerySet(querySet, resolveBuffer);
+
+            if (resultBuffer.mapState === "unmapped")
+                Renderer.CopyBufferToBuffer(resolveBuffer, resultBuffer);
+        }
+
+        Renderer.SubmitCommandBuffer();
+        Renderer.SetCommandEncoder(undefined);
+
+        if (canTimestamp && resultBuffer.mapState === "unmapped")
+            resultBuffer.mapAsync(GPUMapMode.READ).then(() => {
+              const times = new BigInt64Array(resultBuffer.getMappedRange());
+              gpuTime = Number(times[1] - times[0]);
+              gpuAverage.addSample(gpuTime / 1e3);
+              resultBuffer.unmap();
+            });
+
+        fpsAverage.addSample(1 / deltaTime);
+        jsAverage.addSample(performance.now() - startTime);
+
+        fps.textContent = `FPS: ${fpsAverage.get().toFixed(1)}`;
+        js.textContent = `JS: ${jsAverage.get().toFixed(1)}ms`;
+        gpu.textContent = `GPU: ${`${canTimestamp && gpuAverage.get().toFixed(1)}µs` || "N/A"}`;
 
         requestAnimationFrame(render);
         then = now;
