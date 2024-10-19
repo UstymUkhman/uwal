@@ -15,11 +15,11 @@ import RollingAverage from './RollingAverage';
 
 (async function(canvas)
 {
-    /** @type {Renderer} */ let Renderer, canTimestamp;
+    /** @type {Renderer} */ let Renderer, then = 0;
 
     try
     {
-        canTimestamp = !!(await UWAL.SetRequiredFeatures("timestamp-query")).length;
+        await UWAL.SetRequiredFeatures("timestamp-query");
         Renderer = new (await UWAL.RenderPipeline(canvas, "Timing Performance"));
     }
     catch (error)
@@ -27,35 +27,14 @@ import RollingAverage from './RollingAverage';
         alert(error);
     }
 
-    const { querySet, resolveBuffer, resultBuffer } = await (async function ()
-    {
-        if (!canTimestamp) return {};
-
-        const querySet = await UWAL.CreateQuerySet("timestamp", 2);
-
-        const resolveBuffer = Renderer.CreateBuffer({
-            usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC,
-            size: querySet.count * 8
-        });
-
-        const resultBuffer = Renderer.CreateBuffer({
-            usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
-            size: resolveBuffer.size
-        });
-
-        return { querySet, resolveBuffer, resultBuffer };
-    })();
-
     const segments = 24;
     const colorOffset = 0;
     const offsetOffset = 0;
     const scaleOffset = 2;
 
-    let gpuTime = 0, then = 0;
-    const objectCount = 10000;
-    const objectInfos = [];
-
     const gui = new GUI();
+    const objectInfos = [];
+    const objectCount = 10000;
     const settings = { objects: 100 };
     gui.add(settings, 'objects', 0, objectCount, 1);
 
@@ -84,26 +63,25 @@ import RollingAverage from './RollingAverage';
     const colorAttachment = Renderer.CreateColorAttachment();
     colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
 
+    const gpuTiming = new Utils.GPUTiming(Renderer);
+    const querySet = await gpuTiming.QuerySet;
+
     Renderer.CreatePassDescriptor(
         colorAttachment, void 0, void 0, void 0, Renderer.CreateTimestampWrites(querySet, 0, 1)
     );
 
     const vertexLayout = Renderer.CreateVertexBufferLayout("position", void 0, "mainVertex");
 
-    const { buffer: constBuffer, layout: constLayout } =
-        Renderer.CreateVertexBuffer(
-            [{ name: "color", format: "unorm8x4" }],
-            objectCount, "instance", "mainVertex"
-        );
+    const { buffer: constBuffer, layout: constLayout } = Renderer.CreateVertexBuffer(
+        [{ name: "color", format: "unorm8x4" }], objectCount, "instance", "mainVertex"
+    );
 
     const { buffer: varBuffer, layout: varLayout } =
         Renderer.CreateVertexBuffer(["offset", "scale"], objectCount, "instance", "mainVertex");
 
-    const { buffer: colorBuffer, layout: colorLayout } =
-        Renderer.CreateVertexBuffer(
-            { name: "vertexColor", format: "unorm8x4" },
-            objectCount, void 0, "mainVertex"
-        );
+    const { buffer: colorBuffer, layout: colorLayout } = Renderer.CreateVertexBuffer(
+        { name: "vertexColor", format: "unorm8x4" }, objectCount, void 0, "mainVertex"
+    );
 
     Renderer.CreatePipeline({
         fragment: Renderer.CreateFragmentState(module),
@@ -169,7 +147,7 @@ import RollingAverage from './RollingAverage';
         return Math.random() * (max - min) + min;
     }
 
-    function render(now)
+    async function render(now)
     {
         now *= 0.001;
         const deltaTime = now - then;
@@ -190,33 +168,15 @@ import RollingAverage from './RollingAverage';
 
         Renderer.WriteBuffer(varBuffer, vertexValues);
         Renderer.Render([vertices, settings.objects], false);
-        Renderer.DestroyCurrentPass();
-
-        if (canTimestamp)
-        {
-            Renderer.ResolveQuerySet(querySet, resolveBuffer);
-
-            if (resultBuffer.mapState === "unmapped")
-                Renderer.CopyBufferToBuffer(resolveBuffer, resultBuffer);
-        }
-
-        Renderer.SubmitCommandBuffer();
-        Renderer.SetCommandEncoder(undefined);
-
-        if (canTimestamp && resultBuffer.mapState === "unmapped")
-            resultBuffer.mapAsync(GPUMapMode.READ).then(() => {
-              const times = new BigInt64Array(resultBuffer.getMappedRange());
-              gpuTime = Number(times[1] - times[0]);
-              gpuAverage.addSample(gpuTime / 1e3);
-              resultBuffer.unmap();
-            });
+        Renderer.DestroyCurrentPass(); // Need to end render pass.
 
         fpsAverage.addSample(1 / deltaTime);
         jsAverage.addSample(performance.now() - startTime);
+        gpuTiming.ResolveAndSubmit().then(gpuTime => gpuAverage.addSample(gpuTime / 1e3));
 
         fps.textContent = `FPS: ${fpsAverage.get().toFixed(1)}`;
         js.textContent = `JS: ${jsAverage.get().toFixed(1)}ms`;
-        gpu.textContent = `GPU: ${`${canTimestamp && gpuAverage.get().toFixed(1)}µs` || "N/A"}`;
+        gpu.textContent = `GPU: ${gpuTiming.Enabled && `${gpuAverage.get().toFixed(1)}µs` || "N/A"}`;
 
         requestAnimationFrame(render);
         then = now;
