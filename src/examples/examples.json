@@ -18,5 +18,9 @@
     {
         "name": "Video Color Grading",
         "slug": "video-color-grading"
+    },
+    {
+        "name": "Text Rendering",
+        "slug": "text-rendering"
     }
 ]
