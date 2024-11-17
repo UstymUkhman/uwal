@@ -14,7 +14,7 @@
 import BoldTexture from "/assets/fonts/roboto-bold.png";
 import BoldData from "/assets/fonts/roboto-bold.json";
 import TextRendering from "./TextRendering.wgsl";
-import { UWAL, Shaders } from "@/index";
+import { UWAL, Text } from "@/index";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
@@ -33,28 +33,35 @@ export async function run(canvas)
         alert(error);
     }
 
-    const objects = 1e4;
+    const objects = 6e4; // This equals to webgl_fonts' vertex_array length
+    // https://github.com/astiopin/webgl_fonts/blob/master/src/main.js#L113
 
-    const module = Renderer.CreateShaderModule([Shaders.Resolution, TextRendering]);
-    const { buffer, layout } = Renderer.CreateVertexBuffer(["position", "texture", "scale"], objects);
-    const attributes = new Float32Array(buffer.size / Float32Array.BYTES_PER_ELEMENT);
+    const module = Renderer.CreateShaderModule(TextRendering);
+
+    const { buffer: vertexBuffer, layout } = Renderer.CreateVertexBuffer(
+        ["position", "texture", "scale"], objects
+    );
+
+    const attributes = new Float32Array(vertexBuffer.size / Float32Array.BYTES_PER_ELEMENT);
 
     for (let o = 0, s = attributes.length / objects; o < objects; o++)
     {
         const offset = o * s;
 
-        attributes.set([0, 0], offset + 0);
-        attributes.set([0, 0], offset + 2);
-        attributes.set([1]   , offset + 4);
+        attributes.set([0, 0], offset + 0); // position
+        attributes.set([0, 0], offset + 2); // texture
+        attributes.set([1]   , offset + 4); // scale
     }
+
+    Renderer.AddVertexBuffers(vertexBuffer);
+    Renderer.WriteBuffer(vertexBuffer, attributes);
 
     Renderer.CreatePipeline({
         fragment: Renderer.CreateFragmentState(module),
         vertex: Renderer.CreateVertexState(module, void 0, layout)
     });
 
-    Renderer.AddVertexBuffers(buffer);
-    Renderer.WriteBuffer(buffer, attributes);
+    const text = new Text({ renderer: Renderer });
 
     const boldTexture = new Image();
     boldTexture.src = BoldTexture;
@@ -73,6 +80,7 @@ export async function run(canvas)
             Renderer.CreateBindGroup(
                 Renderer.CreateBindGroupEntries([
                     { buffer: Renderer.ResolutionBuffer } /*,
+                    { buffer: uniformBuffer },
                     texture.createView(),
                     sampler */
                 ])
