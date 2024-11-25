@@ -18,7 +18,7 @@ import Circles from "./Circles.wgsl";
     const preferredFormat = UWAL.PreferredCanvasFormat;
 
     const presentationFormat =
-        availableFeatures.includes("bgra8unorm-storage") &&
+        availableFeatures.has("bgra8unorm-storage") &&
         preferredFormat === "bgra8unorm" ? preferredFormat : "rgba8unorm";
 
     if (preferredFormat === "bgra8unorm" && presentationFormat === "rgba8unorm")
