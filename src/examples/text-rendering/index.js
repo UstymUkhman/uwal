@@ -13,8 +13,8 @@
 // import RegularData from "/assets/fonts/roboto-regular.json";
 import BoldTexture from "/assets/fonts/roboto-bold.png";
 import BoldData from "/assets/fonts/roboto-bold.json";
-import TextRendering from "./TextRendering.wgsl";
-import { UWAL, Text } from "@/index";
+import { UWAL, Shaders, Color, Text } from "@/index";
+import { mat3 } from "wgpu-matrix";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
@@ -23,6 +23,14 @@ import { UWAL, Text } from "@/index";
 export async function run(canvas)
 {
     /** @type {Renderer} */ let Renderer;
+
+    canvas.style.position = "absolute";
+    canvas.style.height = `${400}px`;
+    canvas.style.width = `${700}px`;
+    canvas.style.top = "115.875px";
+    canvas.style.left = "241.5px";
+
+    // const availableFeatures = await UWAL.SetRequiredFeatures("dual-source-blending");
 
     try
     {
@@ -33,76 +41,79 @@ export async function run(canvas)
         alert(error);
     }
 
-    const objects = 6e4; // This equals to webgl_fonts' vertex_array length
-    // https://github.com/astiopin/webgl_fonts/blob/master/src/main.js#L113
+    const module = Renderer.CreateShaderModule(Shaders.Text);
 
-    const module = Renderer.CreateShaderModule(TextRendering);
+    // const color = Renderer.CreateBlendComponent("add", "one", "one-minus-src1");
+    // const target = Renderer.CreateTargetState(void 0, { color, alpha: {} });
 
-    const { buffer: vertexBuffer, layout } = Renderer.CreateVertexBuffer(
-        ["position", "texture", "scale"], objects
+    const layout = Renderer.CreateVertexBufferLayout(
+        ["position", "texture", "size"], void 0, "textVertex"
     );
 
-    const attributes = new Float32Array(vertexBuffer.size / Float32Array.BYTES_PER_ELEMENT);
-
-    for (let o = 0, s = attributes.length / objects; o < objects; o++)
-    {
-        const offset = o * s;
-
-        attributes.set([0, 0], offset + 0); // position
-        attributes.set([0, 0], offset + 2); // texture
-        attributes.set([1]   , offset + 4); // scale
-    }
-
-    Renderer.AddVertexBuffers(vertexBuffer);
-    Renderer.WriteBuffer(vertexBuffer, attributes);
+    const colorAttachment = Renderer.CreateColorAttachment();
+    colorAttachment.clearValue = new Color(0xffffff).rgba;
+    Renderer.CreatePassDescriptor(colorAttachment);
 
     Renderer.CreatePipeline({
-        fragment: Renderer.CreateFragmentState(module),
-        vertex: Renderer.CreateVertexState(module, void 0, layout)
+        fragment: Renderer.CreateFragmentState(module, "textFragment" /*, target */),
+        vertex: Renderer.CreateVertexState(module, "textVertex", layout)
     });
 
-    const text = new Text({ renderer: Renderer });
+    let text, textUniform;
 
     const boldTexture = new Image();
     boldTexture.src = BoldTexture;
 
     boldTexture.onload = async () =>
     {
-        /* const Texture = new (await UWAL.Texture());
-        const sampler = Texture.CreateSampler({ filter: "linear" });
+        const fontColor = new Color();
 
-        const texture = Texture.CopyImageToTexture(boldTexture, {
-            create: { format: "r32float" },
-            generateMipmaps: false
-        }); */
+        text = new Text({
+            renderer: Renderer,
+            color: fontColor,
+            font: BoldData,
+            lineGap: 0.2,
+            size: 144
+        });
 
-        Renderer.SetBindGroups(
-            Renderer.CreateBindGroup(
-                Renderer.CreateBindGroupEntries([
-                    { buffer: Renderer.ResolutionBuffer } /*,
-                    { buffer: uniformBuffer },
-                    texture.createView(),
-                    sampler */
-                ])
-            )
-        );
+        await text.SetFontTexture(boldTexture);
+        textUniform = text.Write("UWAL", [-150, 0]);
 
-        raf = requestAnimationFrame(render);
+        render();
     };
 
     function render()
     {
-        raf = requestAnimationFrame(render);
-        Renderer.Render(0);
+        const pr = Renderer.DevicePixelRatio;
+        const cw = Math.round(pr * canvas.width * 0.5) * 2;
+        const ch = Math.round(pr * canvas.height * 0.5) * 2;
+
+        let dx = Math.round(-0.5 * textUniform.rectangle[2]);
+        let dy = Math.round( 0.5 * textUniform.rectangle[3]);
+
+        let ws = 2.0 / cw;
+        let hs = 2.0 / ch;
+
+        textUniform.transform = mat3.create(
+            ws,       0,         0,
+            0,        hs,        0,
+            dx * ws,  dy * hs,   1
+        );
+
+        Renderer.WriteBuffer(textUniform.buffer, textUniform.transform.buffer);
+
+        text.Render();
     }
 
     observer = new ResizeObserver(entries =>
     {
-        for (const entry of entries)
+        /* for (const entry of entries)
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
-        }
+        } */
+
+        Renderer.SetCanvasSize(700, 400);
     });
 
     observer.observe(canvas);

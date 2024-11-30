@@ -8,6 +8,7 @@ import * as Shaders from "./types/shaders";
 import Cube from "./types/primitives/Cube";
 import GPUTiming from "@/utils/GPUTiming";
 import Shape from "./types/shapes/Shape";
+import Text from "./types/text/Text";
 import Color from "./types/Color";
 import UWAL from "./types/UWAL";
 
@@ -46,5 +47,6 @@ export {
     Shaders,
     Color,
     Utils,
+    Text,
     UWAL
 };

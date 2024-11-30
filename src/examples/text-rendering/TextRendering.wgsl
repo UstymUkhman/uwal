@@ -93,13 +93,10 @@ fn Subpixel(triplet: f32, coverage: f32) -> vec3f
 
     let channels = Subpixel(Font.subpx * gradient.x * 0.5, alpha);
 
-    // For subpixel rendering each color channel is blended separately:
-    let result = mix(Font.back.rgb, Font.color.rgb, channels);
-
     // When background color is not defined a possible workaround could be:
     // let background = vec3f(1.0) - Font.color.rgb;
-    // let result = mix(background, Font.color.rgb, channels);
+    // return vec4f(mix(background, Font.color.rgb, channels), 1);
 
-    // return vec4f(result, 1);
-    return vec4f(channels, 1);
+    // For subpixel rendering each color channel is blended separately:
+    return vec4f(mix(Font.back.rgb, Font.color.rgb, channels), 1);
 }
