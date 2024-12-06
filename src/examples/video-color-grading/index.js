@@ -8,12 +8,13 @@
  * @license MIT
  */
 
-import Video from "/assets/videos/pomeranian.mp4";
-import ColorGrading from "./ColorGrading.wgsl";
+import Video from "/assets/videos/matrix.mp4";
 import { UWAL, Shaders } from "@/index";
+import SinCity from "./SinCity.wgsl";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
+const video = document.createElement("video");
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
@@ -29,22 +30,47 @@ export async function run(canvas)
         alert(error);
     }
 
+    let videoWidth, videoHeight;
+    let resolutionBuffer, videoBuffer;
     const Texture = new (await UWAL.Texture());
     const videoSampler = Texture.CreateSampler();
-    const video = document.createElement("video");
-    let resolutionBuffer, videoBuffer, videoValues;
 
-    video.muted = video.loop = true;
+    video.controls = video.muted = video.loop = true;
+    video.style.position = "absolute";
     video.preload = "auto";
     video.src = Video;
 
     Renderer.CreatePipeline({
         module: Renderer.CreateShaderModule([
-            Shaders.Quad, Shaders.Resolution, ColorGrading
+            Shaders.Quad, Shaders.Resolution, SinCity
         ])
     });
 
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment());
+
+    video.addEventListener("loadedmetadata", () =>
+    {
+        videoHeight = video.videoHeight;
+        videoWidth = video.videoWidth;
+        setVideoPosition();
+    }, false);
+
+    document.body.appendChild(video);
+
+    function setVideoPosition()
+    {
+        const scale = Math.min(canvas.width / videoWidth, 0.67);
+        const width = videoWidth * scale, height = videoHeight * scale;
+
+        video.style.right = `${(canvas.width - width) / 2}px`;
+        video.style.bottom = `${canvas.height / 2}px`;
+
+        video.style.height = `${height}px`;
+        video.style.width = `${width}px`;
+
+        video.height = height;
+        video.width = width;
+    }
 
     async function start()
     {
@@ -76,23 +102,20 @@ export async function run(canvas)
 
     function createVideoBuffer()
     {
-        videoValues = new Float32Array(4);
+        const videoValues = new Float32Array(2);
 
         videoBuffer = Renderer.CreateBuffer({
             size: Float32Array.BYTES_PER_ELEMENT * 4,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
         });
 
-        videoValues.set([video.videoWidth, video.videoHeight], 2);
+        videoValues.set([video.videoWidth, video.videoHeight]);
+        Renderer.WriteBuffer(videoBuffer, videoValues);
     }
 
-    /** @param {DOMHighResTimeStamp} time */
-    function render(time)
+    function render()
     {
-        videoValues.set([time * 0.001], 1);
         raf = requestAnimationFrame(render);
-
-        Renderer.WriteBuffer(videoBuffer, videoValues);
         const texture = Texture.ImportExternalTexture(video);
 
         Renderer.SetBindGroups(
@@ -118,6 +141,7 @@ export async function run(canvas)
             resolutionBuffer = Renderer.ResolutionBuffer;
         }
 
+        videoWidth && videoHeight && setVideoPosition();
         cancelAnimationFrame(raf), start();
     });
 
@@ -129,5 +153,6 @@ export function destroy()
     UWAL.OnDeviceLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
+    video.remove();
     UWAL.Destroy();
 }
