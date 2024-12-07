@@ -4,13 +4,15 @@
  * https://github.com/astiopin/webgl_fonts
  */
 
+// enable dual_source_blending;
 override TRIPLET_FACTOR = 0.6;
+
 const THRESHOLD = 20.0 / 256.0;
 const MIN_GRAD = THRESHOLD * 0.1;
 
 struct text
 {
-    transform: mat3x3f,
+    matrix: mat3x3f,
     texureSize: vec2f
 };
 
@@ -31,7 +33,7 @@ struct TextVertexOutput
 ) -> TextVertexOutput
 {
     var output: TextVertexOutput;
-    let clipSpace = Text.transform * vec3f(position, 1);
+    let clipSpace = Text.matrix * vec3f(position, 1);
 
     output.inverseTexureSize = 1 / Text.texureSize;
     output.position = vec4f(clipSpace.xy, 0, 1);
@@ -48,6 +50,12 @@ struct font
     subpx: f32,
     hint: f32
 };
+
+/* struct TextFragmentOutput
+{
+    @location(0) @blend_src(0) color: vec4f,
+    @location(0) @blend_src(1) blend: vec4f
+}; */
 
 @group(0) @binding(1) var<uniform> Font: font;
 @group(0) @binding(2) var Texture: texture_2d<f32>;
@@ -66,7 +74,7 @@ fn Subpixel(triplet: f32, coverage: f32) -> vec3f
     @location(0) texture: vec2f,
     @location(1) distanceDelta: f32,
     @location(2) inverseTexureSize: vec2f
-) -> @location(0) vec4f
+) -> @location(0) vec4f // TextFragmentOutput
 {
     // Sample the texture with L pattern:
     let sdf  = textureSample(Texture, Sampler, texture).r;
@@ -93,6 +101,15 @@ fn Subpixel(triplet: f32, coverage: f32) -> vec3f
 
     let channels = Subpixel(Font.subpx * gradient.x * 0.5, alpha);
 
-    // For subpixel rendering each color channel is blended separately:
+    // For subpixel rendering each color component is blended separately:
     return vec4f(mix(Font.back.rgb, Font.color.rgb, channels), 1);
+
+    // When "Dual Source Blending" is enabled, the color value is blended
+    // automatically with subpixels based on the current blending equation.
+    /* var output: TextFragmentOutput;
+
+    output.color = vec4f(Font.color.rgb, 1);
+    output.blend = vec4f(channels, 1);
+
+    return output; */
 }
