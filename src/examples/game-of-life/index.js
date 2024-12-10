@@ -178,14 +178,15 @@ export async function run(canvas)
     {
         for (const entry of entries)
         {
-            const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            Renderer.SetCanvasSize(inlineSize, blockSize);
+            let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
+            width = (width <= 960 && width) || width - 240;
+            Renderer.SetCanvasSize(width, blockSize);
         }
 
         clean(), start();
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 }
 
 export function destroy()

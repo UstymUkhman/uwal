@@ -21,7 +21,7 @@ import { UWAL, Shaders, Color, Text } from "@/index";
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
-    /** @type {Renderer} */ let Renderer;
+    /** @type {Renderer} */ let Renderer, texturesLoaded = false;
 
     // Enable "Dual Source Blending" https://caniuse.com/?search=dual-source-blending:
     // const { size: dsb } = (await UWAL.SetRequiredFeatures("dual-source-blending"));
@@ -79,6 +79,7 @@ export async function run(canvas)
         await loadFontTexture(Subtitle, RegularTexture);
         Subtitle.Write("Unopinionated WebGPU Abstraction Library", [-215, 0]);
         Title.Write("UWAL", [-185, 100]);
+        texturesLoaded = true;
         Title.Render(false);
         Subtitle.Render();
     });
@@ -87,12 +88,17 @@ export async function run(canvas)
     {
         for (const entry of entries)
         {
-            const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            Renderer.SetCanvasSize(inlineSize, blockSize);
+            let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
+            width = (width <= 960 && width) || width - 240;
+            Renderer.SetCanvasSize(width, blockSize);
+
+            if (!texturesLoaded) return;
+            Title.Resize(); Subtitle.Resize();
+            Title.Render(false); Subtitle.Render();
         }
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 }
 
 export function destroy()

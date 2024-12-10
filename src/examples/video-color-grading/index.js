@@ -35,7 +35,8 @@ export async function run(canvas)
     const Texture = new (await UWAL.Texture());
     const videoSampler = Texture.CreateSampler();
 
-    video.controls = video.muted = video.loop = true;
+    video.playsinline = video.loop = true;
+    video.controls = video.muted = true;
     video.style.position = "absolute";
     video.preload = "auto";
     video.src = Video;
@@ -136,8 +137,9 @@ export async function run(canvas)
     {
         for (const entry of entries)
         {
-            const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            Renderer.SetCanvasSize(inlineSize, blockSize);
+            let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
+            width = (width <= 960 && width) || width - 240;
+            Renderer.SetCanvasSize(width, blockSize);
             resolutionBuffer = Renderer.ResolutionBuffer;
         }
 
@@ -145,7 +147,7 @@ export async function run(canvas)
         cancelAnimationFrame(raf), start();
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 }
 
 export function destroy()
