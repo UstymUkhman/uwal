@@ -42,7 +42,7 @@ export async function run(canvas)
 
     Renderer.CreatePipeline({
         fragment: Renderer.CreateFragmentState(module),
-        vertex: Renderer.CreateVertexState(module, "mainVertex", [
+        vertex: Renderer.CreateVertexState(module, void 0, [
         {
             arrayStride: Float32Array.BYTES_PER_ELEMENT * 2,
             attributes: [Renderer.CreateVertexBufferAttribute("float32x2")]    // Position

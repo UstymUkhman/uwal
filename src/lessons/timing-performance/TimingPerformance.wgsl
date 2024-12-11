@@ -4,7 +4,7 @@ struct VertexOutput
     @location(0) color: vec4f
 };
 
-@vertex fn mainVertex(
+@vertex fn vertex(
     @location(0) position: vec2f,
     @location(1) color: vec4f,
     @location(2) offset: vec2f,

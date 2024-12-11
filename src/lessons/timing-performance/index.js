@@ -70,22 +70,22 @@ import RollingAverage from './RollingAverage';
         colorAttachment, void 0, void 0, void 0, Renderer.CreateTimestampWrites(querySet, 0, 1)
     );
 
-    const vertexLayout = Renderer.CreateVertexBufferLayout("position", void 0, "mainVertex");
+    const vertexLayout = Renderer.CreateVertexBufferLayout("position");
 
     const { buffer: constBuffer, layout: constLayout } = Renderer.CreateVertexBuffer(
-        [{ name: "color", format: "unorm8x4" }], objectCount, "instance", "mainVertex"
+        [{ name: "color", format: "unorm8x4" }], objectCount, "instance"
     );
 
     const { buffer: varBuffer, layout: varLayout } =
-        Renderer.CreateVertexBuffer(["offset", "scale"], objectCount, "instance", "mainVertex");
+        Renderer.CreateVertexBuffer(["offset", "scale"], objectCount, "instance");
 
     const { buffer: colorBuffer, layout: colorLayout } = Renderer.CreateVertexBuffer(
-        { name: "vertexColor", format: "unorm8x4" }, objectCount, void 0, "mainVertex"
+        { name: "vertexColor", format: "unorm8x4" }, objectCount
     );
 
     Renderer.CreatePipeline({
         fragment: Renderer.CreateFragmentState(module),
-        vertex: Renderer.CreateVertexState(module, "mainVertex", [
+        vertex: Renderer.CreateVertexState(module, void 0, [
             vertexLayout, constLayout, varLayout, colorLayout
         ])
     });

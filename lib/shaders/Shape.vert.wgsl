@@ -15,7 +15,7 @@ fn GetVertexClipSpace(position: vec2f) -> vec4f
     return vec4f(clipSpace, 0, 1);
 }
 
-@vertex fn vertex(@location(0) position: vec2f) -> @builtin(position) vec4f
+@vertex fn shapeVertex(@location(0) position: vec2f) -> @builtin(position) vec4f
 {
     return GetVertexClipSpace(position);
 }

@@ -36,8 +36,8 @@ export async function run(canvas)
     const module = Renderer.CreateShaderModule(Shaders.Shape);
 
     Renderer.CreatePipeline({
-        fragment: Renderer.CreateFragmentState(module),
-        vertex: Renderer.CreateVertexState(module, "vertex", [
+        fragment: Renderer.CreateFragmentState(module, "shapeFragment"),
+        vertex: Renderer.CreateVertexState(module, "shapeVertex", [
         {
             arrayStride: Float32Array.BYTES_PER_ELEMENT * 2,
             attributes: [Renderer.CreateVertexBufferAttribute("float32x2")]
