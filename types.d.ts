@@ -5,12 +5,14 @@ import * as TEXTURE from "./types/textures/Constants";
 import SHAPE from "./types/shapes/Constants";
 import { ERROR_CAUSE } from "./types/Errors";
 import * as Shaders from "./types/shaders";
+import SDFText from "./types/text/SDFText";
 import Cube from "./types/primitives/Cube";
 import GPUTiming from "@/utils/GPUTiming";
 import Shape from "./types/shapes/Shape";
-import Text from "./types/text/Text";
 import Color from "./types/Color";
 import UWAL from "./types/UWAL";
+
+const Primitives = { Cube };
 
 import
 {
@@ -19,8 +21,6 @@ import
     EuclideanModulo
 }
 from "@/utils";
-
-const Primitives = { Cube };
 
 const Utils =
 {
@@ -43,10 +43,10 @@ export {
     BLEND_STATE,
     ERROR_CAUSE,
     Primitives,
+    SDFText,
     TEXTURE,
     Shaders,
     Color,
     Utils,
-    Text,
     UWAL
 };

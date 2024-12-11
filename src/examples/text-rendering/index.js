@@ -13,7 +13,7 @@ import RegularTexture from "/assets/fonts/roboto-regular.png";
 import RegularData from "/assets/fonts/roboto-regular.json";
 import BoldTexture from "/assets/fonts/roboto-bold.png";
 import BoldData from "/assets/fonts/roboto-bold.json";
-import { UWAL, Shaders, Color, Text } from "@/index";
+import { UWAL, Shaders, SDFText, Color } from "@/index";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
@@ -41,7 +41,7 @@ export async function run(canvas)
         texture.onload = () => text.SetFontTexture(texture).then(resolve);
     });
 
-    const module = Renderer.CreateShaderModule(Shaders.Text);
+    const module = Renderer.CreateShaderModule(Shaders.SDFText);
     // const color = Renderer.CreateBlendComponent("add", "one", "one-minus-src1");
     const target = Renderer.CreateTargetState(void 0, /* (dsb && { color, alpha: {} }) || */ void 0);
 
@@ -58,7 +58,7 @@ export async function run(canvas)
         vertex: Renderer.CreateVertexState(module, "textVertex", layout)
     });
 
-    const Title = new Text({
+    const Title = new SDFText({
         color: new Color(0x005a9c),
         background: new Color(),
         renderer: Renderer,
@@ -66,7 +66,7 @@ export async function run(canvas)
         size: 144
     });
 
-    const Subtitle = new Text({
+    const Subtitle = new SDFText({
         color: new Color(0xffffff),
         background: new Color(),
         renderer: Renderer,
