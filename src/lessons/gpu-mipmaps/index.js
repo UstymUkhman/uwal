@@ -162,7 +162,7 @@ import F from "/assets/images/f.png";
         render();
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 
     canvas.addEventListener("click", () =>
     {

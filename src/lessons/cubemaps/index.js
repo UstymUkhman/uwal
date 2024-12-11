@@ -193,7 +193,7 @@ import { mat4 } from "wgpu-matrix";
         render();
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 })(
     /** @type {HTMLCanvasElement} */
     (document.getElementById("lesson"))

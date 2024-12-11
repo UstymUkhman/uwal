@@ -158,7 +158,7 @@ import Shader from "./Texture.wgsl";
         requestAnimationFrame(render);
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 
     canvas.style.imageRendering = "pixelated";
     canvas.style.imageRendering = "crisp-edges";

@@ -203,7 +203,7 @@ import Shader from "./Texture.wgsl";
         Renderer.Render(6);
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 })(
     /** @type {HTMLCanvasElement} */
     (document.getElementById("lesson"))

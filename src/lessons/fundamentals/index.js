@@ -57,7 +57,7 @@ import Double from "./Double.wgsl";
             render();
         });
 
-        observer.observe(canvas);
+        observer.observe(document.body);
     }
 
     // Run computations on the GPU:

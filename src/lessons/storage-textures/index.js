@@ -76,7 +76,7 @@ import Circles from "./Circles.wgsl";
         render();
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 })(
     /** @type {HTMLCanvasElement} */
     (document.getElementById("lesson"))

@@ -82,7 +82,7 @@ import Triangle from "../inter-stage-variables/Triangle.vert.wgsl";
         render();
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 })(
     /** @type {HTMLCanvasElement} */
     (document.getElementById("lesson"))

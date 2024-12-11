@@ -57,7 +57,7 @@ import Checkerboard from "./Checkerboard.frag.wgsl";
         render();
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 })(
     /** @type {HTMLCanvasElement} */
     (document.getElementById("lesson"))

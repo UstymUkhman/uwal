@@ -52,7 +52,7 @@ import Triangle from "./Triangle.wgsl";
         Renderer.Render(3);
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 })(
     /** @type {HTMLCanvasElement} */
     (document.getElementById("lesson"))

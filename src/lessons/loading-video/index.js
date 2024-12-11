@@ -194,7 +194,7 @@ import { vec2, mat4 } from "wgpu-matrix";
         video[video.paused ? "play" : "pause"]()
     );
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 })(
     /** @type {HTMLCanvasElement} */
     (document.getElementById("lesson"))

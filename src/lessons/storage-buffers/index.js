@@ -195,7 +195,7 @@ import StorageBuffers from "./StorageBuffers.wgsl";
         render();
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 })(
     /** @type {HTMLCanvasElement} */
     (document.getElementById("lesson"))

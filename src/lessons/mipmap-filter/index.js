@@ -158,7 +158,7 @@ import { vec2, mat4 } from "wgpu-matrix";
         render();
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 
     canvas.addEventListener("click", () =>
     {

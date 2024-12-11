@@ -179,7 +179,7 @@ import { vec2, mat4 } from "wgpu-matrix";
         requestAnimationFrame(render);
     });
 
-    observer.observe(canvas);
+    observer.observe(document.body);
 })(
     /** @type {HTMLCanvasElement} */
     (document.getElementById("lesson"))
