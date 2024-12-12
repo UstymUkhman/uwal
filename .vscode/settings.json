@@ -1,6 +1,5 @@
 {
   "editor.defaultFormatter": null,
   "editor.formatOnSave": false,
-  "prettier.enable": false,
   "editor.tabSize": 4
 }
