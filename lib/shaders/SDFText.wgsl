@@ -4,11 +4,17 @@
  * https://github.com/astiopin/webgl_fonts
  */
 
-// enable dual_source_blending;
 override TRIPLET_FACTOR = 0.6;
-
 const THRESHOLD = 20.0 / 256.0;
 const MIN_GRAD = THRESHOLD * 0.1;
+
+struct font
+{
+    color: vec4f,
+    back: vec4f,
+    subpx: f32,
+    hint: f32
+};
 
 struct text
 {
@@ -25,6 +31,9 @@ struct TextVertexOutput
 };
 
 @group(0) @binding(0) var<uniform> Text: text;
+@group(0) @binding(1) var<uniform> Font: font;
+@group(0) @binding(2) var Texture: texture_2d<f32>;
+@group(0) @binding(3) var Sampler: sampler;
 
 @vertex fn textVertex(
     @location(0) position: vec2f,
@@ -43,38 +52,7 @@ struct TextVertexOutput
     return output;
 }
 
-struct font
-{
-    color: vec4f,
-    back: vec4f,
-    subpx: f32,
-    hint: f32
-};
-
-/* struct TextFragmentOutput
-{
-    @location(0) @blend_src(0) color: vec4f,
-    @location(0) @blend_src(1) blend: vec4f
-}; */
-
-@group(0) @binding(1) var<uniform> Font: font;
-@group(0) @binding(2) var Texture: texture_2d<f32>;
-@group(0) @binding(3) var Sampler: sampler;
-
-// Subpixel coverage calculation:
-fn Subpixel(triplet: f32, coverage: f32) -> vec3f
-{
-    let z = TRIPLET_FACTOR * triplet;
-    let top = abs(z); let max = vec3f(-z, 0, z);
-    let average = vec3f(mix(top, -top - 1, coverage));
-    return clamp(max - average, vec3f(0), vec3f(1));
-}
-
-@fragment fn textFragment(
-    @location(0) texture: vec2f,
-    @location(1) distanceDelta: f32,
-    @location(2) inverseTexureSize: vec2f
-) -> @location(0) vec4f // TextFragmentOutput
+fn GetSubpixelCoverage(texture: vec2f, distanceDelta: f32, inverseTexureSize: vec2f) -> vec3f
 {
     // Sample the texture with L pattern:
     let sdf  = textureSample(Texture, Sampler, texture).r;
@@ -99,17 +77,24 @@ fn Subpixel(triplet: f32, coverage: f32) -> vec3f
     // Discard pixels beyond a threshold to minimise possible artifacts:
     if (alpha < THRESHOLD) { discard; }
 
-    let channels = Subpixel(Font.subpx * gradient.x * 0.5, alpha);
+    // Calculate subpixel coverage:
+    let triplet = Font.subpx * gradient.x * 0.5;
+    let z = TRIPLET_FACTOR * triplet;
 
-    // For subpixel rendering each color component is blended separately:
-    return vec4f(mix(Font.back.rgb, Font.color.rgb, channels), 1);
+    let top = abs(z);
+    let max = vec3f(-z, 0, z);
+    let average = vec3f(mix(top, -top - 1, alpha));
 
-    // When "Dual Source Blending" is enabled, the color value is blended
-    // automatically with subpixels based on the current blending equation.
-    /* var output: TextFragmentOutput;
+    return clamp(max - average, vec3f(0), vec3f(1));
+}
 
-    output.color = vec4f(Font.color.rgb, 1);
-    output.blend = vec4f(channels, 1);
-
-    return output; */
+@fragment fn textFragment(
+    @location(0) texture: vec2f,
+    @location(1) distanceDelta: f32,
+    @location(2) inverseTexureSize: vec2f
+) -> @location(0) vec4f
+{
+    let coverage = GetSubpixelCoverage(texture, distanceDelta, inverseTexureSize);
+    // For subpixel rendering each color component is blended separately.
+    return vec4f(mix(Font.back.rgb, Font.color.rgb, coverage), 1);
 }
