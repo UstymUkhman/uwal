@@ -6,11 +6,15 @@ lib
 node_modules
 src
 
+_config.yml
 .browserslistrc
 .editorconfig
 .gitignore
-
 bun.lockb
+examples.html
 jsconfig.json
+lessons.html
+tsconfig.build.json
+tsconfig.json
 uwal.code-workspace
 vite.config.js
