@@ -5,7 +5,7 @@
  * {@link https://astiopin.github.io/webgl_fonts}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.9
+ * @version 0.0.10
  * @license MIT
  */
 
@@ -13,7 +13,7 @@ import RegularTexture from "/assets/fonts/roboto-regular.png";
 import RegularData from "/assets/fonts/roboto-regular.json";
 import BoldTexture from "/assets/fonts/roboto-bold.png";
 import BoldData from "/assets/fonts/roboto-bold.json";
-import { UWAL, Shaders, SDFText, Color } from "@/index";
+import { UWAL, SDFText, Color } from "@/index";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
@@ -21,10 +21,21 @@ import { UWAL, Shaders, SDFText, Color } from "@/index";
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
+    // https://caniuse.com/?search=dual-source-blending:
+    // await UWAL.SetRequiredFeatures("dual-source-blending");
+
     /** @type {Renderer} */ let Renderer, texturesLoaded = false;
 
-    // Enable "Dual Source Blending" https://caniuse.com/?search=dual-source-blending:
-    // const { size: dsb } = (await UWAL.SetRequiredFeatures("dual-source-blending"));
+    /**
+     * @param {SDFText} text
+     * @param {string} src
+     * @returns Promise<void>
+     */
+    const loadFontTexture = (text, src) => new Promise(resolve =>
+    {
+        const texture = new Image(); texture.src = src;
+        texture.onload = () => text.SetFontTexture(texture).then(resolve);
+    });
 
     try
     {
@@ -35,27 +46,15 @@ export async function run(canvas)
         alert(error);
     }
 
-    const loadFontTexture = (text, src) => new Promise(resolve =>
-    {
-        const texture = new Image(); texture.src = src;
-        texture.onload = () => text.SetFontTexture(texture).then(resolve);
-    });
-
-    const module = Renderer.CreateShaderModule(Shaders.SDFText);
-    // const color = Renderer.CreateBlendComponent("add", "one", "one-minus-src1");
-    const target = Renderer.CreateTargetState(void 0, /* (dsb && { color, alpha: {} }) || */ void 0);
+    const { module, entry, target } = await SDFText.GetFragmentStateParams(Renderer);
 
     const layout = Renderer.CreateVertexBufferLayout(
         ["position", "texture", "size"], void 0, "textVertex"
     );
 
-    // const colorAttachment = Renderer.CreateColorAttachment();
-    // colorAttachment.clearValue = new Color(0xffffff).rgba;
-    // Renderer.CreatePassDescriptor(colorAttachment);
-
     Renderer.CreatePipeline({
-        fragment: Renderer.CreateFragmentState(module, "textFragment", target),
-        vertex: Renderer.CreateVertexState(module, "textVertex", layout)
+        vertex: Renderer.CreateVertexState(module, "textVertex", layout),
+        fragment: Renderer.CreateFragmentState(module, entry, target)
     });
 
     const Title = new SDFText({
