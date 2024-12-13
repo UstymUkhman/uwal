@@ -54,19 +54,26 @@ export async function run(canvas)
         fragment: Renderer.CreateFragmentState(module, entry, target)
     });
 
+    const subtitleColor = new Color(0xffffff);
+    const titleColor = new Color(0x005a9c);
+    const background = new Color();
+
+    subtitleColor.a = 0.9;
+    titleColor.a = 0.8;
+
     const Title = new SDFText({
-        color: new Color(0x005a9c),
-        background: new Color(),
         renderer: Renderer,
+        color: titleColor,
         font: BoldData,
+        background,
         size: 144
     });
 
     const Subtitle = new SDFText({
-        color: new Color(0xffffff),
-        background: new Color(),
+        color: subtitleColor,
         renderer: Renderer,
         font: RegularData,
+        background,
         size: 24
     });
 

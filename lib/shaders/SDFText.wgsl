@@ -94,7 +94,9 @@ fn GetSubpixelCoverage(texture: vec2f, distanceDelta: f32, inverseTexureSize: ve
     @location(2) inverseTexureSize: vec2f
 ) -> @location(0) vec4f
 {
+    let premultipliedFontColor = Font.color.rgb * vec3f(Font.color.a);
     let coverage = GetSubpixelCoverage(texture, distanceDelta, inverseTexureSize);
+
     // For subpixel rendering each color component is blended separately.
-    return vec4f(mix(Font.back.rgb, Font.color.rgb, coverage), 1);
+    return vec4f(mix(Font.back.rgb, premultipliedFontColor, coverage), 1);
 }
