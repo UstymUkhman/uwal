@@ -79,8 +79,9 @@ export async function run(canvas)
             Title.Write("UWAL");
             Subtitle.Write("Unopinionated WebGPU Abstraction Library");
 
-            // Subtitle.Position = [0, -100];
-            // Title.Position = [0, 100];
+            Subtitle.Position = [0, 200];
+            Title.Position = [0, -200];
+
             texturesLoaded = true;
             Title.Render(false);
             Subtitle.Render();
