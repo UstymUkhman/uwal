@@ -6,7 +6,7 @@
     {
         "allowSyntheticDefaultImports": true,
         "typeRoots": ["node_modules/@types"],
-        "paths": { "@/*": ["lib/*"] },
+        "paths": { "#/*": ["lib/*"] },
         "moduleResolution": "Node",
         "module": "ESNext",
         "target": "ESNext",

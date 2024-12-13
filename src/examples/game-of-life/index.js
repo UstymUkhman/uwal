@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL } from "@/index";
+import { UWAL } from "#/index";
 import Render from "./Render.wgsl";
 import Compute from "./Compute.wgsl";
 

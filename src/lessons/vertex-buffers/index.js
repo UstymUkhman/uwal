@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL } from "@/index";
+import { UWAL } from "#/index";
 import VertexBuffers from "./VertexBuffers.wgsl";
 
 (async function(canvas)

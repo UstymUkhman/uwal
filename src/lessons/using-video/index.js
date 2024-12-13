@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL, Color, Shaders, TEXTURE } from "@/index";
+import { UWAL, Color, Shaders, TEXTURE } from "#/index";
 import Video from "/assets/videos/pomeranian.mp4";
 import VideoTexture from "./VideoTexture.wgsl";
 import { vec2, mat4 } from "wgpu-matrix";

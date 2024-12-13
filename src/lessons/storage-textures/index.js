@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL } from "@/index";
+import { UWAL } from "#/index";
 import Circles from "./Circles.wgsl";
 
 (async function(canvas)

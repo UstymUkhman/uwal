@@ -8,7 +8,7 @@
  * @license MIT
  */
 
-import { UWAL, Shaders, Shape } from "@/index";
+import { UWAL, Shaders, Shape } from "#/index";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;

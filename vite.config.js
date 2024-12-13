@@ -51,7 +51,7 @@ export default({ mode }) =>
         {
             alias:
             {
-                "@": resolve("lib")
+                "#": resolve("lib")
             }
         },
 

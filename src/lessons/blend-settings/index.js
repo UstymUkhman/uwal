@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL, Shaders, TEXTURE, BLEND_STATE } from "@/index";
+import { UWAL, Shaders, TEXTURE, BLEND_STATE } from "#/index";
 import Blending from "./Blending.wgsl";
 import { mat4 } from "wgpu-matrix";
 

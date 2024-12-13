@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL } from "@/index";
+import { UWAL } from "#/index";
 import StorageBuffers from "./StorageBuffers.wgsl";
 
 (async function(canvas)

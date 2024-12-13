@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL, Color, Shaders, TEXTURE } from "@/index";
+import { UWAL, Color, Shaders, TEXTURE } from "#/index";
 import { generateMipmaps } from "./mipmaps";
 import Shader from "./Texture.wgsl";
 

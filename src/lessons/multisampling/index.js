@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL, Color } from "@/index";
+import { UWAL, Color } from "#/index";
 import Triangle from "./Triangle.wgsl";
 
 (async function(canvas)

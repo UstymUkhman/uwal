@@ -8,7 +8,7 @@
  * @license MIT
  */
 
-import { UWAL, Color, Shaders, Shape, TEXTURE } from "@/index";
+import { UWAL, Color, Shaders, Shape, TEXTURE } from "#/index";
 import Logo from "/assets/images/logo.jpg";
 import Texture from "./Texture.wgsl";
 

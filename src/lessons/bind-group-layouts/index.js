@@ -10,7 +10,7 @@
  */
 
 import Double from "../fundamentals/Double.wgsl";
-import { UWAL, Shaders, Color } from "@/index";
+import { UWAL, Shaders, Color } from "#/index";
 import DoubleToDst from "./DoubleToDst.wgsl";
 import AddThree from "./AddThree.wgsl";
 import Shader from "./Texture.wgsl";

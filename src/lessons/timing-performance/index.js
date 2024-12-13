@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL, Shaders, Color, Shape, Utils } from "@/index";
+import { UWAL, Shaders, Color, Shape, Utils } from "#/index";
 import TimingPerformance from "./TimingPerformance.wgsl";
 import RollingAverage from './RollingAverage';
 

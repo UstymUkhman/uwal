@@ -10,7 +10,7 @@
  */
 
 import MipmapFilter from "../mipmap-filter/MipmapFilter.wgsl";
-import { UWAL, Color, Shaders, TEXTURE } from "@/index";
+import { UWAL, Color, Shaders, TEXTURE } from "#/index";
 import Granite from "/assets/images/granite.jpeg";
 import Coins from "/assets/images/coins.jpg";
 import { vec2, mat4 } from "wgpu-matrix";

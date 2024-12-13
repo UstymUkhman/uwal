@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL } from "@/index";
+import { UWAL } from "#/index";
 import Triangle from "./Triangle.vert.wgsl";
 import Checkerboard from "./Checkerboard.frag.wgsl";
 

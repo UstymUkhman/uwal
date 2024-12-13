@@ -7,7 +7,7 @@
         "forceConsistentCasingInFileNames": true,
         "allowSyntheticDefaultImports": true,
         "typeRoots": ["node_modules/@types"],
-        "paths": { "@/*": ["lib/*"] },
+        "paths": { "#/*": ["lib/*"] },
         "verbatimModuleSyntax": true,
 
         "emitDeclarationOnly": true,

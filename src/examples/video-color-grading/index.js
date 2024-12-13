@@ -9,7 +9,7 @@
  */
 
 import Video from "/assets/videos/matrix.mp4";
-import { UWAL, Shaders } from "@/index";
+import { UWAL, Shaders } from "#/index";
 import SinCity from "./SinCity.wgsl";
 
 /** @type {number} */ let raf;

@@ -13,7 +13,7 @@ import RegularTexture from "/assets/fonts/roboto-regular.png";
 import RegularData from "/assets/fonts/roboto-regular.json";
 import BoldTexture from "/assets/fonts/roboto-bold.png";
 import BoldData from "/assets/fonts/roboto-bold.json";
-import { UWAL, SDFText, Color } from "@/index";
+import { UWAL, SDFText, Color } from "#/index";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;

@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL, Primitives, Utils } from "@/index";
+import { UWAL, Primitives, Utils } from "#/index";
 import Cubemap from "./Cubemap.wgsl";
 import { mat4 } from "wgpu-matrix";
 

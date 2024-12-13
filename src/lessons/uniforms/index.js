@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL } from "@/index";
+import { UWAL } from "#/index";
 import TriangleUniforms from "./TriangleUniforms.wgsl";
 
 (async function(canvas)

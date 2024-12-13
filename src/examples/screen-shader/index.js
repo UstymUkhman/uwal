@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL, Shaders } from "@/index";
+import { UWAL, Shaders } from "#/index";
 import ScreenShader from "./ScreenShader.wgsl";
 
 /** @type {number} */ let raf;

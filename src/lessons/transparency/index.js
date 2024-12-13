@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL, Color } from "@/index";
+import { UWAL, Color } from "#/index";
 import Checkerboard from "./Checkerboard.frag.wgsl";
 import Triangle from "../inter-stage-variables/Triangle.vert.wgsl";
 

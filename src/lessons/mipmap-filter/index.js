@@ -10,7 +10,7 @@
  */
 
 import { createBlendedMipmap, createCheckedMipmap } from "../textures/mipmaps";
-import { UWAL, Color, Shaders, TEXTURE } from "@/index";
+import { UWAL, Color, Shaders, TEXTURE } from "#/index";
 import MipmapFilter from "./MipmapFilter.wgsl";
 import { vec2, mat4 } from "wgpu-matrix";
 

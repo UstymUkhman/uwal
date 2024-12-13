@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL } from "@/index";
+import { UWAL } from "#/index";
 import RedTriangle from "./RedTriangle.wgsl";
 import Double from "./Double.wgsl";
 
