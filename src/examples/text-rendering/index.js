@@ -11,11 +11,12 @@
 
 import RegularTexture from "/assets/fonts/roboto-regular.png";
 import RegularData from "/assets/fonts/roboto-regular.json";
+import { UWAL, SDFText, Shaders, Color } from "#/index";
 import BoldTexture from "/assets/fonts/roboto-bold.png";
 import BoldData from "/assets/fonts/roboto-bold.json";
-import { UWAL, SDFText, Color } from "#/index";
+import Ocean from "/assets/images/ocean.jpg";
+import Background from "./Background.wgsl";
 
-/** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
 
 /** @param {HTMLCanvasElement} canvas */
@@ -26,15 +27,11 @@ export async function run(canvas)
 
     /** @type {Renderer} */ let Renderer, texturesLoaded = false;
 
-    /**
-     * @param {SDFText} text
-     * @param {string} src
-     * @returns Promise<void>
-     */
-    const loadFontTexture = (text, src) => new Promise(resolve =>
+    /** @param {string} src */
+    const loadFontTexture = src => new Promise(resolve =>
     {
         const texture = new Image(); texture.src = src;
-        texture.onload = () => text.SetFontTexture(texture).then(resolve);
+        texture.onload = () => resolve(texture);
     });
 
     try
@@ -73,15 +70,66 @@ export async function run(canvas)
         size: 24
     });
 
-    loadFontTexture(Title, BoldTexture).then(async () =>
+    loadFontTexture(RegularTexture).then(regularTexture =>
+        loadFontTexture(BoldTexture).then(async boldTexture =>
+        {
+            await Title.SetFontTexture(boldTexture);
+            await Subtitle.SetFontTexture(regularTexture);
+
+            Title.Write("UWAL");
+            Subtitle.Write("Unopinionated WebGPU Abstraction Library");
+
+            // Subtitle.Position = [0, -100];
+            // Title.Position = [0, 100];
+            texturesLoaded = true;
+            Title.Render(false);
+            Subtitle.Render();
+        })
+    );
+
+    /* Renderer.CreatePipeline(
+        Renderer.CreateShaderModule([
+            Shaders.Quad,
+            Background
+        ])
+    );
+
+    const { buffer, offset } =
+        Renderer.CreateUniformBuffer("offset");
+
+    loadFontTexture(Ocean).then(async ocean =>
     {
-        await loadFontTexture(Subtitle, RegularTexture);
-        Subtitle.Write("Unopinionated WebGPU Abstraction Library", [-215, 0]);
-        Title.Write("UWAL", [-185, 100]);
-        texturesLoaded = true;
-        Title.Render(false);
-        Subtitle.Render();
-    });
+        const Texture = new (await UWAL.Texture(Renderer));
+        const texture = Texture.CopyImageToTexture(ocean);
+        const sampler = Texture.CreateSampler();
+
+        Renderer.SetBindGroups(
+            Renderer.CreateBindGroup(
+                Renderer.CreateBindGroupEntries([
+                    texture.createView(),
+                    { buffer },
+                    sampler
+                ])
+            )
+        );
+
+        const imageAspectRatio = texture.width / texture.height;
+        const [ width, height ] = Renderer.CanvasSize;
+
+        if (Renderer.AspectRatio < imageAspectRatio)
+        {
+            const targetWidth = height * imageAspectRatio;
+            offset[0] = (targetWidth - width) / 2 / targetWidth * -1;
+        }
+        else
+        {
+            const targetHeight = width / imageAspectRatio;
+            offset[1] = (targetHeight - height) / 2 / targetHeight;
+        }
+
+        Renderer.WriteBuffer(buffer, offset.buffer);
+        Renderer.Render(6);
+    }); */
 
     observer = new ResizeObserver(entries =>
     {
@@ -103,7 +151,7 @@ export async function run(canvas)
 export function destroy()
 {
     UWAL.OnDeviceLost = () => void 0;
-    cancelAnimationFrame(raf);
+    // cancelAnimationFrame(raf);
     observer.disconnect();
     UWAL.Destroy();
 }
