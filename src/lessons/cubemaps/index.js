@@ -159,7 +159,7 @@ import { mat4 } from "wgpu-matrix";
         sources.forEach((source, layer) =>
             Texture.CopyImageToTexture(source,
             {
-                generateMipmaps: layer === sources.length - 1,
+                mipmaps: layer === sources.length - 1,
                 destinationOrigin: [0, 0, layer],
                 texture
             })
