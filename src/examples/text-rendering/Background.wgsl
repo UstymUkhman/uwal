@@ -4,9 +4,10 @@ struct VertexOutput
     @location(0) textureCoord: vec2f
 };
 
-@group(0) @binding(0) var Texture: texture_2d<f32>;
-@group(0) @binding(1) var<uniform> offset: vec2f;
-@group(0) @binding(2) var Sampler: sampler;
+@group(0) @binding(0) var Sampler: sampler;
+@group(0) @binding(1) var Background: texture_2d<f32>;
+@group(0) @binding(2) var Storage: texture_2d<f32>;
+@group(0) @binding(3) var<uniform> offset: vec2f;
 
 @vertex fn vertex(@builtin(vertex_index) index: u32) -> VertexOutput
 {
@@ -21,5 +22,7 @@ struct VertexOutput
 
 @fragment fn fragment(@location(0) textureCoord: vec2f) -> @location(0) vec4f
 {
-    return textureSample(Texture, Sampler, textureCoord);
+    let backgroundColor = textureSample(Background, Sampler, textureCoord);
+    let textColor = textureSample(Storage, Sampler, textureCoord);
+    return mix(backgroundColor, textColor, textColor.a);
 }

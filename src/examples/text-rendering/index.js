@@ -15,6 +15,7 @@ import { UWAL, SDFText, Shaders, Color } from "#/index";
 import BoldTexture from "/assets/fonts/roboto-bold.png";
 import BoldData from "/assets/fonts/roboto-bold.json";
 import Ocean from "/assets/images/ocean.jpg";
+import Framebuffer from "./Framebuffer.wgsl";
 import Background from "./Background.wgsl";
 
 /** @type {ResizeObserver} */ let observer;
@@ -22,8 +23,17 @@ import Background from "./Background.wgsl";
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
-    // https://caniuse.com/?search=dual-source-blending:
-    // await UWAL.SetRequiredFeatures("dual-source-blending");
+    const preferredFormat = UWAL.PreferredCanvasFormat;
+
+    const availableFeatures = await UWAL.SetRequiredFeatures([
+        // https://caniuse.com/?search=dual-source-blending:
+        // "dual-source-blending",
+        "bgra8unorm-storage"
+    ]);
+
+    const presentationFormat =
+        availableFeatures.has("bgra8unorm-storage") &&
+        preferredFormat === "bgra8unorm" ? preferredFormat : "rgba8unorm";
 
     /** @type {Renderer} */ let Renderer, texturesLoaded = false;
 
@@ -43,7 +53,12 @@ export async function run(canvas)
         alert(error);
     }
 
-    const { module, entry, target } = await SDFText.GetFragmentStateParams(Renderer);
+    const storageShader = `
+        @group(1) @binding(0) var StorageTexture: texture_storage_2d<${presentationFormat}, write>;
+        ${Framebuffer}
+    `;
+
+    const { module, target } = await SDFText.GetFragmentStateParams(Renderer, storageShader);
 
     const layout = Renderer.CreateVertexBufferLayout(
         ["position", "texture", "size"], void 0, "textVertex"
@@ -51,15 +66,20 @@ export async function run(canvas)
 
     Renderer.CreatePipeline({
         vertex: Renderer.CreateVertexState(module, "textVertex", layout),
-        fragment: Renderer.CreateFragmentState(module, entry, target)
+        fragment: Renderer.CreateFragmentState(module, void 0, target)
     });
 
-    const subtitleColor = new Color(0xffffff);
+    const colorAttachment = Renderer.CreateColorAttachment();
+    colorAttachment.clearValue = new Color(0xffffff).rgba;
+    Renderer.CreatePassDescriptor(colorAttachment);
+
+    // const subtitleColor = new Color(0xffffff);
     const titleColor = new Color(0x005a9c);
+    const subtitleColor = new Color();
     const background = new Color();
 
-    subtitleColor.a = 0.9;
-    titleColor.a = 0.8;
+    // subtitleColor.a = 0.9;
+    // titleColor.a = 0.8;
 
     const Title = new SDFText({
         renderer: Renderer,
@@ -86,43 +106,95 @@ export async function run(canvas)
             Title.Write("UWAL");
             Subtitle.Write("Unopinionated WebGPU Abstraction Library");
 
+            const Texture = new (await UWAL.Texture(Renderer));
+            const [width, height] = Renderer.CanvasSize;
+            const ocean = await loadFontTexture(Ocean);
+
+            const storageTexture = Texture.CreateTexture({
+                usage: GPUTextureUsage.STORAGE_BINDING |
+                    GPUTextureUsage.TEXTURE_BINDING,
+                format: preferredFormat,
+                size: [width, height]
+            });
+
+            const oceanTexture = Texture.CopyImageToTexture(ocean, { mipmaps: false, create: true });
+            const { buffer, TexureOffset } = Renderer.CreateUniformBuffer("TexureOffset");
+
+            TexureOffset.set(getTextureOffset(oceanTexture));
+            Renderer.WriteBuffer(buffer, TexureOffset);
+
+            Title.AddBindGroups(
+                Renderer.CreateBindGroup(
+                    Renderer.CreateBindGroupEntries([
+                        storageTexture.createView(),
+                        oceanTexture.createView(),
+                        Texture.CreateSampler(),
+                        { buffer }
+                    ]), 1
+                )
+            );
+
             Subtitle.Position = [0, 200];
             Title.Position = [0, -200];
 
             texturesLoaded = true;
             Title.Render(false);
             Subtitle.Render();
+
+            console.log(oceanTexture, storageTexture);
+
+            setTimeout(() => renderTextures.apply(null, [
+                oceanTexture, storageTexture
+            ]), 500);
         })
     );
 
-    /* Renderer.CreatePipeline(
-        Renderer.CreateShaderModule([
-            Shaders.Quad,
-            Background
-        ])
-    );
-
-    const { buffer, offset } =
-        Renderer.CreateUniformBuffer("offset");
-
-    loadFontTexture(Ocean).then(async ocean =>
+    /** @param {GPUTexture[]} textures */
+    async function renderTextures(background, storage)
     {
-        const Texture = new (await UWAL.Texture(Renderer));
-        const texture = Texture.CopyImageToTexture(ocean);
-        const sampler = Texture.CreateSampler();
+        Renderer.CreatePipeline(Renderer.CreateShaderModule([Shaders.Quad, Background]));
+        const { buffer, offset } = Renderer.CreateUniformBuffer("offset");
+        const Texture = new (await UWAL.Texture());
 
         Renderer.SetBindGroups(
             Renderer.CreateBindGroup(
                 Renderer.CreateBindGroupEntries([
-                    texture.createView(),
-                    { buffer },
-                    sampler
+                    Texture.CreateSampler(),
+                    background.createView(),
+                    storage.createView(),
+                    { buffer }
                 ])
             )
         );
 
+        offset.set(getBackgroundOffset(background));
+        Renderer.WriteBuffer(buffer, offset.buffer);
+        Renderer.Render(6);
+    }
+
+    function getTextureOffset(texture, offset = [0.5, 0.5])
+    {
+        const [width, height] = Renderer.CanvasSize;
         const imageAspectRatio = texture.width / texture.height;
-        const [ width, height ] = Renderer.CanvasSize;
+
+        if (Renderer.AspectRatio < imageAspectRatio)
+        {
+            const targetWidth = height * imageAspectRatio;
+            offset[0] = width / targetWidth;
+        }
+        else
+        {
+            const targetHeight = width / imageAspectRatio;
+            offset[1] = height / targetHeight;
+        }
+
+        return offset;
+    }
+
+    function getBackgroundOffset(texture, offset = [0, 0])
+    {
+        const [width, height] = Renderer.CanvasSize;
+        const imageAspectRatio = texture.width / texture.height;
 
         if (Renderer.AspectRatio < imageAspectRatio)
         {
@@ -135,9 +207,8 @@ export async function run(canvas)
             offset[1] = (targetHeight - height) / 2 / targetHeight;
         }
 
-        Renderer.WriteBuffer(buffer, offset.buffer);
-        Renderer.Render(6);
-    }); */
+        return offset;
+    }
 
     observer = new ResizeObserver(entries =>
     {
