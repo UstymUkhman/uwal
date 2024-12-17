@@ -24,10 +24,11 @@ struct text
 
 struct TextVertexOutput
 {
-    @location(0) texture: vec2f,
-    @location(1) distanceDelta: f32,
+    @location(0) fontUV: vec2f,
+    @location(1) screenUV: vec2f,
+    @location(2) distanceDelta: f32,
     @builtin(position) position: vec4f,
-    @location(2) inverseTexureSize: vec2f
+    @location(3) inverseTexureSize: vec2f
 };
 
 @group(0) @binding(0) var<uniform> Text: text;
@@ -44,20 +45,21 @@ struct TextVertexOutput
     var output: TextVertexOutput;
     let clipSpace = Text.matrix * vec3f(position, 1);
 
-    output.inverseTexureSize = 1 / Text.texureSize;
+    output.inverseTexureSize = 1.0 / Text.texureSize;
     output.position = vec4f(clipSpace.xy, 0, 1);
-    output.distanceDelta = 1 / size;
-    output.texture = texture;
+    output.distanceDelta = 1.0 / size;
+    output.screenUV = clipSpace.xy;
+    output.fontUV = texture;
 
     return output;
 }
 
-fn GetSubpixelCoverage(texture: vec2f, distanceDelta: f32, inverseTexureSize: vec2f) -> vec3f
+fn GetSubpixelCoverage(size: vec2f, distance: f32, uv: vec2f) -> vec3f
 {
     // Sample the texture with L pattern:
-    let sdf  = textureSample(Texture, Sampler, texture).r;
-    let sdfX = textureSample(Texture, Sampler, texture + vec2f(inverseTexureSize.x, 0)).r;
-    let sdfY = textureSample(Texture, Sampler, texture + vec2f(0, inverseTexureSize.y)).r;
+    let sdf  = textureSample(Texture, Sampler, uv).r;
+    let sdfX = textureSample(Texture, Sampler, uv + vec2f(size.x, 0)).r;
+    let sdfY = textureSample(Texture, Sampler, uv + vec2f(0, size.y)).r;
 
     // Estimate stroke direction by the distance field gradient vector:
     let strokeGradient = vec2f(sdfX - sdf, sdfY - sdf);
@@ -68,8 +70,8 @@ fn GetSubpixelCoverage(texture: vec2f, distanceDelta: f32, inverseTexureSize: ve
     let verticalGradient = abs(gradient.y);
 
     // Blur vertical strokes along the X axis and add some contrast to the horizontal ones:
-    let horizontalDelta = mix(distanceDelta * 1.1, distanceDelta * 0.6, verticalGradient);
-    let resultDelta = mix(distanceDelta, horizontalDelta, Font.hint);
+    let horizontalDelta = mix(distance * 1.1, distance * 0.6, verticalGradient);
+    let resultDelta = mix(distance, horizontalDelta, Font.hint);
 
     var alpha = smoothstep(0.5 - resultDelta, resultDelta + 0.5, sdf);
     /* Additional contrast: */ alpha = pow(alpha, Font.hint * verticalGradient * 0.2 + 1);
@@ -88,15 +90,14 @@ fn GetSubpixelCoverage(texture: vec2f, distanceDelta: f32, inverseTexureSize: ve
     return clamp(max - average, vec3f(0), vec3f(1));
 }
 
-@fragment fn textFragment(
-    @location(0) texture: vec2f,
-    @location(1) distanceDelta: f32,
-    @location(2) inverseTexureSize: vec2f
-) -> @location(0) vec4f
+@fragment fn textFragment(input: TextVertexOutput) -> @location(0) vec4f
 {
-    let premultipliedFontColor = Font.color.rgb * vec3f(Font.color.a);
-    let coverage = GetSubpixelCoverage(texture, distanceDelta, inverseTexureSize);
+    let coverage = GetSubpixelCoverage(
+        input.inverseTexureSize,
+        input.distanceDelta,
+        input.fontUV
+    );
 
     // For subpixel rendering each color component is blended separately.
-    return vec4f(mix(Font.back.rgb, premultipliedFontColor, coverage), 1);
+    return vec4f(mix(Font.back.rgb, Font.color.rgb, coverage), 1);
 }

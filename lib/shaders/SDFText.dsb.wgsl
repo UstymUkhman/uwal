@@ -6,20 +6,19 @@ struct TextFragmentOutput
     @location(0) @blend_src(1) factor: vec4f
 };
 
-@fragment fn dsbTextFragment(
-    @location(0) texture: vec2f,
-    @location(1) distanceDelta: f32,
-    @location(2) inverseTexureSize: vec2f
-) -> TextFragmentOutput
+// Specifies blending from two fragment shader outputs to a single framebuffer.
+// https://registry.khronos.org/OpenGL/extensions/ARB/ARB_blend_func_extended.txt
+@fragment fn dsbTextFragment(input: TextVertexOutput) -> TextFragmentOutput
 {
-    let premultipliedFontColor = Font.color.rgb * vec3f(Font.color.a);
-    let coverage = GetSubpixelCoverage(texture, distanceDelta, inverseTexureSize);
-
-    // Specifies blending from two fragment shader outputs to a single framebuffer.
-    // https://registry.khronos.org/OpenGL/extensions/ARB/ARB_blend_func_extended.txt
     var output: TextFragmentOutput;
 
-    output.source = vec4f(premultipliedFontColor, 1);
+    let coverage = GetSubpixelCoverage(
+        input.inverseTexureSize,
+        input.distanceDelta,
+        input.fontUV
+    );
+
+    output.source = vec4f(Font.color.rgb, 1);
     output.factor = vec4f(coverage, 1);
 
     return output;
