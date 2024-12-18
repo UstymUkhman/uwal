@@ -1,6 +1,6 @@
 enable dual_source_blending;
 
-struct TextFragmentOutput
+struct DSBFragmentOutput
 {
     @location(0) @blend_src(0) source: vec4f,
     @location(0) @blend_src(1) factor: vec4f
@@ -8,9 +8,9 @@ struct TextFragmentOutput
 
 // Specifies blending from two fragment shader outputs to a single framebuffer.
 // https://registry.khronos.org/OpenGL/extensions/ARB/ARB_blend_func_extended.txt
-@fragment fn dsbTextFragment(input: TextVertexOutput) -> TextFragmentOutput
+@fragment fn dsbTextFragment(input: TextVertexOutput) -> DSBFragmentOutput
 {
-    var output: TextFragmentOutput;
+    var output: DSBFragmentOutput;
 
     let coverage = GetSubpixelCoverage(
         input.inverseTexureSize,
@@ -18,8 +18,8 @@ struct TextFragmentOutput
         input.fontUV
     );
 
-    output.source = vec4f(Font.color.rgb, 1);
-    output.factor = vec4f(coverage, 1);
+    output.source = Font.color;
+    output.factor = vec4f(coverage, Font.color.a);
 
     return output;
 }

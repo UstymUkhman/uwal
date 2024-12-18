@@ -99,5 +99,5 @@ fn GetSubpixelCoverage(size: vec2f, distance: f32, uv: vec2f) -> vec3f
     );
 
     // For subpixel rendering each color component is blended separately.
-    return vec4f(mix(Font.back.rgb, Font.color.rgb, coverage), 1);
+    return vec4f(mix(Font.back.rgb, Font.color.rgb, coverage), Font.color.a);
 }
