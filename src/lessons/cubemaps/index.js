@@ -54,10 +54,9 @@ import { mat4 } from "wgpu-matrix";
 
     const Texture = new (await UWAL.Texture());
     const cube = new Primitives.Cube(Renderer);
-    const transform = cube.Transform;
 
+    const transform = cube.Transform;
     Texture.SetRenderer(Renderer);
-    cube.SetGeometryBuffers();
 
     const faces =
     [
