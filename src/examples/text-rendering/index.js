@@ -171,6 +171,8 @@ export async function run(canvas)
 
         BackgroundUniform.buffer = backgroundBuffer;
         BackgroundUniform.offset = BackgroundOffset;
+
+        render();
     });
 
     function render()

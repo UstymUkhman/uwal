@@ -31,10 +31,10 @@ struct TextVertexOutput
     @location(3) inverseTexureSize: vec2f
 };
 
-@group(0) @binding(0) var<uniform> Text: text;
-@group(0) @binding(1) var<uniform> Font: font;
-@group(0) @binding(2) var Texture: texture_2d<f32>;
-@group(0) @binding(3) var Sampler: sampler;
+@group(0) @binding(0) var Sampler: sampler;
+@group(0) @binding(1) var<uniform> Text: text;
+@group(0) @binding(2) var<uniform> Font: font;
+@group(0) @binding(3) var Texture: texture_2d<f32>;
 
 @vertex fn textVertex(
     @location(0) position: vec2f,

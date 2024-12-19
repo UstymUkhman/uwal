@@ -5,7 +5,7 @@
 @fragment fn fragment(input: TextVertexOutput) -> @location(0) vec4f
 {
     var backgroundUV = TexureOffset * input.screenUV;
-    backgroundUV = vec2f(backgroundUV.x / 2 + 0.5, 1 - backgroundUV.y - 0.5);
+    backgroundUV = vec2f(backgroundUV.x * 0.5 + 0.5, 1 - backgroundUV.y - 0.5);
 
     let coverage = GetSubpixelCoverage(input.inverseTexureSize, input.distanceDelta, input.fontUV);
     let background = textureSample(BackgroundTexture, BackgroundSampler, backgroundUV).rgb;
