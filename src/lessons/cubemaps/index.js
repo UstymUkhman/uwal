@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { UWAL, Primitives, Utils } from "#/index";
+import { UWAL, Geometries, Utils } from "#/index";
 import Cubemap from "./Cubemap.wgsl";
 import { mat4 } from "wgpu-matrix";
 
@@ -53,7 +53,7 @@ import { mat4 } from "wgpu-matrix";
     });
 
     const Texture = new (await UWAL.Texture());
-    const cube = new Primitives.Cube(Renderer);
+    const cube = new Geometries.Cube(Renderer);
 
     const transform = cube.Transform;
     Texture.SetRenderer(Renderer);

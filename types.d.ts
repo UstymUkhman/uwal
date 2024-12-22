@@ -6,13 +6,13 @@ import SHAPE from "./types/shapes/Constants";
 import { ERROR_CAUSE } from "./types/Errors";
 import * as Shaders from "./types/shaders";
 import SDFText from "./types/text/SDFText";
-import Cube from "./types/primitives/Cube";
+import Cube from "./types/geometries/Cube";
 import GPUTiming from "#/utils/GPUTiming";
 import Shape from "./types/shapes/Shape";
 import Color from "./types/Color";
 import UWAL from "./types/UWAL";
 
-const Primitives = { Cube };
+const Geometries = { Cube };
 
 import
 {
@@ -42,7 +42,7 @@ export {
     Shape, SHAPE,
     BLEND_STATE,
     ERROR_CAUSE,
-    Primitives,
+    Geometries,
     SDFText,
     TEXTURE,
     Shaders,
