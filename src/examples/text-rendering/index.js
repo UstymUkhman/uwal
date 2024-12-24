@@ -9,14 +9,17 @@
  * @license MIT
  */
 
+import { UWAL, SDFText, Shaders, Color, Shape } from "#/index";
 import RegularTexture from "/assets/fonts/roboto-regular.png";
 import RegularData from "/assets/fonts/roboto-regular.json";
-import { UWAL, SDFText, Shaders, Color } from "#/index";
 import BoldTexture from "/assets/fonts/roboto-bold.png";
 import BoldData from "/assets/fonts/roboto-bold.json";
+// import Ripple from "/assets/images/ripple.png";
+import Ripple from "/assets/images/logo.jpg";
 import Ocean from "/assets/images/ocean.jpg";
 import Framebuffer from "./Framebuffer.wgsl";
 import Background from "./Background.wgsl";
+import Wave from "./Wave.wgsl";
 
 /** @type {ResizeObserver} */ let observer;
 
@@ -69,7 +72,7 @@ export async function run(canvas)
     }
 
     /** @param {string} src */
-    const loadFontTexture = src => new Promise(resolve =>
+    const loadTexture = src => new Promise(resolve =>
     {
         const texture = new Image(); texture.src = src;
         texture.onload = () => resolve(texture);
@@ -84,7 +87,25 @@ export async function run(canvas)
         alert(error);
     }
 
-    const { module, target } = await SDFText.GetFragmentStateParams(Renderer, Framebuffer);
+    const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, Wave]);
+
+    const { buffer: vertexBuffer, layout: vertexLayout } =
+        Renderer.CreateVertexBuffer("position" /*, 1, "instance" */);
+
+    Renderer.CreatePipeline({
+        vertex: Renderer.CreateVertexState(module, void 0, vertexLayout),
+        fragment: Renderer.CreateFragmentState(module)
+    });
+
+    const shape = new Shape({
+        renderer: Renderer,
+        segments: 4,
+        radius: 128
+    });
+
+    shape.Rotation = Math.PI / 4;
+
+    /* const { module, target } = await SDFText.GetFragmentStateParams(Renderer, Framebuffer);
 
     const dsb = availableFeatures.has("dual-source-blending");
     const fragmentEntry = dsb && "dsbTextFragment" || void 0;
@@ -104,10 +125,10 @@ export async function run(canvas)
     const subtitleColor = new Color(0xff, 0xff, 0xff, 0xE5);
     const titleColor = new Color(0x00, 0x5a, 0x9c, 0xCC);
 
-    let storageTexture, oceanTexture, backgroundPipeline;
+    let storageTexture, oceanTexture, backgroundPipeline; */
     const Texture = new (await UWAL.Texture(Renderer));
 
-    const Title = new SDFText({
+    /* const Title = new SDFText({
         renderer: Renderer,
         color: titleColor,
         font: BoldData,
@@ -119,16 +140,32 @@ export async function run(canvas)
         renderer: Renderer,
         font: RegularData,
         size: 24
-    });
+    }); */
 
     Promise.all([
-        loadFontTexture(Ocean),
-        loadFontTexture(BoldTexture),
-        loadFontTexture(RegularTexture)
-    ]).then(async ([ocean, boldTexture, regularTexture]) =>
+        loadTexture(Ocean),
+        loadTexture(Ripple),
+        loadTexture(BoldTexture),
+        loadTexture(RegularTexture)
+    ]).then(async ([ocean, ripple, bold, regular]) =>
     {
-        await Subtitle.SetFontTexture(regularTexture);
-        await Title.SetFontTexture(boldTexture);
+        shape.Position = [canvas.width / 2, canvas.height / 2];
+
+        const rippleTexture = Texture.CopyImageToTexture(ripple, {
+            mipmaps: false, create: true, flipY: true
+        });
+
+        shape.AddBindGroups(
+            Renderer.CreateBindGroup(
+                Renderer.CreateBindGroupEntries([
+                    Texture.CreateSampler({ filter: "linear" }),
+                    rippleTexture.createView()
+                ]), 1
+            )
+        );
+
+        /* await Subtitle.SetFontTexture(regular);
+        await Title.SetFontTexture(bold);
 
         Title.Write("UWAL");
         Subtitle.Write("Unopinionated WebGPU Abstraction Library");
@@ -154,14 +191,6 @@ export async function run(canvas)
             )
         );
 
-        Subtitle.Position = [0, 100];
-        Title.Position = [0, -100];
-        texturesLoaded = true;
-
-        Title.Render(false);
-        Subtitle.Render(false);
-        Renderer.DestroyCurrentPass();
-
         backgroundPipeline = Renderer.CreatePipeline(
             Renderer.CreateShaderModule([Shaders.Quad, Background])
         );
@@ -172,12 +201,18 @@ export async function run(canvas)
         BackgroundUniform.buffer = backgroundBuffer;
         BackgroundUniform.offset = BackgroundOffset;
 
+        Subtitle.Position = [0, 100];
+        Title.Position = [0, -100];
+        texturesLoaded = true; */
+
         render();
     });
 
     function render()
     {
-        Renderer.SetPipeline(textPipeline);
+        Renderer.Render(shape.Update().Vertices);
+
+        /* Renderer.SetPipeline(textPipeline);
         Renderer.TextureView = storageTexture.createView();
         TexureUniform.offset.set(getTextureOffset(oceanTexture));
         Renderer.WriteBuffer(TexureUniform.buffer, TexureUniform.offset);
@@ -201,7 +236,7 @@ export async function run(canvas)
         BackgroundUniform.offset.set(getBackgroundOffset(oceanTexture));
         Renderer.WriteBuffer(BackgroundUniform.buffer, BackgroundUniform.offset);
         Renderer.TextureView = undefined;
-        Renderer.Render(6);
+        Renderer.Render(6); */
     }
 
     observer = new ResizeObserver(entries =>
@@ -212,7 +247,7 @@ export async function run(canvas)
             width = (width <= 960 && width) || width - 240;
             Renderer.SetCanvasSize(width, blockSize);
 
-            if (!texturesLoaded) return;
+            /* if (!texturesLoaded) return;
             storageTexture.destroy();
 
             storageTexture = Texture.CreateStorageTexture({
@@ -221,7 +256,7 @@ export async function run(canvas)
 
             Subtitle.Resize();
             Title.Resize();
-            render();
+            render(); */
         }
     });
 
