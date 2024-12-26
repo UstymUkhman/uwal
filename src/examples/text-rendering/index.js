@@ -14,8 +14,7 @@ import RegularTexture from "/assets/fonts/roboto-regular.png";
 import RegularData from "/assets/fonts/roboto-regular.json";
 import BoldTexture from "/assets/fonts/roboto-bold.png";
 import BoldData from "/assets/fonts/roboto-bold.json";
-// import Ripple from "/assets/images/ripple.png";
-import Ripple from "/assets/images/logo.jpg";
+import Ripple from "/assets/images/ripple.png";
 import Ocean from "/assets/images/ocean.jpg";
 import Framebuffer from "./Framebuffer.wgsl";
 import Background from "./Background.wgsl";
@@ -26,7 +25,8 @@ import Wave from "./Wave.wgsl";
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
-    /** @type {Renderer} */ let Renderer, texturesLoaded = false;
+    /** @type {Renderer} */ let Renderer, texturesLoaded = false, lastRender;
+    const MAX_SCALE = 4, WAVES = 1;
 
     const availableFeatures = await UWAL.SetRequiredFeatures([
         // https://caniuse.com/?search=dual-source-blending:
@@ -78,6 +78,66 @@ export async function run(canvas)
         texture.onload = () => resolve(texture);
     });
 
+    /** @param {ImageBitmapSource} ripple */
+    async function createWaveShape(ripple)
+    {
+        const rippleTexture = Texture.CopyImageToTexture(
+            await Texture.CreateBitmapImage(ripple, { colorSpaceConversion: "none" }),
+            { mipmaps: false, create: true }
+        );
+
+        const shape = new Shape({
+            renderer: Renderer,
+            segments: 4,
+            radius: 128
+        });
+
+        shape.Position = [
+            canvas.width / 2,
+            canvas.height / 2
+        ];
+
+        shape.AddBindGroups(
+            Renderer.CreateBindGroup(
+                Renderer.CreateBindGroupEntries([
+                    Texture.CreateSampler({ filter: "linear" }),
+                    rippleTexture.createView()
+                ]), 1
+            )
+        );
+
+        return shape;
+    }
+
+    /** @param {Shape} shape */
+    function updateWaves(shape)
+    {
+        const now = performance.now();
+        const delta = (now - lastRender) / 1e3;
+
+        for (let w = 0; w < WAVES; w++)
+        {
+            const wave = waves[w];
+            if (wave.alpha <= 0.002) continue;
+            const offset = w * dynamicStructSize;
+
+            dynamicValues.set( wave.offset, offset + 0);
+            dynamicValues.set([wave.scale], offset + 2);
+            dynamicValues.set([wave.alpha], offset + 3);
+
+            wave.alpha -= delta / MAX_SCALE;
+            wave.scale -= delta;
+        }
+
+        Renderer.WriteBuffer(dynamicBuffer, dynamicValues);
+        const scale = 2 - waves[0].scale / MAX_SCALE;
+        shape.Scale = [scale, scale];
+        shape.Rotation -= delta;
+        lastRender = now;
+
+        return shape.Update().Vertices;
+    }
+
     try
     {
         Renderer = new (await UWAL.RenderPipeline(canvas, "Text Rendering"));
@@ -88,22 +148,25 @@ export async function run(canvas)
     }
 
     const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, Wave]);
+    const positionLayout = Renderer.CreateVertexBufferLayout("position");
 
-    const { buffer: vertexBuffer, layout: vertexLayout } =
-        Renderer.CreateVertexBuffer("position" /*, 1, "instance" */);
+    const { buffer: dynamicBuffer, layout: dynamicLayout } =
+        Renderer.CreateVertexBuffer(["offset", "scale", "alpha"], WAVES, "instance");
+
+    const values = dynamicBuffer.size / Float32Array.BYTES_PER_ELEMENT;
+    const dynamicStructSize = dynamicBuffer.size / WAVES / values;
+    const dynamicValues = new Float32Array(values);
+
+    const waves = Array.from({ length: WAVES }).map(() => ({
+        offset: [0, 0], scale: MAX_SCALE, alpha: 1
+    }));
 
     Renderer.CreatePipeline({
-        vertex: Renderer.CreateVertexState(module, void 0, vertexLayout),
-        fragment: Renderer.CreateFragmentState(module)
+        fragment: Renderer.CreateFragmentState(module),
+        vertex: Renderer.CreateVertexState(module, void 0, [
+            positionLayout, dynamicLayout
+        ]),
     });
-
-    const shape = new Shape({
-        renderer: Renderer,
-        segments: 4,
-        radius: 128
-    });
-
-    shape.Rotation = Math.PI / 4;
 
     /* const { module, target } = await SDFText.GetFragmentStateParams(Renderer, Framebuffer);
 
@@ -149,20 +212,9 @@ export async function run(canvas)
         loadTexture(RegularTexture)
     ]).then(async ([ocean, ripple, bold, regular]) =>
     {
-        shape.Position = [canvas.width / 2, canvas.height / 2];
-
-        const rippleTexture = Texture.CopyImageToTexture(ripple, {
-            mipmaps: false, create: true, flipY: true
-        });
-
-        shape.AddBindGroups(
-            Renderer.CreateBindGroup(
-                Renderer.CreateBindGroupEntries([
-                    Texture.CreateSampler({ filter: "linear" }),
-                    rippleTexture.createView()
-                ]), 1
-            )
-        );
+        lastRender = performance.now();
+        const shape = await createWaveShape(ripple);
+        requestAnimationFrame(render.bind(null, shape));
 
         /* await Subtitle.SetFontTexture(regular);
         await Title.SetFontTexture(bold);
@@ -204,13 +256,16 @@ export async function run(canvas)
         Subtitle.Position = [0, 100];
         Title.Position = [0, -100];
         texturesLoaded = true; */
-
-        render();
     });
 
-    function render()
+    /** @param {Shape} shape */
+    function render(shape)
     {
-        Renderer.Render(shape.Update().Vertices);
+        const vertices = updateWaves(shape);
+        Renderer.AddVertexBuffers(dynamicBuffer);
+
+        Renderer.Render([vertices, WAVES]);
+        requestAnimationFrame(render.bind(null, shape));
 
         /* Renderer.SetPipeline(textPipeline);
         Renderer.TextureView = storageTexture.createView();

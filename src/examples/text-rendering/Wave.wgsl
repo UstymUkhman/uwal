@@ -1,26 +1,48 @@
 struct VertexOutput
 {
-    @location(0) textureCoord: vec2f,
+    @location(0) uv: vec2f,
+    @location(1) alpha: f32,
     @builtin(position) position: vec4f
 };
 
 @group(1) @binding(0) var Sampler: sampler;
 @group(1) @binding(1) var Texture: texture_2d<f32>;
 
-@vertex fn vertex(@location(0) position: vec2f) -> VertexOutput
+fn RotateOutputUV(uv: vec2f) -> vec2f
+{
+    let cos = shape.matrix[0].x;
+    let sin = shape.matrix[0].y;
+
+    return vec2f(
+        cos * (uv.x - 0.5) + sin * (uv.y - 0.5) + 0.5,
+        cos * (uv.y - 0.5) - sin * (uv.x - 0.5) + 0.5
+    );
+}
+
+@vertex fn vertex(
+    @location(0) position: vec2f,
+    @location(1) offset: vec2f,
+    @location(2) scale: f32,
+    @location(3) alpha: f32
+) -> VertexOutput
 {
     var output: VertexOutput;
-    let aspect = resolution / resolution.y;
+    let aspect = resolution / resolution.y * scale;
+
     let clipSpace = GetVertexClipSpace(position).xy;
+    output.position = vec4f(clipSpace + offset, 0, 1);
 
-    output.position = vec4f(clipSpace, 0, 1);
-    output.textureCoord = (clipSpace + 1) / 2;
-    output.textureCoord = output.textureCoord + clipSpace * 2 * aspect;
+    output.uv  = (clipSpace + 1) / 2;
+    output.uv += clipSpace * aspect * 2;
+    output.uv  = RotateOutputUV(output.uv);
 
+    output.alpha = alpha;
     return output;
 }
 
-@fragment fn fragment(@location(0) textureCoord: vec2f) -> @location(0) vec4f
+@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f
 {
-    return textureSample(Texture, Sampler, textureCoord);
+    let color = textureSample(Texture, Sampler, input.uv);
+    let alpha = color.a * input.alpha;
+    return vec4f(color.rgb * alpha, alpha);
 }
