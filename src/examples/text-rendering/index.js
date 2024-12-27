@@ -25,8 +25,9 @@ import Wave from "./Wave.wgsl";
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
-    /** @type {Renderer} */ let Renderer, texturesLoaded = false, lastRender;
-    const MAX_SCALE = 4, WAVES = 1;
+    /** @type {Renderer} */ let Renderer;
+    const MAX_SCALE = 4, WAVES = 64, mouse = [0, 0];
+    let texturesLoaded = false, moving = false, current = 0, lastRender, movement;
 
     const availableFeatures = await UWAL.SetRequiredFeatures([
         // https://caniuse.com/?search=dual-source-blending:
@@ -115,27 +116,53 @@ export async function run(canvas)
         const now = performance.now();
         const delta = (now - lastRender) / 1e3;
 
+        if (moving)
+        {
+            current = (current + 1) % WAVES;
+            const wave = waves[current];
+            const offset = current * waveStructSize;
+
+            waveValues.set([MAX_SCALE], offset + 2);
+            waveValues.set([1], offset + 3);
+
+            wave.scale = MAX_SCALE;
+            wave.alpha = 1;
+        }
+
         for (let w = 0; w < WAVES; w++)
         {
             const wave = waves[w];
-            if (wave.alpha <= 0.002) continue;
-            const offset = w * dynamicStructSize;
+            if (wave.alpha === 0.002) continue;
 
-            dynamicValues.set( wave.offset, offset + 0);
-            dynamicValues.set([wave.scale], offset + 2);
-            dynamicValues.set([wave.alpha], offset + 3);
+            const offset = w * waveStructSize;
+            current === w && waveValues.set(mouse, offset);
 
-            wave.alpha -= delta / MAX_SCALE;
-            wave.scale -= delta;
+            waveValues.set([wave.scale], offset + 2);
+            waveValues.set([wave.alpha], offset + 3);
+
+            wave.alpha = Math.max(wave.alpha - delta / MAX_SCALE, 0.002);
+            wave.scale = Math.max(wave.scale - delta, 0);
         }
 
-        Renderer.WriteBuffer(dynamicBuffer, dynamicValues);
-        const scale = 2 - waves[0].scale / MAX_SCALE;
+        const scale = 2/*.5 */ - waves[current].scale / MAX_SCALE;
         shape.Scale = [scale, scale];
         shape.Rotation -= delta;
         lastRender = now;
 
+        Renderer.WriteBuffer(waveBuffer, waveValues);
         return shape.Update().Vertices;
+    }
+
+    /** @param {MouseEvent} event */
+    function move(event)
+    {
+        moving = true;
+        clearTimeout(movement);
+
+        mouse[0] = event.offsetX / canvas.width  *  2 - 1;
+        mouse[1] = event.offsetY / canvas.height * -2 + 1;
+
+        movement = setTimeout(() => moving = false, 16.667);
     }
 
     try
@@ -147,24 +174,23 @@ export async function run(canvas)
         alert(error);
     }
 
+    const waves = Array.from({ length: WAVES }).map(() => ({ scale: MAX_SCALE, alpha: 1 }));
     const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, Wave]);
     const positionLayout = Renderer.CreateVertexBufferLayout("position");
 
-    const { buffer: dynamicBuffer, layout: dynamicLayout } =
+    const { buffer: waveBuffer, layout: waveLayout } =
         Renderer.CreateVertexBuffer(["offset", "scale", "alpha"], WAVES, "instance");
 
-    const values = dynamicBuffer.size / Float32Array.BYTES_PER_ELEMENT;
-    const dynamicStructSize = dynamicBuffer.size / WAVES / values;
-    const dynamicValues = new Float32Array(values);
-
-    const waves = Array.from({ length: WAVES }).map(() => ({
-        offset: [0, 0], scale: MAX_SCALE, alpha: 1
-    }));
+    // offset + scale + alpha = vec2f + f32 + f32 = 4:
+    const waveStructSize = waveBuffer.size / WAVES / 4;
+    const waveValues = new Float32Array(
+        waveBuffer.size / Float32Array.BYTES_PER_ELEMENT
+    );
 
     Renderer.CreatePipeline({
         fragment: Renderer.CreateFragmentState(module),
         vertex: Renderer.CreateVertexState(module, void 0, [
-            positionLayout, dynamicLayout
+            positionLayout, waveLayout
         ]),
     });
 
@@ -214,7 +240,9 @@ export async function run(canvas)
     {
         lastRender = performance.now();
         const shape = await createWaveShape(ripple);
+
         requestAnimationFrame(render.bind(null, shape));
+        addEventListener("mousemove", move, false);
 
         /* await Subtitle.SetFontTexture(regular);
         await Title.SetFontTexture(bold);
@@ -262,7 +290,7 @@ export async function run(canvas)
     function render(shape)
     {
         const vertices = updateWaves(shape);
-        Renderer.AddVertexBuffers(dynamicBuffer);
+        Renderer.AddVertexBuffers(waveBuffer);
 
         Renderer.Render([vertices, WAVES]);
         requestAnimationFrame(render.bind(null, shape));
