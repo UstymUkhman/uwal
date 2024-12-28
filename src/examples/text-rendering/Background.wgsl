@@ -1,3 +1,6 @@
+const TAU = radians(180) * 2;
+const FRAMEBUFFER = false;
+
 struct VertexOutput
 {
     @location(0) backgroundCoord: vec2f,
@@ -23,9 +26,17 @@ struct VertexOutput
     return output;
 }
 
-@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f
+@fragment fn fragment(@location(1) storageCoord: vec2f) -> @location(0) vec4f
 {
-    let backgroundColor = textureSample(Background, Sampler, input.backgroundCoord);
-    let textColor = textureSample(Storage, Sampler, input.storageCoord);
-    return mix(backgroundColor, textColor, textColor.a);
+    // let backgroundColor = textureSample(Background, Sampler, backgroundCoord);
+    // let textColor = textureSample(Storage, Sampler, storageCoord);
+
+    let wave = textureSample(Storage, Sampler, storageCoord).x;
+    if (FRAMEBUFFER == true) { return vec4f(vec3f(wave), 1); }
+
+    let theta = wave * TAU;
+    let direction = vec2f(sin(theta), cos(theta));
+    let distortion = storageCoord + wave * direction * 0.1;
+
+    return textureSample(Background, Sampler, distortion) /* + textColor */;
 }
