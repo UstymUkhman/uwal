@@ -25,8 +25,8 @@ import Wave from "./Wave.wgsl";
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
-    const mouse = new Array(2), WAVES = 128;
     let textTexture, wavesTexture, backgroundTexture;
+    const mouse = new Array(2), WAVES = 128, SCALE = 4;
     let Title, Subtitle, shape, textPipeline, resultPipeline;
     let lastRender = performance.now(), texturesLoaded = false, moving = false;
     /** @type {Renderer} */ let Renderer, movement, minScale = canvas.width / 4800, current = 0;
@@ -130,7 +130,7 @@ export async function run(canvas)
             const offset = current * waveStructSize;
 
             waveValues.set([wave.angle = angle], offset + 2);
-            waveValues.set([wave.scale = 4    ], offset + 3);
+            waveValues.set([wave.scale = SCALE], offset + 3);
             waveValues.set([wave.alpha = 0.192], offset + 4);
         }
 
@@ -199,13 +199,13 @@ export async function run(canvas)
     const waveValues = new Float32Array(wavesStructSize);
     const waveStructSize = wavesStructSize / WAVES;
 
-    const waves = Array.from({ length: WAVES }).map(() => ({
-        angle: randomAngle(), scale: 4, alpha: 0
-    }));
-
     const BackgroundUniform = { buffer: null, offset: null };
     const TexureUniform = { buffer: null, offset: null };
     const Texture = new (await UWAL.Texture(Renderer));
+
+    const waves = Array.from({ length: WAVES }).map(() => ({
+        angle: randomAngle(), scale: SCALE, alpha: 0
+    }));
 
     Promise.all([
         loadTexture(Ocean),
