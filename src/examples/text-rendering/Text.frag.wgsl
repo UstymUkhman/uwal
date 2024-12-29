@@ -9,5 +9,6 @@
 
     let coverage = GetSubpixelCoverage(input.inverseTexureSize, input.distanceDelta, input.fontUV);
     let background = textureSample(BackgroundTexture, BackgroundSampler, backgroundUV).rgb;
+
     return vec4f(mix(background, Font.color.rgb, coverage), Font.color.a);
 }

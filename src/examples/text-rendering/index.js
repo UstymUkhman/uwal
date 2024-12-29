@@ -16,8 +16,8 @@ import BoldTexture from "/assets/fonts/roboto-bold.png";
 import BoldData from "/assets/fonts/roboto-bold.json";
 import Ripple from "/assets/images/ripple.png";
 import Ocean from "/assets/images/ocean.jpg";
-import Framebuffer from "./Framebuffer.wgsl";
-import Background from "./Background.wgsl";
+import TextFrag from "./Text.frag.wgsl";
+import Result from "./Result.wgsl";
 import Wave from "./Wave.wgsl";
 
 /** @type {ResizeObserver} */ let observer;
@@ -25,9 +25,11 @@ import Wave from "./Wave.wgsl";
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
-    const WAVES = 128, mouse = [0, 0];
-    let texturesLoaded = false, moving = false, current = 0;
-    /** @type {Renderer} */ let Renderer, lastRender, movement;
+    const mouse = new Array(2), WAVES = 128;
+    let textTexture, wavesTexture, backgroundTexture;
+    let Title, Subtitle, shape, textPipeline, resultPipeline;
+    let lastRender = performance.now(), texturesLoaded = false, moving = false;
+    /** @type {Renderer} */ let Renderer, movement, minScale = canvas.width / 4800, current = 0;
 
     const availableFeatures = await UWAL.SetRequiredFeatures([
         // https://caniuse.com/?search=dual-source-blending:
@@ -81,15 +83,15 @@ export async function run(canvas)
         texture.onload = () => resolve(texture);
     });
 
-    /** @param {ImageBitmapSource} ripple */
-    async function createWaveShape(ripple)
+    /** @param {ImageBitmapSource} image */
+    async function createWaveShape(image)
     {
-        const rippleTexture = Texture.CopyImageToTexture(
-            await Texture.CreateBitmapImage(ripple, { colorSpaceConversion: "none" }),
+        const texture = Texture.CopyImageToTexture(
+            await Texture.CreateBitmapImage(image, { colorSpaceConversion: "none" }),
             { mipmaps: false, create: true }
         );
 
-        const shape = new Shape({
+        shape = new Shape({
             renderer: Renderer,
             segments: 4,
             radius: 256
@@ -104,16 +106,13 @@ export async function run(canvas)
             Renderer.CreateBindGroup(
                 Renderer.CreateBindGroupEntries([
                     Texture.CreateSampler({ filter: "linear" }),
-                    rippleTexture.createView()
+                    texture.createView()
                 ]), 1
             )
         );
-
-        return shape;
     }
 
-    /** @param {Shape} shape */
-    function updateWaves(shape)
+    function updateWaves()
     {
         const now = performance.now();
         const delta = (now - lastRender) / 1e3;
@@ -143,7 +142,7 @@ export async function run(canvas)
 
 			wave.alpha  = wave.alpha - deltaD10;
 			wave.angle += wave.alpha * deltaM5 + deltaM2;
-			wave.scale  = Math.max(wave.scale - scale, 0.2);
+			wave.scale  = Math.max(wave.scale - scale, minScale);
             current === w && waveValues.set(mouse, offset);
 
             waveValues.set([wave.angle], offset + 2);
@@ -165,8 +164,8 @@ export async function run(canvas)
         moving = true;
         clearTimeout(movement);
 
-        mouse[0] = event.offsetX / canvas.width  *  2 - 1;
-        mouse[1] = event.offsetY / canvas.height * -2 + 1;
+        mouse[0] = event.clientX / canvas.width  *  2 - 1;
+        mouse[1] = event.clientY / canvas.height * -2 + 1;
 
         movement = setTimeout(() => moving = false, 16.667);
     }
@@ -180,67 +179,33 @@ export async function run(canvas)
         alert(error);
     }
 
-    const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, Wave]);
+    const waveModule = Renderer.CreateShaderModule([Shaders.ShapeVertex, Wave]);
+    const color = Renderer.CreateBlendComponent(void 0, "src-alpha", "one");
     const positionLayout = Renderer.CreateVertexBufferLayout("position");
+    const waveTarget = Renderer.CreateTargetState(void 0, { color });
 
     const { buffer: waveBuffer, layout: waveLayout } = Renderer.CreateVertexBuffer(
         ["offset", "angle", "scale", "alpha"], WAVES, "instance"
     );
 
-    const wavesStructSize = waveBuffer.size / Float32Array.BYTES_PER_ELEMENT;
-    const waveValues = new Float32Array(wavesStructSize);
-    const waveStructSize = wavesStructSize / WAVES;
-
-    const color = Renderer.CreateBlendComponent(void 0, "src-alpha", "one");
-    const target = Renderer.CreateTargetState(void 0, { color });
-
     const wavesPipeline = Renderer.CreatePipeline({
-        fragment: Renderer.CreateFragmentState(module, void 0, target),
-        vertex: Renderer.CreateVertexState(module, void 0, [
+        fragment: Renderer.CreateFragmentState(waveModule, void 0, waveTarget),
+        vertex: Renderer.CreateVertexState(waveModule, void 0, [
             positionLayout, waveLayout
         ]),
     });
+
+    const wavesStructSize = waveBuffer.size / Float32Array.BYTES_PER_ELEMENT;
+    const waveValues = new Float32Array(wavesStructSize);
+    const waveStructSize = wavesStructSize / WAVES;
 
     const waves = Array.from({ length: WAVES }).map(() => ({
         angle: randomAngle(), scale: 4, alpha: 0
     }));
 
-    /* const { module, target } = await SDFText.GetFragmentStateParams(Renderer, Framebuffer);
-
-    const dsb = availableFeatures.has("dual-source-blending");
-    const fragmentEntry = dsb && "dsbTextFragment" || void 0;
-
-    const layout = Renderer.CreateVertexBufferLayout(
-        ["position", "texture", "size"], void 0, "textVertex"
-    );
-
-    const textPipeline = Renderer.CreatePipeline({
-        fragment: Renderer.CreateFragmentState(module, fragmentEntry, target),
-        vertex: Renderer.CreateVertexState(module, "textVertex", layout)
-    }); */
-
-    const TexureUniform = { buffer: null, offset: null };
     const BackgroundUniform = { buffer: null, offset: null };
-
-    // const subtitleColor = new Color(0xff, 0xff, 0xff, 0xE5);
-    // const titleColor = new Color(0x00, 0x5a, 0x9c, 0xCC);
-
-    let storageTexture, oceanTexture, backgroundPipeline;
+    const TexureUniform = { buffer: null, offset: null };
     const Texture = new (await UWAL.Texture(Renderer));
-
-    /* const Title = new SDFText({
-        renderer: Renderer,
-        color: titleColor,
-        font: BoldData,
-        size: 144
-    });
-
-    const Subtitle = new SDFText({
-        color: subtitleColor,
-        renderer: Renderer,
-        font: RegularData,
-        size: 24
-    }); */
 
     Promise.all([
         loadTexture(Ocean),
@@ -249,24 +214,53 @@ export async function run(canvas)
         loadTexture(RegularTexture)
     ]).then(async ([ocean, ripple, bold, regular]) =>
     {
-        lastRender = performance.now();
-        const shape = await createWaveShape(ripple);
+        await createWaveShape(ripple);
+        const { module: textModule, target: textTarget } =
+            await SDFText.GetFragmentStateParams(Renderer, TextFrag);
 
-        addEventListener("mousemove", move, false);
-        requestAnimationFrame(render.bind(null, shape));
+        const dsb = availableFeatures.has("dual-source-blending");
+        const fragmentEntry = dsb && "dsbTextFragment" || void 0;
 
-        /* await Subtitle.SetFontTexture(regular);
+        const textLayout = Renderer.CreateVertexBufferLayout(
+            ["position", "texture", "size"], void 0, "textVertex"
+        );
+
+        textPipeline = Renderer.CreatePipeline({
+            fragment: Renderer.CreateFragmentState(textModule, fragmentEntry, textTarget),
+            vertex: Renderer.CreateVertexState(textModule, "textVertex", textLayout)
+        });
+
+        const subtitleColor = new Color(0xff, 0xff, 0xff, 0xE5);
+        const titleColor = new Color(0x00, 0x5a, 0x9c, 0xCC);
+
+        Subtitle = new SDFText({
+            color: subtitleColor,
+            renderer: Renderer,
+            font: RegularData,
+            size: 24
+        });
+
+        Title = new SDFText({
+            renderer: Renderer,
+            color: titleColor,
+            font: BoldData,
+            size: 144
+        });
+
+        await Subtitle.SetFontTexture(regular);
         await Title.SetFontTexture(bold);
 
         Title.Write("UWAL");
         Subtitle.Write("Unopinionated WebGPU Abstraction Library");
 
-        const { buffer: texureBuffer, TexureOffset } = Renderer.CreateUniformBuffer("TexureOffset");
-        */ storageTexture = Texture.CreateStorageTexture({ usage: GPUTextureUsage.RENDER_ATTACHMENT });
-        oceanTexture = Texture.CopyImageToTexture(ocean, { mipmaps: false, create: true });
+        wavesTexture = Texture.CreateStorageTexture({ usage: GPUTextureUsage.RENDER_ATTACHMENT });
+        textTexture = Texture.CreateStorageTexture({ usage: GPUTextureUsage.RENDER_ATTACHMENT });
+        backgroundTexture = Texture.CopyImageToTexture(ocean, { mipmaps: false, create: true });
 
-        Renderer.TextureView = storageTexture.createView();
-        /* TexureOffset.set(getTextureOffset(oceanTexture));
+        const { buffer: texureBuffer, TexureOffset } =
+            Renderer.CreateUniformBuffer("TexureOffset");
+
+        TexureOffset.set(getTextureOffset(backgroundTexture));
         Renderer.WriteBuffer(texureBuffer, TexureOffset);
 
         TexureUniform.buffer = texureBuffer;
@@ -275,74 +269,65 @@ export async function run(canvas)
         !dsb && Title.AddBindGroups(
             Renderer.CreateBindGroup(
                 Renderer.CreateBindGroupEntries([
-                    oceanTexture.createView(),
+                    backgroundTexture.createView(),
                     Texture.CreateSampler(),
                     { buffer: texureBuffer }
                 ]), 1
             )
-        ); */
+        );
 
-        /* const color = Renderer.CreateBlendComponent(void 0, "one", "one-minus-src-alpha");
-        const module = Renderer.CreateShaderModule([Shaders.Quad, Background]);
-        const target = Renderer.CreateTargetState(void 0, { color });
-
-        backgroundPipeline = Renderer.CreatePipeline({
-            fragment: Renderer.CreateFragmentState(module, void 0, target),
-            vertex: Renderer.CreateVertexState(module),
-        }); */
-
-        backgroundPipeline = Renderer.CreatePipeline(
-            Renderer.CreateShaderModule([Shaders.Quad, Background])
+        resultPipeline = Renderer.CreatePipeline(
+            Renderer.CreateShaderModule([Shaders.Quad, Result])
         );
 
         const { buffer: backgroundBuffer, BackgroundOffset } =
             Renderer.CreateUniformBuffer("BackgroundOffset");
 
+        BackgroundOffset.set(getBackgroundOffset(backgroundTexture));
+        Renderer.WriteBuffer(backgroundBuffer, BackgroundOffset);
+
         BackgroundUniform.buffer = backgroundBuffer;
         BackgroundUniform.offset = BackgroundOffset;
 
-        /* Subtitle.Position = [0, 100];
-        Title.Position = [0, -100]; */
+        addEventListener("mousemove", move, false);
+        requestAnimationFrame(render);
+
+        Subtitle.Position = [0, 100];
+        Title.Position = [0, -100];
         texturesLoaded = true;
     });
 
-    /** @param {Shape} shape */
-    function render(shape)
+    function render()
     {
         Renderer.SetPipeline(wavesPipeline);
-        const vertices = updateWaves(shape);
+        Renderer.TextureView = wavesTexture.createView();
+        Renderer.Render([updateWaves(), WAVES], false);
 
-        Renderer.TextureView = storageTexture.createView();
-        Renderer.Render([vertices, WAVES], false);
-
-        /* Renderer.SetPipeline(textPipeline);
-        Renderer.TextureView = storageTexture.createView();
-        TexureUniform.offset.set(getTextureOffset(oceanTexture));
-        Renderer.WriteBuffer(TexureUniform.buffer, TexureUniform.offset);
+        Renderer.SetIndexBuffer(void 0);
+        Renderer.DestroyCurrentPass();
+        Renderer.SetPipeline(textPipeline);
+        Renderer.TextureView = textTexture.createView();
 
         Title.Render(false);
-        Subtitle.Render(false); */
+        Subtitle.Render(false);
         Renderer.DestroyCurrentPass();
-        Renderer.SetPipeline(backgroundPipeline);
+        Renderer.SetPipeline(resultPipeline);
 
         Renderer.SetBindGroups(
             Renderer.CreateBindGroup(
                 Renderer.CreateBindGroupEntries([
                     Texture.CreateSampler(),
-                    storageTexture.createView(),
-                    oceanTexture.createView(),
+                    textTexture.createView(),
+                    wavesTexture.createView(),
+                    backgroundTexture.createView(),
                     { buffer: BackgroundUniform.buffer }
                 ])
             )
         );
 
-        BackgroundUniform.offset.set(getBackgroundOffset(oceanTexture));
-        Renderer.WriteBuffer(BackgroundUniform.buffer, BackgroundUniform.offset);
-        Renderer.TextureView = undefined;
-        // Renderer.Render(6);
-        Renderer.Render(9); /// ???
-
-        requestAnimationFrame(render.bind(null, shape));
+        requestAnimationFrame(render);
+        Renderer.TextureView = void 0;
+        Renderer.Render(6);
     }
 
     observer = new ResizeObserver(entries =>
@@ -353,16 +338,29 @@ export async function run(canvas)
             width = (width <= 960 && width) || width - 240;
             Renderer.SetCanvasSize(width, blockSize);
 
-            /* if (!texturesLoaded) return;
-            storageTexture.destroy();
+            minScale = width / 4800;
+            if (!texturesLoaded) return;
 
-            storageTexture = Texture.CreateStorageTexture({
+            wavesTexture.destroy();
+            textTexture.destroy();
+
+            wavesTexture = Texture.CreateStorageTexture({
                 usage: GPUTextureUsage.RENDER_ATTACHMENT
             });
 
+            textTexture = Texture.CreateStorageTexture({
+                usage: GPUTextureUsage.RENDER_ATTACHMENT
+            });
+
+            TexureUniform.offset.set(getTextureOffset(backgroundTexture));
+            Renderer.WriteBuffer(TexureUniform.buffer, TexureUniform.offset);
+
+            BackgroundUniform.offset.set(getBackgroundOffset(backgroundTexture));
+            Renderer.WriteBuffer(BackgroundUniform.buffer, BackgroundUniform.offset);
+
             Subtitle.Resize();
             Title.Resize();
-            render(); */
+            render();
         }
     });
 
