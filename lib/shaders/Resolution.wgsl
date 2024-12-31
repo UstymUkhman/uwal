@@ -1,3 +1,4 @@
+/** @todo: Refactor to vec3f with z value = DPR */
 @group(0) @binding(0) var<uniform> resolution: vec2f;
 
 fn GetClipSpace(position: vec2f) -> vec2f
