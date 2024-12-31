@@ -31,7 +31,7 @@ fn RotateOutputUV(uv: vec2f, angle: f32) -> vec2f
 ) -> VertexOutput
 {
     var output: VertexOutput;
-    let S = resolution.x / 240;
+    let S = resolution.x / 120 /* * DPR */;
 
     let aspect = resolution / resolution.x;
     let clipSpace = GetVertexClipSpace(position).xy;

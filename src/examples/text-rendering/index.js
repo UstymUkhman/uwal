@@ -163,10 +163,10 @@ export async function run(canvas)
     {
         moving = true;
         clearTimeout(movement);
+        const [width, height] = Renderer.BaseCanvasSize;
 
-        mouse[0] = event.clientX / canvas.width  *  2 - 1;
-        mouse[1] = event.clientY / canvas.height * -2 + 1;
-
+        mouse[0] = event.clientX / width  *  2 - 1;
+        mouse[1] = event.clientY / height * -2 + 1;
         movement = setTimeout(() => moving = false, 16.667);
     }
 
@@ -290,10 +290,12 @@ export async function run(canvas)
         BackgroundUniform.offset = BackgroundOffset;
 
         addEventListener("mousemove", move, false);
-        requestAnimationFrame(render);
+        const dpr = Renderer.DevicePixelRatio;
 
-        Subtitle.Position = [0, 100];
-        Title.Position = [0, -100];
+        Subtitle.Position = [0, 100 * dpr];
+        Title.Position = [0, -100 * dpr];
+
+        requestAnimationFrame(render);
         texturesLoaded = true;
     });
 
@@ -303,8 +305,8 @@ export async function run(canvas)
         Renderer.TextureView = wavesTexture.createView();
         Renderer.Render([updateWaves(), WAVES], false);
 
-        Renderer.SetIndexBuffer(void 0);
         Renderer.DestroyCurrentPass();
+        Renderer.ResetPipelineState();
         Renderer.SetPipeline(textPipeline);
         Renderer.TextureView = textTexture.createView();
 
@@ -338,19 +340,13 @@ export async function run(canvas)
             width = (width <= 960 && width) || width - 240;
             Renderer.SetCanvasSize(width, blockSize);
 
-            minScale = width / 4800;
             if (!texturesLoaded) return;
+            minScale = width / 4800;
 
-            wavesTexture.destroy();
-            textTexture.destroy();
+            Title.Resize(); Subtitle.Resize();
+            textTexture.destroy(); wavesTexture.destroy();
 
-            wavesTexture = Texture.CreateStorageTexture({
-                usage: GPUTextureUsage.RENDER_ATTACHMENT
-            });
-
-            textTexture = Texture.CreateStorageTexture({
-                usage: GPUTextureUsage.RENDER_ATTACHMENT
-            });
+            shape.Position = [canvas.width / 2, canvas.height / 2];
 
             TexureUniform.offset.set(getTextureOffset(backgroundTexture));
             Renderer.WriteBuffer(TexureUniform.buffer, TexureUniform.offset);
@@ -358,9 +354,8 @@ export async function run(canvas)
             BackgroundUniform.offset.set(getBackgroundOffset(backgroundTexture));
             Renderer.WriteBuffer(BackgroundUniform.buffer, BackgroundUniform.offset);
 
-            Subtitle.Resize();
-            Title.Resize();
-            render();
+            textTexture = Texture.CreateStorageTexture({ usage: GPUTextureUsage.RENDER_ATTACHMENT });
+            wavesTexture = Texture.CreateStorageTexture({ usage: GPUTextureUsage.RENDER_ATTACHMENT });
         }
     });
 
