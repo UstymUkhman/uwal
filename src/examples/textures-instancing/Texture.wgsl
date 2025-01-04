@@ -16,7 +16,7 @@ struct VertexOutput
 ) -> VertexOutput
 {
     var output: VertexOutput;
-    let aspect = resolution / resolution.y;
+    let aspect = resolution.xy / resolution.y;
     let clipSpace = GetVertexClipSpace(position).xy;
 
     output.position = vec4f(clipSpace + translation, 0, 1);

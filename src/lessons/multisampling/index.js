@@ -44,7 +44,7 @@ import Triangle from "./Triangle.wgsl";
         for (const entry of entries)
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            Renderer.SetCanvasSize(inlineSize / 16 | 0, blockSize / 16 | 0);
+            Renderer.SetCanvasSize(inlineSize / 16 | 0, blockSize / 16 | 0, false);
         }
 
         Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();

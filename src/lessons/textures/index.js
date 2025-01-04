@@ -152,7 +152,7 @@ import Shader from "./Texture.wgsl";
         for (const entry of entries)
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            Renderer.SetCanvasSize(inlineSize / 64 | 0, blockSize / 64 | 0);
+            Renderer.SetCanvasSize(inlineSize / 64 | 0, blockSize / 64 | 0, false);
         }
 
         requestAnimationFrame(render);
