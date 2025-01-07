@@ -13,7 +13,7 @@ struct DSBFragmentOutput
     var output: DSBFragmentOutput;
 
     let coverage = GetSubpixelCoverage(
-        input.inverseTexureSize,
+        input.inverseTextureSize,
         input.distanceDelta,
         input.fontUV
     );

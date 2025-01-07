@@ -19,7 +19,7 @@ struct font
 struct text
 {
     matrix: mat3x3f,
-    texureSize: vec2f
+    textureSize: vec2f
 };
 
 struct TextVertexOutput
@@ -28,7 +28,7 @@ struct TextVertexOutput
     @location(1) screenUV: vec2f,
     @location(2) distanceDelta: f32,
     @builtin(position) position: vec4f,
-    @location(3) inverseTexureSize: vec2f
+    @location(3) inverseTextureSize: vec2f
 };
 
 @group(0) @binding(0) var Sampler: sampler;
@@ -45,7 +45,7 @@ struct TextVertexOutput
     var output: TextVertexOutput;
     let clipSpace = Text.matrix * vec3f(position, 1);
 
-    output.inverseTexureSize = 1.0 / Text.texureSize;
+    output.inverseTextureSize = 1.0 / Text.textureSize;
     output.position = vec4f(clipSpace.xy, 0, 1);
     output.distanceDelta = 1.0 / size;
     output.screenUV = clipSpace.xy;
@@ -93,7 +93,7 @@ fn GetSubpixelCoverage(size: vec2f, distance: f32, uv: vec2f) -> vec3f
 @fragment fn textFragment(input: TextVertexOutput) -> @location(0) vec4f
 {
     let coverage = GetSubpixelCoverage(
-        input.inverseTexureSize,
+        input.inverseTextureSize,
         input.distanceDelta,
         input.fontUV
     );
