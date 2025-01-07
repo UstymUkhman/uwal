@@ -12,14 +12,15 @@
 import { UWAL, Shaders } from "#/index";
 import ScreenShader from "./ScreenShader.wgsl";
 
+let screenUniformBuffer;
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
+
+/** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
-    /** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
-
     try
     {
         Renderer = new (await UWAL.RenderPipeline(canvas, "Screen Shader"));
@@ -41,7 +42,7 @@ export async function run(canvas)
         Float32Array.BYTES_PER_ELEMENT +
         Float32Array.BYTES_PER_ELEMENT * 3;
 
-    const screenUniformBuffer = Renderer.CreateBuffer({
+    screenUniformBuffer = Renderer.CreateBuffer({
         size: screenUniformBufferSize,
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
     });
@@ -89,7 +90,9 @@ export async function run(canvas)
 export function destroy()
 {
     UWAL.OnDeviceLost = () => void 0;
+    screenUniformBuffer?.destroy();
     cancelAnimationFrame(raf);
     observer.disconnect();
+    Renderer.Destroy();
     UWAL.Destroy();
 }

@@ -12,12 +12,11 @@ import { UWAL, Shaders, Shape } from "#/index";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
+/** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
-    /** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
-
     try
     {
         Renderer = new (await UWAL.RenderPipeline(canvas, "2D Shapes"));
@@ -161,5 +160,6 @@ export function destroy()
     UWAL.OnDeviceLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
+    Renderer.Destroy();
     UWAL.Destroy();
 }

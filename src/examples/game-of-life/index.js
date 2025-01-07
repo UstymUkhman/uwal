@@ -16,12 +16,13 @@ import Compute from "./Compute.wgsl";
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
 
+let vertexBuffer, uniformBuffer, storageBufferIn, storageBufferOut;
+/** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
+/** @type {InstanceType<Awaited<ReturnType<UWAL.ComputePipeline>>>} */ let Computation;
+
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
-    /** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
-    /** @type {InstanceType<Awaited<ReturnType<UWAL.ComputePipeline>>>} */ let Computation;
-
     try
     {
         Renderer = new (await UWAL.RenderPipeline(canvas, "Game Of Life Render"));
@@ -32,7 +33,6 @@ export async function run(canvas)
         alert(error);
     }
 
-    let uniformBuffer, storageBufferIn, storageBufferOut;
     const bindGroups = [], WORKGROUP_SIZE = 8, RENDER_LOOP_INTERVAL = 250;
     let INSTANCES, step = 0, lastRender = performance.now() - RENDER_LOOP_INTERVAL;
 
@@ -77,7 +77,7 @@ export async function run(canvas)
 
     const VERTICES = vertices.length / 2;
 
-    const vertexBuffer = Renderer.CreateBuffer({
+    vertexBuffer = Renderer.CreateBuffer({
         size: vertices.byteLength,
         usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
     });
@@ -194,5 +194,13 @@ export function destroy()
     UWAL.OnDeviceLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
-    UWAL.Destroy();
+    Computation.Destroy();
+    Renderer.Destroy();
+
+    UWAL.Destroy([
+        vertexBuffer,
+        uniformBuffer,
+        storageBufferIn,
+        storageBufferOut
+    ]);
 }

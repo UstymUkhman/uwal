@@ -12,15 +12,15 @@ import Video from "/assets/videos/matrix.mp4";
 import { UWAL, Shaders } from "#/index";
 import SinCity from "./SinCity.wgsl";
 
-/** @type {number} */ let raf;
+/** @type {number} */ let raf, videoBuffer;
 /** @type {ResizeObserver} */ let observer;
 const video = document.createElement("video");
+
+/** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
-    /** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
-
     try
     {
         Renderer = new (await UWAL.RenderPipeline(canvas, "Video Color Grading"));
@@ -30,10 +30,9 @@ export async function run(canvas)
         alert(error);
     }
 
-    let videoWidth, videoHeight;
-    let resolutionBuffer, videoBuffer;
     const Texture = new (await UWAL.Texture());
     const videoSampler = Texture.CreateSampler();
+    let videoWidth, videoHeight, resolutionBuffer;
 
     video.playsinline = video.loop = true;
     video.controls = video.muted = true;
@@ -156,5 +155,6 @@ export function destroy()
     cancelAnimationFrame(raf);
     observer.disconnect();
     video.remove();
-    UWAL.Destroy();
+    Renderer.Destroy();
+    UWAL.Destroy(videoBuffer);
 }

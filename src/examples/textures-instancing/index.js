@@ -14,12 +14,13 @@ import Texture from "./Texture.wgsl";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
+let texture, storageBuffer, translationBuffer;
+
+/** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
-    /** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
-
     try
     {
         Renderer = new (await UWAL.RenderPipeline(canvas, "Textures / Instancing"));
@@ -31,7 +32,7 @@ export async function run(canvas)
 
     const radius = 128, textures = 100;
 
-    let storage, storageBuffer, vertices, spawnTimeout, textureIndex,
+    let storage, vertices, spawnTimeout, textureIndex,
         textureUpdate = 500, lastRender = performance.now() - textureUpdate;
 
     const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, Texture]);
@@ -109,13 +110,13 @@ export async function run(canvas)
         const size = stride * textures;
 
         const usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST;
-        const translationBuffer = Renderer.CreateBuffer({ size, usage });
         const translationOffset = stride / Float32Array.BYTES_PER_ELEMENT;
         const translation = new Float32Array(size / Float32Array.BYTES_PER_ELEMENT);
 
         for (let t = textures; t--; )
             translation.set([random(-x, x), random(-y, y)], translationOffset * t);
 
+        translationBuffer = Renderer.CreateBuffer({ size, usage });
         Renderer.WriteBuffer(translationBuffer, translation);
         Renderer.AddVertexBuffers(translationBuffer);
     }
@@ -129,7 +130,7 @@ export async function run(canvas)
             { colorSpaceConversion: "none" }
         );
 
-        const texture = Texture.CopyImageToTexture(logo, {
+        texture = Texture.CopyImageToTexture(logo, {
             flipY: true,
             create: {
                 usage:
@@ -204,5 +205,10 @@ export function destroy()
     UWAL.OnDeviceLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
-    UWAL.Destroy();
+    Renderer.Destroy();
+
+    UWAL.Destroy([
+        storageBuffer,
+        translationBuffer
+    ], texture);
 }
