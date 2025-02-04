@@ -38,7 +38,11 @@ bun add uwal
 ## [Examples](https://ustymukhman.github.io/uwal/dist/examples/examples.html)
 
 <a title="Basic Program" href="https://www.youtube.com/watch?v=TOCvJR07H6k" target="_blank" rel="noopener noreferrer">
-  <img alt="Basic Program" src="assets/images/thumbnail.jpg" />
+  <img alt="Basic Program" src="assets/images/BasicProgram.jpg" />
+</a>
+
+<a title="Ripple Effect" href="https://www.youtube.com/watch?v=j07n96qDe20" target="_blank" rel="noopener noreferrer">
+  <img alt="Ripple Effect" src="assets/images/RippleEffect.jpg" />
 </a>
 
 ### [WebGPU Fundamentals](https://webgpufundamentals.org/)
