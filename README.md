@@ -41,7 +41,7 @@ bun add uwal
   <img alt="Basic Program" src="assets/images/BasicProgram.jpg" />
 </a>
 
-<br />
+<br /><br />
 
 <a title="Ripple Effect" href="https://www.youtube.com/watch?v=j07n96qDe20" target="_blank" rel="noopener noreferrer">
   <img alt="Ripple Effect" src="assets/images/RippleEffect.jpg" />
