@@ -25,4 +25,5 @@
 | [Blend Settings](https://webgpufundamentals.org/webgpu/lessons/webgpu-transparency.html#blend-settings) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#blend-settings) | [Code](./blend-settings/index.js) |
 | [Bind Group Layouts](https://webgpufundamentals.org/webgpu/lessons/webgpu-bind-group-layouts.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#bind-group-layouts) | [Code](./bind-group-layouts/index.js) |
 | [Timing Performance](https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#timing-performance) | [Code](./timing-performance/index.js) |
+| [Compatibility Mode](https://webgpufundamentals.org/webgpu/lessons/webgpu-compatibility-mode.html) | Preview | Code |
 |   |   |   |
