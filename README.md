@@ -49,25 +49,29 @@ bun add uwal
 
 ### [WebGPU Fundamentals](https://webgpufundamentals.org/)
 
-- [Fundamentals](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#fundamentals)
-- [Inter-stage Variables](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#inter-stage-variables)
-- [Uniforms](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#uniforms)
-- [Storage Buffers](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-buffers)
-- [Vertex Buffers](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#vertex-buffers)
-  - [Textures](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#textures)
-  - [Mipmap Filter](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#mipmap-filter)
-  - [Loading Images](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-images)
-  - [Generating mipmaps on the GPU](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#gpu-mipmaps)
-  - [Loading Canvas](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-canvas)
-  - [Loading Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-video)
-  - Texture Atlases
-  - [Using Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#using-video)
-  - [Cubemaps](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#cubemaps)
-  - [Storage Textures](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-textures)
-  - [Multisampling](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#multisampling)
-- [Shader Constants](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#shader-constants)
-- [Transparency and Blending](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#transparency)
-- [Blend Settings](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#blend-settings)
-- [Bind Group Layouts](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#bind-group-layouts)
-- [Timing Performance](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#timing-performance)
-- Compatibility Mode
+- Basics
+  - [Fundamentals](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#fundamentals)
+  - [Inter-stage Variables](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#inter-stage-variables)
+  - [Uniforms](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#uniforms)
+  - [Storage Buffers](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-buffers)
+  - [Vertex Buffers](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#vertex-buffers)
+  - Textures
+    - [Textures](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#textures)
+    - [Mipmap Filter](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#mipmap-filter)
+    - [Loading Images](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-images)
+    - [Generating mipmaps on the GPU](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#gpu-mipmaps)
+    - [Loading Canvas](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-canvas)
+    - [Loading Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-video)
+    - Texture Atlases
+    - [Using Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#using-video)
+    - [Cubemaps](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#cubemaps)
+    - [Storage Textures](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-textures)
+    - [Multisampling](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#multisampling)
+  - [Shader Constants](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#shader-constants)
+  - [Transparency and Blending](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#transparency)
+  - [Blend Settings](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#blend-settings)
+  - [Bind Group Layouts](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#bind-group-layouts)
+  - [Timing Performance](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#timing-performance)
+  - Compatibility Mode
+- 3D Math
+  - [Translation](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#translation)

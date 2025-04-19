@@ -1,13 +1,14 @@
 # WebGPU Fundamentals In UWAL
 
 | Lesson | Live | Source |
-| - | - | - |
+|:- |:- |:- |
+| _Basics_ |
 | [Fundamentals](https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#fundamentals) | [Code](./fundamentals/index.js) |
 | [Inter-stage Variables](https://webgpufundamentals.org/webgpu/lessons/webgpu-inter-stage-variables.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#inter-stage-variables) | [Code](./inter-stage-variables/index.js) |
 | [Uniforms](https://webgpufundamentals.org/webgpu/lessons/webgpu-uniforms.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#uniforms) | [Code](./uniforms/index.js) |
 | [Storage Buffers](https://webgpufundamentals.org/webgpu/lessons/webgpu-storage-buffers.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-buffers) | [Code](./storage-buffers/index.js) |
 | [Vertex Buffers](https://webgpufundamentals.org/webgpu/lessons/webgpu-vertex-buffers.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#vertex-buffers) | [Code](./vertex-buffers/index.js) |
-|   |   |   |
+| _Textures_ |
 | [Textures](https://webgpufundamentals.org/webgpu/lessons/webgpu-textures.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#textures) | [Code](./textures/index.js) |
 | [Mipmap Filter](https://webgpufundamentals.org/webgpu/lessons/webgpu-textures.html#mipmapfilter) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#mipmap-filter) | [Code](./mipmap-filter/index.js) |
 | [Loading Images](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-images) | [Code](./loading-images/index.js) |
@@ -26,4 +27,6 @@
 | [Bind Group Layouts](https://webgpufundamentals.org/webgpu/lessons/webgpu-bind-group-layouts.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#bind-group-layouts) | [Code](./bind-group-layouts/index.js) |
 | [Timing Performance](https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#timing-performance) | [Code](./timing-performance/index.js) |
 | [Compatibility Mode](https://webgpufundamentals.org/webgpu/lessons/webgpu-compatibility-mode.html) | Preview | Code |
+| _3D Math_ |
+| [Translation](https://webgpufundamentals.org/webgpu/lessons/webgpu-translation.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#translation) | [Code](./translation/index.js) |
 |   |   |   |
