@@ -9,9 +9,9 @@
  * @license MIT
  */
 
+import NonNegativeRollingAverage from './NonNegativeRollingAverage';
 import { UWAL, Shaders, Color, Shape, Utils } from "#/index";
 import TimingPerformance from "./TimingPerformance.wgsl";
-import RollingAverage from './RollingAverage';
 
 (async function(canvas)
 {
@@ -55,9 +55,9 @@ import RollingAverage from './RollingAverage';
     info.append(fps, gpu, js);
     document.body.appendChild(info);
 
-    const fpsAverage = new RollingAverage();
-    const gpuAverage = new RollingAverage();
-    const jsAverage = new RollingAverage();
+    const fpsAverage = new NonNegativeRollingAverage();
+    const gpuAverage = new NonNegativeRollingAverage();
+    const jsAverage = new NonNegativeRollingAverage();
 
     const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, TimingPerformance]);
     const colorAttachment = Renderer.CreateColorAttachment();
