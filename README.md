@@ -37,15 +37,9 @@ bun add uwal
 
 ## [Examples](https://ustymukhman.github.io/uwal/dist/examples/examples.html)
 
-<a title="Basic Program" href="https://www.youtube.com/watch?v=TOCvJR07H6k" target="_blank" rel="noopener noreferrer">
-  <img alt="Basic Program" src="assets/images/BasicProgram.jpg" />
-</a>
-
-<br /><br />
-
-<a title="Ripple Effect" href="https://www.youtube.com/watch?v=j07n96qDe20" target="_blank" rel="noopener noreferrer">
-  <img alt="Ripple Effect" src="assets/images/RippleEffect.jpg" />
-</a>
+|   |   |
+| - | - |
+| [![Basic Program](assets/images/BasicProgram.jpg)](https://www.youtube.com/watch?v=TOCvJR07H6k) | [![Ripple Effect](assets/images/RippleEffect.jpg)](https://www.youtube.com/watch?v=j07n96qDe20) |
 
 ### [WebGPU Fundamentals](https://webgpufundamentals.org/)
 
@@ -62,7 +56,7 @@ bun add uwal
     - [Generating mipmaps on the GPU](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#gpu-mipmaps)
     - [Loading Canvas](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-canvas)
     - [Loading Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-video)
-    - Texture Atlases
+    - Texture Atlases _(TBI after WebGPU Cameras)_
     - [Using Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#using-video)
     - [Cubemaps](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#cubemaps)
     - [Storage Textures](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-textures)
@@ -72,6 +66,6 @@ bun add uwal
   - [Blend Settings](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#blend-settings)
   - [Bind Group Layouts](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#bind-group-layouts)
   - [Timing Performance](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#timing-performance)
-  - Compatibility Mode
+  - Compatibility Mode _(TBI)_
 - 3D Math
   - [Translation](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#translation)
