@@ -2,7 +2,7 @@
   "name": "uwal",
   "description": "Unopinionated WebGPU Abstraction Library",
   "homepage": "https://github.com/UstymUkhman/uwal#readme",
-  "packageManager": "^npm@9.8.0",
+  "packageManager": "^npm@10.9.0",
   "main": "./build/uwal.umd.cjs",
   "module": "./build/uwal.js",
   "types": "./types.d.ts",
@@ -76,22 +76,22 @@
     "build:lib": "bun run build:types && bun run build -- --mode=lib"
   },
   "dependencies": {
-    "@webgpu/types": "^0.1.54"
+    "@webgpu/types": "^0.1.60"
   },
   "devDependencies": {
-    "sass": "^1.84.0",
-    "typescript": "^5.7.3",
-    "vite": "^6.1.0",
-    "vite-plugin-glsl": "^1.3.1",
-    "wgpu-matrix": "^3.3.0",
-    "wgsl_reflect": "^1.0.17"
+    "sass": "^1.86.3",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.2",
+    "vite-plugin-glsl": "^1.4.1",
+    "wgpu-matrix": "^3.4.0",
+    "wgsl_reflect": "^1.2.0"
   },
   "trustedDependencies": [
     "@parcel/watcher"
   ],
   "engines": {
-    "node": ">= 18.12.1",
-    "npm": ">= 9.8.0",
-    "bun": ">= 1.1.4"
+    "node": ">= 20.15.0",
+    "npm": ">= 10.9.0",
+    "bun": ">= 1.2.0"
   }
 }

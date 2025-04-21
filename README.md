@@ -37,8 +37,8 @@ bun add uwal
 
 ## [Examples](https://ustymukhman.github.io/uwal/dist/examples/examples.html)
 
-|   |   |
-| - | - |
+| Basic Program | Ripple Effect |
+|:-:|:-:|
 | [![Basic Program](assets/images/BasicProgram.jpg)](https://www.youtube.com/watch?v=TOCvJR07H6k) | [![Ripple Effect](assets/images/RippleEffect.jpg)](https://www.youtube.com/watch?v=j07n96qDe20) |
 
 ### [WebGPU Fundamentals](https://webgpufundamentals.org/)
@@ -69,3 +69,4 @@ bun add uwal
   - Compatibility Mode _(TBI)_
 - 3D Math
   - [Translation](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#translation)
+  - Rotation _(WIP)_

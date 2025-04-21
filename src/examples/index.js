@@ -176,6 +176,6 @@ addEventListener("resize", () =>
     }
 }, false);
 
-createExamples("demos");
+// createExamples("demos");
 createExamples("examples");
 runExample() && runDemo();
