@@ -120,7 +120,7 @@ ul#examples {
 }
 
 canvas {
-  max-width: calc(100vw - 240px);
+  max-width: calc(100vw - max(15vw, 240px));
   position: absolute;
   width: 85vw;
 
