@@ -7,6 +7,7 @@
  * @version 0.0.11
  * @license MIT
  */
+
 export default class NonNegativeRollingAverage
 {
     #count = 0;

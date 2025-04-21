@@ -29,4 +29,5 @@
 | [Compatibility Mode](https://webgpufundamentals.org/webgpu/lessons/webgpu-compatibility-mode.html) | Preview | Code |
 | _3D Math_ |
 | [Translation](https://webgpufundamentals.org/webgpu/lessons/webgpu-translation.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#translation) | [Code](./translation/index.js) |
-| [Rotation](https://webgpufundamentals.org/webgpu/lessons/webgpu-rotation.html) | Preview | Code |
+| [Rotation](https://webgpufundamentals.org/webgpu/lessons/webgpu-rotation.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#rotation) | [Code](./rotation/index.js) |
+| [Scale](https://webgpufundamentals.org/webgpu/lessons/webgpu-scale.html) | Preview | Code |

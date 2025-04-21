@@ -69,4 +69,5 @@ bun add uwal
   - Compatibility Mode _(TBI)_
 - 3D Math
   - [Translation](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#translation)
-  - Rotation _(WIP)_
+  - [Rotation](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#rotation)
+  - Scale _(WIP)_
