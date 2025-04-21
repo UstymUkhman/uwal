@@ -77,21 +77,22 @@ h1.title {
 }
 
 h2.subtitle {
-  margin: 20px 0 40px;
+  margin: 40px 0 20px;
   font-weight: 400;
   font-size: 18px;
 }
 
-ul#list {
-  margin: 0;
-  padding: 0;
+ul#demos,
+ul#examples {
+  margin: 0px;
   row-gap: 20px;
-
-  flex-direction: column;
-  padding-left: 20px;
   display: flex;
 
-  > a::before {
+  flex-direction: column;
+  padding: 0px 0px 0px 20px;
+  > li { list-style: none; }
+
+  > li > a::before {
     border-bottom: 5px solid transparent;
     border-top: 5px solid transparent;
     border-left: 8px solid black;
@@ -108,7 +109,7 @@ ul#list {
     width: 0px;
   }
 
-  > a.active {
+  > li > a.active {
     transform: translateX(10px);
     pointer-events: none;
 
@@ -128,7 +129,7 @@ canvas {
   top: 0;
 }
 
-button#examples {
+button#list {
   margin-bottom: 2.5vw;
   margin-left: 2.5vw;
 
@@ -154,7 +155,7 @@ button#examples {
     width: 100vw;
   }
 
-  button#examples {
+  button#list {
     display: block;
   }
 }

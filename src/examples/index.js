@@ -1,9 +1,15 @@
+import DEMOS from "./demos.json";
 import "/assets/css/preview.scss";
 import "/assets/css/examples.scss";
 import EXAMPLES from "./examples.json";
 
+/** @type {string} */
+let runningType = null;
+
 /** @type {HTMLAnchorElement} */
 let currentAnchor = null;
+
+let mobile = innerWidth <= 960;
 
 /** @type {() => void} */
 let destroyCurrent = () => void 0;
@@ -17,12 +23,12 @@ const aside = (
 
 const canvas = (
     /** @type {HTMLCanvasElement} */
-    (document.getElementById("example"))
+    (document.getElementById("preview"))
 );
 
-const examplesButton = (
+const listButton = (
     /** @type {HTMLButtonElement} */
-    (document.getElementById("examples"))
+    (document.getElementById("list"))
 );
 
 const codeButton = (
@@ -30,101 +36,146 @@ const codeButton = (
     (document.getElementById("code"))
 );
 
-function createExamples()
+/** @param {"examples" | "demos"} type */
+function createExamples(type)
 {
+    const dataType = type.slice(0, -1);
+    const JSON = (type === "examples" && EXAMPLES) || DEMOS;
     const baseHref = import.meta.env.PROD && "examples.html" || "";
 
     const examples = /** @type {Array<{ name: string, slug: string }>} */
-    (/** @type {unknown} */ (EXAMPLES)).map(({ name, slug }) =>
+    (/** @type {unknown} */ (JSON)).map(({ name, slug }) =>
     {
-        const example = document.createElement("a");
+        const example = document.createElement("li");
+        const link = document.createElement("a");
 
-        example.href = `${baseHref}#${slug}`;
-        example.dataset.example = slug;
-        example.textContent = name;
-        example.title = name;
+        link.href = `${baseHref}#${slug}`;
+        link.dataset[dataType] = slug;
+        example.appendChild(link);
 
+        link.textContent = name;
+        link.title = name;
         return example;
     });
 
-    document.getElementById("list").append(...examples);
+    document.getElementById(type).append(...examples);
+}
+
+function cleanExample()
+{
+    runningType = null;
+    document.title = examplesTitle;
+    listButton.innerHTML = '&#60;';
+    aside.classList.remove("hidden");
+    listButton.classList.add("hidden");
+    codeButton.classList.add("hidden");
+    currentAnchor?.classList.remove("active");
+}
+
+function showComponents()
+{
+    listButton.innerHTML = '&#62;';
+    listButton.classList.remove("hidden");
+    codeButton.classList.remove("hidden");
+    return mobile && aside.classList.add("hidden");
+}
+
+/** @param {string} example */
+function runUpdates(example)
+{
+    if (example === currentAnchor?.dataset.example)
+    {
+        currentAnchor?.classList.add("active");
+        return showComponents();
+    }
+
+    return !example
+        ? cleanExample()
+        : ~destroyCurrent() && true;
 }
 
 async function runExample()
 {
-    const mobile = innerWidth <= 960;
     const example = location.hash.slice(1);
 
-    if (example === currentAnchor?.dataset.example)
+    if (runUpdates(example))
     {
-        examplesButton.innerHTML = '&#62;';
-        codeButton.classList.remove("hidden");
-        currentAnchor?.classList.add("active");
-        examplesButton.classList.remove("hidden");
-        return mobile && aside.classList.add("hidden");
-    }
+        const currentExample = /** @type {Array<{ name: string, slug: string }>} */
+            (/** @type {unknown} */ (EXAMPLES)).find(({ slug }) => example === slug);
 
-    if (!example)
-    {
-        document.title = examplesTitle;
-        aside.classList.remove("hidden");
-        examplesButton.innerHTML = '&#60;';
-        examplesButton.classList.add("hidden");
+        if (!currentExample) return true;
+        const { name } = currentExample;
+
+        /** @type {HTMLAnchorElement} */
+        const anchor = document.querySelector(`a[data-example="${example}"]`);
+        const { run, destroy } = await import(`./${example}/index.js`);
+
+        document.title = `${examplesTitle} | ${name}`;
         currentAnchor?.classList.remove("active");
-        return codeButton.classList.add("hidden");
+        anchor?.classList.add("active");
+        currentAnchor = anchor || null;
+
+        destroyCurrent = destroy;
+        runningType = "example";
+        showComponents();
+        run(canvas);
     }
-
-    destroyCurrent();
-
-    const { name } = /** @type {Array<{ name: string, slug: string }>} */
-        (/** @type {unknown} */ (EXAMPLES)).find(({ slug }) => example === slug);
-
-    /** @type {HTMLAnchorElement} */
-    const anchor = document.querySelector(`a[data-example="${example}"]`);
-    const { run, destroy } = await import(`./${example}/index.js`);
-
-    document.title = `${examplesTitle} | ${name}`;
-    examplesButton.classList.remove("hidden");
-    currentAnchor?.classList.remove("active");
-
-    mobile && aside.classList.add("hidden");
-    codeButton.classList.remove("hidden");
-    examplesButton.innerHTML = '&#62;';
-
-    anchor?.classList.add("active");
-    currentAnchor = anchor || null;
-    destroyCurrent = destroy;
-
-    run(canvas);
 };
 
-examplesButton.addEventListener("click", () =>
+async function runDemo()
 {
-    const hidden = aside.classList.toggle("hidden");
-    examplesButton.innerHTML = `&#6${+hidden * 2};`;
-}, false);
+    const demo = location.hash.slice(1);
+
+    if (runUpdates(demo))
+    {
+        const currentDemo = /** @type {Array<{ name: string, slug: string }>} */
+            (/** @type {unknown} */ (DEMOS)).find(({ slug }) => demo === slug);
+
+        if (!currentDemo) return cleanExample();
+        const { name } = currentDemo;
+
+        /** @type {HTMLAnchorElement} */
+        const anchor = document.querySelector(`a[data-demo="${demo}"]`);
+
+        document.title = `${examplesTitle} | ${name}`;
+        currentAnchor?.classList.remove("active");
+        anchor?.classList.add("active");
+        currentAnchor = anchor || null;
+
+        destroyCurrent = () => void 0;
+        runningType = "demo";
+        showComponents();
+    }
+};
 
 codeButton.addEventListener("click", () =>
-{
-    open(`https://github.com/UstymUkhman/uwal/blob/main/src/examples/${
-        location.hash.slice(1)
-    }/index.js`, "_blank");
-}, false);
+    open("https://github.com/UstymUkhman/uwal" +
+        (runningType === "demo" && "-#" || "/blob/main/src/examples/#/index.js")
+        .replace("#", location.hash.slice(1)), "_blank")
+, false);
+
+listButton.addEventListener("click", () =>
+    listButton.innerHTML = `&#6${+(aside.classList.toggle("hidden")) * 2};`
+, false);
+
+addEventListener("hashchange", () =>
+    runExample() && runDemo()
+, false);
 
 addEventListener("resize", () =>
 {
+    mobile = innerWidth <= 960;
     if (!location.hash.slice(1)) return;
 
     if (innerWidth > 960)
         aside.classList.remove("hidden");
-
     else
     {
-        examplesButton.innerHTML = '&#62;';
+        listButton.innerHTML = '&#62;';
         aside.classList.add("hidden");
     }
 }, false);
 
-addEventListener("hashchange", runExample, false);
-createExamples();
-runExample();
+createExamples("demos");
+createExamples("examples");
+runExample() && runDemo();
