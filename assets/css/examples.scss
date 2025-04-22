@@ -119,7 +119,8 @@ ul#examples {
   }
 }
 
-canvas {
+canvas,
+iframe {
   max-width: calc(100vw - max(15vw, 240px));
   position: absolute;
   width: 85vw;
@@ -127,6 +128,12 @@ canvas {
   bottom: 0;
   right: 0;
   top: 0;
+}
+
+iframe {
+  display: none;
+  height: 100%;
+  border: 0px;
 }
 
 button#list {
@@ -150,7 +157,8 @@ button#list {
     max-width: 240px;
   }
 
-  canvas {
+  canvas,
+  iframe {
     max-width: 100vw;
     width: 100vw;
   }

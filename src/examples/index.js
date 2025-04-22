@@ -26,6 +26,11 @@ const canvas = (
     (document.getElementById("preview"))
 );
 
+const iframe = (
+    /** @type {HTMLIFrameElement} */
+    (document.getElementById("demo"))
+);
+
 const listButton = (
     /** @type {HTMLButtonElement} */
     (document.getElementById("list"))
@@ -35,6 +40,22 @@ const codeButton = (
     /** @type {HTMLButtonElement} */
     (document.getElementById("code"))
 );
+
+/**
+ * @param {string} name
+ * @param {string} example
+ */
+function updateAnchor(name, example)
+{
+    /** @type {HTMLAnchorElement} */
+    const anchor = document.querySelector(`a[data-example="${example}"]`);
+    document.title = `${examplesTitle} | ${name}`;
+    currentAnchor?.classList.remove("active");
+
+    anchor?.classList.add("active");
+    currentAnchor = anchor || null;
+    showComponents();
+}
 
 /** @param {"examples" | "demos"} type */
 function createExamples(type)
@@ -104,20 +125,11 @@ async function runExample()
             (/** @type {unknown} */ (EXAMPLES)).find(({ slug }) => example === slug);
 
         if (!currentExample) return true;
-        const { name } = currentExample;
 
-        /** @type {HTMLAnchorElement} */
-        const anchor = document.querySelector(`a[data-example="${example}"]`);
         const { run, destroy } = await import(`./${example}/index.js`);
-
-        document.title = `${examplesTitle} | ${name}`;
-        currentAnchor?.classList.remove("active");
-        anchor?.classList.add("active");
-        currentAnchor = anchor || null;
-
+        updateAnchor(currentExample.name, example);
         destroyCurrent = destroy;
         runningType = "example";
-        showComponents();
         run(canvas);
     }
 };
@@ -132,19 +144,12 @@ async function runDemo()
             (/** @type {unknown} */ (DEMOS)).find(({ slug }) => demo === slug);
 
         if (!currentDemo) return cleanExample();
-        const { name } = currentDemo;
 
-        /** @type {HTMLAnchorElement} */
-        const anchor = document.querySelector(`a[data-demo="${demo}"]`);
-
-        document.title = `${examplesTitle} | ${name}`;
-        currentAnchor?.classList.remove("active");
-        anchor?.classList.add("active");
-        currentAnchor = anchor || null;
-
-        destroyCurrent = () => void 0;
+        setTimeout(() => iframe.src = `https://ustymukhman.github.io/uwal-${demo}/dist`);
+        destroyCurrent = () => iframe.style.display = "none" && (iframe.src = "");
+        updateAnchor(currentDemo.name, demo);
+        iframe.style.display = "block";
         runningType = "demo";
-        showComponents();
     }
 };
 
@@ -176,6 +181,6 @@ addEventListener("resize", () =>
     }
 }, false);
 
-// createExamples("demos");
+createExamples("demos");
 createExamples("examples");
 runExample() && runDemo();
