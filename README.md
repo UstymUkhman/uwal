@@ -70,4 +70,5 @@ bun add uwal
 - 3D Math
   - [Translation](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#translation)
   - [Rotation](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#rotation)
-  - Scale _(WIP)_
+  - [Scale](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#scale)
+  - Matrix Math _(WIP)_

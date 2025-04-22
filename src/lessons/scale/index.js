@@ -1,17 +1,17 @@
 /**
- * @module Translation
+ * @module Scale
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
- * @description This lesson is reproduced from WebGPU Translation
- * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-translation.html}&nbsp;
+ * @description This lesson is reproduced from WebGPU Scale
+ * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-scale.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
  * @version 0.0.11
  * @license MIT
  */
 
-import Translation from "./Translation.wgsl";
-import { UWAL, Shaders } from "#/index";
-import createVertices from "./F.js";
+import createVertices from "../translation/F.js";
+import { UWAL, Shaders, Utils } from "#/index";
+import Scale from "./Scale.wgsl";
 
 (async function(canvas)
 {
@@ -30,7 +30,7 @@ import createVertices from "./F.js";
     try
     {
         Renderer = new (await UWAL.RenderPipeline(
-            canvas, "Translation", { alphaMode: "premultiplied" }
+            canvas, "Scale", { alphaMode: "premultiplied" }
         ));
     }
     catch (error)
@@ -39,12 +39,16 @@ import createVertices from "./F.js";
     }
 
     const gui = new GUI().onChange(render);
-    const settings = { translation: [0, 0] };
+    const settings = { translation: [0, 0], rotation: Utils.DegreesToRadians(30), scale: [1, 1] };
+    const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
 
     gui.add(settings.translation, "0", 0, 1000).name("translation.x");
     gui.add(settings.translation, "1", 0, 1000).name("translation.y");
+    gui.add(settings, "rotation", radToDegOptions);
+    gui.add(settings.scale, "0", -5, 5).name("scale.x");
+    gui.add(settings.scale, "1", -5, 5).name("scale.y");
 
-    const module = Renderer.CreateShaderModule([Shaders.Resolution, Translation]);
+    const module = Renderer.CreateShaderModule([Shaders.Resolution, Scale]);
     const { uniforms, buffer: uniformsBuffer } = Renderer.CreateUniformBuffer("uniforms");
 
     uniforms.color.set([Math.random(), Math.random(), Math.random(), 1]);
@@ -79,8 +83,16 @@ import createVertices from "./F.js";
     function render()
     {
         uniforms.translation.set(settings.translation);
-        // Write only translation into the `uniformsBuffer` skipping first 4 color values:
-        Renderer.WriteBuffer(uniformsBuffer, uniforms.translation, uniforms.translation.byteOffset);
+
+        uniforms.rotation.set([
+            Math.cos(settings.rotation),
+            Math.sin(settings.rotation)
+        ]);
+
+        uniforms.scale.set(settings.scale);
+
+        // Write everything into the `uniformsBuffer` by passing uniforms' `ArrayBufferView`:
+        Renderer.WriteBuffer(uniformsBuffer, uniforms.scale.buffer);
         Renderer.Render(vertices);
     }
 

@@ -49,7 +49,7 @@ import Rotation from "./Rotation.wgsl";
     const module = Renderer.CreateShaderModule([Shaders.Resolution, Rotation]);
     const { uniforms, buffer: uniformsBuffer } = Renderer.CreateUniformBuffer("uniforms");
 
-    uniforms.color.set([Math.random(), Math.random(), Math.random(), 1.0]);
+    uniforms.color.set([Math.random(), Math.random(), Math.random(), 1]);
     const { vertexData, indexData, vertices } = createVertices();
     const indexBuffer = Renderer.CreateIndexBuffer(indexData);
 

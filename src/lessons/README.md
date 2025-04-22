@@ -30,4 +30,5 @@
 | _3D Math_ |
 | [Translation](https://webgpufundamentals.org/webgpu/lessons/webgpu-translation.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#translation) | [Code](./translation/index.js) |
 | [Rotation](https://webgpufundamentals.org/webgpu/lessons/webgpu-rotation.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#rotation) | [Code](./rotation/index.js) |
-| [Scale](https://webgpufundamentals.org/webgpu/lessons/webgpu-scale.html) | Preview | Code |
+| [Scale](https://webgpufundamentals.org/webgpu/lessons/webgpu-scale.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#scale) | [Code](./scale/index.js) |
+| [Matrix Math](https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-math.html) | Preview | Code |
