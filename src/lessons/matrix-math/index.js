@@ -1,17 +1,18 @@
 /**
- * @module Translation
+ * @module Matrix Math
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
- * @description This lesson is reproduced from WebGPU Translation
- * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-translation.html}&nbsp;
+ * @description This lesson is reproduced from WebGPU Matrix Math
+ * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-math.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
  * @version 0.0.10
  * @license MIT
  */
 
-import Translation from "./Translation.wgsl";
-import { UWAL, Shaders } from "#/index";
-import createVertices from "./F.js";
+import createVertices from "../translation/F.js";
+import { UWAL, Shaders, Utils } from "#/index";
+import MatrixMath from "./MatrixMath.wgsl";
+import { mat3 } from "wgpu-matrix";
 
 (async function(canvas)
 {
@@ -30,7 +31,7 @@ import createVertices from "./F.js";
     try
     {
         Renderer = new (await UWAL.RenderPipeline(
-            canvas, "Translation", { alphaMode: "premultiplied" }
+            canvas, "MatrixMath", { alphaMode: "premultiplied" }
         ));
     }
     catch (error)
@@ -39,12 +40,16 @@ import createVertices from "./F.js";
     }
 
     const gui = new GUI().onChange(render);
-    const settings = { translation: [0, 0] };
+    const settings = { translation: [0, 0], rotation: Utils.DegreesToRadians(30), scale: [1, 1] };
+    const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
 
     gui.add(settings.translation, "0", 0, 1000).name("translation.x");
     gui.add(settings.translation, "1", 0, 1000).name("translation.y");
+    gui.add(settings, "rotation", radToDegOptions);
+    gui.add(settings.scale, "0", -5, 5).name("scale.x");
+    gui.add(settings.scale, "1", -5, 5).name("scale.y");
 
-    const module = Renderer.CreateShaderModule([Shaders.Resolution, Translation]);
+    const module = Renderer.CreateShaderModule([Shaders.Resolution, MatrixMath]);
     const { uniforms, buffer: uniformsBuffer } = Renderer.CreateUniformBuffer("uniforms");
 
     uniforms.color.set([Math.random(), Math.random(), Math.random(), 1]);
@@ -78,9 +83,16 @@ import createVertices from "./F.js";
 
     function render()
     {
-        uniforms.translation.set(settings.translation);
-        // Write only translation into the `uniformsBuffer` skipping first 4 color values:
-        Renderer.WriteBuffer(uniformsBuffer, uniforms.translation, uniforms.translation.byteOffset);
+        // Update transformation matrix from GUI settings:
+        const translationMatrix = mat3.translation(settings.translation);
+        const rotationMatrix = mat3.rotation(settings.rotation);
+        const scaleMatrix = mat3.scaling(settings.scale);
+
+        let matrix = mat3.multiply(translationMatrix, rotationMatrix);
+        uniforms.matrix.set(mat3.multiply(matrix, scaleMatrix));
+
+        // Write updated transformation matrix into the `uniformsBuffer`:
+        Renderer.WriteBuffer(uniformsBuffer, uniforms.matrix.buffer);
         Renderer.Render(vertices);
     }
 
