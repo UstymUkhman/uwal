@@ -5,12 +5,12 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-translation.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.10
+ * @version 0.0.11
  * @license MIT
  */
 
 import Translation from "./Translation.wgsl";
-import { UWAL, Shaders } from "#/index";
+import { Device, Shaders } from "#/index";
 import createVertices from "./F.js";
 
 (async function(canvas)
@@ -29,7 +29,7 @@ import createVertices from "./F.js";
 
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(
+        Renderer = new (await Device.RenderPipeline(
             canvas, "Translation", { alphaMode: "premultiplied" }
         ));
     }

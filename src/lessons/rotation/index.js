@@ -5,12 +5,12 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-rotation.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.10
+ * @version 0.0.11
  * @license MIT
  */
 
+import { Device, Shaders, Utils } from "#/index";
 import createVertices from "../translation/F.js";
-import { UWAL, Shaders, Utils } from "#/index";
 import Rotation from "./Rotation.wgsl";
 
 (async function(canvas)
@@ -29,7 +29,7 @@ import Rotation from "./Rotation.wgsl";
 
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(
+        Renderer = new (await Device.RenderPipeline(
             canvas, "Rotation", { alphaMode: "premultiplied" }
         ));
     }

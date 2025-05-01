@@ -5,12 +5,12 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-math.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.10
+ * @version 0.0.11
  * @license MIT
  */
 
+import { Device, Shaders, Utils } from "#/index";
 import createVertices from "../translation/F.js";
-import { UWAL, Shaders, Utils } from "#/index";
 import MatrixMath from "./MatrixMath.wgsl";
 import { mat3 } from "wgpu-matrix";
 
@@ -30,7 +30,7 @@ import { mat3 } from "wgpu-matrix";
 
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(
+        Renderer = new (await Device.RenderPipeline(
             canvas, "MatrixMath", { alphaMode: "premultiplied" }
         ));
     }
@@ -39,7 +39,7 @@ import { mat3 } from "wgpu-matrix";
         alert(error);
     }
 
-    const objects = 1, objectUniforms = [], gui = new GUI().onChange(render);
+    const objects = 5, objectUniforms = [], gui = new GUI().onChange(render);
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
     const settings = { translation: [150, 100], rotation: Utils.DegreesToRadians(30), scale: [1, 1] };
 
