@@ -9,7 +9,9 @@ import SDFText from "./types/text/SDFText";
 import Cube from "./types/geometries/Cube";
 import GPUTiming from "#/utils/GPUTiming";
 import Shape from "./types/shapes/Shape";
+import Device from "./types/Device";
 import Color from "./types/Color";
+/** @deprecated Use `Device` interface instead. */
 import UWAL from "./types/UWAL";
 
 const Geometries = { Cube };
@@ -46,7 +48,9 @@ export {
     SDFText,
     TEXTURE,
     Shaders,
+    Device,
     Color,
     Utils,
+    /** @deprecated Use `Device` interface instead. */
     UWAL
 };
