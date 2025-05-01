@@ -39,7 +39,7 @@ import Rotation from "./Rotation.wgsl";
     }
 
     const gui = new GUI().onChange(render);
-    const settings = { translation: [0, 0], rotation: Utils.DegreesToRadians(30) };
+    const settings = { translation: [150, 100], rotation: Utils.DegreesToRadians(30) };
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
 
     gui.add(settings.translation, "0", 0, 1000).name("translation.x");
