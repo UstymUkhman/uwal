@@ -1,4 +1,4 @@
-import{U as n}from"./index-DEQUc6k7.js";var g=`@compute @workgroup_size(1) fn compute(@builtin(global_invocation_id) id: vec3u)\r
+import{D as n}from"./index-Be8JE0C8.js";var g=`@compute @workgroup_size(1) fn compute(@builtin(global_invocation_id) id: vec3u)\r
 {\r
     let center = vec2f(textureDimensions(Texture)) / 2.0;
 

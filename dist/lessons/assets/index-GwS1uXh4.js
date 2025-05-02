@@ -1,4 +1,4 @@
-import{U as s}from"./index-DEQUc6k7.js";import{D as l}from"./Double-BEL1I5kG.js";var d=`@vertex fn vertex(@builtin(vertex_index) index: u32) -> @builtin(position) vec4f
+import{D as s}from"./index-Be8JE0C8.js";import{D as l}from"./Double-BEL1I5kG.js";var d=`@vertex fn vertex(@builtin(vertex_index) index: u32) -> @builtin(position) vec4f
 {
     let position = array(
         vec2f( 0.0,  0.5), 

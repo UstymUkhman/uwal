@@ -1,4 +1,4 @@
-import{U as i,C as d}from"./index-DEQUc6k7.js";var p=`struct VertexOutput\r
+import{D as i,C as d}from"./index-Be8JE0C8.js";var p=`struct VertexOutput\r
 {\r
     @builtin(position) position: vec4f,\r
     @location(0) @interpolate(perspective, centroid) baryCoord: vec3f\r

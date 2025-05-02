@@ -1,4 +1,4 @@
-import{U as b,C as s}from"./index-DEQUc6k7.js";import{T as m}from"./Triangle.vert-BdilUavo.js";var y=`@fragment fn fragment(@builtin(position) position: vec4f) -> @location(0) vec4f\r
+import{D as b,C as s}from"./index-Be8JE0C8.js";import{T as m}from"./Triangle.vert-BdilUavo.js";var y=`@fragment fn fragment(@builtin(position) position: vec4f) -> @location(0) vec4f\r
 {\r
     let cyan = vec4f(0, 1, 1, 1);\r
     let grid = vec2u(position.xy) / 8;\r

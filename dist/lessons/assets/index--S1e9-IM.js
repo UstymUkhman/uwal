@@ -1,4 +1,4 @@
-import{D as g}from"./Double-BEL1I5kG.js";import{U as f,C as l}from"./index-DEQUc6k7.js";import{Q as C}from"./Quad-D4MTv-Aj.js";var m=`@group(0) @binding(0) var<storage, read_write> src0: array<f32>;\r
+import{D as g}from"./Double-BEL1I5kG.js";import{D as f,C as l}from"./index-Be8JE0C8.js";import{Q as C}from"./Quad-D4MTv-Aj.js";var m=`@group(0) @binding(0) var<storage, read_write> src0: array<f32>;\r
 @group(0) @binding(1) var<storage, read_write> src1: array<f32>;\r
 @group(0) @binding(2) var<storage, read_write> dst: array<f32>;
 

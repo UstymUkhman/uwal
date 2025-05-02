@@ -1,4 +1,4 @@
-import{U as v,C as l}from"./index-DEQUc6k7.js";var f=`override RED: f32;             
+import{D as d,C as l}from"./index-Be8JE0C8.js";var f=`override RED: f32;             
 @id(123) override GREEN = 0.0; 
 override BLUE = 1.0;           
 
@@ -25,4 +25,4 @@ override BLUE = 1.0;
  * may be simplified in future thanks to more recent library APIs.
  * @version 0.0.7
  * @license MIT
- */(async function(o){let e;try{e=new(await v.RenderPipeline(o,"Shader Constants"))}catch(n){alert(n)}const r=e.CreateShaderModule(f),a=e.CreateVertexState(r),i=e.CreateFragmentState(r,void 0,void 0,{RED:1,123:.5});e.CreatePipeline({vertex:a,fragment:i});const t=e.CreateColorAttachment();t.clearValue=new l(5000268).rgba,e.CreatePassDescriptor(t),new ResizeObserver(n=>{for(const c of n){const{inlineSize:s,blockSize:d}=c.contentBoxSize[0];e.SetCanvasSize(s,d)}e.Render(3)}).observe(document.body)})(document.getElementById("lesson"));
+ */(async function(o){let e;try{e=new(await d.RenderPipeline(o,"Shader Constants"))}catch(n){alert(n)}const r=e.CreateShaderModule(f),i=e.CreateVertexState(r),a=e.CreateFragmentState(r,void 0,void 0,{RED:1,123:.5});e.CreatePipeline({vertex:i,fragment:a});const t=e.CreateColorAttachment();t.clearValue=new l(5000268).rgba,e.CreatePassDescriptor(t),new ResizeObserver(n=>{for(const c of n){const{inlineSize:s,blockSize:v}=c.contentBoxSize[0];e.SetCanvasSize(s,v)}e.Render(3)}).observe(document.body)})(document.getElementById("lesson"));
