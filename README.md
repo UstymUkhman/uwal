@@ -71,4 +71,5 @@ bun add uwal
   - [Translation](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#translation)
   - [Rotation](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#rotation)
   - [Scale](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#scale)
-  - Matrix Math _(WIP)_
+  - [Matrix Math](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#matrix-math)
+  - [Adding in Projection](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#adding-projection)

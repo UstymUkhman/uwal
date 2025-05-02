@@ -1,17 +1,17 @@
 /**
- * @module Matrix Math
+ * @module Adding in Projection
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Matrix Math
- * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-math.html}&nbsp;
+ * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-math.html#adding-in-projection}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
  * @version 0.0.11
  * @license MIT
  */
 
-import { Device, Shaders, Utils } from "#/index";
 import createVertices from "../translation/F.js";
-import MatrixMath from "./MatrixMath.wgsl";
+import Projection from "./Projection.wgsl";
+import { Device, Utils } from "#/index";
 import { mat3 } from "wgpu-matrix";
 
 (async function(canvas)
@@ -39,20 +39,19 @@ import { mat3 } from "wgpu-matrix";
         alert(error);
     }
 
-    const objectUniforms = [], gui = new GUI().onChange(render);
+    const gui = new GUI().onChange(render);
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
-    const settings = { translation: [150, 100], rotation: Utils.DegreesToRadians(30), scale: [1, 1], objects: 1 };
+    const settings = { translation: [150, 100], rotation: Utils.DegreesToRadians(30), scale: [1, 1] };
 
     gui.add(settings.translation, "0", 0, 1000).name("translation.x");
     gui.add(settings.translation, "1", 0, 1000).name("translation.y");
     gui.add(settings, "rotation", radToDegOptions);
     gui.add(settings.scale, "0", -5, 5).name("scale.x");
     gui.add(settings.scale, "1", -5, 5).name("scale.y");
-    gui.add(settings, "objects", 1, 5, 1).name("objects");
 
-    const module = Renderer.CreateShaderModule([Shaders.Resolution, MatrixMath]);
     const { vertexData, indexData, vertices } = createVertices();
     const indexBuffer = Renderer.CreateIndexBuffer(indexData);
+    const module = Renderer.CreateShaderModule(Projection);
 
     const { layout, buffer: vertexBuffer } = Renderer.CreateVertexBuffer(
         "position", vertexData.length / 2
@@ -63,24 +62,17 @@ import { mat3 } from "wgpu-matrix";
         fragment: Renderer.CreateFragmentState(module)
     });
 
-    for (let o = 0; o < 5; ++o)
-    {
-        const Uniforms = Renderer.CreateUniformBuffer("uniforms");
+    const { uniforms, buffer: uniformsBuffer } = Renderer.CreateUniformBuffer("uniforms");
+    uniforms.color.set([Math.random(), Math.random(), Math.random(), 1]);
+    Renderer.WriteBuffer(uniformsBuffer, uniforms.color);
 
-        Uniforms.uniforms.color.set([Math.random(), Math.random(), Math.random(), 1]);
-        Renderer.WriteBuffer(Uniforms.buffer, Uniforms.uniforms.color);
-
-        Renderer.AddBindGroups(
-            Renderer.CreateBindGroup(
-                Renderer.CreateBindGroupEntries([
-                    { buffer: Renderer.ResolutionBuffer },
-                    { buffer: Uniforms.buffer }
-                ])
+    Renderer.SetBindGroups(
+        Renderer.CreateBindGroup(
+            Renderer.CreateBindGroupEntries(
+                { buffer: uniformsBuffer }
             )
-        );
-
-        objectUniforms.push(Uniforms);
-    }
+        )
+    );
 
     Renderer.WriteBuffer(vertexBuffer, vertexData);
     Renderer.WriteBuffer(indexBuffer, indexData);
@@ -90,32 +82,16 @@ import { mat3 } from "wgpu-matrix";
 
     function render()
     {
-        const translationMatrix = mat3.translation(settings.translation);
-        const rotationMatrix = mat3.rotation(settings.rotation);
-        const scaleMatrix = mat3.scaling(settings.scale);
+        const projectionMatrix = Renderer.Projection2D;
 
-        // Set the origin of the "F" to its center:
-        const originMatrix = mat3.translation([-50, -75]);
+        let matrix = mat3.translate(projectionMatrix, settings.translation);
+        matrix = mat3.rotate(matrix, settings.rotation);
+        matrix = mat3.scale(matrix, settings.scale);
 
-        let matrix = mat3.identity();
+        uniforms.matrix.set(matrix);
+        Renderer.WriteBuffer(uniformsBuffer, uniforms.matrix.buffer);
 
-        for (let o = 0; o < settings.objects; ++o)
-        {
-            const { uniforms, buffer } = objectUniforms[o];
-
-            matrix = mat3.multiply(matrix, translationMatrix);
-            matrix = mat3.multiply(matrix, rotationMatrix);
-            matrix = mat3.multiply(matrix, scaleMatrix);
-            matrix = mat3.multiply(matrix, originMatrix);
-
-            uniforms.matrix.set(matrix);
-            Renderer.WriteBuffer(buffer, uniforms.matrix.buffer);
-
-            Renderer.SetActiveBindGroups(o);
-            Renderer.Render(vertices, false);
-        }
-
-        Renderer.Submit();
+        Renderer.Render(vertices);
     }
 
     const observer = new ResizeObserver(entries =>
