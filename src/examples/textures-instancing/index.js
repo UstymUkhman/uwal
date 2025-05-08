@@ -14,7 +14,7 @@ import Texture from "./Texture.wgsl";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
-let texture, storageBuffer, translationBuffer;
+let texture, uniformBuffer, storageBuffer, translationBuffer;
 
 /** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
 
@@ -65,6 +65,7 @@ export async function run(canvas)
     async function start()
     {
         createShape();
+        createUniformBuffer();
         createStorageBuffer();
         createTranslationBuffer();
         await createLogoTexture();
@@ -90,6 +91,15 @@ export async function run(canvas)
 
         shape.Rotation = Math.PI / 4;
         vertices = shape.Update().Vertices;
+    }
+
+    function createUniformBuffer()
+    {
+        const usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST;
+        const size = Float32Array.BYTES_PER_ELEMENT;
+
+        uniformBuffer = Renderer.CreateBuffer({ size, usage });
+        Renderer.WriteBuffer(uniformBuffer, new Float32Array([devicePixelRatio]));
     }
 
     function createStorageBuffer()
@@ -150,6 +160,7 @@ export async function run(canvas)
                         minFilter: TEXTURE.FILTER.LINEAR
                     }),
                     texture.createView(),
+                    { buffer: uniformBuffer },
                     { buffer: storageBuffer }
                 ]), 1
             )
@@ -208,6 +219,7 @@ export function destroy()
     Renderer.Destroy();
 
     UWAL.Destroy([
+        uniformBuffer,
         storageBuffer,
         translationBuffer
     ], texture);
