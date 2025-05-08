@@ -43,15 +43,12 @@ const codeButton = (
 
 /**
  * @param {string} name
- * @param {string} example
+ * @param {HTMLAnchorElement} anchor
  */
-function updateAnchor(name, example)
+function updateAnchor(name, anchor)
 {
-    /** @type {HTMLAnchorElement} */
-    const anchor = document.querySelector(`a[data-example="${example}"]`);
     document.title = `${examplesTitle} | ${name}`;
     currentAnchor?.classList.remove("active");
-
     anchor?.classList.add("active");
     currentAnchor = anchor || null;
     showComponents();
@@ -85,6 +82,7 @@ function createExamples(type)
 function cleanExample()
 {
     runningType = null;
+    iframe.title = "Demo";
     document.title = examplesTitle;
     listButton.innerHTML = '&#60;';
     aside.classList.remove("hidden");
@@ -101,10 +99,13 @@ function showComponents()
     return mobile && aside.classList.add("hidden");
 }
 
-/** @param {string} example */
-function runUpdates(example)
+/**
+ * @param {string} example
+ * @param {"example" | "demo"} type
+ */
+function runUpdates(example, type)
 {
-    if (example === currentAnchor?.dataset.example)
+    if (example === currentAnchor?.dataset[type])
     {
         currentAnchor?.classList.add("active");
         return showComponents();
@@ -119,15 +120,17 @@ async function runExample()
 {
     const example = location.hash.slice(1);
 
-    if (runUpdates(example))
+    if (runUpdates(example, "example"))
     {
         const currentExample = /** @type {Array<{ name: string, slug: string }>} */
             (/** @type {unknown} */ (EXAMPLES)).find(({ slug }) => example === slug);
 
         if (!currentExample) return true;
 
+        const anchor = document.querySelector(`a[data-example="${example}"]`);
         const { run, destroy } = await import(`./${example}/index.js`);
-        updateAnchor(currentExample.name, example);
+        updateAnchor(currentExample.name, anchor);
+
         destroyCurrent = destroy;
         runningType = "example";
         run(canvas);
@@ -138,7 +141,7 @@ async function runDemo()
 {
     const demo = location.hash.slice(1);
 
-    if (runUpdates(demo))
+    if (runUpdates(demo, "demo"))
     {
         const currentDemo = /** @type {Array<{ name: string, slug: string }>} */
             (/** @type {unknown} */ (DEMOS)).find(({ slug }) => demo === slug);
@@ -147,7 +150,10 @@ async function runDemo()
 
         setTimeout(() => iframe.src = `https://ustymukhman.github.io/uwal-${demo}/dist`);
         destroyCurrent = () => iframe.style.display = "none" && (iframe.src = "");
-        updateAnchor(currentDemo.name, demo);
+        const anchor = document.querySelector(`a[data-demo="${demo}"]`);
+
+        updateAnchor(currentDemo.name, anchor);
+        iframe.title = currentDemo.name;
         iframe.style.display = "block";
         runningType = "demo";
     }
