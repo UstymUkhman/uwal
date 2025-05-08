@@ -59,17 +59,38 @@ export async function run(canvas)
 
     function setVideoPosition()
     {
-        const scale = Math.min(canvas.width / videoWidth, 0.67);
-        const width = videoWidth * scale, height = videoHeight * scale;
+        const width = canvas.width / video.videoWidth;
+        const { offsetWidth, offsetHeight } = document.body;
+        const scale = Math.min(width, 1 / 3 * 2) * (1 / width);
 
-        video.style.right = `${(canvas.width - width) / 2}px`;
-        video.style.bottom = `${canvas.height / 2}px`;
+        if (offsetWidth <= 960)
+        {
+            const width = offsetWidth * scale;
+            const height = videoHeight * width / videoWidth;
 
-        video.style.height = `${height}px`;
-        video.style.width = `${width}px`;
+            video.style.left = `${(offsetWidth - width) / 2}px`;
+            video.style.top = `${offsetHeight / 2 - height}px`;
 
-        video.height = height;
-        video.width = width;
+            video.style.height = `${height}px`;
+            video.style.width = `${width}px`;
+
+            video.height = height;
+            video.width = width;
+        }
+        else
+        {
+            const scale = Math.min(canvas.width / videoWidth, 0.67);
+            const width = videoWidth * scale, height = videoHeight * scale;
+
+            video.style.right = `${(canvas.width - width) / 2}px`;
+            video.style.bottom = `${canvas.height / 2}px`;
+
+            video.style.height = `${height}px`;
+            video.style.width = `${width}px`;
+
+            video.height = height;
+            video.width = width;
+        }
     }
 
     async function start()
