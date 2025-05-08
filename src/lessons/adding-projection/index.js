@@ -82,13 +82,12 @@ import { mat3 } from "wgpu-matrix";
 
     function render()
     {
-        const projectionMatrix = Renderer.Projection2D;
+        mat3.copy(Renderer.Projection2D, uniforms.matrix);
 
-        let matrix = mat3.translate(projectionMatrix, settings.translation);
-        matrix = mat3.rotate(matrix, settings.rotation);
-        matrix = mat3.scale(matrix, settings.scale);
+        mat3.translate(uniforms.matrix, settings.translation, uniforms.matrix);
+        mat3.rotate(uniforms.matrix, settings.rotation, uniforms.matrix);
+        mat3.scale(uniforms.matrix, settings.scale, uniforms.matrix);
 
-        uniforms.matrix.set(matrix);
         Renderer.WriteBuffer(uniformsBuffer, uniforms.matrix.buffer);
 
         Renderer.Render(vertices);
