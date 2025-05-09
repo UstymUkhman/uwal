@@ -38,7 +38,7 @@ export default({ mode }) =>
             {
                 root: "/lib/shaders/",
                 defaultExtension: "wgsl",
-                compress: mode !== "development"
+                minify: mode !== "development"
             })
         ],
 

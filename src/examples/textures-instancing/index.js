@@ -30,10 +30,10 @@ export async function run(canvas)
         alert(error);
     }
 
-    const radius = 128, textures = 100;
+    const radius = 128, textures = 256;
 
     let storage, vertices, spawnTimeout, textureIndex,
-        textureUpdate = 500, lastRender = performance.now() - textureUpdate;
+        textureUpdate = 512, lastRender = performance.now() - textureUpdate;
 
     const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, Texture]);
 

@@ -1,4 +1,7 @@
-import{D as p}from"./index-xJ8VogwN.js";import{S as x,a as A}from"./Shape-Bgy5qkQ-.js";var F="@fragment fn shapeFragment()->@location(0)vec4f {return shape.color;}";const P=`${x}
+import{D as p}from"./index-CTlcc_oC.js";import{S as x,a as A}from"./Shape-DrWI1RUv.js";var F=`@fragment fn shapeFragment() -> @location(0) vec4f
+{
+    return shape.color;
+}`;const P=`${x}
 
 ${F}`;/**
  * @example 2D Shapes
