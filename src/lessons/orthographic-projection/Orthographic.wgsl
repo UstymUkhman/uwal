@@ -9,7 +9,6 @@ struct Uniforms
 @vertex fn vertex(@location(0) position: vec4f) -> @builtin(position) vec4f
 {
     return uniforms.matrix * position;
-    // return uniforms.matrix * vec4f(position.xyz, 1);
 }
 
 @fragment fn fragment() -> @location(0) vec4f
