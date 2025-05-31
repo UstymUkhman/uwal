@@ -73,3 +73,4 @@ bun add uwal
   - [Scale](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#scale)
   - [Matrix Math](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#matrix-math)
   - [Adding in Projection](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#adding-projection)
+  - [Orthographic Projection](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#orthographic-projection)

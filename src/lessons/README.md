@@ -33,3 +33,4 @@
 | [Scale](https://webgpufundamentals.org/webgpu/lessons/webgpu-scale.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#scale) | [Code](./scale/index.js) |
 | [Matrix Math](https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-math.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#matrix-math) | [Code](./matrix-math/index.js) |
 | [Adding in Projection](https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-math.html#adding-in-projection) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#adding-projection) | [Code](./adding-projection/index.js) |
+| [Orthographic Projection](https://webgpufundamentals.org/webgpu/lessons/webgpu-orthographic-projection.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#orthographic-projection) | [Code](./orthographic-projection/index.js) |

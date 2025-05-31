@@ -3,13 +3,13 @@
 	"editor.codeActionsOnSave": { "source.fixAll.eslint": "never" },
 	"editor.bracketPairColorization.enabled": false,
 	"javascript.format.semicolons": "insert",
-	"typescript.format.semicolons": "insert",
-	"eslint.validate": ["javascript"],
-	"git.ignoreLimitWarning": true
+	"eslint.validate": ["javascript"]
   },
 
-  "folders": [{
-	"name": "UWAL",
-	"path": "."
-  }]
+  "folders": [
+    {
+      "name": "UWAL",
+      "path": "."
+    }
+  ]
 }

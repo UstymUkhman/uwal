@@ -1,7 +1,7 @@
-import { resolve } from "path";
-import glsl from "vite-plugin-glsl";
-import { defineConfig } from "vite";
 import { name, version } from "./package.json";
+import { defineConfig } from "vite";
+import glsl from "vite-plugin-glsl";
+import { resolve } from "path";
 
 export default({ mode }) =>
 {
