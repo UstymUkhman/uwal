@@ -9,9 +9,10 @@ struct VertexOutput
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(2) var Sampler: sampler;
-@group(0) @binding(1) var<uniform> size: vec2f;
-@group(0) @binding(3) var Texture: texture_external;
+@group(0) @binding(3) var Sampler: sampler;
+@group(0) @binding(1) var<uniform> dpr: f32;
+@group(0) @binding(2) var<uniform> size: vec2f;
+@group(0) @binding(4) var Texture: texture_external;
 
 @vertex fn vertex(@builtin(vertex_index) index: u32) -> VertexOutput
 {
@@ -20,7 +21,7 @@ struct VertexOutput
     var coord = GetQuadCoord(index);
 
     let scale = vec2f(min(resolution.x / size.x, max)) * size / resolution.xy;
-    let position = coord * scale - vec2f(0, scale.y);
+    let position = coord * scale * dpr - vec2f(0, scale.y);
     output.position = vec4f(position, 0, 1);
 
     coord = (coord + 1.0) * 0.5;

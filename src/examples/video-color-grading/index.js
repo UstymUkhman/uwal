@@ -12,7 +12,9 @@ import Video from "/assets/videos/matrix.mp4";
 import { UWAL, Shaders } from "#/index";
 import SinCity from "./SinCity.wgsl";
 
-/** @type {number} */ let raf, videoBuffer;
+/** @type {number} */ let raf;
+let videoBuffer, uniformBuffer;
+const dprValue = new Float32Array([1]);
 /** @type {ResizeObserver} */ let observer;
 const video = document.createElement("video");
 
@@ -46,6 +48,11 @@ export async function run(canvas)
         ])
     });
 
+    uniformBuffer = Renderer.CreateBuffer({
+        size: Float32Array.BYTES_PER_ELEMENT,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+    });
+
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment());
 
     video.addEventListener("loadedmetadata", () =>
@@ -74,19 +81,29 @@ export async function run(canvas)
             video.style.height = `${height}px`;
             video.style.width = `${width}px`;
 
+            video.style.bottom = 'unset';
+            video.style.right = 'unset';
+
             video.height = height;
             video.width = width;
+
+            dprValue[0] = 1;
         }
         else
         {
-            const scale = Math.min(canvas.width / videoWidth, 0.67);
+            const scale = Math.min(canvas.clientWidth / videoWidth, 0.67);
             const width = videoWidth * scale, height = videoHeight * scale;
 
-            video.style.right = `${(canvas.width - width) / 2}px`;
-            video.style.bottom = `${canvas.height / 2}px`;
+            video.style.right = `${(canvas.clientWidth - width) / 2}px`;
+            video.style.bottom = `${canvas.clientHeight / 2}px`;
 
             video.style.height = `${height}px`;
             video.style.width = `${width}px`;
+
+            dprValue[0] = devicePixelRatio;
+
+            video.style.left = 'unset';
+            video.style.top = 'unset';
 
             video.height = height;
             video.width = width;
@@ -123,15 +140,15 @@ export async function run(canvas)
 
     function createVideoBuffer()
     {
-        const videoValues = new Float32Array(2);
+        const videoValues = new Float32Array([video.videoWidth, video.videoHeight]);
 
         videoBuffer = Renderer.CreateBuffer({
-            size: Float32Array.BYTES_PER_ELEMENT * 4,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+            size: Float32Array.BYTES_PER_ELEMENT * 2
         });
 
-        videoValues.set([video.videoWidth, video.videoHeight]);
         Renderer.WriteBuffer(videoBuffer, videoValues);
+        Renderer.WriteBuffer(uniformBuffer, dprValue);
     }
 
     function render()
@@ -143,6 +160,7 @@ export async function run(canvas)
             Renderer.CreateBindGroup(
                 Renderer.CreateBindGroupEntries([
                     { buffer: resolutionBuffer },
+                    { buffer: uniformBuffer },
                     { buffer: videoBuffer },
                     videoSampler,
                     texture
@@ -175,7 +193,11 @@ export function destroy()
     UWAL.OnDeviceLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
-    video.remove();
     Renderer.Destroy();
-    UWAL.Destroy(videoBuffer);
+    video.remove();
+
+    UWAL.Destroy([
+        videoBuffer,
+        uniformBuffer
+    ]);
 }
