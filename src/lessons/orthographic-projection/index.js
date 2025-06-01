@@ -60,8 +60,8 @@ import { mat4 } from "wgpu-matrix";
 
     const gui = new GUI().onChange(render);
 
-    gui.add(settings.translation, "0", 0, 1000).name("translation.x");
-    gui.add(settings.translation, "1", 0, 1000).name("translation.y");
+    gui.add(settings.translation, "0",     0, 1000).name("translation.x");
+    gui.add(settings.translation, "1",     0, 1000).name("translation.y");
     gui.add(settings.translation, "2", -1000, 1000).name("translation.z");
 
     gui.add(settings.rotation, "0", radToDegOptions).name("rotation.x");
@@ -72,22 +72,21 @@ import { mat4 } from "wgpu-matrix";
     gui.add(settings.scale, "1", -5, 5).name("scale.y");
     gui.add(settings.scale, "2", -5, 5).name("scale.z");
 
-    const { vertexData, indexData, vertices } = createVertices();
-    const indexBuffer = Renderer.CreateIndexBuffer(indexData);
+    const { vertexData, vertices } = createVertices();
     const module = Renderer.CreateShaderModule(Orthographic);
 
-    const { layout, buffer: vertexBuffer } = Renderer.CreateVertexBuffer(
-        { name: "position", format: 'float32x3' }, vertexData.length / 2
-    );
+    const { layout, buffer: vertexBuffer } = Renderer.CreateVertexBuffer([
+        { name: "position", format: "float32x3" },
+        { name: "color", format: "unorm8x4" }
+    ], vertexData.byteLength / 4);
 
     Renderer.CreatePipeline({
         vertex: Renderer.CreateVertexState(module, void 0, layout),
-        fragment: Renderer.CreateFragmentState(module)
+        fragment: Renderer.CreateFragmentState(module),
+        primitive: { cullMode: 'back' }
     });
 
     const { uniforms, buffer: uniformsBuffer } = Renderer.CreateUniformBuffer("uniforms");
-    uniforms.color.set([Math.random(), Math.random(), Math.random(), 1]);
-    Renderer.WriteBuffer(uniformsBuffer, uniforms.color);
 
     Renderer.SetBindGroups(
         Renderer.CreateBindGroup(
@@ -98,12 +97,7 @@ import { mat4 } from "wgpu-matrix";
     );
 
     Renderer.WriteBuffer(vertexBuffer, vertexData);
-    Renderer.WriteBuffer(indexBuffer, indexData);
-
     Renderer.SetVertexBuffers(vertexBuffer);
-    Renderer.SetIndexBuffer(indexBuffer);
-    Renderer.SetIndexBuffer(indexBuffer);
-
     Renderer.Depth = 400;
 
     function render()
