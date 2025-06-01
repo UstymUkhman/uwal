@@ -82,16 +82,24 @@ import { mat4 } from "wgpu-matrix";
 
     Renderer.CreatePipeline({
         vertex: Renderer.CreateVertexState(module, void 0, layout),
+        depthStencil: Renderer.CreateDepthStencilState(),
         fragment: Renderer.CreateFragmentState(module),
-        primitive: { cullMode: 'back' }
+        primitive: { cullMode: "front" }
     });
 
-    const { uniforms, buffer: uniformsBuffer } = Renderer.CreateUniformBuffer("uniforms");
+    const { matrix, buffer } =
+        Renderer.CreateUniformBuffer("matrix");
+
+    Renderer.CreatePassDescriptor(
+        Renderer.CreateColorAttachment(),
+        void 0,
+        Renderer.CreateDepthAttachment()
+    );
 
     Renderer.SetBindGroups(
         Renderer.CreateBindGroup(
             Renderer.CreateBindGroupEntries(
-                { buffer: uniformsBuffer }
+                { buffer }
             )
         )
     );
@@ -102,18 +110,17 @@ import { mat4 } from "wgpu-matrix";
 
     function render()
     {
-        mat4.copy(Renderer.Projection3D, uniforms.matrix);
+        mat4.copy(Renderer.Projection3D, matrix);
 
-        mat4.translate(uniforms.matrix, settings.translation, uniforms.matrix);
+        mat4.translate(matrix, settings.translation, matrix);
 
-        mat4.rotateX(uniforms.matrix, settings.rotation[0], uniforms.matrix);
-        mat4.rotateY(uniforms.matrix, settings.rotation[1], uniforms.matrix);
-        mat4.rotateZ(uniforms.matrix, settings.rotation[2], uniforms.matrix);
+        mat4.rotateX(matrix, settings.rotation[0], matrix);
+        mat4.rotateY(matrix, settings.rotation[1], matrix);
+        mat4.rotateZ(matrix, settings.rotation[2], matrix);
 
-        mat4.scale(uniforms.matrix, settings.scale, uniforms.matrix);
+        mat4.scale(matrix, settings.scale, matrix);
 
-        Renderer.WriteBuffer(uniformsBuffer, uniforms.matrix.buffer);
-
+        Renderer.WriteBuffer(buffer, matrix.buffer);
         Renderer.Render(vertices);
     }
 

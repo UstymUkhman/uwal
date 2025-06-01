@@ -43,20 +43,20 @@ export default function()
          4,  5,  6,  6,  5,  7, // Top front rung
          8,  9, 10, 10,  9, 11, // Middle front rung
 
-        12, 13, 14, 14, 13, 15, // Back base
-        16, 17, 18, 18, 17, 19, // Top back rung
-        20, 21, 22, 22, 21, 23, // Middle back rung
+        12, 14, 13, 14, 15, 13, // Back base
+        16, 18, 17, 18, 19, 17, // Top back rung
+        20, 22, 21, 22, 23, 21, // Middle back rung
 
-         0,  5, 12, 12,  5, 17, // Top
-         5,  7, 17, 17,  7, 19, // Top right rung
+         0, 12,  5, 12, 17,  5, // Top
+         5, 17,  7, 17, 19,  7, // Top right rung
          6,  7, 18, 18,  7, 19, // Top bottom rung
-         6,  8, 18, 18,  8, 20, // Between two rungs
+         6, 18,  8, 18, 20,  8, // Between two rungs
 
-         8,  9, 20, 20,  9, 21, // Middle top rung
-         9, 11, 21, 21, 11, 23, // Middle right rung
+         8, 20,  9, 20, 21,  9, // Middle top rung
+         9, 21, 11, 21, 23, 11, // Middle right rung
         10, 11, 22, 22, 11, 23, // Middle bottom rung
 
-        10,  3, 22, 22,  3, 15, // Right
+        10, 22,  3, 22, 15,  3, // Right
          2,  3, 14, 14,  3, 15, // Bottom
          0,  2, 12, 12,  2, 14  // Left
     ];
