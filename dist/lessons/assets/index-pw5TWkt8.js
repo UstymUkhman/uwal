@@ -1,0 +1,15 @@
+import{D as b,U as S}from"./index-FaxOCIzz.js";import{c as y}from"./F-CZA4EI5f.js";import{R as C}from"./Resolution-Cnr3CPX7.js";var h="struct Uniforms{color: vec4f,translation: vec2f,rotation: vec2f,scale: vec2f};@group(0)@binding(1)var<uniform>uniforms: Uniforms;@vertex fn vertex(@location(0)position: vec2f)->@builtin(position)vec4f {let scaledPosition=position*uniforms.scale;let rotatedPosition=vec2f(scaledPosition.x*uniforms.rotation.x-scaledPosition.y*uniforms.rotation.y,scaledPosition.x*uniforms.rotation.y+scaledPosition.y*uniforms.rotation.x);let clipSpace=GetClipSpace(rotatedPosition+uniforms.translation);return vec4f(clipSpace,0.0,1.0);}@fragment fn fragment()->@location(0)vec4f {return uniforms.color;}";/**
+ * @module Scale
+ * @author Ustym Ukhman <ustym.ukhman@gmail.com>
+ * @description This lesson is reproduced from WebGPU Scale
+ * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-scale.html}&nbsp;
+ * and developed by using a version listed below. Please note that this code
+ * may be simplified in future thanks to more recent library APIs.
+ * @version 0.0.11
+ * @license MIT
+ */(async function(n){let e;n.style.backgroundPosition="-1.5px -1.5px, -1.5px -1.5px, -1px -1px, -1px -1px",n.style.backgroundSize="100px 100px, 100px 100px, 10px 10px, 10px 10px",n.style.backgroundColor="#000",n.style.backgroundImage=`
+        linear-gradient(       #666 1.5px, transparent 1.5px),
+        linear-gradient(90deg, #666 1.5px, transparent 1.5px),
+        linear-gradient(       #333 1px,   transparent 1px),
+        linear-gradient(90deg, #333 1px,   transparent 1px)
+    `;try{e=new(await b.RenderPipeline(n,"Scale",{alphaMode:"premultiplied"}))}catch(i){alert(i)}const o=new GUI().onChange(u),p={min:-360,max:360,step:1,converters:GUI.converters.radToDeg},t={translation:[150,100],rotation:S.DegreesToRadians(30),scale:[1,1]};o.add(t.translation,"0",0,1e3).name("translation.x"),o.add(t.translation,"1",0,1e3).name("translation.y"),o.add(t,"rotation",p),o.add(t.scale,"0",-5,5).name("scale.x"),o.add(t.scale,"1",-5,5).name("scale.y");const s=e.CreateShaderModule([C,h]),{uniforms:r,buffer:a}=e.CreateUniformBuffer("uniforms");r.color.set([Math.random(),Math.random(),Math.random(),1]);const{vertexData:f,indexData:l,vertices:x}=y(),c=e.CreateIndexBuffer(l),{buffer:d,layout:m}=e.CreateVertexBuffer("position",f.length/2);e.WriteBuffer(a,r.color),e.WriteBuffer(d,f),e.WriteBuffer(c,l),e.SetVertexBuffers(d),e.SetIndexBuffer(c),e.CreatePipeline({vertex:e.CreateVertexState(s,void 0,m),fragment:e.CreateFragmentState(s)}),e.SetBindGroups(e.CreateBindGroup(e.CreateBindGroupEntries([{buffer:e.ResolutionBuffer},{buffer:a}])));function u(){r.translation.set(t.translation),r.rotation.set([Math.cos(t.rotation),Math.sin(t.rotation)]),r.scale.set(t.scale),e.WriteBuffer(a,r.scale.buffer),e.Render(x)}new ResizeObserver(i=>{for(const g of i){const{inlineSize:v,blockSize:B}=g.contentBoxSize[0];e.SetCanvasSize(v,B)}u()}).observe(document.body)})(document.getElementById("lesson"));
