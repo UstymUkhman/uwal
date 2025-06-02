@@ -110,7 +110,7 @@ import { mat4 } from "wgpu-matrix";
 
     function render()
     {
-        mat4.copy(Renderer.Projection3D, matrix);
+        mat4.copy(Renderer.OrthographicProjection, matrix);
 
         mat4.translate(matrix, settings.translation, matrix);
 
@@ -130,6 +130,7 @@ import { mat4 } from "wgpu-matrix";
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
+            Renderer.UpdateOrthographicProjection(400, -400);
         }
 
         render();

@@ -99,6 +99,7 @@ import { mat3 } from "wgpu-matrix";
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
+            Renderer.UpdateProjection2D();
         }
 
         render();
