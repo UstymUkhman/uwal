@@ -1,7 +1,7 @@
 /**
  * @module Orthographic Projection
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
- * @description This lesson is reproduced from WebGPU Matrix Math
+ * @description This lesson is reproduced from WebGPU Orthographic Projection
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-orthographic-projection.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
@@ -31,7 +31,7 @@ import { mat4 } from "wgpu-matrix";
     try
     {
         Renderer = new (await Device.RenderPipeline(
-            canvas, "MatrixMath", { alphaMode: "premultiplied" }
+            canvas, "Orthographic Projection", { alphaMode: "premultiplied" }
         ));
     }
     catch (error)
@@ -78,7 +78,7 @@ import { mat4 } from "wgpu-matrix";
     const { layout, buffer: vertexBuffer } = Renderer.CreateVertexBuffer([
         { name: "position", format: "float32x3" },
         { name: "color", format: "unorm8x4" }
-    ], vertexData.byteLength / 4);
+    ], vertices);
 
     Renderer.CreatePipeline({
         vertex: Renderer.CreateVertexState(module, void 0, layout),
@@ -120,7 +120,7 @@ import { mat4 } from "wgpu-matrix";
 
         mat4.scale(matrix, settings.scale, matrix);
 
-        Renderer.WriteBuffer(buffer, matrix.buffer);
+        Renderer.WriteBuffer(buffer, matrix);
         Renderer.Render(vertices);
     }
 

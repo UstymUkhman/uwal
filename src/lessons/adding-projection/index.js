@@ -31,7 +31,7 @@ import { mat3 } from "wgpu-matrix";
     try
     {
         Renderer = new (await Device.RenderPipeline(
-            canvas, "MatrixMath", { alphaMode: "premultiplied" }
+            canvas, "Adding in Projection", { alphaMode: "premultiplied" }
         ));
     }
     catch (error)
