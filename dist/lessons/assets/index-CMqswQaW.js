@@ -1,4 +1,4 @@
-import{M as D}from"./MipmapFilter-nkAaR1eK.js";import{D as h,v as z,a as s,C as L,F as l,A as x}from"./index-FaxOCIzz.js";import{Q as O}from"./Quad-VFYOTGYq.js";/**
+import{M as D}from"./MipmapFilter-nkAaR1eK.js";import{D as h,v as z,a as s,C as L,F as l,A as x}from"./index-BbNCSufw.js";import{Q as O}from"./Quad-VFYOTGYq.js";/**
  * @module Loading Canvas
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Loading Images into Textures
