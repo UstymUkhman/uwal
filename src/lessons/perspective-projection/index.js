@@ -17,16 +17,7 @@ import { mat4 } from "wgpu-matrix";
 (async function(canvas)
 {
     /** @type {Renderer} */ let Renderer;
-
-    canvas.style.backgroundPosition = "-1.5px -1.5px, -1.5px -1.5px, -1px -1px, -1px -1px";
-    canvas.style.backgroundSize     = "100px 100px, 100px 100px, 10px 10px, 10px 10px";
-    canvas.style.backgroundColor    = "#000";
-    canvas.style.backgroundImage    = `
-        linear-gradient(       #666 1.5px, transparent 1.5px),
-        linear-gradient(90deg, #666 1.5px, transparent 1.5px),
-        linear-gradient(       #333 1px,   transparent 1px),
-        linear-gradient(90deg, #333 1px,   transparent 1px)
-    `;
+    canvas.style.backgroundColor = "#000";
 
     try
     {
@@ -41,19 +32,14 @@ import { mat4 } from "wgpu-matrix";
 
     const settings =
     {
-        fudge: 10,
-        scale: [3, 3, 3],
+        scale: [1, 1, 1],
+        fieldOfView: 100,
+        translation: [-65, 0, -120],
 
         rotation: [
-            Utils.DegreesToRadians(40),
+            Utils.DegreesToRadians(220),
             Utils.DegreesToRadians(25),
             Utils.DegreesToRadians(325)
-        ],
-
-        translation: [
-            canvas.clientWidth  / 2 - 200,
-            canvas.clientHeight / 2 - 100,
-            -1000
         ]
     };
 
@@ -67,19 +53,15 @@ import { mat4 } from "wgpu-matrix";
 
     const gui = new GUI().onChange(render);
 
-    gui.add(settings.translation, "0",     0, 1000).name("translation.x");
-    gui.add(settings.translation, "1",     0, 1000).name("translation.y");
-    gui.add(settings.translation, "2", -1000, 1000).name("translation.z");
+    gui.add(settings, "fieldOfView", { min: 1, max: 179 }).name("Field of View");
+
+    gui.add(settings.translation, "0", -1000, 1000).name("translation.x");
+    gui.add(settings.translation, "1", -1000, 1000).name("translation.y");
+    gui.add(settings.translation, "2", -1400, -100).name("translation.z");
 
     gui.add(settings.rotation, "0", radToDegOptions).name("rotation.x");
     gui.add(settings.rotation, "1", radToDegOptions).name("rotation.y");
     gui.add(settings.rotation, "2", radToDegOptions).name("rotation.z");
-
-    gui.add(settings.scale, "0", -5, 5).name("scale.x");
-    gui.add(settings.scale, "1", -5, 5).name("scale.y");
-    gui.add(settings.scale, "2", -5, 5).name("scale.z");
-
-    gui.add(settings, "fudge", 0, 50).name("Fudge Factor");
 
     const { vertexData, vertices } = createVertices();
     const module = Renderer.CreateShaderModule(Perspective);
@@ -96,8 +78,8 @@ import { mat4 } from "wgpu-matrix";
         primitive: { cullMode: "front" }
     });
 
-    const { uniforms, buffer } =
-        Renderer.CreateUniformBuffer("uniforms");
+    const { matrix, buffer } =
+        Renderer.CreateUniformBuffer("matrix");
 
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(),
@@ -119,20 +101,18 @@ import { mat4 } from "wgpu-matrix";
 
     function render()
     {
-        mat4.copy(Renderer.OrthographicProjection, uniforms.matrix);
+        Renderer.UpdatePerspectiveProjection(settings.fieldOfView, 1, 2000);
+        mat4.copy(Renderer.PerspectiveProjection, matrix);
 
-        mat4.translate(uniforms.matrix, settings.translation, uniforms.matrix);
+        mat4.translate(matrix, settings.translation, matrix);
 
-        mat4.rotateX(uniforms.matrix, settings.rotation[0], uniforms.matrix);
-        mat4.rotateY(uniforms.matrix, settings.rotation[1], uniforms.matrix);
-        mat4.rotateZ(uniforms.matrix, settings.rotation[2], uniforms.matrix);
+        mat4.rotateX(matrix, settings.rotation[0], matrix);
+        mat4.rotateY(matrix, settings.rotation[1], matrix);
+        mat4.rotateZ(matrix, settings.rotation[2], matrix);
 
-        mat4.scale(uniforms.matrix, settings.scale, uniforms.matrix);
-        uniforms.fudge.set([settings.fudge])
+        mat4.scale(matrix, settings.scale, matrix);
 
-        // Write `matrix` and `fudge` values by passing uniforms' `ArrayBufferView`:
-        Renderer.WriteBuffer(buffer, uniforms.matrix.buffer);
-
+        Renderer.WriteBuffer(buffer, matrix);
         Renderer.Render(vertices);
     }
 
@@ -142,7 +122,6 @@ import { mat4 } from "wgpu-matrix";
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
-            Renderer.UpdateOrthographicProjection(1200, -1000);
         }
 
         render();
