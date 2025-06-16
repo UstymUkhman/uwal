@@ -1,4 +1,5 @@
 import { name, version } from "./package.json";
+import terser from "@rollup/plugin-terser";
 import { defineConfig } from "vite";
 import glsl from "vite-plugin-glsl";
 import { resolve } from "path";
@@ -6,6 +7,29 @@ import { resolve } from "path";
 export default({ mode }) =>
 {
     const config = mode !== "lib" && { base: "./" };
+
+    const plugins = mode === "lib" &&
+    [
+        terser(
+        {
+            ecma: 2020,
+            module: true,
+            compress: {
+                passes: 4,
+                ecma: 2020,
+                unsafe: true,
+                unsafe_arrows: true,
+                unsafe_comps: false,
+                unsafe_Function: true,
+                unsafe_math: true,
+                unsafe_symbols: false,
+                unsafe_methods: true,
+                unsafe_proto: true,
+                unsafe_regexp: true,
+                unsafe_undefined: true
+            }
+        })
+    ];
 
     const build = mode === "lib"
         ? {
@@ -34,6 +58,7 @@ export default({ mode }) =>
 
         plugins:
         [
+            ...plugins,
             glsl(
             {
                 root: "/lib/shaders/",

@@ -8,7 +8,7 @@
 
 <p align="center">
   <img alt="GitHub deployments" src="https://img.shields.io/github/deployments/UstymUkhman/uwal/github-pages?style=flat-square" />
-  <img alt="NPM bundle size" src="https://img.shields.io/bundlephobia/min/uwal?style=flat-square" />
+  <img alt="NPM bundle size" src="https://img.shields.io/bundlejs/size/uwal?style=flat-square" />
   <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/UstymUkhman/uwal?color=orange&style=flat-square" />
   <img alt="GitHub License" src="https://img.shields.io/github/license/UstymUkhman/uwal?color=lightgrey&style=flat-square" />
 </p>
