@@ -1,6 +1,7 @@
 import { name, version } from "./package.json";
 import terser from "@rollup/plugin-terser";
 import { defineConfig } from "vite";
+import { transform } from "esbuild";
 import glsl from "vite-plugin-glsl";
 import { resolve } from "path";
 
@@ -8,13 +9,14 @@ export default({ mode }) =>
 {
     const config = mode !== "lib" && { base: "./" };
 
-    const plugins = mode === "lib" &&
+    const plugins = mode !== "lib" && [] ||
     [
         terser(
         {
             ecma: 2020,
             module: true,
-            compress: {
+            compress:
+            {
                 passes: 4,
                 ecma: 2020,
                 unsafe: true,
@@ -28,7 +30,17 @@ export default({ mode }) =>
                 unsafe_regexp: true,
                 unsafe_undefined: true
             }
-        })
+        }),
+        {
+            apply: "build", enforce: "post",
+            async generateBundle(_options, bundle)
+            {
+                for (const asset of Object.values(bundle))
+                    if (asset.type === "chunk") asset.code = (
+                        await transform(asset.code, { minify: true })
+                    ).code;
+            }
+        }
     ];
 
     const build = mode === "lib"
@@ -82,8 +94,6 @@ export default({ mode }) =>
 
         server:
         {
-            host: "0.0.0.0",
-            open: false,
             port: 8080
         }
     });

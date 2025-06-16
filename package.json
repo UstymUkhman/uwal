@@ -76,16 +76,16 @@
     "build:lib": "bun run build:types && bun run build --mode lib"
   },
   "dependencies": {
-    "@webgpu/types": "^0.1.60"
+    "@webgpu/types": "^0.1.61"
   },
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
-    "sass": "^1.86.3",
+    "sass": "^1.89.2",
     "typescript": "^5.8.3",
-    "vite": "^6.3.2",
-    "vite-plugin-glsl": "^1.4.1",
+    "vite": "^6.3.5",
+    "vite-plugin-glsl": "^1.5.0",
     "wgpu-matrix": "^3.4.0",
-    "wgsl_reflect": "^1.2.0"
+    "wgsl_reflect": "^1.2.1"
   },
   "trustedDependencies": [
     "@parcel/watcher"
