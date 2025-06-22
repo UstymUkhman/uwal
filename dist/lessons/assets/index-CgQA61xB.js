@@ -1,4 +1,4 @@
-import{c as y}from"./F-CZA4EI5f.js";import{D as S,U as C,m as o}from"./index-BbNCSufw.js";var D="struct Uniforms{color: vec4f,matrix: mat3x3f};@group(0)@binding(0)var<uniform>uniforms: Uniforms;@vertex fn vertex(@location(0)position: vec2f)->@builtin(position)vec4f {let clipSpace=(uniforms.matrix*vec3f(position,1)).xy;return vec4f(clipSpace,0.0,1.0);}@fragment fn fragment()->@location(0)vec4f {return uniforms.color;}";/**
+import{c as y}from"./F-CZA4EI5f.js";import{D as S,U as C,m as o}from"./index-W5DKnw4f.js";var D="struct Uniforms{color: vec4f,matrix: mat3x3f};@group(0)@binding(0)var<uniform>uniforms: Uniforms;@vertex fn vertex(@location(0)position: vec2f)->@builtin(position)vec4f {let clipSpace=(uniforms.matrix*vec3f(position,1)).xy;return vec4f(clipSpace,0.0,1.0);}@fragment fn fragment()->@location(0)vec4f {return uniforms.color;}";/**
  * @module Adding in Projection
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Matrix Math

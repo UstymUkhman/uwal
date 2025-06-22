@@ -1,4 +1,4 @@
-import{D as b,C as s}from"./index-BbNCSufw.js";import{T as m}from"./Triangle.vert-Y1l3LntC.js";var y="@fragment fn fragment(@builtin(position)position: vec4f)->@location(0)vec4f {let cyan=vec4f(0,1,1,1);let grid=vec2u(position.xy)/8;let checker=(grid.x+grid.y)% 2==1;if(checker){discard;}return cyan;}";/**
+import{D as b,C as s}from"./index-W5DKnw4f.js";import{T as m}from"./Triangle.vert-Y1l3LntC.js";var y="@fragment fn fragment(@builtin(position)position: vec4f)->@location(0)vec4f {let cyan=vec4f(0,1,1,1);let grid=vec2u(position.xy)/8;let checker=(grid.x+grid.y)% 2==1;if(checker){discard;}return cyan;}";/**
  * @module Transparency and Blending
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Transparency and Blending
