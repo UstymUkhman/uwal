@@ -3,8 +3,8 @@
 /// <reference types="@webgpu/types" />
 /// <reference types="vite-plugin-glsl/ext" />
 
-declare type Computation = import("./lib/UWAL").Computation;
-declare type Renderer = import("./lib/UWAL").Renderer;
-declare type Texture = import("./lib/UWAL").Texture;
+declare type ConfigurationOptions = import("./lib/Device").ConfigurationOptions;
+declare type Computation = import("./lib/Device").Computation;
+declare type Renderer = import("./lib/Device").Renderer;
 
 declare const GUI: Object;
