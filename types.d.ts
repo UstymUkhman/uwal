@@ -36,7 +36,7 @@ export type
     Computation,
     Renderer
 }
-from "./types/UWAL";
+from "./types/Device";
 
 export {
     Shape, SHAPE,
