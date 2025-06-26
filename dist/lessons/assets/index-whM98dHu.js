@@ -1,4 +1,4 @@
-import{D as M,U as h,m as o}from"./index-W5DKnw4f.js";import{c as U}from"./F-CZA4EI5f.js";import{R}from"./Resolution-Cnr3CPX7.js";var D="struct Uniforms{color: vec4f,matrix: mat3x3f};@group(0)@binding(1)var<uniform>uniforms: Uniforms;@vertex fn vertex(@location(0)position: vec2f)->@builtin(position)vec4f {let clipSpace=GetClipSpace((uniforms.matrix*vec3f(position,1)).xy);return vec4f(clipSpace,0.0,1.0);}@fragment fn fragment()->@location(0)vec4f {return uniforms.color;}";/**
+import{D as M,U as h,m as o}from"./index-D5aOD4ei.js";import{c as U}from"./F-CZA4EI5f.js";import{R}from"./Resolution-Cnr3CPX7.js";var D="struct Uniforms{color: vec4f,matrix: mat3x3f};@group(0)@binding(1)var<uniform>uniforms: Uniforms;@vertex fn vertex(@location(0)position: vec2f)->@builtin(position)vec4f {let clipSpace=GetClipSpace((uniforms.matrix*vec3f(position,1)).xy);return vec4f(clipSpace,0.0,1.0);}@fragment fn fragment()->@location(0)vec4f {return uniforms.color;}";/**
  * @module Matrix Math
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Matrix Math

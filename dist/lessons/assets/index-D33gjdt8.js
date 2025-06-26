@@ -1,4 +1,4 @@
-import{M as G}from"./MipmapFilter-nkAaR1eK.js";import{D as g,v as L,a as n,C as _,F as i,A as w}from"./index-W5DKnw4f.js";import{Q as D}from"./Quad-VFYOTGYq.js";const k=""+new URL("retriever-EycY0dhu.webm",import.meta.url).href;/**
+import{M as G}from"./MipmapFilter-nkAaR1eK.js";import{D as g,v as L,a as n,C as _,F as i,A as w}from"./index-D5aOD4ei.js";import{Q as D}from"./Quad-VFYOTGYq.js";const k=""+new URL("retriever-EycY0dhu.webm",import.meta.url).href;/**
  * @module Loading Video
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Loading Images into Textures

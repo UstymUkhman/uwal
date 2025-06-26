@@ -1,4 +1,4 @@
-import{c as G,a as N}from"./mipmaps-kMQ0t0FP.js";import{D as M,C as U,F as c,A as g,v as _,a}from"./index-W5DKnw4f.js";import{M as z}from"./MipmapFilter-nkAaR1eK.js";import{Q as D}from"./Quad-VFYOTGYq.js";/**
+import{c as G,a as N}from"./mipmaps-kMQ0t0FP.js";import{D as M,C as U,F as c,A as g,v as _,a}from"./index-D5aOD4ei.js";import{M as z}from"./MipmapFilter-nkAaR1eK.js";import{Q as D}from"./Quad-VFYOTGYq.js";/**
  * @module Mipmap Filter
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Textures
