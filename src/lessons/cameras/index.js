@@ -9,9 +9,9 @@
  * @license MIT
  */
 
-import { Device, Utils } from "#/index";
+import { Device, PerspectiveCamera } from "#/index";
+import Cameras from "./Cameras.wgsl";
 import { mat4 } from "wgpu-matrix";
-import Camera from "./Camera.wgsl";
 import createVertices from "./F";
 
 (async function(canvas)
@@ -38,15 +38,19 @@ import createVertices from "./F";
         converters: GUI.converters.radToDeg
     };
 
-    const Fs = 5, radius = 200;
-    const settings = { fieldOfView: 100, cameraAngle: 0 };
+    const UP = [0, 1, 0];
+    const rows = 5, columns = 5;
+    const Fs = 5 * 5 + 1, radius = 200;
+
+    const Camera = new PerspectiveCamera(60, 1, 2000);
+    const settings = { target: [0, 200, 300], targetAngle: 0 };
     const objectUniforms = [], gui = new GUI().onChange(render);
 
-    gui.add(settings, "fieldOfView", { min: 1, max: 179 }).name("Field of View");
-    gui.add(settings, 'cameraAngle', radToDegOptions).name("Camera Angle");
+    gui.add(settings.target, "1", -100, 300).name("Target Height");
+    gui.add(settings, "targetAngle", radToDegOptions).name("Target Angle");
 
     const { vertexData, vertices } = createVertices();
-    const module = Renderer.CreateShaderModule(Camera);
+    const module = Renderer.CreateShaderModule(Cameras);
 
     const { layout, buffer: vertexBuffer } = Renderer.CreateVertexBuffer([
         { name: "position", format: "float32x3" },
@@ -76,9 +80,9 @@ import createVertices from "./F";
 
         Renderer.AddBindGroups(
             Renderer.CreateBindGroup(
-                Renderer.CreateBindGroupEntries([
+                Renderer.CreateBindGroupEntries(
                     { buffer: Uniforms.buffer }
-                ])
+                )
             )
         );
 
@@ -87,27 +91,37 @@ import createVertices from "./F";
 
     function render()
     {
-        // Compute a common projection matrix for all the "F"s:
-        const projection = Renderer.UpdatePerspectiveProjection(settings.fieldOfView, 1, 2000);
+        // Update target's X and Z position based on the angle:
+        settings.target[0] = Math.cos(settings.targetAngle) * radius;
+        settings.target[2] = Math.sin(settings.targetAngle) * radius;
 
-        // Compute a camera matrix based on its distance:
-        const cameraMatrix = mat4.rotationY(settings.cameraAngle);
-        mat4.translate(cameraMatrix, [0, 0, radius * 1.5], cameraMatrix);
+        // Compute a camera matrix based on its position:
+        Camera.Translation = [-500, 300, -500];
 
-        // Compute a "view matrix" from the camera matrix:
-        const viewMatrix = mat4.inverse(cameraMatrix);
+        // Update camera's view matrix by looking at the target "F":
+        Camera.LookAt([0, -100, 0]);
 
         // Combine the view and projection matrices:
-        const viewProjectionMatrix = mat4.multiply(projection, viewMatrix);
+        const viewProjectionMatrix = Camera.UpdateViewProjection();
 
         objectUniforms.forEach(({ projection, buffer }, f) =>
         {
-            const angle = f / Fs * Math.PI * 2;
-            const x = Math.cos(angle) * radius;
-            const z = Math.sin(angle) * radius;
+            if (f === 25)
+                mat4.translate(viewProjectionMatrix, settings.target, projection);
+            else
+            {
+                // Compute grid and UV positions:
+                const u = (f % rows) / (rows - 1);
+                const v = (f / rows | 0) / (columns - 1);
 
-            // Translate each "F" by `x` and `z` and update its projection matrix:
-            mat4.translate(viewProjectionMatrix, [x, 0, z], projection);
+                // Center and spread out the "F"s:
+                const x = (u - 0.5) * rows * 150;
+                const z = (v - 0.5) * columns * 150;
+
+                // Aim current F toward the target "F":
+                const aim = mat4.aim([x, 0, z], settings.target, UP);
+                mat4.multiply(viewProjectionMatrix, aim, projection);
+            }
 
             Renderer.WriteBuffer(buffer, projection);
             Renderer.SetActiveBindGroups(f);
@@ -123,6 +137,7 @@ import createVertices from "./F";
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
+            Camera.AspectRatio = inlineSize / blockSize;
         }
 
         render();

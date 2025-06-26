@@ -58,6 +58,7 @@ bun add uwal
     - [Loading Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-video)
     - Texture Atlases _(TBI after WebGPU Cameras)_
     - [Using Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#using-video)
+    - Using Camera _(TBI)_
     - [Cubemaps](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#cubemaps)
     - [Storage Textures](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-textures)
     - [Multisampling](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#multisampling)

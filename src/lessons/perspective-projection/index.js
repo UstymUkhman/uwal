@@ -9,9 +9,9 @@
  * @license MIT
  */
 
+import { Device, Utils, PerspectiveCamera } from "#/index";
 import createVertices from "../orthographic-projection/F";
 import Perspective from "./Perspective.wgsl";
-import { Device, Utils } from "#/index";
 import { mat4 } from "wgpu-matrix";
 
 (async function(canvas)
@@ -52,6 +52,7 @@ import { mat4 } from "wgpu-matrix";
     };
 
     const gui = new GUI().onChange(render);
+    const Camera = new PerspectiveCamera(settings.fieldOfView, 1, 2000);
 
     gui.add(settings, "fieldOfView", { min: 1, max: 179 }).name("Field of View");
 
@@ -101,8 +102,8 @@ import { mat4 } from "wgpu-matrix";
 
     function render()
     {
-        Renderer.UpdatePerspectiveProjection(settings.fieldOfView, 1, 2000);
-        mat4.copy(Renderer.PerspectiveProjection, matrix);
+        Camera.FieldOfView = settings.fieldOfView;
+        mat4.copy(Camera.Projection, matrix);
 
         mat4.translate(matrix, settings.translation, matrix);
 
@@ -122,6 +123,7 @@ import { mat4 } from "wgpu-matrix";
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
+            Camera.AspectRatio = inlineSize / blockSize;
         }
 
         render();
