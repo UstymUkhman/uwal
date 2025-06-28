@@ -72,7 +72,6 @@ import createVertices from "./F";
 
     Renderer.WriteBuffer(vertexBuffer, vertexData);
     Renderer.SetVertexBuffers(vertexBuffer);
-    Renderer.Depth = 400;
 
     for (let f = 0; f < Fs; ++f)
     {
@@ -96,18 +95,19 @@ import createVertices from "./F";
         settings.target[2] = Math.sin(settings.targetAngle) * radius;
 
         // Compute a camera matrix based on its position:
-        Camera.Translation = [-500, 300, -500];
+        Camera.Position = [-500, 300, -500];
 
         // Update camera's view matrix by looking at the target "F":
         Camera.LookAt([0, -100, 0]);
 
-        // Combine the view and projection matrices:
-        const viewProjectionMatrix = Camera.UpdateViewProjection();
+        // Combine the view and projection matrices (without updating the first one):
+        const viewProjectionMatrix = Camera.UpdateViewProjection(false);
 
         objectUniforms.forEach(({ projection, buffer }, f) =>
         {
             if (f === 25)
                 mat4.translate(viewProjectionMatrix, settings.target, projection);
+
             else
             {
                 // Compute grid and UV positions:

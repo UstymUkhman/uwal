@@ -98,7 +98,6 @@ import { mat4 } from "wgpu-matrix";
 
     Renderer.WriteBuffer(vertexBuffer, vertexData);
     Renderer.SetVertexBuffers(vertexBuffer);
-    Renderer.Depth = 400;
 
     function render()
     {
