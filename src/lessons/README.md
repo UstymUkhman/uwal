@@ -15,7 +15,7 @@
 | [Generating mipmaps on the GPU](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#generating-mips-on-the-gpu) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#gpu-mipmaps) | [Code](./gpu-mipmaps/index.js) |
 | [Loading Canvas](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#loading-canvas) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-canvas) | [Code](./loading-canvas/index.js) |
 | [Loading Video](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#loading-video) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-video) | [Code](./loading-video/index.js) |
-| [Texture Atlases](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#texture-atlases) | Preview | Code |
+| [Texture Atlases](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#texture-atlases) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#texture-atlases) | [Code](./texture-atlases/index.js) |
 | [Using Video](https://webgpufundamentals.org/webgpu/lessons/webgpu-textures-external-video.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#using-video) | [Code](./using-video/index.js) |
 | [Using Camera](https://webgpufundamentals.org/webgpu/lessons/webgpu-textures-external-video.html#a-web-camera) | Preview | Code |
 | [Cubemaps](https://webgpufundamentals.org/webgpu/lessons/webgpu-cube-maps.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#cubemaps) | [Code](./cubemaps/index.js) |

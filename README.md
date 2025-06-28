@@ -56,7 +56,7 @@ bun add uwal
     - [Generating mipmaps on the GPU](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#gpu-mipmaps)
     - [Loading Canvas](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-canvas)
     - [Loading Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-video)
-    - Texture Atlases _(TBI after WebGPU Cameras)_
+    - [Texture Atlases](https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#texture-atlases)
     - [Using Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#using-video)
     - Using Camera _(TBI)_
     - [Cubemaps](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#cubemaps)
