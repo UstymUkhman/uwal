@@ -1,0 +1,15 @@
+import{D as M,U as h,m as o}from"./index-DkLC8RgG.js";import{c as U}from"./F-CZA4EI5f.js";import{R}from"./Resolution-Cnr3CPX7.js";var D="struct Uniforms{color: vec4f,matrix: mat3x3f};@group(0)@binding(1)var<uniform>uniforms: Uniforms;@vertex fn vertex(@location(0)position: vec2f)->@builtin(position)vec4f {let clipSpace=GetClipSpace((uniforms.matrix*vec3f(position,1)).xy);return vec4f(clipSpace,0.0,1.0);}@fragment fn fragment()->@location(0)vec4f {return uniforms.color;}";/**
+ * @module Matrix Math
+ * @author Ustym Ukhman <ustym.ukhman@gmail.com>
+ * @description This lesson is reproduced from WebGPU Matrix Math
+ * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-math.html}&nbsp;
+ * and developed by using a version listed below. Please note that this code
+ * may be simplified in future thanks to more recent library APIs.
+ * @version 0.0.11
+ * @license MIT
+ */(async function(s){let e;s.style.backgroundPosition="-1.5px -1.5px, -1.5px -1.5px, -1px -1px, -1px -1px",s.style.backgroundSize="100px 100px, 100px 100px, 10px 10px, 10px 10px",s.style.backgroundColor="#000",s.style.backgroundImage=`
+        linear-gradient(       #666 1.5px, transparent 1.5px),
+        linear-gradient(90deg, #666 1.5px, transparent 1.5px),
+        linear-gradient(       #333 1px,   transparent 1px),
+        linear-gradient(90deg, #333 1px,   transparent 1px)
+    `;try{e=new(await M.RenderPipeline(s,"MatrixMath",{alphaMode:"premultiplied"}))}catch(a){alert(a)}const u=[],i=new GUI().onChange(b),y={min:-360,max:360,step:1,converters:GUI.converters.radToDeg},t={translation:[150,100],rotation:h.DegreesToRadians(30),scale:[1,1],objects:1};i.add(t.translation,"0",0,1e3).name("translation.x"),i.add(t.translation,"1",0,1e3).name("translation.y"),i.add(t,"rotation",y),i.add(t.scale,"0",-5,5).name("scale.x"),i.add(t.scale,"1",-5,5).name("scale.y"),i.add(t,"objects",1,5,1).name("objects");const p=e.CreateShaderModule([R,D]),{vertexData:d,indexData:x,vertices:B}=U(),m=e.CreateIndexBuffer(x),{layout:S,buffer:g}=e.CreateVertexBuffer("position",d.length/2);e.CreatePipeline({vertex:e.CreateVertexState(p,void 0,S),fragment:e.CreateFragmentState(p)});for(let a=0;a<5;++a){const r=e.CreateUniformBuffer("uniforms");r.uniforms.color.set([Math.random(),Math.random(),Math.random(),1]),e.WriteBuffer(r.buffer,r.uniforms.color),e.AddBindGroups(e.CreateBindGroup(e.CreateBindGroupEntries([{buffer:e.ResolutionBuffer},{buffer:r.buffer}]))),u.push(r)}e.WriteBuffer(g,d),e.WriteBuffer(m,x),e.SetVertexBuffers(g),e.SetIndexBuffer(m);function b(){const a=o.translation(t.translation),r=o.rotation(t.rotation),l=o.scaling(t.scale),c=o.translation([-50,-75]);let n=o.identity();for(let f=0;f<t.objects;++f){const{uniforms:v,buffer:C}=u[f];n=o.multiply(n,a),n=o.multiply(n,r),n=o.multiply(n,l),n=o.multiply(n,c),v.matrix.set(n),e.WriteBuffer(C,v.matrix.buffer),e.SetActiveBindGroups(f),e.Render(B,!1)}e.Submit()}new ResizeObserver(a=>{for(const r of a){const{inlineSize:l,blockSize:c}=r.contentBoxSize[0];e.SetCanvasSize(l,c)}b()}).observe(document.body)})(document.getElementById("lesson"));
