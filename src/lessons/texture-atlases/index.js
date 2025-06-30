@@ -9,10 +9,11 @@
  * @license MIT
  */
 
-import { Device, PerspectiveCamera } from "#/index";
+import { Device, PerspectiveCamera, CubeGeometry, Utils } from "#/index";
+import Noodles from "/assets/images/noodles.jpg";
 import { mat4 } from "wgpu-matrix";
-import createVertices from "./F";
 import Atlas from "./Atlas.wgsl";
+import UVData from "./UV";
 
 (async function(canvas)
 {
@@ -30,6 +31,15 @@ import Atlas from "./Atlas.wgsl";
         alert(error);
     }
 
+    const settings =
+    {
+        rotation: [
+            Utils.DegreesToRadians(20),
+            Utils.DegreesToRadians(25),
+            Utils.DegreesToRadians(0)
+        ]
+    };
+
     const radToDegOptions =
     {
         min: -360,
@@ -38,31 +48,39 @@ import Atlas from "./Atlas.wgsl";
         converters: GUI.converters.radToDeg
     };
 
-    const UP = [0, 1, 0];
-    const rows = 5, columns = 5;
-    const Fs = 5 * 5 + 1, radius = 200;
+    const Camera = new PerspectiveCamera(60, 0.1, 10);
+    Camera.Position = [0, 1, 5]; Camera.LookAt([0, 0, 0]);
 
-    const Camera = new PerspectiveCamera(60, 1, 2000);
-    const settings = { target: [0, 200, 300], targetAngle: 0 };
+    const viewProjection = Camera.UpdateViewProjection(false);
     const objectUniforms = [], gui = new GUI().onChange(render);
 
-    gui.add(settings.target, "1", -100, 300).name("Target Height");
-    gui.add(settings, "targetAngle", radToDegOptions).name("Target Angle");
+    gui.add(settings.rotation, "0", radToDegOptions).name("rotation.x");
+    gui.add(settings.rotation, "1", radToDegOptions).name("rotation.y");
+    gui.add(settings.rotation, "2", radToDegOptions).name("rotation.z");
 
-    const { vertexData, vertices } = createVertices();
+    const Texture = new (await Device.Texture(Renderer));
+    const source = await Texture.CreateBitmapImage(
+        await (await fetch(Noodles)).blob(),
+        { colorSpaceConversion: "none" }
+    );
+
+    const texture = Texture.CreateTextureFromSource(source);
+    const uvBuffer = Renderer.CreateVertexBuffer(UVData);
     const module = Renderer.CreateShaderModule(Atlas);
+    Texture.CopyImageToTexture(source, { texture });
 
-    const { layout, buffer: vertexBuffer } = Renderer.CreateVertexBuffer([
-        { name: "position", format: "float32x3" },
-        { name: "color", format: "unorm8x4" }
-        // "textureCoord"
-    ], vertices);
+    const cube = new CubeGeometry(Renderer);
+    Renderer.WriteBuffer(uvBuffer, UVData);
+    cube.AddVertexBuffers(uvBuffer);
 
     Renderer.CreatePipeline({
-        vertex: Renderer.CreateVertexState(module, void 0, layout),
-        depthStencil: Renderer.CreateDepthStencilState(),
+        primitive: { cullMode: "back" },
         fragment: Renderer.CreateFragmentState(module),
-        primitive: { cullMode: "back" }
+        depthStencil: Renderer.CreateDepthStencilState(),
+        vertex: Renderer.CreateVertexState(module, void 0, [
+            Renderer.CreateVertexBufferLayout({ name: "position", format: "float32x3" }),
+            Renderer.CreateVertexBufferLayout("textureCoord")
+        ])
     });
 
     Renderer.CreatePassDescriptor(
@@ -71,65 +89,26 @@ import Atlas from "./Atlas.wgsl";
         Renderer.CreateDepthAttachment()
     );
 
-    Renderer.WriteBuffer(vertexBuffer, vertexData);
-    Renderer.SetVertexBuffers(vertexBuffer);
-
-    for (let f = 0; f < Fs; ++f)
-    {
-        const Uniforms = Renderer.CreateUniformBuffer("projection");
-
-        Renderer.AddBindGroups(
-            Renderer.CreateBindGroup(
-                Renderer.CreateBindGroupEntries(
-                    { buffer: Uniforms.buffer }
-                )
-            )
-        );
-
-        objectUniforms.push(Uniforms);
-    }
+    Renderer.SetBindGroups(
+        Renderer.CreateBindGroup(
+            Renderer.CreateBindGroupEntries([
+                Texture.CreateSampler({ filter: "linear" }),
+                texture.createView(),
+                { buffer: cube.TransformBuffer }
+            ])
+        )
+    );
 
     function render()
     {
-        // Update target's X and Z position based on the angle:
-        settings.target[0] = Math.cos(settings.targetAngle) * radius;
-        settings.target[2] = Math.sin(settings.targetAngle) * radius;
+        const transform = cube.Transform;
+        mat4.copy(viewProjection, transform);
 
-        // Compute a camera matrix based on its position:
-        Camera.Position = [-500, 300, -500];
+        mat4.rotateX(transform, settings.rotation[0], transform);
+        mat4.rotateY(transform, settings.rotation[1], transform);
+        mat4.rotateZ(transform, settings.rotation[2], transform);
 
-        // Update camera's view matrix by looking at the target "F":
-        Camera.LookAt([0, -100, 0]);
-
-        // Combine the view and projection matrices (without updating the first one):
-        const viewProjectionMatrix = Camera.UpdateViewProjection(false);
-
-        objectUniforms.forEach(({ projection, buffer }, f) =>
-        {
-            if (f === 25)
-                mat4.translate(viewProjectionMatrix, settings.target, projection);
-
-            else
-            {
-                // Compute grid and UV positions:
-                const u = (f % rows) / (rows - 1);
-                const v = (f / rows | 0) / (columns - 1);
-
-                // Center and spread out the "F"s:
-                const x = (u - 0.5) * rows * 150;
-                const z = (v - 0.5) * columns * 150;
-
-                // Aim current F toward the target "F":
-                const aim = mat4.aim([x, 0, z], settings.target, UP);
-                mat4.multiply(viewProjectionMatrix, aim, projection);
-            }
-
-            Renderer.WriteBuffer(buffer, projection);
-            Renderer.SetActiveBindGroups(f);
-            Renderer.Render(vertices, false);
-        });
-
-        Renderer.Submit();
+        cube.Render();
     }
 
     const observer = new ResizeObserver(entries =>
