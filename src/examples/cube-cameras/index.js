@@ -16,6 +16,7 @@ import {
     Color,
     Utils,
     Device,
+    TEXTURE,
     CubeGeometry,
     PerspectiveCamera,
     OrthographicCamera
@@ -32,8 +33,8 @@ export async function run(canvas)
     try
     {
         Renderer = new (await Device.RenderPipeline(
-            canvas, "Cube / Cameras")
-        );
+            canvas, "Cube / Cameras"
+        ));
     }
     catch (error)
     {
@@ -84,7 +85,7 @@ export async function run(canvas)
     Renderer.AddBindGroups(
         Renderer.CreateBindGroup(
             Renderer.CreateBindGroupEntries([
-                Texture.CreateSampler({ filter: "linear" }),
+                Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
                 texture.createView(),
                 { buffer: perspectiveCube.TransformBuffer }
             ])
@@ -94,7 +95,7 @@ export async function run(canvas)
     Renderer.AddBindGroups(
         Renderer.CreateBindGroup(
             Renderer.CreateBindGroupEntries([
-                Texture.CreateSampler({ filter: "linear" }),
+                Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
                 texture.createView(),
                 { buffer: orthographicCube.TransformBuffer }
             ])
@@ -153,7 +154,7 @@ export async function run(canvas)
 
             vec3.set(width - 350, innerHeight - 250, 0, orthographicPosition);
             perspectiveCamera.AspectRatio = Renderer.AspectRatio;
-            perspectiveCamera.UpdateViewProjection();
+            perspectiveCamera.UpdateViewProjection(false);
 
             orthographicCamera.Bottom = blockSize;
             orthographicCamera.Right = width;
@@ -174,7 +175,7 @@ export function destroy()
     observer.disconnect();
     Renderer.Destroy();
     Device.Destroy(
-        void 0,
+        undefined,
         texture
     );
 }
