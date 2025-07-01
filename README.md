@@ -58,7 +58,7 @@ bun add uwal
     - [Loading Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#loading-video)
     - [Texture Atlases](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#texture-atlases)
     - [Using Video](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#using-video)
-    - Using Camera _(TBI)_
+    - [Using Camera](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#using-camera)
     - [Cubemaps](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#cubemaps)
     - [Storage Textures](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#storage-textures)
     - [Multisampling](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#multisampling)
