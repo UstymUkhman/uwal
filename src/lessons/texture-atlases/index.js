@@ -13,7 +13,6 @@ import { Device, PerspectiveCamera, CubeGeometry, Utils } from "#/index";
 import Noodles from "/assets/images/noodles.jpg";
 import { mat4 } from "wgpu-matrix";
 import Atlas from "./Atlas.wgsl";
-import UVData from "./UV";
 
 (async function(canvas)
 {
@@ -48,11 +47,12 @@ import UVData from "./UV";
         converters: GUI.converters.radToDeg
     };
 
+    const gui = new GUI().onChange(render);
+    const cube = new CubeGeometry(Renderer);
+
     const Camera = new PerspectiveCamera(60, 0.1, 10);
     Camera.Position = [0, 1, 5]; Camera.LookAt([0, 0, 0]);
-
     const viewProjection = Camera.UpdateViewProjection(false);
-    const objectUniforms = [], gui = new GUI().onChange(render);
 
     gui.add(settings.rotation, "0", radToDegOptions).name("rotation.x");
     gui.add(settings.rotation, "1", radToDegOptions).name("rotation.y");
@@ -65,12 +65,11 @@ import UVData from "./UV";
     );
 
     const texture = Texture.CreateTextureFromSource(source);
-    const uvBuffer = Renderer.CreateVertexBuffer(UVData);
+    const uvBuffer = Renderer.CreateVertexBuffer(cube.UV);
     const module = Renderer.CreateShaderModule(Atlas);
-    Texture.CopyImageToTexture(source, { texture });
 
-    const cube = new CubeGeometry(Renderer);
-    Renderer.WriteBuffer(uvBuffer, UVData);
+    Texture.CopyImageToTexture(source, { texture });
+    Renderer.WriteBuffer(uvBuffer, cube.UV);
     cube.AddVertexBuffers(uvBuffer);
 
     Renderer.CreatePipeline({
@@ -78,7 +77,7 @@ import UVData from "./UV";
         fragment: Renderer.CreateFragmentState(module),
         depthStencil: Renderer.CreateDepthStencilState(),
         vertex: Renderer.CreateVertexState(module, void 0, [
-            Renderer.CreateVertexBufferLayout({ name: "position", format: "float32x3" }),
+            Renderer.CreateVertexBufferLayout(cube.PositionAttribute),
             Renderer.CreateVertexBufferLayout("textureCoord")
         ])
     });
