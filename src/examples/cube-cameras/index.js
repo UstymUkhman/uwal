@@ -8,7 +8,7 @@
  * @license MIT
  */
 
-import Noodles from "/assets/images/noodles.jpg";
+import Dice from "/assets/images/dice.jpg";
 import { vec3, mat4 } from "wgpu-matrix";
 import Cube from "./Cube.wgsl";
 
@@ -41,12 +41,6 @@ export async function run(canvas)
         alert(error);
     }
 
-    const orthographicPosition = vec3.zero();
-    const scale = vec3.create(110.0, 110.0, 110.0);
-    const perspectivePosition = vec3.create(-4, -2, 0);
-    const perspectiveRotation = vec3.create(0.35, 0, -0.05);
-    const orthographicRotation = vec3.create(3.49, -0.35, 0);
-
     const perspectiveCamera = new PerspectiveCamera();
     const perspectiveCube = new CubeGeometry(Renderer);
 
@@ -55,26 +49,16 @@ export async function run(canvas)
 
     const Texture = new (await Device.Texture(Renderer));
     const source = await Texture.CreateBitmapImage(
-        await (await fetch(Noodles)).blob(),
+        await (await fetch(Dice)).blob(),
         { colorSpaceConversion: "none" }
     );
+
+    const colorAttachment = Renderer.CreateColorAttachment();
+    colorAttachment.clearValue = new Color(0x194c33).rgba;
 
     texture = Texture.CreateTextureFromSource(source);
     const module = Renderer.CreateShaderModule(Cube);
     Texture.CopyImageToTexture(source, { texture });
-
-    Renderer.CreatePipeline({
-        primitive: { cullMode: "back" },
-        fragment: Renderer.CreateFragmentState(module),
-        depthStencil: Renderer.CreateDepthStencilState(),
-        vertex: Renderer.CreateVertexState(module, void 0, [
-            Renderer.CreateVertexBufferLayout(perspectiveCube.PositionAttribute),
-            Renderer.CreateVertexBufferLayout("textureCoord")
-        ])
-    });
-
-    const colorAttachment = Renderer.CreateColorAttachment();
-    colorAttachment.clearValue = new Color(0xefefef).rgba;
 
     Renderer.CreatePassDescriptor(
         colorAttachment,
@@ -82,24 +66,33 @@ export async function run(canvas)
         Renderer.CreateDepthAttachment()
     );
 
-    Renderer.AddBindGroups(
+    Renderer.CreatePipeline({
+        primitive: { cullMode: "back" },
+        fragment: Renderer.CreateFragmentState(module),
+        multisample: Renderer.CreateMultisampleState(),
+        depthStencil: Renderer.CreateDepthStencilState(),
+        vertex: Renderer.CreateVertexState(module, void 0, [
+            Renderer.CreateVertexBufferLayout(perspectiveCube.PositionAttribute),
+            Renderer.CreateVertexBufferLayout("textureCoord")
+        ])
+    });
+
+    Renderer.AddBindGroups([
         Renderer.CreateBindGroup(
             Renderer.CreateBindGroupEntries([
                 Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
                 texture.createView(),
                 { buffer: perspectiveCube.TransformBuffer }
             ])
-        )
-    );
+        ),
 
-    Renderer.AddBindGroups(
         Renderer.CreateBindGroup(
             Renderer.CreateBindGroupEntries([
                 Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
                 texture.createView(),
                 { buffer: orthographicCube.TransformBuffer }
             ])
-        )
+        )]
     );
 
     perspectiveCamera.Position = [0, -2, 8]; perspectiveCamera.LookAt([0, 0, 0]);
@@ -109,6 +102,14 @@ export async function run(canvas)
     Renderer.WriteBuffer(uvBuffer, perspectiveCube.UV);
     orthographicCube.AddVertexBuffers(uvBuffer);
     perspectiveCube.AddVertexBuffers(uvBuffer);
+
+    const orthographicPosition = vec3.create();
+    const orthographicRotation = vec3.create();
+    const orthographicScale = vec3.create();
+
+    const perspectivePosition = vec3.create();
+    const perspectiveRotation = vec3.create();
+    const perspectiveScale = vec3.create();
 
     function render()
     {
@@ -124,6 +125,7 @@ export async function run(canvas)
             mat4.rotateY(transform, perspectiveRotation[1], transform);
             mat4.rotateZ(transform, perspectiveRotation[2], transform);
 
+            mat4.scale(transform, perspectiveScale, transform);
             Renderer.SetActiveBindGroups(0);
             perspectiveCube.Render(false);
         }
@@ -138,7 +140,7 @@ export async function run(canvas)
             mat4.rotateY(transform, orthographicRotation[1], transform);
             mat4.rotateZ(transform, orthographicRotation[2], transform);
 
-            mat4.scale(transform, scale, transform);
+            mat4.scale(transform, orthographicScale, transform);
             Renderer.SetActiveBindGroups(1);
             orthographicCube.Render();
         }
@@ -152,13 +154,30 @@ export async function run(canvas)
             width = (width <= 960 && width) || width - 240;
             Renderer.SetCanvasSize(width, blockSize);
 
-            vec3.set(width - 350, innerHeight - 250, 0, orthographicPosition);
+            Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             perspectiveCamera.AspectRatio = Renderer.AspectRatio;
             perspectiveCamera.UpdateViewProjection(false);
 
             orthographicCamera.Bottom = blockSize;
             orthographicCamera.Right = width;
             orthographicCamera.Near = -100;
+
+            const p = (width - 360) / 1272;
+            const ox = p * 245 + 110;
+            const ps = p * 0.5 + 0.5;
+            const os = p * 80 + 30;
+            const px = p * -3 - 1;
+            const py = p * -1 - 1;
+            const r = p * -0.05;
+
+            vec3.set(ps, ps, ps, perspectiveScale);
+            vec3.set(px, py, 0, perspectivePosition);
+            vec3.set(0.35, 0, r, perspectiveRotation);
+
+            vec3.set(os, os, os, orthographicScale);
+            vec3.set(3.49, -0.35, 0, orthographicRotation);
+            const oy = (1 - (p * 0.13 + 0.61)) * blockSize;
+            vec3.set(width - ox, blockSize - oy, 0, orthographicPosition);
         }
 
         cancelAnimationFrame(raf);
