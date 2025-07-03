@@ -22,7 +22,9 @@ import
 {
     DegreesToRadians,
     RadiansToDegrees,
-    EuclideanModulo
+    EuclideanModulo,
+    SmootherStep,
+    SmoothStep
 }
 from "#/utils";
 
@@ -31,6 +33,8 @@ const Utils =
     DegreesToRadians,
     RadiansToDegrees,
     EuclideanModulo,
+    SmootherStep,
+    SmoothStep,
     GPUTiming
 };
 
