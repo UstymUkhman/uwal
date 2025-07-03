@@ -18,12 +18,14 @@ struct VertexOutput
     let coord = GetQuadCoord(index);
 
     output.position = vec4f(coord, 0, 1);
-    output.coord = coord;
+    output.coord = (coord + 1) * 0.5;
 
     return output;
 }
 
 @fragment fn fragment(@location(0) coord: vec2f) -> @location(0) vec4f
 {
-    return vec4f(cos(coord.xyx + screen.time) * 0.2 + screen.color + 0.4, 1);
+    let a = screen.color * cos(screen.time);
+    let l = screen.color * length(coord.xy);
+    return vec4f(screen.color + a + l, 1);
 }

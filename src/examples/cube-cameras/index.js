@@ -41,6 +41,15 @@ export async function run(canvas)
         alert(error);
     }
 
+    const tempPosition = vec3.create();
+    const tempRotation = vec3.create();
+
+    let dropTimeout, dropTime = Infinity;
+    let nextPerspectiveY, nextOrthographicY;
+
+    const nextPerspectiveRotation = vec3.create();
+    const nextOrthographicRotation = vec3.create();
+
     const perspectiveCamera = new PerspectiveCamera();
     const perspectiveCube = new CubeGeometry(Renderer);
 
@@ -103,27 +112,102 @@ export async function run(canvas)
     orthographicCube.AddVertexBuffers(uvBuffer);
     perspectiveCube.AddVertexBuffers(uvBuffer);
 
-    const orthographicPosition = vec3.create();
-    const orthographicRotation = vec3.create();
-    const orthographicScale = vec3.create();
-
+    const basePerspectivePosition = vec3.create();
+    const basePerspectiveRotation = vec3.create();
     const perspectivePosition = vec3.create();
     const perspectiveRotation = vec3.create();
     const perspectiveScale = vec3.create();
 
-    function render()
+    const baseOrthographicPosition = vec3.create();
+    const orthographicPosition = vec3.create();
+    const orthographicRotation = vec3.create();
+    const orthographicScale = vec3.create();
+
+    function randomInt(min = -2, max = 2)
+    {
+        return ((Math.random() * (max - min + 1)) | 0) + min;
+    }
+
+    function lerp(v1, v2, t)
+    {
+        return v1 + t * (v2 - v1);
+    }
+
+    function clean()
+    {
+        dropTime = Infinity;
+        clearTimeout(dropTimeout);
+        cancelAnimationFrame(raf);
+    }
+
+    function drop()
+    {
+        dropTimeout = setTimeout(() =>
+        {
+            let x = randomInt() || Infinity;
+            const y = randomInt() || Infinity;
+
+            nextPerspectiveRotation[0] = Math.PI / x;
+            nextPerspectiveRotation[1] = Math.PI / y;
+            nextPerspectiveRotation[2] = Math.PI / (randomInt() || Infinity);
+
+            const s = ((Math.abs(y) === 1 || !isFinite(y))
+                && -(x === -2 || !isFinite(x)) * 2 + 1 || Math.sign(y)) * (isFinite(y) * 2 - 1);
+
+            nextPerspectiveRotation[0] += basePerspectiveRotation[0];
+            nextPerspectiveRotation[1] += basePerspectiveRotation[1];
+            nextPerspectiveRotation[2] += basePerspectiveRotation[2] * s;
+
+            x = randomInt() || Infinity;
+
+            nextOrthographicRotation[0] = Math.PI / x + 0.35;
+            nextOrthographicRotation[1] = !isFinite(x) && 0.35 || Math.abs(x) < 2 && -0.35 || 0;
+            nextOrthographicRotation[2] = Math.abs(x) === 2 && Math.sign(x) * -0.35 || 0;
+
+            nextOrthographicRotation[1] &&= nextOrthographicRotation[1] + Math.PI / (randomInt() || Infinity);
+            nextOrthographicRotation[2] &&= nextOrthographicRotation[2] + Math.PI / (randomInt() || Infinity);
+
+            dropTime = Date.now();
+        }, 1e3);
+    }
+
+    function render(time)
     {
         raf = requestAnimationFrame(render);
+        time = (Date.now() - dropTime) / 1e3;
+
+        const smoothTime = Utils.SmoothStep(time);
+        let smootherTime = Utils.SmootherStep(time * 2);
+
+        if (0.5 <= smoothTime)
+        {
+            smootherTime = (0.5 - (smoothTime - 0.5)) * 2;
+
+            if (smoothTime === 1)
+            {
+                vec3.copy(nextOrthographicRotation, orthographicRotation);
+                vec3.copy(nextPerspectiveRotation, perspectiveRotation);
+                dropTime = Infinity;
+                drop();
+            }
+        }
 
         // Perspective View:
         {
             const transform = perspectiveCube.Transform;
             mat4.copy(viewProjection, transform);
-            mat4.translate(transform, perspectivePosition, transform);
+            vec3.copy(perspectivePosition, tempPosition);
 
-            mat4.rotateX(transform, perspectiveRotation[0], transform);
-            mat4.rotateY(transform, perspectiveRotation[1], transform);
-            mat4.rotateZ(transform, perspectiveRotation[2], transform);
+            tempPosition[1] = lerp(perspectivePosition[1], nextPerspectiveY, smootherTime);
+            mat4.translate(transform, tempPosition, transform);
+
+            tempRotation[0] = lerp(perspectiveRotation[0], nextPerspectiveRotation[0], smoothTime);
+            tempRotation[1] = lerp(perspectiveRotation[1], nextPerspectiveRotation[1], smoothTime);
+            tempRotation[2] = lerp(perspectiveRotation[2], nextPerspectiveRotation[2], smoothTime);
+
+            mat4.rotateX(transform, tempRotation[0], transform);
+            mat4.rotateY(transform, tempRotation[1], transform);
+            mat4.rotateZ(transform, tempRotation[2], transform);
 
             mat4.scale(transform, perspectiveScale, transform);
             Renderer.SetActiveBindGroups(0);
@@ -134,11 +218,18 @@ export async function run(canvas)
         {
             const transform = orthographicCube.Transform;
             mat4.copy(orthographicCamera.Projection, transform);
-            mat4.translate(transform, orthographicPosition, transform);
+            vec3.copy(orthographicPosition, tempPosition);
 
-            mat4.rotateX(transform, orthographicRotation[0], transform);
-            mat4.rotateY(transform, orthographicRotation[1], transform);
-            mat4.rotateZ(transform, orthographicRotation[2], transform);
+            tempPosition[1] = lerp(orthographicPosition[1], nextOrthographicY, smootherTime);
+            mat4.translate(transform, tempPosition, transform);
+
+            tempRotation[0] = lerp(orthographicRotation[0], nextOrthographicRotation[0], smoothTime);
+            tempRotation[1] = lerp(orthographicRotation[1], nextOrthographicRotation[1], smoothTime);
+            tempRotation[2] = lerp(orthographicRotation[2], nextOrthographicRotation[2], smoothTime);
+
+            mat4.rotateX(transform, tempRotation[0], transform);
+            mat4.rotateY(transform, tempRotation[1], transform);
+            mat4.rotateZ(transform, tempRotation[2], transform);
 
             mat4.scale(transform, orthographicScale, transform);
             Renderer.SetActiveBindGroups(1);
@@ -150,15 +241,15 @@ export async function run(canvas)
     {
         for (const entry of entries)
         {
-            let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
+            let { inlineSize: width, blockSize: height } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - 240;
-            Renderer.SetCanvasSize(width, blockSize);
+            Renderer.SetCanvasSize(width, height);
 
             Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             perspectiveCamera.AspectRatio = Renderer.AspectRatio;
             perspectiveCamera.UpdateViewProjection(false);
 
-            orthographicCamera.Bottom = blockSize;
+            orthographicCamera.Bottom = height;
             orthographicCamera.Right = width;
             orthographicCamera.Near = -100;
 
@@ -168,20 +259,27 @@ export async function run(canvas)
             const os = p * 80 + 30;
             const px = p * -3 - 1;
             const py = p * -1 - 1;
-            const r = p * -0.05;
+            const pr = p * -0.05;
 
             vec3.set(ps, ps, ps, perspectiveScale);
-            vec3.set(px, py, 0, perspectivePosition);
-            vec3.set(0.35, 0, r, perspectiveRotation);
+            vec3.set(px, py, 0, basePerspectivePosition);
+            vec3.set(0.35, 0, pr, basePerspectiveRotation);
+
+            const hf = 1 - (p * 0.13 + 0.61);
+            const oy = hf * height;
+            nextPerspectiveY = py * -1;
+            nextOrthographicY = height - oy - (hf * width);
 
             vec3.set(os, os, os, orthographicScale);
-            vec3.set(3.49, -0.35, 0, orthographicRotation);
-            const oy = (1 - (p * 0.13 + 0.61)) * blockSize;
-            vec3.set(width - ox, blockSize - oy, 0, orthographicPosition);
+            vec3.set(0.35, 0.35, 0, orthographicRotation);
+            vec3.set(width - ox, height - oy, 0, baseOrthographicPosition);
+
+            vec3.copy(baseOrthographicPosition, orthographicPosition);
+            vec3.copy(basePerspectivePosition, perspectivePosition);
+            vec3.copy(basePerspectiveRotation, perspectiveRotation);
         }
 
-        cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(render);
+        clean(); drop(); raf = requestAnimationFrame(render);
     });
 
     observer.observe(document.body);
@@ -189,7 +287,7 @@ export async function run(canvas)
 
 export function destroy()
 {
-    UWAL.OnDeviceLost = () => void 0;
+    Device.OnDeviceLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
