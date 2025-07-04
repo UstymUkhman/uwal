@@ -6,7 +6,7 @@
   "main": "./build/uwal.umd.cjs",
   "module": "./build/uwal.js",
   "types": "./types.d.ts",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "private": false,
   "license": "MIT",
   "type": "module",

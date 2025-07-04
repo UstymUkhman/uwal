@@ -129,11 +129,23 @@ import { mat4 } from "wgpu-matrix";
         context.fillStyle = faceColor;
         context.fillRect(0, 0, 128, 128);
 
-        context.textAlign = "center";
+        context.textAlign = "left";
+        context.textBaseline = "top";
         context.fillStyle = textColor;
-        context.textBaseline = "middle";
         context.font = "90px sans-serif";
-        context.fillText(text, 64, 64);
+
+        const {
+            actualBoundingBoxLeft,
+            actualBoundingBoxRight,
+            actualBoundingBoxAscent,
+            actualBoundingBoxDescent
+        } = context.measureText(text);
+
+        context.fillText(
+            text,
+            (128 - actualBoundingBoxRight + actualBoundingBoxLeft) / 2,
+            (128 - actualBoundingBoxDescent + actualBoundingBoxAscent) / 2
+        );
 
         return canvas;
     }
