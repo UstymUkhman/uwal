@@ -41,8 +41,8 @@ const Utils =
 export type
 {
     ConfigurationOptions,
-    Computation,
-    Renderer
+    LegacyComputation,
+    LegacyRenderer
 }
 from "./types/Device";
 
