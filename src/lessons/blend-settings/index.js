@@ -9,8 +9,7 @@
  * @license MIT
  */
 
-import { BLEND_STATE } from "#/pipelines/Constants";
-import { UWAL, Shaders, TEXTURE } from "#/index";
+import { UWAL, Shaders, TEXTURE, BLEND_STATE } from "#/index";
 import Blending from "./Blending.wgsl";
 import { mat4 } from "wgpu-matrix";
 
