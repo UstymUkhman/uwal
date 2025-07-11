@@ -2,7 +2,7 @@
 
 import OrthographicCamera from "./types/cameras/OrthographicCamera";
 import PerspectiveCamera from "./types/cameras/PerspectiveCamera";
-import { BLEND_STATE } from "./types/legacy/Constants";
+import { BLEND_STATE } from "./types/pipelines/Constants";
 import * as TEXTURE from "./types/textures/Constants";
 import CubeGeometry from "./types/geometries/Cube";
 import Camera2D from "./types/cameras/Camera2D";
