@@ -1,8 +1,6 @@
-/// <reference types="./typings" />
-
 import OrthographicCamera from "./types/cameras/OrthographicCamera";
 import PerspectiveCamera from "./types/cameras/PerspectiveCamera";
-import { BLEND_STATE } from "./types/pipelines/Constants";
+import { USAGE, BLEND_STATE } from "./types/pipelines/Constants";
 import * as TEXTURE from "./types/textures/Constants";
 import CubeGeometry from "./types/geometries/Cube";
 import Camera2D from "./types/cameras/Camera2D";
@@ -42,7 +40,9 @@ export type
 {
     ConfigurationOptions,
     LegacyComputation,
-    LegacyRenderer
+    LegacyRenderer,
+    Computation,
+    Renderer
 }
 from "./types/Device";
 
@@ -60,6 +60,7 @@ export {
     TEXTURE,
     Shaders,
     Device,
+    USAGE,
     Color,
     Utils
 };
