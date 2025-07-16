@@ -48,7 +48,6 @@
   },
   "files": [
     "package.json",
-    "typings.d.ts",
     "types.d.ts",
     "README.md",
     "LICENSE",

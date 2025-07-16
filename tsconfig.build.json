@@ -1,5 +1,4 @@
 {
     "extends": "./tsconfig.json",
-    "include": ["lib/**/*", "typings.d.ts"],
-    "exclude": ["build", "dist", "node_modules"]
+    "include": ["lib/**/*", "global.d.ts"]
 }

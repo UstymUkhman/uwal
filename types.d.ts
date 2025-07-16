@@ -1,10 +1,17 @@
+/// <reference types="./global" />
+/// <reference types="vite/client" />
+/// <reference types="wgpu-matrix" />
+/// <reference types="@webgpu/types" />
+/// <reference types="vite-plugin-glsl/ext" />
+
 import type { ComputePipeline } from "./types/pipelines/ComputePipeline";
 import type { RenderPipeline } from "./types/pipelines/RenderPipeline";
 import OrthographicCamera from "./types/cameras/OrthographicCamera";
 import PerspectiveCamera from "./types/cameras/PerspectiveCamera";
 import { USAGE, BLEND_STATE } from "./types/pipelines/Constants";
+import type { ConfigurationOptions } from "./types/Device";
+import CubeGeometry from "./types/geometries/LegacyCube";
 import * as TEXTURE from "./types/textures/Constants";
-import CubeGeometry from "./types/geometries/Cube";
 import Camera2D from "./types/cameras/Camera2D";
 import SHAPE from "./types/shapes/Constants";
 import { ERROR_CAUSE } from "./types/Errors";
@@ -45,8 +52,7 @@ export type
     LegacyRenderer,
     Computation,
     Renderer
-}
-from "./types/Device";
+};
 
 export {
     OrthographicCamera,
