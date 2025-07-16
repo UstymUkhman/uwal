@@ -1,3 +1,5 @@
+import type { ComputePipeline } from "./types/pipelines/ComputePipeline";
+import type { RenderPipeline } from "./types/pipelines/RenderPipeline";
 import OrthographicCamera from "./types/cameras/OrthographicCamera";
 import PerspectiveCamera from "./types/cameras/PerspectiveCamera";
 import { USAGE, BLEND_STATE } from "./types/pipelines/Constants";
@@ -49,6 +51,8 @@ from "./types/Device";
 export {
     OrthographicCamera,
     PerspectiveCamera,
+    ComputePipeline,
+    RenderPipeline,
     Shape, SHAPE,
     CubeGeometry,
     BLEND_STATE,
