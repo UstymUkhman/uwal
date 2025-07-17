@@ -8,7 +8,7 @@
  * @license MIT
  */
 
-import { UWAL, Color, Shaders, Shape, TEXTURE } from "#/index";
+import { UWAL, Color, Shaders, LegacyShape, TEXTURE } from "#/index";
 import Logo from "/assets/images/logo.jpg";
 import Texture from "./Texture.wgsl";
 
@@ -78,7 +78,7 @@ export async function run(canvas)
 
     function createShape()
     {
-        const shape = new Shape({
+        const shape = new LegacyShape({
             renderer: Renderer,
             segments: 4,
             radius

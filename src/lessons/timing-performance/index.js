@@ -9,8 +9,8 @@
  * @license MIT
  */
 
-import NonNegativeRollingAverage from './NonNegativeRollingAverage';
-import { UWAL, Shaders, Color, Shape, Utils } from "#/index";
+import NonNegativeRollingAverage from "./NonNegativeRollingAverage";
+import { UWAL, Shaders, Color, LegacyShape, Utils } from "#/index";
 import TimingPerformance from "./TimingPerformance.wgsl";
 
 (async function(canvas)
@@ -36,7 +36,7 @@ import TimingPerformance from "./TimingPerformance.wgsl";
     const objectInfos = [];
     const objectCount = 10000;
     const settings = { objects: 100 };
-    gui.add(settings, 'objects', 0, objectCount, 1);
+    gui.add(settings, "objects", 0, objectCount, 1);
 
     const info = document.createElement("pre");
     const fps = document.createElement("span");
@@ -63,7 +63,7 @@ import TimingPerformance from "./TimingPerformance.wgsl";
     const colorAttachment = Renderer.CreateColorAttachment();
     colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
 
-    const gpuTiming = new Utils.GPUTiming(Renderer);
+    const gpuTiming = new Utils.LegacyGPUTiming(Renderer);
     const querySet = await gpuTiming.QuerySet;
 
     Renderer.CreatePassDescriptor(
@@ -90,7 +90,7 @@ import TimingPerformance from "./TimingPerformance.wgsl";
         ])
     });
 
-    const vertices = new Shape({ renderer: Renderer, innerRadius: 120, radius: 240, segments })
+    const vertices = new LegacyShape({ renderer: Renderer, innerRadius: 120, radius: 240, segments })
         .Update().Vertices;
 
     const vertexValues = new Float32Array(varBuffer.size / Float32Array.BYTES_PER_ELEMENT);

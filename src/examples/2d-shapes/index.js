@@ -8,7 +8,7 @@
  * @license MIT
  */
 
-import { UWAL, Shaders, Shape } from "#/index";
+import { UWAL, Shaders, LegacyShape } from "#/index";
 
 /** @type {number} */ let raf;
 /** @type {ResizeObserver} */ let observer;
@@ -69,7 +69,7 @@ export async function run(canvas)
                 const radius = random(50, 100);
                 const inner = radius * random(0.75, 0.95);
 
-                const shape = new Shape({
+                const shape = new LegacyShape({
                     innerRadius: inner * r,
                     renderer: Renderer,
                     segments,

@@ -7,16 +7,21 @@
 import OrthographicCamera from "./types/cameras/OrthographicCamera";
 import PerspectiveCamera from "./types/cameras/PerspectiveCamera";
 import { USAGE, BLEND_STATE } from "./types/pipelines/Constants";
+/** @deprecated Use `GPUTiming` instead. */
+import LegacyGPUTiming from "./types/utils/LegacyGPUTiming";
+/** @deprecated Use `CubeGeometry` instead. */
 import LegacyCube from "./types/geometries/LegacyCube";
 import * as TEXTURE from "./types/textures/Constants";
+/** @deprecated Use `Shape` instead. */
+import LegacyShape from "./types/shapes/LegacyShape";
 import CubeGeometry from "./types/geometries/Cube";
+import GPUTiming from "./types/utils/GPUTiming";
 import Camera2D from "./types/cameras/Camera2D";
 import SHAPE from "./types/shapes/Constants";
 import { ERROR_CAUSE } from "./types/Errors";
 import * as Shaders from "./types/shaders";
 /** @deprecated Use `MSDFText` instead. */
 import SDFText from "./types/text/SDFText";
-import GPUTiming from "#/utils/GPUTiming";
 import Shape from "./types/shapes/Shape";
 import Device from "./types/Device";
 import Color from "./types/Color";
@@ -29,12 +34,14 @@ import
     SmootherStep,
     SmoothStep
 }
-from "#/utils";
+from "./types/utils";
 
 const Utils =
 {
     DegreesToRadians,
     RadiansToDegrees,
+    /** @deprecated Use `GPUTiming` instead. */
+    LegacyGPUTiming,
     EuclideanModulo,
     SmootherStep,
     SmoothStep,
@@ -57,6 +64,8 @@ export {
     PerspectiveCamera,
     CubeGeometry,
     Shape, SHAPE,
+    /** @deprecated Use `Shape` instead. */
+    LegacyShape,
     BLEND_STATE,
     ERROR_CAUSE,
     /** @deprecated Use `CubeGeometry` instead. */
