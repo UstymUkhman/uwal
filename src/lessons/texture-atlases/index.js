@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { Device, PerspectiveCamera, CubeGeometry, Utils } from "#/index";
+import { Device, PerspectiveCamera, LegacyCube, Utils } from "#/index";
 import Noodles from "/assets/images/noodles.jpg";
 import { mat4 } from "wgpu-matrix";
 import Atlas from "./Atlas.wgsl";
@@ -48,7 +48,7 @@ import Atlas from "./Atlas.wgsl";
     };
 
     const gui = new GUI().onChange(render);
-    const cube = new CubeGeometry(Renderer);
+    const cube = new LegacyCube(Renderer);
 
     const Camera = new PerspectiveCamera(60, 0.1, 10);
     Camera.Position = [0, 1, 5]; Camera.LookAt([0, 0, 0]);

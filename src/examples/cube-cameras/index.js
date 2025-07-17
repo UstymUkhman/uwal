@@ -17,7 +17,7 @@ import {
     Utils,
     Device,
     TEXTURE,
-    CubeGeometry,
+    LegacyCube,
     PerspectiveCamera,
     OrthographicCamera
 } from "#/index";
@@ -51,10 +51,10 @@ export async function run(canvas)
     const nextOrthographicRotation = vec3.create();
 
     const perspectiveCamera = new PerspectiveCamera();
-    const perspectiveCube = new CubeGeometry(Renderer);
+    const perspectiveCube = new LegacyCube(Renderer);
 
     const orthographicCamera = new OrthographicCamera();
-    const orthographicCube = new CubeGeometry(Renderer);
+    const orthographicCube = new LegacyCube(Renderer);
 
     const Texture = new (await Device.Texture(Renderer));
     const source = await Texture.CreateBitmapImage(
