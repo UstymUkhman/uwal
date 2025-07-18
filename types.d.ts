@@ -20,7 +20,7 @@ import Camera2D from "./types/cameras/Camera2D";
 import SHAPE from "./types/shapes/Constants";
 import { ERROR_CAUSE } from "./types/Errors";
 import * as Shaders from "./types/shaders";
-/** @deprecated Use `MSDFText` instead. */
+/** @deprecated `SDFText` will be replaced by `MSDFText`. */
 import SDFText from "./types/text/SDFText";
 import Shape from "./types/shapes/Shape";
 import Device from "./types/Device";
@@ -71,7 +71,7 @@ export {
     /** @deprecated Use `CubeGeometry` instead. */
     LegacyCube,
     Camera2D,
-    /** @deprecated Use `MSDFText` instead. */
+    /** @deprecated `SDFText` will be replaced by `MSDFText`. */
     SDFText,
     TEXTURE,
     Shaders,

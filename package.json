@@ -48,6 +48,7 @@
   },
   "files": [
     "package.json",
+    "global.d.ts",
     "types.d.ts",
     "README.md",
     "LICENSE",
