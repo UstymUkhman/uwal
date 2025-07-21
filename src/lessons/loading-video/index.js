@@ -49,7 +49,7 @@ import { vec2, mat4 } from "wgpu-matrix";
     video.preload = "auto";
     video.src = Video;
 
-    const Texture = new (await UWAL.Texture());
+    const Texture = new (await UWAL.LegacyTexture());
     Texture.SetRenderer(Renderer);
 
     let haveNewVideoFrame = false;

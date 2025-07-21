@@ -70,7 +70,7 @@ import Shader from "./Texture.wgsl";
     ].flat());
 
     const mipmaps = generateMipmaps(textureData, width);
-    const Texture = new (await UWAL.Texture());
+    const Texture = new (await UWAL.LegacyTexture());
 
     const texture = Texture.CreateTexture({
         usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,

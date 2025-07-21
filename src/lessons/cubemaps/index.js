@@ -52,7 +52,7 @@ import { mat4 } from "wgpu-matrix";
         }
     });
 
-    const Texture = new (await UWAL.Texture());
+    const Texture = new (await UWAL.LegacyTexture());
     const cube = new LegacyCube(Renderer);
 
     const transform = cube.Transform;

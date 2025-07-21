@@ -32,7 +32,7 @@ export async function run(canvas)
         alert(error);
     }
 
-    const Texture = new (await UWAL.Texture());
+    const Texture = new (await UWAL.LegacyTexture());
     const videoSampler = Texture.CreateSampler();
     let videoWidth, videoHeight, resolutionBuffer;
 

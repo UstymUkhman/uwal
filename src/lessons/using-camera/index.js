@@ -38,7 +38,7 @@ import { vec2, mat4 } from "wgpu-matrix";
     colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
     Renderer.CreatePassDescriptor(colorAttachment);
 
-    const Texture = new (await Device.Texture());
+    const Texture = new (await Device.LegacyTexture());
     await waitForVideo(video); await startPlaying(video);
 
     for (let i = 0; i < 4; i++) planes.push({

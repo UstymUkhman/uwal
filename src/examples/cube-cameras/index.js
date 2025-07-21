@@ -56,7 +56,7 @@ export async function run(canvas)
     const orthographicCamera = new OrthographicCamera();
     const orthographicCube = new LegacyCube(Renderer);
 
-    const Texture = new (await Device.Texture(Renderer));
+    const Texture = new (await Device.LegacyTexture(Renderer));
     const source = await Texture.CreateBitmapImage(
         await (await fetch(Dice)).blob(),
         { colorSpaceConversion: "none" }

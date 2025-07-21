@@ -32,7 +32,7 @@ import Shader from "./Texture.wgsl";
 
     // Using a bind group layout different than layout: "auto" - "rgba32float":
     {
-        const Texture = new (await UWAL.Texture()), width = 5;
+        const Texture = new (await UWAL.LegacyTexture()), width = 5;
         const colorAttachment = Renderer.CreateColorAttachment();
         colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
         Renderer.CreatePassDescriptor(colorAttachment);

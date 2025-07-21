@@ -55,7 +55,7 @@ import { vec2, mat4 } from "wgpu-matrix";
     colorAttachment.clearValue = new Color(0x4c4c4c).rgba;
     Renderer.CreatePassDescriptor(colorAttachment);
 
-    const Texture = new (await UWAL.Texture());
+    const Texture = new (await UWAL.LegacyTexture());
     await startPlayingAndWaitForVideo(video);
 
     for (let i = 0; i < 4; i++)

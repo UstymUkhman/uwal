@@ -36,8 +36,8 @@ import Triangle from "./Triangle.wgsl";
     background.clearValue = new Color(0x4c4c4c).rgba;
     Renderer.CreatePassDescriptor(background);
 
-    const Texture = new (await UWAL.Texture());
-    Texture.Renderer = Renderer;
+    const Texture = new (await UWAL.LegacyTexture());
+    Texture.LegacyRenderer = Renderer;
 
     const observer = new ResizeObserver(entries =>
     {

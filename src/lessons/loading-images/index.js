@@ -59,7 +59,7 @@ import Images from "./Images.wgsl";
             { colorSpaceConversion: "none" }
         );
 
-    const Texture = new (await UWAL.Texture());
+    const Texture = new (await UWAL.LegacyTexture());
     const source = await loadImageBitmap(F);
 
     const texture = Texture.CopyImageToTexture(source, {

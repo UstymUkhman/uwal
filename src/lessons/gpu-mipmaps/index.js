@@ -2,7 +2,7 @@
  * @module GPU Mipmaps
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Loading Images into Textures
- * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#generating-mips-on-the-gpu}&nbsp;
+ * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#a-generating-mips-on-the-gpu}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
  * @version 0.0.5
@@ -36,7 +36,7 @@ import F from "/assets/images/f.png";
             { colorSpaceConversion: "none" }
         );
 
-    const Texture = new (await UWAL.Texture());
+    const Texture = new (await UWAL.LegacyTexture());
     Texture.SetRenderer(Renderer);
 
     const textures = await Promise.all([

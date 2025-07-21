@@ -49,7 +49,7 @@ import { vec2, mat4 } from "wgpu-matrix";
     const context2d = document.createElement("canvas").getContext("2d");
     context2d.canvas.width = context2d.canvas.height = size;
 
-    const Texture = new (await UWAL.Texture());
+    const Texture = new (await UWAL.LegacyTexture());
     Texture.SetRenderer(Renderer);
 
     const texture = createTextureFromSource(context2d.canvas, true);

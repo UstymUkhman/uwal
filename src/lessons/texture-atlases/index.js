@@ -58,7 +58,7 @@ import Atlas from "./Atlas.wgsl";
     gui.add(settings.rotation, "1", radToDegOptions).name("rotation.y");
     gui.add(settings.rotation, "2", radToDegOptions).name("rotation.z");
 
-    const Texture = new (await Device.Texture(Renderer));
+    const Texture = new (await Device.LegacyTexture(Renderer));
     const source = await Texture.CreateBitmapImage(
         await (await fetch(Noodles)).blob(),
         { colorSpaceConversion: "none" }

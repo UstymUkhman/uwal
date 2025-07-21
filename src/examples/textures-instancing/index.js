@@ -133,7 +133,7 @@ export async function run(canvas)
 
     async function createLogoTexture()
     {
-        const Texture = new (await UWAL.Texture());
+        const Texture = new (await UWAL.LegacyTexture());
 
         const logo = await Texture.CreateBitmapImage(
             await (await fetch(Logo)).blob(),

@@ -198,7 +198,7 @@ import { mat4 } from "wgpu-matrix";
         Renderer.WriteBuffer(uniform.buffer, uniform.values);
     }
 
-    const Texture = new (await UWAL.Texture(Renderer));
+    const Texture = new (await UWAL.LegacyTexture(Renderer));
     const module = Renderer.CreateShaderModule([Shaders.Quad, Blending]);
     const sampler = Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR });
 
