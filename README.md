@@ -22,6 +22,7 @@
 - UWAL is very minimal, under development and in early alpha stage, so expect breaking changes in the future.
 - There are no plans to implement any WebGL fallback, so keep an eye on [browsers that support](https://caniuse.com/webgpu) WebGPU APIs.
 - It is aimed at developers who like minimal layers of abstraction and are interested in writing their own shaders.
+- To get started with UWAL, feel free to check out the [Wiki](https://github.com/UstymUkhman/uwal/wiki) page for some simple examples using version `0.1.0`.
 
 ## [Installation](https://www.npmjs.com/package/uwal)
 
@@ -37,9 +38,12 @@ bun add uwal
 
 ## [Examples](https://ustymukhman.github.io/uwal/dist/examples/examples.html)
 
-| Basic Program | Ripple Effect |
+|   |   |
 |:-:|:-:|
-| [![Basic Program](assets/images/BasicProgram.jpg)](https://www.youtube.com/watch?v=TOCvJR07H6k) | [![Ripple Effect](assets/images/RippleEffect.jpg)](https://www.youtube.com/watch?v=j07n96qDe20) |
+| Tunnel | Ripple Effect |
+| [![Basic Program](assets/images/Tunnel.jpg)](https://www.youtube.com/watch?v=TOCvJR07H6k) | [![Ripple Effect](assets/images/RippleEffect.jpg)](https://www.youtube.com/watch?v=j07n96qDe20) |
+<!-- | Pong Game | Smallpt | -->
+<!-- | [![Basic Program](assets/images/Pong.jpg)]() | [![Smallpt](assets/images/Smallpt.jpg)]() | -->
 
 ### [WebGPU Fundamentals](https://webgpufundamentals.org/)
 
