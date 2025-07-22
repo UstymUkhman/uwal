@@ -10,6 +10,9 @@
   "private": false,
   "license": "MIT",
   "type": "module",
+  "imports": {
+    "#*": "./lib"
+  },
   "author": {
     "name": "Ustym Ukhman",
     "email": "ustym.ukhman@gmail.com",
@@ -26,9 +29,6 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  },
-  "imports": {
-    "#*": "./lib"
   },
   "exports": {
     ".": {
