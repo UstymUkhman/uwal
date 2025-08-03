@@ -40,10 +40,10 @@ bun add uwal
 
 |   |   |
 |:-:|:-:|
-| Tunnel | Ripple Effect |
-| [![Basic Program](assets/images/Tunnel.jpg)](https://www.youtube.com/watch?v=TOCvJR07H6k) | [![Ripple Effect](assets/images/RippleEffect.jpg)](https://www.youtube.com/watch?v=j07n96qDe20) |
-<!-- | Pong Game | Smallpt | -->
-<!-- | [![Basic Program](assets/images/Pong.jpg)]() | [![Smallpt](assets/images/Smallpt.jpg)]() | -->
+| Basic Program | Ripple Effect |
+| [![Basic Program](assets/images/BasicProgram.jpg)](https://www.youtube.com/watch?v=TOCvJR07H6k) | [![Ripple Effect](assets/images/RippleEffect.jpg)](https://www.youtube.com/watch?v=j07n96qDe20) |
+| Smallpt WebGPU | Pong Game |
+| [![Smallpt WebGPU](assets/images/SmallptWebGPU.jpg)](https://ustymukhman.github.io/smallpt-webgpu/dist/) | [![Pong Game](assets/images/PongGame.jpg)]() |
 
 ### [WebGPU Fundamentals](https://webgpufundamentals.org/)
 

@@ -9,5 +9,6 @@
 | [Video Color Grading](https://ustymukhman.github.io/uwal/dist/examples/examples.html#video-color-grading) | [Code](./video-color-grading/index.js) |
 | [Cube / Cameras](https://ustymukhman.github.io/uwal/dist/examples/examples.html#cube-cameras) | [Code](./cube-cameras/index.js) |
 | **Demo** |
-| [Basic Program](https://ustymukhman.github.io/uwal/dist/examples/examples.html#basic-program) | [Code](https://github.com/UstymUkhman/uwal-basic-program) |
-| [Ripple Effect](https://ustymukhman.github.io/uwal/dist/examples/examples.html#ripple-effect) | [Code](https://github.com/UstymUkhman/uwal-ripple-effect) |
+| [Basic Program](https://ustymukhman.github.io/uwal/dist/examples/examples.html#uwal-basic-program) | [Code](https://github.com/UstymUkhman/uwal-basic-program) |
+| [Ripple Effect](https://ustymukhman.github.io/uwal/dist/examples/examples.html#uwal-ripple-effect) | [Code](https://github.com/UstymUkhman/uwal-ripple-effect) |
+| [Smallpt WebGPU](https://ustymukhman.github.io/uwal/dist/examples/examples.html#smallpt-webgpu) | [Code](https://github.com/UstymUkhman/smallpt-webgpu) |
