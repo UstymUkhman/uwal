@@ -37,3 +37,4 @@
 | [Orthographic Projection](https://webgpufundamentals.org/webgpu/lessons/webgpu-orthographic-projection.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#orthographic-projection) | [Code](./orthographic-projection/index.js) |
 | [Perspective Projection](https://webgpufundamentals.org/webgpu/lessons/webgpu-perspective-projection.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#perspective-projection) | [Code](./perspective-projection/index.js) |
 | [Cameras](https://webgpufundamentals.org/webgpu/lessons/webgpu-cameras.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#cameras) | [Code](./cameras/index.js) |
+| [Matrix Stacks](https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-stacks.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#matrix-stacks) | [Code](./matrix-stacks/index.js) |
