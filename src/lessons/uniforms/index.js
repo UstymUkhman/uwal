@@ -107,8 +107,6 @@ import TriangleUniforms from "./TriangleUniforms.wgsl";
 
     function render()
     {
-        Renderer.SetCanvasSize(canvas.width, canvas.height);
-
         const aspect = Renderer.AspectRatio;
 
         descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;

@@ -40,8 +40,6 @@ import Checkerboard from "./Checkerboard.frag.wgsl";
 
     function render()
     {
-        Renderer.SetCanvasSize(canvas.width, canvas.height);
-
         descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
         Renderer.Render(3);
     }

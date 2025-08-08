@@ -168,8 +168,6 @@ import StorageBuffers from "./StorageBuffers.wgsl";
 
     function render()
     {
-        Renderer.SetCanvasSize(canvas.width, canvas.height);
-
         const aspect = Renderer.AspectRatio;
 
         descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
