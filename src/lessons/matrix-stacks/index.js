@@ -60,8 +60,7 @@ import Cube from "./Cube.wgsl";
     Camera.Position = [0, 20, 100]; Camera.LookAt([0, 20, 0]);
     const viewProjection = Camera.UpdateViewProjection(false);
 
-    const handlePosition = [
-        0,
+    const handlePosition = [0,
         drawerSize[height] / 3 * 2 - drawerSize[height] / 2,
         handleSize[depth] / 2 + drawerSize[depth] / 2
     ];
@@ -88,8 +87,7 @@ import Cube from "./Cube.wgsl";
             fragment: CubePipeline.CreateFragmentState(module),
             depthStencil: CubePipeline.CreateDepthStencilState(),
             vertex: CubePipeline.CreateVertexState(module, void 0, [
-                CubePipeline.CreateVertexBufferLayout(cube.PositionAttribute),
-                colorLayout
+                cube.GetPositionBufferLayout(CubePipeline), colorLayout
             ])
         })
     );
@@ -118,19 +116,28 @@ import Cube from "./Cube.wgsl";
 
     function drawObject(matrix, color)
     {
+        // Create Object Info Function:
         if (objectIndex === objectInfos.length)
         {
+            const { projection: projectionValue, buffer: projectionBuffer } =
+                CubePipeline.CreateUniformBuffer("projection");
+
             const { color: colorValue, buffer: colorBuffer } =
                 CubePipeline.CreateUniformBuffer("color");
 
-            const { projection: projectionValue, buffer: projectionBuffer } =
-                CubePipeline.CreateUniformBuffer("projection");
+            CubePipeline.AddBindGroups(
+                CubePipeline.CreateBindGroup(
+                    CubePipeline.CreateBindGroupEntries([
+                        colorBuffer, projectionBuffer
+                    ])
+                )
+            );
 
             objectInfos.push({ projectionValue, projectionBuffer, colorValue, colorBuffer });
         }
 
         const { projectionValue, projectionBuffer, colorValue, colorBuffer } =
-            objectInfos[objectIndex++];
+            objectInfos[objectIndex];
 
         colorValue.set(color);
         CubePipeline.WriteBuffer(colorBuffer, colorValue);
@@ -138,14 +145,7 @@ import Cube from "./Cube.wgsl";
         mat4.multiply(viewProjection, matrix, projectionValue);
         CubePipeline.WriteBuffer(projectionBuffer, projectionValue);
 
-        CubePipeline.SetBindGroups(
-            CubePipeline.CreateBindGroup(
-                CubePipeline.CreateBindGroupEntries([
-                    colorBuffer, projectionBuffer
-                ])
-            )
-        );
-
+        CubePipeline.SetActiveBindGroups(objectIndex++);
         Renderer.Render(false);
     }
 
