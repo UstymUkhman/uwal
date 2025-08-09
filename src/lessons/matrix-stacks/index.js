@@ -38,6 +38,7 @@ import Cube from "./Cube.wgsl";
         converters: GUI.converters.radToDeg
     };
 
+    const cabinetColor = [0.75, 0.75, 0.75, 0.75];
     const [width, height, depth] = [0, 1, 2];
 
     const handleColor = [0.5, 0.5, 0.5, 1];
@@ -45,9 +46,11 @@ import Cube from "./Cube.wgsl";
 
     const drawerSize = [40, 30, 50];
     const handleSize = [10, 2, 2];
+    const drawersPerCabinet = 4;
 
     const objectInfos = [];
     let objectIndex = 0;
+    const cabinets = 5;
 
     const rotation = mat4.create();
     const stack = new MatrixStack();
@@ -57,12 +60,21 @@ import Cube from "./Cube.wgsl";
     gui.add(settings, "baseRotation", radToDegOptions);
 
     const Camera = new PerspectiveCamera(60, 1, 2000);
-    Camera.Position = [0, 20, 100]; Camera.LookAt([0, 20, 0]);
+    Camera.Position = [0, 15, 250]; Camera.LookAt([0, 5, 0]);
     const viewProjection = Camera.UpdateViewProjection(false);
 
     const handlePosition = [0,
         drawerSize[height] / 3 * 2 - drawerSize[height] / 2,
         handleSize[depth] / 2 + drawerSize[depth] / 2
+    ];
+
+    const cabinetSpacing = drawerSize[width] + 10;
+    const drawerSpacing = drawerSize[height] + 3;
+
+    const cabinetSize = [
+        drawerSize[width] + 6,
+        drawerSpacing * drawersPerCabinet + 6,
+        drawerSize[depth] + 4,
     ];
 
     Renderer.CreatePassDescriptor(
@@ -163,13 +175,50 @@ import Cube from "./Cube.wgsl";
         stack.Pop();
     }
 
+    function drawCabinet()
+    {
+        stack.Push();
+        stack.Scale(cabinetSize);
+        drawObject(stack.Get(), cabinetColor);
+        stack.Pop();
+
+        const middle = cabinetSize[height] / 2 - drawerSize[height] / 2 - 5;
+
+        for (let d = 0; d < drawersPerCabinet; ++d)
+        {
+            stack.Push();
+            stack.Translate([0, d * drawerSpacing - middle, 3]);
+            drawDrawer();
+            stack.Pop();
+        }
+    }
+
+    function drawCabinets()
+    {
+        for (let c = 0, s = 1; c < cabinets; ++c)
+        {
+            stack.Push();
+
+            if (c)
+            {
+                const side = c % 2 * 2 - 1;
+                const x = cabinetSpacing * side * s;
+                stack.Translate([x, 0, 0]);
+                s += ~-side / -2;
+            }
+
+            drawCabinet();
+            stack.Pop();
+        }
+    }
+
     function render()
     {
         stack.Push();
         stack.RotateY(settings.baseRotation);
 
         objectIndex = 0;
-        drawDrawer();
+        drawCabinets();
         stack.Pop();
 
         Renderer.Submit();
