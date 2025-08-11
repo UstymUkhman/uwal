@@ -82,3 +82,4 @@ bun add uwal
   - [Perspective Projection](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#perspective-projection)
   - [Cameras](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#cameras)
   - [Matrix Stacks](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#matrix-stacks)
+  - [Recursive Tree](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#matrix-stacks#recursive-tree)

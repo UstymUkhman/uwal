@@ -1,18 +1,18 @@
 /**
- * @module Matrix Stacks
+ * @module Recursive Tree
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Matrix Stacks
- * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-stacks.html}&nbsp;
+ * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-stacks.html#a-recursive-tree}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
  * @version 0.1.0
  * @license MIT
  */
 
-import { Device, PerspectiveCamera, CubeGeometry } from "#/index";
-import MatrixStack from "./MatrixStack";
+import { Device, PerspectiveCamera, CubeGeometry, Utils } from "#/index";
+import MatrixStack from "../matrix-stacks/MatrixStack";
+import Cube from "../matrix-stacks/Cube.wgsl";
 import { mat4 } from "wgpu-matrix";
-import Cube from "./Cube.wgsl";
 
 (async function(canvas)
 {
@@ -22,13 +22,21 @@ import Cube from "./Cube.wgsl";
     try
     {
         Renderer = new (await Device.Renderer(
-            canvas, "Matrix Stacks", { alphaMode: "premultiplied" }
+            canvas, "Recursive Tree", { alphaMode: "premultiplied" }
         ));
     }
     catch (error)
     {
         alert(error);
     }
+
+    const settings =
+    {
+        rotationX: Utils.DegreesToRadians(20),
+        rotationY: Utils.DegreesToRadians(10),
+        baseRotation: 0,
+        scale: 0.9
+    };
 
     const radToDegOptions =
     {
@@ -38,44 +46,33 @@ import Cube from "./Cube.wgsl";
         converters: GUI.converters.radToDeg
     };
 
-    const cabinetColor = [0.75, 0.75, 0.75, 0.75];
-    const [width, height, depth] = [0, 1, 2];
+    const treeRadToDegOptions =
+    {
+        min: 0,
+        max: 90,
+        step: 1,
+        converters: GUI.converters.radToDeg
+    };
 
-    const handleColor = [0.5, 0.5, 0.5, 1];
-    const drawerColor = [1, 1, 1, 1];
-
-    const drawerSize = [40, 30, 50];
-    const handleSize = [10, 2, 2];
-    const drawersPerCabinet = 4;
-
+    const branchSize = [20, 150, 20];
+    const white = [1, 1, 1, 1];
     const objectInfos = [];
+
+    const treeDepth = 6;
     let objectIndex = 0;
-    const cabinets = 5;
 
     const rotation = mat4.create();
     const stack = new MatrixStack();
-
-    const settings = { baseRotation: 0 };
     const gui = new GUI().onChange(render);
+
+    gui.add(settings, 'scale', 0.1, 1.2);
+    gui.add(settings, 'rotationX', treeRadToDegOptions);
+    gui.add(settings, 'rotationY', treeRadToDegOptions);
     gui.add(settings, "baseRotation", radToDegOptions);
 
     const Camera = new PerspectiveCamera(60, 1, 2000);
-    Camera.Position = [0, 15, 250]; Camera.LookAt([0, 5, 0]);
+    Camera.Position = [0, 450, 1e3]; Camera.LookAt([0, 450, 0]);
     const viewProjection = Camera.UpdateViewProjection(false);
-
-    const handlePosition = [0,
-        drawerSize[height] / 3 * 2 - drawerSize[height] / 2,
-        handleSize[depth] / 2 + drawerSize[depth] / 2
-    ];
-
-    const cabinetSpacing = drawerSize[width] + 10;
-    const drawerSpacing = drawerSize[height] + 3;
-
-    const cabinetSize = [
-        drawerSize[width] + 6,
-        drawerSpacing * drawersPerCabinet + 6,
-        drawerSize[depth] + 4,
-    ];
 
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(),
@@ -161,55 +158,38 @@ import Cube from "./Cube.wgsl";
         Renderer.Render(false);
     }
 
-    function drawDrawer()
+    function drawBranch()
     {
-        stack.Push();
-        stack.Scale(drawerSize);
-        drawObject(stack.Get(), drawerColor);
-        stack.Pop();
+        stack
+            .Push()
+            .Scale(branchSize)
+            .Translate([0, 0.5, 0]);
 
-        stack.Push();
-        stack.Translate(handlePosition);
-        stack.Scale(handleSize);
-        drawObject(stack.Get(), handleColor);
+        drawObject(stack.Get(), white);
         stack.Pop();
     }
 
-    function drawCabinet()
+    function drawTreeLevel(offset, depth)
     {
-        stack.Push();
-        stack.Scale(cabinetSize);
-        drawObject(stack.Get(), cabinetColor);
+        const s = offset ? settings.scale : 1;
+        const y = offset ? branchSize[1] : 0;
+
+        stack
+            .Push()
+            .Translate([0, y, 0])
+            .RotateZ(offset * settings.rotationX)
+            .RotateY(Math.abs(offset) * settings.rotationY)
+            .Scale([s, s, s]);
+
+        drawBranch();
+
+        if (0 < depth)
+        {
+            drawTreeLevel(-1, depth - 1);
+            drawTreeLevel( 1, depth - 1);
+        }
+
         stack.Pop();
-
-        const middle = cabinetSize[height] / 2 - drawerSize[height] / 2 - 5;
-
-        for (let d = 0; d < drawersPerCabinet; ++d)
-        {
-            stack.Push();
-            stack.Translate([0, d * drawerSpacing - middle, 3]);
-            drawDrawer();
-            stack.Pop();
-        }
-    }
-
-    function drawCabinets()
-    {
-        for (let c = 0, s = 1; c < cabinets; ++c)
-        {
-            stack.Push();
-
-            if (c)
-            {
-                const side = c % 2 * 2 - 1;
-                const x = cabinetSpacing * side * s;
-                stack.Translate([x, 0, 0]);
-                s += ~-side / -2;
-            }
-
-            drawCabinet();
-            stack.Pop();
-        }
     }
 
     function render()
@@ -218,7 +198,7 @@ import Cube from "./Cube.wgsl";
         stack.RotateY(settings.baseRotation);
 
         objectIndex = 0;
-        drawCabinets();
+        drawTreeLevel(0, treeDepth);
         stack.Pop();
 
         Renderer.Submit();
