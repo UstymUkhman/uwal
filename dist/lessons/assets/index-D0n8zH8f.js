@@ -1,0 +1,10 @@
+import{D as s}from"./index-CWG6eoQD.js";import{D as l}from"./Double-CmGtA-HF.js";var d="@vertex fn vertex(@builtin(vertex_index)index: u32)->@builtin(position)vec4f {let position=array(vec2f(0.0,0.5),vec2f(-0.5,-0.5),vec2f(0.5,-0.5));return vec4f(position[index],0.0,1.0);}@fragment fn fragment()->@location(0)vec4f {return vec4f(1.0,0.0,0.0,1.0);}";/**
+ * @module Fundamentals
+ * @author Ustym Ukhman <ustym.ukhman@gmail.com>
+ * @description This lesson is reproduced from WebGPU Fundamentals
+ * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html}&nbsp;
+ * and developed by using a version listed below. Please note that this code
+ * may be simplified in future thanks to more recent library APIs.
+ * @version 0.0.4
+ * @license MIT
+ */(async function(u){{let o=function(){t.colorAttachments[0].view=e.CurrentTextureView,e.Render(3)},e;try{e=new(await s.RenderPipeline(u,"Red Triangle"))}catch(r){alert(r)}const t=e.CreatePassDescriptor(e.CreateColorAttachment(void 0,"clear","store",[.3,.3,.3,1])),n=e.CreateShaderModule(d);e.CreatePipeline({vertex:e.CreateVertexState(n),fragment:e.CreateFragmentState(n)}),new ResizeObserver(r=>{for(const a of r){const{inlineSize:f,blockSize:c}=a.contentBoxSize[0];e.SetCanvasSize(f,c)}o()}).observe(document.body)}{const e=new Float32Array([1,3,5]),t=new(await s.ComputePipeline("Double Compute")),n=t.CreateBuffer({size:e.byteLength,usage:GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_SRC|GPUBufferUsage.COPY_DST});t.WriteBuffer(n,e);const o=t.CreateShaderModule(l);t.CreatePipeline({module:o});const i=t.CreateBindGroup(t.CreateBindGroupEntries({buffer:n}));t.CreatePassDescriptor(),t.SetBindGroups(i),t.Workgroups=e.length,t.Compute();const r=t.CreateBuffer({size:e.byteLength,usage:GPUBufferUsage.MAP_READ|GPUBufferUsage.COPY_DST});t.CopyBufferToBuffer(n,r,r.size),t.SubmitCommandBuffer(),await r.mapAsync(GPUMapMode.READ);const a=new Float32Array(r.getMappedRange());console.info("Input:",...e),console.info("Result:",...a),r.unmap()}})(document.getElementById("lesson"));
