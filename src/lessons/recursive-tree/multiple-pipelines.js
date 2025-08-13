@@ -6,8 +6,8 @@
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
  *
- * This approach uses one render pipeline with different vertex buffers and `DrawMethods` and switches
- * between them at render time using `Pipeline.SetVertexBuffers` and `Pipeline.SetIndexBuffer` methods.
+ * This approach uses 2 render pipelines with a shared `ShaderModuleDescriptor`
+ * and switches between them at render time using `Pipeline.Active` flag.
  * @version 0.1.0
  * @license MIT
  */
@@ -58,12 +58,13 @@ import { mat4, vec3 } from "wgpu-matrix";
         converters: GUI.converters.radToDeg
     };
 
+    const cubeInfos = [], coneInfos = [];
     const branchSize = [20, 150, 20];
     const white = [1, 1, 1, 1];
-    const objectInfos = [];
 
     const treeDepth = 6;
-    let objectIndex = 0;
+    let cubeIndex = 0;
+    let coneIndex = 0;
 
     const rotation = mat4.create();
     const stack = new MatrixStack();
@@ -93,16 +94,18 @@ import { mat4, vec3 } from "wgpu-matrix";
             { name: "color", format: "unorm8x4" }, 36
         );
 
+    const moduleDescriptor =
+    {
+        primitive: { cullMode: "back" },
+        fragment: CubePipeline.CreateFragmentState(module),
+        depthStencil: CubePipeline.CreateDepthStencilState(),
+        vertex: CubePipeline.CreateVertexState(module, void 0, [
+            cube.GetPositionBufferLayout(CubePipeline), colorLayout
+        ])
+    };
+
     cube.SetRenderPipeline(
-        await Renderer.AddPipeline(CubePipeline,
-        {
-            primitive: { cullMode: "back" },
-            fragment: CubePipeline.CreateFragmentState(module),
-            depthStencil: CubePipeline.CreateDepthStencilState(),
-            vertex: CubePipeline.CreateVertexState(module, void 0, [
-                cube.GetPositionBufferLayout(CubePipeline), colorLayout
-            ])
-        })
+        await Renderer.AddPipeline(CubePipeline, moduleDescriptor)
     );
 
     const colors = [
@@ -125,55 +128,61 @@ import { mat4, vec3 } from "wgpu-matrix";
     }
 
     const { vertexData, colorData: coneColorData, vertices } = createConeVertices(20, 60);
-    const coneVertexBuffer = CubePipeline.CreateVertexBuffer(vertexData);
+    const ConePipeline = await Renderer.CreatePipeline(moduleDescriptor);
+    const coneVertexBuffer = ConePipeline.CreateVertexBuffer(vertexData);
 
     const { buffer: coneColorBuffer } = CubePipeline.CreateVertexBuffer(
         { name: "color", format: "unorm8x4" }, vertices
     );
 
-    CubePipeline.WriteBuffer(coneColorBuffer, coneColorData);
-    CubePipeline.WriteBuffer(coneVertexBuffer, vertexData);
+    ConePipeline.SetVertexBuffers([coneVertexBuffer, coneColorBuffer]);
+    ConePipeline.WriteBuffer(coneColorBuffer, coneColorData);
+    ConePipeline.WriteBuffer(coneVertexBuffer, vertexData);
     CubePipeline.WriteBuffer(colorBuffer, colorData);
-    cube.AddVertexBuffers(colorBuffer);
 
-    const coneVertexBuffers = [coneVertexBuffer, coneColorBuffer];
-    const cubeIndexBuffer = Object.values(CubePipeline.IndexBuffer);
-    const cubeVertexBuffers = CubePipeline.VertexBuffers.map(({ buffer }) => buffer);
+    // Initialize internal `Reflect` data:
+    ConePipeline.CreateShaderModule(Cube);
+    ConePipeline.SetDrawParams(vertices);
+    cube.AddVertexBuffers(colorBuffer);
 
     function drawObject(matrix, ornament)
     {
+        const Pipeline = ornament ? ConePipeline : CubePipeline;
+        const index = ornament ? coneIndex : cubeIndex;
+        const infos = ornament ? coneInfos : cubeInfos;
+
         // Create Object Info Function:
-        if (objectIndex === objectInfos.length)
+        if (index === infos.length)
         {
             const { projection: projectionValue, buffer: projectionBuffer } =
-                CubePipeline.CreateUniformBuffer("projection");
+                Pipeline.CreateUniformBuffer("projection");
 
             const { color: colorValue, buffer: colorBuffer } =
-                CubePipeline.CreateUniformBuffer("color");
+                Pipeline.CreateUniformBuffer("color");
 
-            CubePipeline.AddBindGroups(
-                CubePipeline.CreateBindGroup(
-                    CubePipeline.CreateBindGroupEntries([
+            Pipeline.AddBindGroups(
+                Pipeline.CreateBindGroup(
+                    Pipeline.CreateBindGroupEntries([
                         colorBuffer, projectionBuffer
                     ])
                 )
             );
 
-            objectInfos.push({ projectionValue, projectionBuffer, colorValue, colorBuffer });
+            infos.push({ projectionValue, projectionBuffer, colorValue, colorBuffer });
         }
 
-        const { projectionValue, projectionBuffer, colorValue, colorBuffer } =
-            objectInfos[objectIndex];
+        const { projectionValue, projectionBuffer, colorValue, colorBuffer } = infos[index];
 
         colorValue.set(white);
-        CubePipeline.WriteBuffer(colorBuffer, colorValue);
+        Pipeline.SetActiveBindGroups(index);
+        Pipeline.WriteBuffer(colorBuffer, colorValue);
 
         mat4.multiply(viewProjection, matrix, projectionValue);
-        CubePipeline.WriteBuffer(projectionBuffer, projectionValue);
+        Pipeline.WriteBuffer(projectionBuffer, projectionValue);
 
-        CubePipeline.SetVertexBuffers(ornament ? coneVertexBuffers : cubeVertexBuffers);
-        CubePipeline.SetIndexBuffer(...(!ornament && cubeIndexBuffer || [void 0]));
-        CubePipeline.SetActiveBindGroups(objectIndex++);
+        ornament ? coneIndex++ : cubeIndex++;
+        CubePipeline.Active = !ornament;
+        ConePipeline.Active = ornament;
 
         Renderer.Render(false);
     }
@@ -223,7 +232,7 @@ import { mat4, vec3 } from "wgpu-matrix";
         stack.Push();
         stack.RotateY(settings.baseRotation);
 
-        objectIndex = 0;
+        cubeIndex = coneIndex = 0;
         drawTreeLevel(0, treeDepth);
         stack.Pop();
 
