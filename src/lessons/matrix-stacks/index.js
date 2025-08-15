@@ -32,8 +32,8 @@ import Cube from "./Cube.wgsl";
 
     const radToDegOptions =
     {
-        min: -360,
-        max: 360,
+        min: -180,
+        max: 180,
         step: 1,
         converters: GUI.converters.radToDeg
     };

@@ -44,8 +44,8 @@ import { mat4, vec3 } from "wgpu-matrix";
 
     const radToDegOptions =
     {
-        min: -360,
-        max: 360,
+        min: -180,
+        max: 180,
         step: 1,
         converters: GUI.converters.radToDeg
     };
