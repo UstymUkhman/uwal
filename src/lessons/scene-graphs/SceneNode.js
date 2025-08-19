@@ -10,7 +10,7 @@ export default class SceneNode
     /** @type {Transform | undefined} */ #Transform;
     /** @type {SceneNode | null} */ #Parent = null;
     /** @type {SceneNode[]} */ Children = [];
-    /** @type {string} */ #Label = "";
+    /** @type {string} */ Label = "";
 
     #LocalMatrix = mat4.identity();
     #WorldMatrix = mat4.identity();
@@ -21,8 +21,8 @@ export default class SceneNode
      */
     constructor(label = "", transform)
     {
-        this.#Label = label;
         this.#Transform = transform;
+        this.Label = label;
     }
 
     /** @param {SceneNode} child */
@@ -71,5 +71,10 @@ export default class SceneNode
     get WorldMatrix()
     {
         return this.#WorldMatrix;
+    }
+
+    get Transform()
+    {
+        return this.#Transform;
     }
 }

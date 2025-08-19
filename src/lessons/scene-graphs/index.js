@@ -1,7 +1,7 @@
 /**
  * @module Scene Graphs
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
- * @description This lesson is reproduced from WebGPU Matrix Stacks
+ * @description This lesson is reproduced from WebGPU Scene Graphs
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-scene-graphs.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
@@ -9,7 +9,8 @@
  * @license MIT
  */
 
-import { Device, PerspectiveCamera, CubeGeometry } from "#/index";
+import { addButtonLeftJustified } from "https://webgpufundamentals.org/webgpu/resources/js/gui-helpers.js";
+import { Device, PerspectiveCamera, CubeGeometry, Utils } from "#/index";
 import Cube from "../matrix-stacks/Cube.wgsl";
 import { mat4, vec3 } from "wgpu-matrix";
 import SceneNode from "./SceneNode";
@@ -33,6 +34,14 @@ import Transform from "./Transform";
 
     const radToDegOptions =
     {
+        min: -90,
+        max: 90,
+        step: 1,
+        converters: GUI.converters.radToDeg
+    };
+
+    const cameraRadToDegOptions =
+    {
         min: -180,
         max: 180,
         step: 1,
@@ -41,10 +50,10 @@ import Transform from "./Transform";
 
     const cabinetColor = [0.75, 0.75, 0.75, 0.75];
     const [width, height, depth] = [0, 1, 2];
-
     const handleColor = [0.5, 0.5, 0.5, 1];
-    const drawerColor = [1, 1, 1, 1];
+    const alwaysShow = new Set([0, 1, 2]);
 
+    const drawerColor = [1, 1, 1, 1];
     const drawerSize = [40, 30, 50];
     const handleSize = [10, 2, 2];
     const drawersPerCabinet = 4;
@@ -53,13 +62,43 @@ import Transform from "./Transform";
     let objectIndex = 0;
     const cabinets = 5;
     const meshes = [];
+    let currentNode;
+
+    const settings =
+    {
+        cameraRotation: Utils.DegreesToRadians(-45),
+        showMeshNodes: false,
+        showAllTransforms: false,
+        translation: vec3.zero(),
+        rotation: vec3.zero(),
+        scale: vec3.create(1, 1, 1)
+    };
 
     const stack = new SceneNode();
     const rotation = mat4.create();
-
+    const root = new SceneNode("root");
     const gui = new GUI().onChange(render);
-    const settings = { cameraRotation: 0 };
-    gui.add(settings, "cameraRotation", radToDegOptions);
+
+    gui.add(settings, "cameraRotation", cameraRadToDegOptions);
+    gui.add(settings, "showMeshNodes").onChange(showMeshNodes);
+    gui.add(settings, "showAllTransforms").onChange(showTransforms);
+
+    const transformFolder = gui.addFolder("Orientation");
+    transformFolder.onChange(updateCurrentNodeSettings);
+
+    const transformControls = [
+        transformFolder.add(settings.translation, "0", -200, 200, 1).name("Translation X"),
+        transformFolder.add(settings.translation, "1", -200, 200, 1).name("Translation Y"),
+        transformFolder.add(settings.translation, "2", -200, 200, 1).name("Translation Z"),
+
+        transformFolder.add(settings.rotation, "0", radToDegOptions).name("Rotation X"),
+        transformFolder.add(settings.rotation, "1", radToDegOptions).name("Rotation Y"),
+        transformFolder.add(settings.rotation, "2", radToDegOptions).name("Rotation Z"),
+
+        transformFolder.add(settings.scale, "0", 0.1, 100).name("Scale X"),
+        transformFolder.add(settings.scale, "1", 0.1, 100).name("Scale Y"),
+        transformFolder.add(settings.scale, "2", 0.1, 100).name("Scale Z")
+    ];
 
     const handlePosition = [0,
         drawerSize[height] / 3 * 2 - drawerSize[height] / 2,
@@ -78,7 +117,7 @@ import Transform from "./Transform";
     const Camera = new PerspectiveCamera(60, 1, 2e3);
     let viewProjection = Camera.UpdateViewProjection();
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
-    const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2;
+    const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;
 
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(),
@@ -129,6 +168,76 @@ import Transform from "./Transform";
     CubePipeline.WriteBuffer(colorBuffer, colorData);
     cube.AddVertexBuffers(colorBuffer);
 
+    for (let c = 0; c < cabinets; ++c)
+        addCabinet(root, c);
+
+    const nodesFolder = gui.addFolder("Nodes");
+    const nodeButtons = addSceneNodeGUI(nodesFolder, root);
+
+    setCurrentNode(root.Children[0]);
+    showTransforms(false);
+    showMeshNodes(false);
+
+    function addSceneNodeGUI(gui, node, last, prefix)
+    {
+        const nodes = [];
+        const empty = prefix === void 0;
+
+        if (node.Transform instanceof Transform)
+        {
+            const label = `${!empty && `${prefix}\u00a0+-`}${node.Label}` || "";
+            nodes.push(addButtonLeftJustified(gui, label, () => setCurrentNode(node)));
+        }
+
+        prefix = !empty && `${prefix}${last ? "\u00a0\u00a0\u00a0" : "\u00a0|\u00a0"}` || "";
+
+        nodes.push(...node.Children.map((child, c) =>
+        {
+            const last = c === node.Children.length - 1;
+            return addSceneNodeGUI(gui, child, last, prefix);
+        }));
+
+        return nodes.flat();
+    }
+
+    function updateCurrentNodeSettings()
+    {
+        const transform = currentNode.Transform;
+        transform.Translation.set(settings.translation);
+        transform.Rotation.set(settings.rotation);
+        transform.Scale.set(settings.scale);
+    }
+
+    function updateCurrentNodeGUI()
+    {
+        const transform = currentNode.Transform;
+        settings.translation.set(transform.Translation);
+        settings.rotation.set(transform.Rotation);
+        settings.scale.set(transform.Scale);
+        transformFolder.updateDisplay();
+    }
+
+    function setCurrentNode(node)
+    {
+        currentNode = node;
+        transformFolder.name(`Orientation: ${node.Label}`);
+        updateCurrentNodeGUI();
+    }
+
+    function showTransforms(show)
+    {
+        transformControls.forEach((transform, t) => {
+            transform.show(show || alwaysShow.has(t));
+        });
+    }
+
+    function showMeshNodes(show)
+    {
+        for (const child of nodeButtons)
+            if (child.domElement.textContent.includes("mesh"))
+                child.show(show);
+    }
+
     function addSceneNode(label, parent, transform)
     {
         const node = new SceneNode(label, new Transform(...transform));
@@ -157,7 +266,7 @@ import Transform from "./Transform";
             void 0, void 0, drawerSize
         ], drawerColor);
 
-        addCube(`${label}-drawer-mesh`, drawer, [
+        addCube(`${label}-handle-mesh`, drawer, [
             handlePosition, void 0, handleSize
         ], handleColor);
     }
@@ -177,11 +286,6 @@ import Transform from "./Transform";
         for (let d = 0; d < drawersPerCabinet; ++d)
             addDrawer(cabinet, d);
     }
-
-    const root = new SceneNode("root");
-
-    for (let c = 0; c < cabinets; ++c)
-        addCabinet(root, c);
 
     function drawObject(matrix, color)
     {

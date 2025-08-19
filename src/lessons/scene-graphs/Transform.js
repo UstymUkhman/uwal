@@ -42,4 +42,37 @@ export default class Transform
 
         return dst;
     }
+
+    /** @param {Vec3} translation */
+    set Translation(translation)
+    {
+        vec3.copy(translation, this.#Translation);
+    }
+
+    get Translation()
+    {
+        return this.#Translation;
+    }
+
+    /** @param {Vec3} rotation */
+    set Rotation(rotation)
+    {
+        vec3.copy(rotation, this.#Rotation);
+    }
+
+    get Rotation()
+    {
+        return this.#Rotation;
+    }
+
+    /** @param {Vec3} scale */
+    set Scale(scale)
+    {
+        vec3.copy(scale, this.#Scale);
+    }
+
+    get Scale()
+    {
+        return this.#Scale;
+    }
 }
