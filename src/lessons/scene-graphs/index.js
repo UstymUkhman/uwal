@@ -58,15 +58,22 @@ import Transform from "./Transform";
     const handleSize = [10, 2, 2];
     const drawersPerCabinet = 4;
 
+    const animatedNodes = [];
+    let wasRunning = false;
     const objectInfos = [];
+
+    let requestId, then;
     let objectIndex = 0;
     const cabinets = 5;
+
     const meshes = [];
     let currentNode;
+    let time = 0;
 
     const settings =
     {
         cameraRotation: Utils.DegreesToRadians(-45),
+        animate: false,
         showMeshNodes: false,
         showAllTransforms: false,
         translation: vec3.zero(),
@@ -77,9 +84,10 @@ import Transform from "./Transform";
     const stack = new SceneNode();
     const rotation = mat4.create();
     const root = new SceneNode("root");
-    const gui = new GUI().onChange(render);
+    const gui = new GUI().onChange(requestRender);
 
     gui.add(settings, "cameraRotation", cameraRadToDegOptions);
+    gui.add(settings, "animate").onChange(v => transformFolder.enable(!v));
     gui.add(settings, "showMeshNodes").onChange(showMeshNodes);
     gui.add(settings, "showAllTransforms").onChange(showTransforms);
 
@@ -127,6 +135,7 @@ import Transform from "./Transform";
     const cube = new CubeGeometry();
     const CubePipeline = new Renderer.Pipeline();
     const module = CubePipeline.CreateShaderModule(Cube);
+    const bindGroups = (drawersPerCabinet * 2 + 1) * cabinets + 1;
 
     const { layout: colorLayout, buffer: colorBuffer } =
         CubePipeline.CreateVertexBuffer(
@@ -157,6 +166,7 @@ import Transform from "./Transform";
 
     const vertices = cube.UV.length / 2;
     const colorData = new Uint8Array(vertices * 4);
+    const lerp = (v1, v2, t) => (v2 - v1) * t + v1;
 
     for (let v = 0, i = 0; v < vertices; i = (++v / 4 | 0) * 3)
     {
@@ -180,22 +190,19 @@ import Transform from "./Transform";
 
     function addSceneNodeGUI(gui, node, last, prefix)
     {
-        const nodes = [];
-        const empty = prefix === void 0;
+        const nodes = [], empty = prefix === void 0;
 
         if (node.Transform instanceof Transform)
         {
-            const label = `${!empty && `${prefix}\u00a0+-`}${node.Label}` || "";
+            const label = `${empty ? "" : `${prefix}\u00a0+-`}${node.Label}`;
             nodes.push(addButtonLeftJustified(gui, label, () => setCurrentNode(node)));
         }
 
-        prefix = !empty && `${prefix}${last ? "\u00a0\u00a0\u00a0" : "\u00a0|\u00a0"}` || "";
+        prefix = empty ? "" : `${prefix}${last ? "\u00a0\u00a0\u00a0" : "\u00a0|\u00a0"}`;
 
         nodes.push(...node.Children.map((child, c) =>
-        {
-            const last = c === node.Children.length - 1;
-            return addSceneNodeGUI(gui, child, last, prefix);
-        }));
+            addSceneNodeGUI(gui, child, c === node.Children.length - 1, prefix)
+        ));
 
         return nodes.flat();
     }
@@ -262,6 +269,8 @@ import Transform from "./Transform";
             [0, drawerSpacing * index - middle, 3]
         ]);
 
+        animatedNodes.push(drawer);
+
         addCube(`${label}-drawer-mesh`, drawer, [
             void 0, void 0, drawerSize
         ], drawerColor);
@@ -318,18 +327,31 @@ import Transform from "./Transform";
         mat4.multiply(viewProjection, matrix, projectionValue);
         CubePipeline.WriteBuffer(projectionBuffer, projectionValue);
 
-        CubePipeline.SetActiveBindGroups(objectIndex++);
+        CubePipeline.SetActiveBindGroups(objectIndex);
+        objectIndex = ++objectIndex % bindGroups;
         Renderer.Render(false);
+    }
+
+    function requestRender()
+    {
+        if (!requestId) requestId = requestAnimationFrame(render);
     }
 
     function drawMesh(mesh)
     {
-        const { node, color } = mesh;
-        drawObject(node.WorldMatrix, color);
+        drawObject(mesh.node.WorldMatrix, mesh.color);
+    }
+
+    function animate()
+    {
+        animatedNodes.forEach((node, n) => node.Transform.Translation[2] =
+            lerp(3, drawerSize[2] * 0.8, Math.sin(time + n) * 0.5 + 0.5)
+        );
     }
 
     function render()
     {
+        requestId = void 0;
         Camera.ResetMatrix();
         Camera.Translate([cameraOffsetX, 20, 0]);
         Camera.RotateY(settings.cameraRotation);
@@ -342,6 +364,20 @@ import Transform from "./Transform";
             drawMesh(mesh);
 
         Renderer.Submit();
+
+        const isRunning = settings.animate;
+        const now = performance.now() * 0.001;
+        const deltaTime = wasRunning && now - then || 0;
+
+        then = now;
+        if (isRunning) time += deltaTime;
+
+        wasRunning = isRunning;
+        if (!settings.animate) return;
+
+        animate();
+        updateCurrentNodeGUI();
+        requestRender();
     }
 
     const observer = new ResizeObserver(entries =>
@@ -354,7 +390,7 @@ import Transform from "./Transform";
             Camera.UpdateViewProjection();
         }
 
-        render();
+        requestRender();
     });
 
     observer.observe(document.body);
