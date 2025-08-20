@@ -65,7 +65,6 @@ import { mat4, vec3 } from "wgpu-matrix";
     const treeDepth = 6;
     let objectIndex = 0;
 
-    const rotation = mat4.create();
     const stack = new MatrixStack();
     const gui = new GUI().onChange(render);
 

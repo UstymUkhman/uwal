@@ -52,9 +52,7 @@ import Cube from "./Cube.wgsl";
     let objectIndex = 0;
     const cabinets = 5;
 
-    const rotation = mat4.create();
     const stack = new MatrixStack();
-
     const settings = { baseRotation: 0 };
     const gui = new GUI().onChange(render);
     gui.add(settings, "baseRotation", radToDegOptions);

@@ -82,9 +82,9 @@ import Transform from "./Transform";
     };
 
     const stack = new SceneNode();
-    const rotation = mat4.create();
     const root = new SceneNode("root");
     const gui = new GUI().onChange(requestRender);
+    const lerp = (v1, v2, t) => (v2 - v1) * t + v1;
 
     gui.add(settings, "cameraRotation", cameraRadToDegOptions);
     gui.add(settings, "animate").onChange(v => transformFolder.enable(!v));
@@ -166,7 +166,6 @@ import Transform from "./Transform";
 
     const vertices = cube.UV.length / 2;
     const colorData = new Uint8Array(vertices * 4);
-    const lerp = (v1, v2, t) => (v2 - v1) * t + v1;
 
     for (let v = 0, i = 0; v < vertices; i = (++v / 4 | 0) * 3)
     {
@@ -233,9 +232,9 @@ import Transform from "./Transform";
 
     function showTransforms(show)
     {
-        transformControls.forEach((transform, t) => {
-            transform.show(show || alwaysShow.has(t));
-        });
+        transformControls.forEach((transform, t) =>
+            transform.show(show || alwaysShow.has(t))
+        );
     }
 
     function showMeshNodes(show)
@@ -352,6 +351,7 @@ import Transform from "./Transform";
     function render()
     {
         requestId = void 0;
+
         Camera.ResetMatrix();
         Camera.Translate([cameraOffsetX, 20, 0]);
         Camera.RotateY(settings.cameraRotation);
