@@ -84,3 +84,4 @@ bun add uwal
   - [Matrix Stacks](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#matrix-stacks)
   - [Recursive Tree](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#recursive-tree)
   - [Scene Graphs](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#scene-graphs)
+  - [Making a Hand](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#hand)

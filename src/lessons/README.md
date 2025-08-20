@@ -40,3 +40,4 @@
 | [Matrix Stacks](https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-stacks.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#matrix-stacks) | [Code](./matrix-stacks/index.js) |
 | [Recursive Tree](https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-stacks.html#a-recursive-tree) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#recursive-tree) | [Code](./recursive-tree/index.js) |
 | [Scene Graphs](https://webgpufundamentals.org/webgpu/lessons/webgpu-scene-graphs.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#scene-graphs) | [Code](./scene-graphs/index.js) |
+| [Making a Hand](https://webgpufundamentals.org/webgpu/lessons/webgpu-scene-graphs.html#a-hand) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#hand) | [Code](./hand/index.js) |
