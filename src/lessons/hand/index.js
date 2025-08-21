@@ -153,23 +153,21 @@ import { mat4, vec3 } from "wgpu-matrix";
     cube.AddVertexBuffers(colorBuffer);
 
     const rotation = [Utils.DegreesToRadians(15), 0, 0];
-    const wrist = addSceneNode("wrist", root, [[0, -35, 0]]);
-    const palm = addSceneNode("palm", wrist, [[0, 68, 0]]);
+    const wrist = addSceneNode("Wrist", root, [[0, -35, 0]]);
+    const palm = addSceneNode("Palm", wrist, [[0, 68, 0]]);
 
-    const palmMesh = addSceneNode("palm-mesh", wrist, [
+    addMesh(addSceneNode("Palm Mesh", wrist, [
         void 0, void 0, [100, 100, 10]
-    ]);
-
-    addMesh(palmMesh, white);
+    ]), white);
 
     const animatedNodes =
     [
         wrist, palm,
-        ...addFinger("thumb",         palm, 2, 20, [[-50, -8, 0], rotation]),
-        ...addFinger("index finger",  palm, 3, 30, [[-25, -3, 0], rotation]),
-        ...addFinger("middle finger", palm, 3, 35, [[ -0, -1, 0], rotation]),
-        ...addFinger("ring finger",   palm, 3, 33, [[ 25, -2, 0], rotation]),
-        ...addFinger("pinky",         palm, 3, 25, [[ 45, -6, 0], rotation])
+        ...addFinger("Thumb",         palm, 2, 20, [[-50, -8, 3.33], rotation]),
+        ...addFinger("Index Finger",  palm, 3, 30, [[-25, -3, 3.33], rotation]),
+        ...addFinger("Middle Finger", palm, 3, 35, [[ -0, -1, 3.33], rotation]),
+        ...addFinger("Ring Finger",   palm, 3, 33, [[ 25, -2, 3.33], rotation]),
+        ...addFinger("Pinky",         palm, 3, 25, [[ 45, -6, 3.33], rotation])
     ];
 
     const nodesFolder = gui.addFolder("Nodes");
@@ -236,6 +234,12 @@ import { mat4, vec3 } from "wgpu-matrix";
                 child.show(show);
     }
 
+    function addMesh(node, color)
+    {
+        const length = meshes.push({ node, color });
+        return meshes[length - 1];
+    }
+
     function addSceneNode(label, parent, transform = [])
     {
         const node = new SceneNode(label, new Transform(...transform));
@@ -243,16 +247,9 @@ import { mat4, vec3 } from "wgpu-matrix";
         return node;
     }
 
-    function addMesh(node, color)
-    {
-        const length = meshes.push({ node, color });
-        return meshes[length - 1];
-    }
-
     function addFinger(label, parent, segments, segmentHeight, transform)
     {
-        const nodes = [];
-        const baseLabel = label;
+        const baseLabel = label, nodes = [];
 
         for (let s = 0; s < segments; ++s)
         {
@@ -267,7 +264,7 @@ import { mat4, vec3 } from "wgpu-matrix";
             parent = node;
 
             transform = [
-                [0, segmentHeight, 0],
+                [0, segmentHeight, 3.33],
                 [Utils.DegreesToRadians(15), 0, 0]
             ];
         }
@@ -323,9 +320,12 @@ import { mat4, vec3 } from "wgpu-matrix";
 
     function animate()
     {
-        animatedNodes.forEach((node, n) => node.Transform.Rotation[0] =
-            lerp(0, Math.PI * 0.25, Math.sin(time + n * 0.1) * 0.5 + 0.5)
-        );
+        animatedNodes.forEach((node, n) =>
+        {
+            const t = Math.sin(time + n * 0.1) * 0.5 + 0.5;
+            node.Transform.Translation[2] = lerp(0, 10, t);
+            node.Transform.Rotation[0] = lerp(0, Math.PI * 0.25, t);
+        });
     }
 
     function render()
@@ -333,7 +333,7 @@ import { mat4, vec3 } from "wgpu-matrix";
         requestId = void 0;
 
         Camera.ResetMatrix();
-        Camera.Translate([0, 20, 0]);
+        Camera.Translate([60, 20, 0]);
         Camera.RotateY(settings.cameraRotation);
         Camera.Translate([0, 0, 300]);
 
