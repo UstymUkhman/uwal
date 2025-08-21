@@ -11,6 +11,7 @@
 
 import { addButtonLeftJustified } from "https://webgpufundamentals.org/webgpu/resources/js/gui-helpers.js";
 import { Device, PerspectiveCamera, CubeGeometry, Utils } from "#/index";
+import createConeVertices from "../recursive-tree/ConeVertices";
 import SceneNode from "../scene-graphs/SceneNode";
 import Transform from "../scene-graphs/Transform";
 import Cube from "../matrix-stacks/Cube.wgsl";
@@ -52,13 +53,17 @@ import { mat4, vec3 } from "wgpu-matrix";
     const alwaysShow = new Set([0, 1, 3]);
     const white = [1.0, 1.0, 1.0, 1.0];
 
+    const shotVelocity = 100;
     let wasRunning = false;
     const objectInfos = [];
     let requestId, then;
-    let objectIndex = 0;
 
+    let objectIndex = 0;
     const meshes = [];
+    const shots = [];
+
     let currentNode;
+    let shotId = 0;
     let time = 0;
 
     const settings =
@@ -81,6 +86,7 @@ import { mat4, vec3 } from "wgpu-matrix";
     gui.add(settings, "animate").onChange(v => transformFolder.enable(!v));
     gui.add(settings, "showMeshNodes").onChange(showMeshNodes);
     gui.add(settings, "showAllTransforms").onChange(showTransforms);
+    gui.addButton("Fire!", fireShot);
 
     const transformFolder = gui.addFolder("Orientation");
     transformFolder.onChange(updateCurrentNodeSettings);
@@ -139,36 +145,48 @@ import { mat4, vec3 } from "wgpu-matrix";
          80,  70, 200  // Right
     ];
 
-    const vertices = cube.UV.length / 2;
-    const colorData = new Uint8Array(vertices * 4);
+    const cubeVertices = cube.UV.length / 2;
+    const colorData = new Uint8Array(cubeVertices * 4);
 
-    for (let v = 0, i = 0; v < vertices; i = (++v / 4 | 0) * 3)
+    for (let v = 0, i = 0; v < cubeVertices; i = (++v / 4 | 0) * 3)
     {
         const color = colors.slice(i, i + 3);
         colorData.set(color, v * 4);
         colorData[v * 4 + 3] = 255;
     }
 
+    const { vertexData, colorData: coneColorData, vertices } = createConeVertices(10, 20);
+    const coneVertexBuffer = CubePipeline.CreateVertexBuffer(vertexData);
+
+    const { buffer: coneColorBuffer } = CubePipeline.CreateVertexBuffer(
+        { name: "color", format: "unorm8x4" }, vertices
+    );
+
+    CubePipeline.WriteBuffer(coneColorBuffer, coneColorData);
+    CubePipeline.WriteBuffer(coneVertexBuffer, vertexData);
     CubePipeline.WriteBuffer(colorBuffer, colorData);
     cube.AddVertexBuffers(colorBuffer);
 
-    const rotation = [Utils.DegreesToRadians(15), 0, 0];
-    const wrist = addSceneNode("Wrist", root, [[0, -35, 0]]);
-    const palm = addSceneNode("Palm", wrist, [[0, 68, 0]]);
+    const coneVertexBuffers = [coneVertexBuffer, coneColorBuffer];
+    const cubeIndexBuffer = Object.values(CubePipeline.IndexBuffer);
+    const cubeVertexBuffers = CubePipeline.VertexBuffers.map(({ buffer }) => buffer);
 
-    addMesh(addSceneNode("Palm Mesh", wrist, [
-        void 0, void 0, [100, 100, 10]
-    ]), white);
+    const rotation = [Utils.DegreesToRadians(15), 0, 0];
+    const wrist = addSceneNode("wrist", root, [[0, -35, 0]]);
+    const palm = addSceneNode("palm", wrist, [[0, 68, 0]]);
 
     const animatedNodes =
     [
         wrist, palm,
-        ...addFinger("Thumb",         palm, 2, 20, [[-50, -8, 3.33], rotation]),
-        ...addFinger("Index Finger",  palm, 3, 30, [[-25, -3, 3.33], rotation]),
-        ...addFinger("Middle Finger", palm, 3, 35, [[ -0, -1, 3.33], rotation]),
-        ...addFinger("Ring Finger",   palm, 3, 33, [[ 25, -2, 3.33], rotation]),
-        ...addFinger("Pinky",         palm, 3, 25, [[ 45, -6, 3.33], rotation])
+        ...addFinger("thumb",         palm, 2, 20, [[-50, -8, 3.33], rotation]),
+        ...addFinger("index finger",  palm, 3, 30, [[-25, -3, 3.33], rotation]),
+        ...addFinger("middle finger", palm, 3, 35, [[ -0, -1, 3.33], rotation]),
+        ...addFinger("ring finger",   palm, 3, 33, [[ 25, -2, 3.33], rotation]),
+        ...addFinger("pinky",         palm, 3, 25, [[ 45, -6, 3.33], rotation])
     ];
+
+    addMesh(addSceneNode("palm mesh", wrist, [void 0, void 0, [100, 100, 10]]));
+    const fingerTip = addSceneNode("finger tip", root.Find("index finger-2"), [[0, 15, 0]]);
 
     const nodesFolder = gui.addFolder("Nodes");
     const nodeButtons = addSceneNodeGUI(nodesFolder, root);
@@ -234,9 +252,14 @@ import { mat4, vec3 } from "wgpu-matrix";
                 child.show(show);
     }
 
-    function addMesh(node, color)
+    function removeMesh(mesh)
     {
-        const length = meshes.push({ node, color });
+        meshes.splice(meshes.indexOf(mesh), 1);
+    }
+
+    function addMesh(node, vertexBuffers = cubeVertexBuffers, indexBuffer = cubeIndexBuffer)
+    {
+        const length = meshes.push({ node, vertexBuffers, indexBuffer });
         return meshes[length - 1];
     }
 
@@ -259,7 +282,7 @@ import { mat4, vec3 } from "wgpu-matrix";
             ]);
 
             label = `${baseLabel}-${s + 1}`;
-            addMesh(meshNode, white);
+            addMesh(meshNode);
             nodes.push(node);
             parent = node;
 
@@ -272,7 +295,7 @@ import { mat4, vec3 } from "wgpu-matrix";
         return nodes;
     }
 
-    function drawObject(matrix, color)
+    function drawObject(matrix, vertexBuffers, indexBuffer)
     {
         // Create Object Info Function:
         if (objectIndex === objectInfos.length)
@@ -297,14 +320,17 @@ import { mat4, vec3 } from "wgpu-matrix";
         const { projectionValue, projectionBuffer, colorValue, colorBuffer } =
             objectInfos[objectIndex];
 
-        colorValue.set(color);
+        colorValue.set(white);
         CubePipeline.WriteBuffer(colorBuffer, colorValue);
 
         mat4.multiply(viewProjection, matrix, projectionValue);
         CubePipeline.WriteBuffer(projectionBuffer, projectionValue);
 
         CubePipeline.SetActiveBindGroups(objectIndex);
-        objectIndex = ++objectIndex % bindGroups;
+        CubePipeline.SetVertexBuffers(vertexBuffers);
+        CubePipeline.SetIndexBuffer(...indexBuffer);
+
+        objectIndex = ++objectIndex % (bindGroups + shots.length);
         Renderer.Render(false);
     }
 
@@ -315,7 +341,50 @@ import { mat4, vec3 } from "wgpu-matrix";
 
     function drawMesh(mesh)
     {
-        drawObject(mesh.node.WorldMatrix, mesh.color);
+        const { node, vertexBuffers, indexBuffer } = mesh;
+        drawObject(node.WorldMatrix, vertexBuffers, indexBuffer);
+    }
+
+    function processShots(now, deltaTime)
+    {
+        if (!shots.length) return;
+        requestRender();
+
+        while (shots.length && shots[0].endTime <= now)
+        {
+            const shot = shots.shift();
+            shot.node.Parent = null;
+            removeMesh(shot.mesh);
+        }
+
+        for (const shot of shots)
+        {
+            const v = vec3.mulScalar(shot.velocity, deltaTime);
+            mat4.multiply(mat4.translation(v), shot.node.LocalMatrix, shot.node.LocalMatrix);
+        }
+    }
+
+    function fireShot()
+    {
+        const node = new SceneNode(`shot-${shotId++}`);
+        const mesh = addMesh(node, coneVertexBuffers, []);
+
+        // This node has no `Transform`, so local matrix is updated directly:
+        mat4.translate(fingerTip.WorldMatrix, [0, 20, 0], node.LocalMatrix);
+
+        // Get the "Y" axis from the finger tip, normalize it,
+        // and scale that direction vector by the velocity:
+        const velocity = vec3.mulScalar(vec3.normalize(
+            vec3.getAxis(fingerTip.WorldMatrix, 1)
+        ), shotVelocity);
+
+        node.Parent = root;
+
+        // Delay to remove the shot:
+        const endTime = performance.now() * 0.001 + 5;
+        shots.push({ node, mesh, velocity, endTime });
+
+        requestRender();
     }
 
     function animate()
@@ -345,19 +414,22 @@ import { mat4, vec3 } from "wgpu-matrix";
 
         Renderer.Submit();
 
-        const isRunning = settings.animate;
+        const isRunning = settings.animate || shots.length;
         const now = performance.now() * 0.001;
         const deltaTime = wasRunning && now - then || 0;
 
         then = now;
         if (isRunning) time += deltaTime;
-
         wasRunning = isRunning;
-        if (!settings.animate) return;
 
-        animate();
-        updateCurrentNodeGUI();
-        requestRender();
+        if (settings.animate)
+        {
+            animate();
+            updateCurrentNodeGUI();
+            requestRender();
+        }
+
+        processShots(now, deltaTime);
     }
 
     const observer = new ResizeObserver(entries =>

@@ -37,6 +37,20 @@ export default class SceneNode
         child.Parent = null;
     }
 
+    /** @param {string} label */
+    Find(label)
+    {
+        if (this.Label === label) return this;
+
+        for (const child of this.Children)
+        {
+            const found = child.Find(label);
+            if (found) return found;
+        }
+
+        return undefined;
+    }
+
     /** @param {Mat4} parent */
     UpdateWorldMatrix(parent)
     {
