@@ -1,4 +1,4 @@
-import{D as p}from"./index-BNSavNwh.js";import{S as x,L as A}from"./LegacyShape-D9lijpWc.js";var F="@fragment fn shapeFragment()->@location(0)vec4f {return shape.color;}";const P=`${x}
+import{D as p}from"./index-DM-yqRiN.js";import{S as x,L as A}from"./LegacyShape-CsoNd-_h.js";var F="@fragment fn shapeFragment()->@location(0)vec4f {return shape.color;}";const P=`${x}
 
 ${F}`;/**
  * @example 2D Shapes
