@@ -1,14 +1,14 @@
 [
     {
         "name": "Basic Program",
-        "slug": "uwal-basic-program"
+        "slug": "basic-program"
     },
     {
         "name": "Ripple Effect",
-        "slug": "uwal-ripple-effect"
+        "slug": "ripple-effect"
     },
     {
-        "name": "Smallpt WebGPU",
-        "slug": "smallpt-webgpu"
+        "name": "WebGPU Smallpt",
+        "slug": "webgpu-smallpt"
     }
 ]

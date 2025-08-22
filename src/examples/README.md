@@ -11,4 +11,4 @@
 | **Demo** |
 | [Basic Program](https://ustymukhman.github.io/uwal/dist/examples/examples.html#uwal-basic-program) | [Code](https://github.com/UstymUkhman/uwal-basic-program) |
 | [Ripple Effect](https://ustymukhman.github.io/uwal/dist/examples/examples.html#uwal-ripple-effect) | [Code](https://github.com/UstymUkhman/uwal-ripple-effect) |
-| [Smallpt WebGPU](https://ustymukhman.github.io/uwal/dist/examples/examples.html#smallpt-webgpu) | [Code](https://github.com/UstymUkhman/smallpt-webgpu) |
+| [WebGPU Smallpt](https://ustymukhman.github.io/uwal/dist/examples/examples.html#uwal-webgpu-smallpt) | [Code](https://github.com/UstymUkhman/uwal-webgpu-smallpt) |

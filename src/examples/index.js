@@ -148,7 +148,7 @@ async function runDemo()
 
         if (!currentDemo) return cleanExample();
 
-        setTimeout(() => iframe.src = `https://ustymukhman.github.io/${demo}/dist`);
+        setTimeout(() => iframe.src = `https://ustymukhman.github.io/uwal-${demo}/dist`);
         destroyCurrent = () => iframe.style.display = "none" && (iframe.src = "");
         const anchor = document.querySelector(`a[data-demo="${demo}"]`);
 
@@ -160,8 +160,8 @@ async function runDemo()
 };
 
 codeButton.addEventListener("click", () =>
-    open("https://github.com/UstymUkhman/" +
-        (runningType === "demo" && "#" || "uwal/blob/main/src/examples/#/index.js")
+    open("https://github.com/UstymUkhman/uwal" +
+        (runningType === "demo" && "-#" || "/blob/main/src/examples/#/index.js")
         .replace("#", location.hash.slice(1)), "_blank")
 , false);
 
