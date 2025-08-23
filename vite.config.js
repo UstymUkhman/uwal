@@ -19,7 +19,7 @@ export default({ mode }) =>
             {
                 passes: 4,
                 ecma: 2020,
-                unsafe: true,
+                unsafe: false,
                 unsafe_arrows: true,
                 unsafe_comps: false,
                 unsafe_Function: true,
