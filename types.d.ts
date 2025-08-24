@@ -7,13 +7,7 @@
 import OrthographicCamera from "./types/cameras/OrthographicCamera";
 import PerspectiveCamera from "./types/cameras/PerspectiveCamera";
 import { USAGE, BLEND_STATE } from "./types/pipelines/Constants";
-/** @deprecated Use `GPUTiming` instead. */
-import LegacyGPUTiming from "./types/utils/LegacyGPUTiming";
-/** @deprecated Use `CubeGeometry` instead. */
-import LegacyCube from "./types/geometries/LegacyCube";
 import * as TEXTURE from "./types/textures/Constants";
-/** @deprecated Use `Shape` instead. */
-import LegacyShape from "./types/shapes/LegacyShape";
 import CubeGeometry from "./types/geometries/Cube";
 import GPUTiming from "./types/utils/GPUTiming";
 import Camera2D from "./types/cameras/Camera2D";
@@ -40,8 +34,6 @@ const Utils =
 {
     DegreesToRadians,
     RadiansToDegrees,
-    /** @deprecated Use `GPUTiming` instead. */
-    LegacyGPUTiming,
     EuclideanModulo,
     SmootherStep,
     SmoothStep,
@@ -51,9 +43,7 @@ const Utils =
 // Global types:
 export type
 {
-    LegacyComputation,
     ComputePipeline,
-    LegacyRenderer,
     RenderPipeline,
     Computation,
     Renderer
@@ -64,12 +54,8 @@ export {
     PerspectiveCamera,
     CubeGeometry,
     Shape, SHAPE,
-    /** @deprecated Use `Shape` instead. */
-    LegacyShape,
     BLEND_STATE,
     ERROR_CAUSE,
-    /** @deprecated Use `CubeGeometry` instead. */
-    LegacyCube,
     Camera2D,
     /** @deprecated `SDFText` will be replaced by `MSDFText`. */
     SDFText,
@@ -80,6 +66,3 @@ export {
     Color,
     Utils
 };
-
-/** @deprecated Use `Device` interface instead. */
-export const UWAL = Device;
