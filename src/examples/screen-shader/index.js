@@ -42,12 +42,12 @@ export async function run(canvas)
 
     function render(time)
     {
-        screen.time.set([time * 0.001]);
-        raf = requestAnimationFrame(render);
-
         // By passing `screen.time.buffer`, we're also
         // writing the `screen.color` value to the GPUBuffer:
-        Renderer.WriteBuffer(buffer, screen.time.buffer);
+        RenderPipeline.WriteBuffer(buffer, screen.time.buffer);
+
+        raf = requestAnimationFrame(render);
+        screen.time.set([time * 0.001]);
         Renderer.Render();
     }
 
