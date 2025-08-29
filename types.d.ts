@@ -8,8 +8,8 @@ import OrthographicCamera from "./types/cameras/OrthographicCamera";
 import PerspectiveCamera from "./types/cameras/PerspectiveCamera";
 import { USAGE, BLEND_STATE } from "./types/pipelines/Constants";
 import * as TEXTURE from "./types/textures/Constants";
+import { GPUTiming, MathUtils } from "./types/utils";
 import CubeGeometry from "./types/geometries/Cube";
-import GPUTiming from "./types/utils/GPUTiming";
 import Camera2D from "./types/cameras/Camera2D";
 import SHAPE from "./types/shapes/Constants";
 import { ERROR_CAUSE } from "./types/Errors";
@@ -20,24 +20,24 @@ import Shape from "./types/shapes/Shape";
 import Device from "./types/Device";
 import Color from "./types/Color";
 
-import
+export
 {
-    DegreesToRadians,
-    RadiansToDegrees,
-    EuclideanModulo,
-    SmootherStep,
-    SmoothStep
-}
-from "./types/utils";
-
-const Utils =
-{
-    DegreesToRadians,
-    RadiansToDegrees,
-    EuclideanModulo,
-    SmootherStep,
-    SmoothStep,
-    GPUTiming
+    OrthographicCamera,
+    PerspectiveCamera,
+    CubeGeometry,
+    Shape, SHAPE,
+    BLEND_STATE,
+    ERROR_CAUSE,
+    GPUTiming,
+    MathUtils,
+    Camera2D,
+    /** @deprecated `SDFText` will be replaced by `MSDFText`. */
+    SDFText,
+    TEXTURE,
+    Shaders,
+    Device,
+    USAGE,
+    Color
 };
 
 // Global types:
@@ -47,22 +47,4 @@ export type
     RenderPipeline,
     Computation,
     Renderer
-};
-
-export {
-    OrthographicCamera,
-    PerspectiveCamera,
-    CubeGeometry,
-    Shape, SHAPE,
-    BLEND_STATE,
-    ERROR_CAUSE,
-    Camera2D,
-    /** @deprecated `SDFText` will be replaced by `MSDFText`. */
-    SDFText,
-    TEXTURE,
-    Shaders,
-    Device,
-    USAGE,
-    Color,
-    Utils
 };
