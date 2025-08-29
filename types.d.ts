@@ -10,13 +10,13 @@ import { USAGE, BLEND_STATE } from "./types/pipelines/Constants";
 import * as TEXTURE from "./types/textures/Constants";
 import { GPUTiming, MathUtils } from "./types/utils";
 import CubeGeometry from "./types/geometries/Cube";
+import SHAPE from "./types/primitives/Constants";
 import Camera2D from "./types/cameras/Camera2D";
-import SHAPE from "./types/shapes/Constants";
+import Shape from "./types/primitives/Shape";
 import { ERROR_CAUSE } from "./types/Errors";
 import * as Shaders from "./types/shaders";
 /** @deprecated `SDFText` will be replaced by `MSDFText`. */
 import SDFText from "./types/text/SDFText";
-import Shape from "./types/shapes/Shape";
 import Device from "./types/Device";
 import Color from "./types/Color";
 
