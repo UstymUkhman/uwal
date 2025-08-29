@@ -5,7 +5,7 @@
  * {@link https://oframe.github.io/ogl/examples/?src=triangle-screen-shader.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.1.0
+ * @version 0.2.0
  * @license MIT
  */
 
@@ -32,10 +32,7 @@ export async function run(canvas)
     const RenderPipeline = await Renderer.CreatePipeline([Shaders.Quad, ScreenShader]);
     const { screen, buffer } = RenderPipeline.CreateUniformBuffer("screen");
 
-    RenderPipeline.SetBindGroups(RenderPipeline.CreateBindGroup(
-        RenderPipeline.CreateBindGroupEntries(buffer)
-    ));
-
+    RenderPipeline.SetBindGroupsFromEntries(buffer);
     screen.color.set(new Color(0x005a9c).rgb);
     RenderPipeline.SetDrawParams(6);
     screenBuffer = buffer;
