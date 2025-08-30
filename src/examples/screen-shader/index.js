@@ -32,7 +32,7 @@ export async function run(canvas)
     const RenderPipeline = await Renderer.CreatePipeline([Shaders.Quad, ScreenShader]);
     const { screen, buffer } = RenderPipeline.CreateUniformBuffer("screen");
 
-    RenderPipeline.SetBindGroupsFromEntries(buffer);
+    RenderPipeline.SetBindGroupsFromResources(buffer);
     screen.color.set(new Color(0x005a9c).rgb);
     RenderPipeline.SetDrawParams(6);
     screenBuffer = buffer;

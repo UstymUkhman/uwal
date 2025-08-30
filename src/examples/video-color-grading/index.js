@@ -4,56 +4,46 @@
  * @description This example is developed by using a version listed below.
  * Please note that this code may be simplified in future
  * thanks to more recent library APIs.
- * @version 0.0.6
+ * @version 0.2.0
  * @license MIT
  */
 
 import Video from "/assets/videos/matrix.mp4";
-import { UWAL, Shaders } from "#/index";
+import { Device, Shaders } from "#/index";
 import SinCity from "./SinCity.wgsl";
 
 /** @type {number} */ let raf;
-let videoBuffer, uniformBuffer;
-const dprValue = new Float32Array([1]);
+/** @type {Renderer} */ let Renderer;
+/** @type {GPUBuffer} */ let sizeBuffer;
 /** @type {ResizeObserver} */ let observer;
 const video = document.createElement("video");
-
-/** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(canvas, "Video Color Grading"));
+        Renderer = new (await Device.Renderer(canvas, "Video Color Grading"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const Texture = new (await UWAL.LegacyTexture());
+    const VideoPipeline = await Renderer.CreatePipeline([
+        Shaders.Quad, Shaders.Resolution, SinCity
+    ]);
+
+    const Texture = new (await Device.Texture());
     const videoSampler = Texture.CreateSampler();
-    let videoWidth, videoHeight, resolutionBuffer;
 
     video.playsinline = video.loop = true;
     video.controls = video.muted = true;
     video.style.position = "absolute";
+
+    let videoWidth, videoHeight;
     video.preload = "auto";
     video.src = Video;
-
-    Renderer.CreatePipeline({
-        module: Renderer.CreateShaderModule([
-            Shaders.Quad, Shaders.Resolution, SinCity
-        ])
-    });
-
-    uniformBuffer = Renderer.CreateBuffer({
-        size: Float32Array.BYTES_PER_ELEMENT,
-        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-    });
-
-    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment());
 
     video.addEventListener("loadedmetadata", () =>
     {
@@ -63,10 +53,11 @@ export async function run(canvas)
     }, false);
 
     document.body.appendChild(video);
+    VideoPipeline.SetDrawParams(6);
 
     function setVideoPosition()
     {
-        const width = canvas.width / video.videoWidth;
+        const width = canvas.width / videoWidth;
         const { offsetWidth, offsetHeight } = document.body;
         const scale = Math.min(width, 1 / 3 * 2) * (1 / width);
 
@@ -81,13 +72,11 @@ export async function run(canvas)
             video.style.height = `${height}px`;
             video.style.width = `${width}px`;
 
-            video.style.bottom = 'unset';
-            video.style.right = 'unset';
+            video.style.bottom = "unset";
+            video.style.right = "unset";
 
             video.height = height;
             video.width = width;
-
-            dprValue[0] = 1;
         }
         else
         {
@@ -100,10 +89,8 @@ export async function run(canvas)
             video.style.height = `${height}px`;
             video.style.width = `${width}px`;
 
-            dprValue[0] = devicePixelRatio;
-
-            video.style.left = 'unset';
-            video.style.top = 'unset';
+            video.style.left = "unset";
+            video.style.top = "unset";
 
             video.height = height;
             video.width = width;
@@ -112,8 +99,7 @@ export async function run(canvas)
 
     async function start()
     {
-        await playVideo();
-        createVideoBuffer();
+        await playVideo(); createSizeBuffer();
         raf = requestAnimationFrame(render);
     }
 
@@ -138,47 +124,36 @@ export async function run(canvas)
         });
     }
 
-    function createVideoBuffer()
+    function createSizeBuffer()
     {
-        const videoValues = new Float32Array([video.videoWidth, video.videoHeight]);
-
-        videoBuffer = Renderer.CreateBuffer({
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-            size: Float32Array.BYTES_PER_ELEMENT * 2
-        });
-
-        Renderer.WriteBuffer(videoBuffer, videoValues);
-        Renderer.WriteBuffer(uniformBuffer, dprValue);
+        const { size, buffer } = VideoPipeline.CreateUniformBuffer("size");
+        size.set([videoWidth, videoHeight]); sizeBuffer = buffer;
+        VideoPipeline.WriteBuffer(buffer, size);
     }
 
     function render()
     {
-        raf = requestAnimationFrame(render);
         const texture = Texture.ImportExternalTexture(video);
 
-        Renderer.SetBindGroups(
-            Renderer.CreateBindGroup(
-                Renderer.CreateBindGroupEntries([
-                    { buffer: resolutionBuffer },
-                    { buffer: uniformBuffer },
-                    { buffer: videoBuffer },
-                    videoSampler,
-                    texture
-                ])
-            )
-        );
+        VideoPipeline.SetBindGroupsFromResources([
+            Renderer.ResolutionBuffer,
+            videoSampler,
+            sizeBuffer,
+            texture
+        ]);
 
-        Renderer.Render(6);
+        Renderer.Render();
+        raf = requestAnimationFrame(render);
     }
 
     observer = new ResizeObserver(entries =>
     {
         for (const entry of entries)
         {
+            Renderer.DevicePixelRatio = document.body.offsetWidth > 960 && devicePixelRatio || 1;
             let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - 240;
             Renderer.SetCanvasSize(width, blockSize);
-            resolutionBuffer = Renderer.ResolutionBuffer;
         }
 
         videoWidth && videoHeight && setVideoPosition();
@@ -190,14 +165,10 @@ export async function run(canvas)
 
 export function destroy()
 {
-    UWAL.OnDeviceLost = () => void 0;
+    Device.OnLost = () => void 0;
+    Device.Destroy(sizeBuffer);
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
     video.remove();
-
-    UWAL.Destroy([
-        videoBuffer,
-        uniformBuffer
-    ]);
 }
