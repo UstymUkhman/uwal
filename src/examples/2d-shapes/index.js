@@ -4,44 +4,42 @@
  * @description This example is developed by using a version listed below.
  * Please note that this code may be simplified in future
  * thanks to more recent library APIs.
- * @version 0.0.4
+ * @version 0.2.0
  * @license MIT
  */
 
-import { UWAL, Shaders, LegacyShape } from "#/index";
+import { Device, Shaders, Color, Shape, MathUtils } from "#/index";
 
 /** @type {number} */ let raf;
+/** @type {Renderer} */ let Renderer;
+/** @type {Shape[]} */ const shapes = [];
 /** @type {ResizeObserver} */ let observer;
-/** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(canvas, "2D Shapes"));
+        Renderer = new (await Device.Renderer(canvas, "2D Shapes"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const spin = [], speed = [], shapes = [], direction = [];
+    const color = new Color(0x331a4d);
+    const spin = [], speed = [], direction = [];
+    const ShapePipeline = new Renderer.Pipeline();
+    const module = ShapePipeline.CreateShaderModule(Shaders.Shape);
 
-    const descriptor = Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment(undefined, "clear", "store", [0.2, 0.1, 0.3, 1])
-    );
-
-    const module = Renderer.CreateShaderModule(Shaders.Shape);
-
-    Renderer.CreatePipeline({
-        fragment: Renderer.CreateFragmentState(module, "shapeFragment"),
-        vertex: Renderer.CreateVertexState(module, "shapeVertex", [
-        {
-            arrayStride: Float32Array.BYTES_PER_ELEMENT * 2,
-            attributes: [Renderer.CreateVertexBufferAttribute("float32x2")]
-        }])
+    await Renderer.AddPipeline(ShapePipeline, {
+        fragment: ShapePipeline.CreateFragmentState(module, "shapeFragment"),
+        vertex: ShapePipeline.CreateVertexState(module, "shapeVertex",
+            ShapePipeline.CreateVertexBufferLayout("position", void 0, "shapeVertex")
+        )
     });
+
+    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(color));
 
     function clean()
     {
@@ -60,84 +58,79 @@ export async function run(canvas)
 
     function createRandomShapes()
     {
+        const [width, height] = Renderer.CanvasSize;
+
         for (let s = 3; s <= 12; s++)
         {
             const segments = s === 11 && 64 || s;
 
             for (let r = 0; r < 2; r++)
             {
-                const radius = random(50, 100);
-                const inner = radius * random(0.75, 0.95);
+                const shape = new Shape();
+                const radius = MathUtils.Random(50, 100);
+                const inner = MathUtils.Random(0.75, 0.95) * radius;
+                const shapeDescriptor = { innerRadius: inner * r, segments, radius };
 
-                const shape = new LegacyShape({
-                    innerRadius: inner * r,
-                    renderer: Renderer,
-                    segments,
-                    radius
-                });
+                shape.SetRenderPipeline(Renderer, ShapePipeline, shapeDescriptor);
+                shape.Rotation = MathUtils.Random(0, MathUtils.TAU);
 
                 shape.Position = [
-                    random(radius, canvas.width - radius),
-                    random(radius, canvas.height - radius)
+                    MathUtils.Random(radius,  width - radius),
+                    MathUtils.Random(radius, height - radius)
                 ];
 
-                shape.Rotation = random(Math.PI * 2);
+                speed.push(MathUtils.Random(1, 10));
+                spin.push(MathUtils.Random(0, 0.1));
 
-                speed.push(random(1, 10));
-                spin.push(random(0.1));
-                shapes.push(shape);
+                shape.Color = color.rgb = [
+                    MathUtils.Random(0.3, 1),
+                    MathUtils.Random(0.2, 1),
+                    MathUtils.Random(0.4, 1)
+                ];
 
                 direction.push([
-                    random(-1, 1),
-                    random(-1, 1)
+                    MathUtils.Random(-1, 1),
+                    MathUtils.Random(-1, 1)
                 ]);
 
-                shape.Color = [
-                    random(0.3, 1),
-                    random(0.2, 1),
-                    random(0.4, 1),
-                    1
-                ];
+                shapes.push(shape);
             }
         }
     }
 
-    /**
-     * @param {number} [min]
-     * @param {number} [max]
-     */
-    function random(min, max)
-    {
-             if (min === undefined) { min = 0;   max = 1; }
-        else if (max === undefined) { max = min; min = 0; }
-
-        return Math.random() * (max - min) + min;
-    }
-
     function render()
     {
-        raf = requestAnimationFrame(render);
-        descriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
-        shapes.forEach(shape => Renderer.Render(shape.Update().Vertices, false));
+        const [width, height] = Renderer.CanvasSize;
 
         for (let s = 0, l = shapes.length; s < l; s++)
         {
             const shape = shapes[s], dir = direction[s];
+            const { BindGroupResources, VertexBuffer, IndexBuffer, Vertices } = shape;
+
+            // We could have each shape use its own rendering pipeline, set it up at render time, and automatically
+            // handle this data, all under the hood. However, that would be somewhat inefficient to swap between 20
+            // pipelines every frame, so instead we use one rendering pipeline and update its data from each shape.
+            // For fewer shapes it's ok to have dedicated pipelines, it'd make the code a bit shorter and simpler.
+            ShapePipeline.SetBindGroupsFromResources(shape.BindGroupResources);
+            ShapePipeline.SetVertexBuffers(shape.VertexBuffer);
+            ShapePipeline.SetIndexBuffer(...shape.IndexBuffer);
+            ShapePipeline.SetDrawParams(shape.Vertices);
+
             const { min, max } = shape.BoundingBox;
             const [x, y] = shape.Position;
 
-            if (min[0] <= 0 || max[0] >= canvas.width)  dir[0] *= -1;
-            if (min[1] <= 0 || max[1] >= canvas.height) dir[1] *= -1;
+            if (min[0] <= 0 || max[0] >= width)  dir[0] *= -1;
+            if (min[1] <= 0 || max[1] >= height) dir[1] *= -1;
 
+            shape.Position = [x + dir[0] * speed[s], y + dir[1] * speed[s]];
             shape.Rotation += spin[s];
 
-            shape.Position = [
-                x + dir[0] * speed[s],
-                y + dir[1] * speed[s]
-            ];
+            shape.Update();
+            Renderer.Render(false);
         }
 
         Renderer.Submit();
+        raf = requestAnimationFrame(render);
     }
 
     observer = new ResizeObserver(entries =>
@@ -157,9 +150,11 @@ export async function run(canvas)
 
 export function destroy()
 {
-    UWAL.OnDeviceLost = () => void 0;
+    shapes.forEach(shape => shape.Destroy());
+    Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
-    UWAL.Destroy();
+    Device.Destroy();
+    shapes.splice(0);
 }
