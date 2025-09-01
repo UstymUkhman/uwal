@@ -25,7 +25,7 @@ struct VertexOutput
 
 @fragment fn fragment(@location(0) coord: vec2f) -> @location(0) vec4f
 {
-    let a = screen.color * cos(screen.time);
+    let c = screen.color * cos(screen.time);
     let l = screen.color * length(coord.xy);
-    return vec4f(screen.color + a + l, 1);
+    return vec4f(screen.color + c + l, 1);
 }
