@@ -4,26 +4,25 @@
  * @description This example is developed by using a version listed below.
  * Please note that this code may be simplified in future
  * thanks to more recent library APIs.
- * @version 0.0.5
+ * @version 0.2.0
  * @license MIT
  */
 
-import { UWAL, Color, Shaders, LegacyShape, TEXTURE } from "#/index";
+import { Device, Shaders, Color, Shape, MathUtils } from "#/index";
 import Logo from "/assets/images/logo.jpg";
 import Texture from "./Texture.wgsl";
 
 /** @type {number} */ let raf;
+/** @type {Renderer} */ let Renderer;
 /** @type {ResizeObserver} */ let observer;
-let texture, uniformBuffer, storageBuffer, translationBuffer;
-
-/** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
+let texture, storageBuffer, translationBuffer;
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(canvas, "Textures / Instancing"));
+        Renderer = new (await Device.Renderer(canvas, "Textures / Instancing"));
     }
     catch (error)
     {
@@ -31,28 +30,24 @@ export async function run(canvas)
     }
 
     const radius = 128, textures = 256;
+    const TexturesPipeline = new Renderer.Pipeline();
 
-    let storage, vertices, spawnTimeout, textureIndex,
+    let storage, vertices, spawnTimeout, textureIndex, lastTexture,
         textureUpdate = 512, lastRender = performance.now() - textureUpdate;
 
-    const module = Renderer.CreateShaderModule([Shaders.ShapeVertex, Texture]);
+    const module = TexturesPipeline.CreateShaderModule([Shaders.ShapeVertex, Texture]);
+    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new Color(0x19334c)));
 
-    const colorAttachment = Renderer.CreateColorAttachment();
-    colorAttachment.clearValue = new Color(0x19334c).rgba;
-    Renderer.CreatePassDescriptor(colorAttachment);
+    const { buffer: translationBuffer, layout: translationLayout } =
+        TexturesPipeline.CreateVertexBuffer("translation", textures, "instance");
 
-    Renderer.CreatePipeline({
-        fragment: Renderer.CreateFragmentState(module),
-        vertex: Renderer.CreateVertexState(module, void 0, [
-        {
-            arrayStride: Float32Array.BYTES_PER_ELEMENT * 2,
-            attributes: [Renderer.CreateVertexBufferAttribute("float32x2")]    // Position
-        },
-        {
-            stepMode: "instance",
-            arrayStride: Float32Array.BYTES_PER_ELEMENT * 2,
-            attributes: [Renderer.CreateVertexBufferAttribute("float32x2", 1)] // Translation
-        }])
+    TexturesPipeline.WriteBuffer(translationBuffer, createTranslationData());
+
+    await Renderer.AddPipeline(TexturesPipeline, {
+        fragment: TexturesPipeline.CreateFragmentState(module),
+        vertex: TexturesPipeline.CreateVertexState(module, undefined, [
+            TexturesPipeline.CreateVertexBufferLayout("position"), translationLayout
+        ])
     });
 
     function clean()
@@ -65,9 +60,7 @@ export async function run(canvas)
     async function start()
     {
         createShape();
-        createUniformBuffer();
         createStorageBuffer();
-        createTranslationBuffer();
         await createLogoTexture();
         requestAnimationFrame(render);
 
@@ -78,122 +71,68 @@ export async function run(canvas)
 
     function createShape()
     {
-        const shape = new LegacyShape({
-            renderer: Renderer,
-            segments: 4,
-            radius
-        });
+        const shape = new Shape();
+        const [width, height] = Renderer.CanvasSize;
+        shape.SetRenderPipeline(Renderer, TexturesPipeline, { radius });
 
-        shape.Position = [
-            canvas.width / 2,
-            canvas.height / 2
-        ];
+        TexturesPipeline.SetDrawParams(shape.Vertices, textures);
+        TexturesPipeline.AddVertexBuffers(translationBuffer);
 
+        shape.Position = [width / 2, height / 2];
         shape.Rotation = Math.PI / 4;
-        vertices = shape.Update().Vertices;
-    }
-
-    function createUniformBuffer()
-    {
-        const usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST;
-        const size = Float32Array.BYTES_PER_ELEMENT;
-
-        uniformBuffer = Renderer.CreateBuffer({ size, usage });
-        Renderer.WriteBuffer(uniformBuffer, new Float32Array([devicePixelRatio]));
+        shape.Update();
     }
 
     function createStorageBuffer()
     {
-        const usage = GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST;
-        const size = Uint32Array.BYTES_PER_ELEMENT * textures;
-
-        storage = new Uint32Array(size / Uint32Array.BYTES_PER_ELEMENT);
-        storageBuffer = Renderer.CreateBuffer({ size, usage });
-        Renderer.WriteBuffer(storageBuffer, storage);
+        const Storage = TexturesPipeline.CreateStorageBuffer("visible", textures);
+        TexturesPipeline.WriteBuffer(Storage.buffer, Storage.visible);
+        lastTexture = (storage = Storage.visible).length - 1;
+        storageBuffer = Storage.buffer;
     }
 
-    function createTranslationBuffer()
+    function createTranslationData()
     {
-        const y = 1 - Math.sqrt(2) * radius / canvas.height;
-        const x = 1 - Math.sqrt(2) * radius / canvas.width;
-        const stride = Float32Array.BYTES_PER_ELEMENT * 2;
-        const size = stride * textures;
-
-        const usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST;
-        const translationOffset = stride / Float32Array.BYTES_PER_ELEMENT;
-        const translation = new Float32Array(size / Float32Array.BYTES_PER_ELEMENT);
+        const translation = new Float32Array(textures * 2);
+        const x = 1 - Math.sqrt(2) * radius / canvas.offsetWidth;
+        const y = 1 - Math.sqrt(2) * radius / canvas.offsetHeight;
 
         for (let t = textures; t--; )
-            translation.set([random(-x, x), random(-y, y)], translationOffset * t);
+            translation.set([MathUtils.Random(-x, x), MathUtils.Random(-y, y)], t * 2);
 
-        translationBuffer = Renderer.CreateBuffer({ size, usage });
-        Renderer.WriteBuffer(translationBuffer, translation);
-        Renderer.AddVertexBuffers(translationBuffer);
+        return translation;
     }
 
     async function createLogoTexture()
     {
-        const Texture = new (await UWAL.LegacyTexture());
+        const Texture = new (await Device.Texture());
 
-        const logo = await Texture.CreateBitmapImage(
-            await (await fetch(Logo)).blob(),
-            { colorSpaceConversion: "none" }
+        texture = await Texture.CopyImageToTexture(
+            await Texture.CreateImageBitmap(Logo),
+            { flipY: true, create: { mipmaps: false } }
         );
 
-        texture = Texture.CopyImageToTexture(logo, {
-            flipY: true,
-            create: {
-                usage:
-                    GPUTextureUsage.RENDER_ATTACHMENT |
-                    GPUTextureUsage.TEXTURE_BINDING |
-                    GPUTextureUsage.COPY_DST,
-                format: "rgba8unorm",
-                mipmaps: false
-            }
-        });
-
-        Renderer.AddBindGroups(
-            Renderer.CreateBindGroup(
-                Renderer.CreateBindGroupEntries([
-                    Texture.CreateSampler({
-                        magFilter: TEXTURE.FILTER.LINEAR,
-                        minFilter: TEXTURE.FILTER.LINEAR
-                    }),
-                    texture.createView(),
-                    { buffer: uniformBuffer },
-                    { buffer: storageBuffer }
-                ]), 1
-            )
-        );
+        TexturesPipeline.AddBindGroupsFromResources([
+            Texture.CreateSampler(),
+            texture.createView(),
+            storageBuffer
+        ], 0, 1);
     }
 
-    /**
-     * @param {number} [min]
-     * @param {number} [max]
-     */
-    function random(min, max)
-    {
-             if (min === undefined) { min = 0;   max = 1; }
-        else if (max === undefined) { max = min; min = 0; }
-
-        return Math.random() * (max - min) + min;
-    }
-
-    /** @param {DOMHighResTimeStamp} time */
     function render(time)
     {
         raf = requestAnimationFrame(render);
         if (time - lastRender < textureUpdate) return;
 
         textureUpdate
-            ? storage.fill(0) && (textureIndex = random(storage.length) | 0)
-            : ++textureIndex === storage.length - 1 && cancelAnimationFrame(raf);
+            ? storage.fill(0) && (textureIndex = MathUtils.RandomInt(0, lastTexture))
+            : ++textureIndex === lastTexture && cancelAnimationFrame(raf);
 
         lastRender = time;
         storage[textureIndex] = 1;
 
-        Renderer.WriteBuffer(storageBuffer, storage);
-        Renderer.Render([vertices, textures]);
+        TexturesPipeline.WriteBuffer(storageBuffer, storage);
+        Renderer.Render();
     }
 
     observer = new ResizeObserver(entries =>
@@ -213,13 +152,12 @@ export async function run(canvas)
 
 export function destroy()
 {
-    UWAL.OnDeviceLost = () => void 0;
+    Device.OnDeviceLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
 
-    UWAL.Destroy([
-        uniformBuffer,
+    Device.Destroy([
         storageBuffer,
         translationBuffer
     ], texture);

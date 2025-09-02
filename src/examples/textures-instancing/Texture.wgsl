@@ -7,8 +7,7 @@ struct VertexOutput
 
 @group(1) @binding(0) var Sampler: sampler;
 @group(1) @binding(1) var Texture: texture_2d<f32>;
-@group(1) @binding(2) var<uniform> devicePixelRatio: f32;
-@group(1) @binding(3) var<storage, read> visible: array<u32>;
+@group(1) @binding(2) var<storage, read> visible: array<u32>;
 
 @vertex fn vertex(
     @location(0) position: vec2f,
@@ -17,7 +16,7 @@ struct VertexOutput
 ) -> VertexOutput
 {
     var output: VertexOutput;
-    let dpr = devicePixelRatio * 2.75;
+    let dpr = resolution.z * 2.75;
     let aspect = resolution.xy / resolution.y;
     let clipSpace = GetVertexClipSpace(position).xy;
 
