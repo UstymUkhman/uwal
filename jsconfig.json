@@ -11,6 +11,6 @@
         "module": "ESNext",
         "target": "ESNext",
         "checkJs": true,
-        "baseUrl": "/"
+        "baseUrl": "."
     }
 }

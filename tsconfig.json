@@ -34,7 +34,7 @@
         "outDir": "types",
         "checkJs": false,
         "allowJs": true,
-        "baseUrl": "/",
+        "baseUrl": ".",
         "strict": true
     }
 }
