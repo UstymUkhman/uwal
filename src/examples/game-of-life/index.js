@@ -5,173 +5,149 @@
  * {@link https://codelabs.developers.google.com/your-first-webgpu-app}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.0.4
+ * @version 0.2.0
  * @license MIT
  */
 
-import { UWAL } from "#/index";
-import Render from "./Render.wgsl";
+import { Device, Color } from "#/index";
 import Compute from "./Compute.wgsl";
+import Render from "./Render.wgsl";
 
 /** @type {number} */ let raf;
+/** @type {Renderer} */ let Renderer;
+/** @type {Computation} */ let Computation;
 /** @type {ResizeObserver} */ let observer;
-
-let vertexBuffer, uniformBuffer, storageBufferIn, storageBufferOut;
-/** @type {InstanceType<Awaited<ReturnType<UWAL.RenderPipeline>>>} */ let Renderer;
-/** @type {InstanceType<Awaited<ReturnType<UWAL.ComputePipeline>>>} */ let Computation;
+/** @type {GPUBuffer[]} */ const buffers = [];
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
     try
     {
-        Renderer = new (await UWAL.RenderPipeline(canvas, "Game Of Life Render"));
-        Computation = new (await UWAL.ComputePipeline("Game Of Life Compute"));
+        Renderer = new (await Device.Renderer(canvas, "Game Of Life Renderer"));
+        Computation = new (await Device.Computation("Game Of Life Computation"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const bindGroups = [], WORKGROUP_SIZE = 8, RENDER_LOOP_INTERVAL = 250;
-    let INSTANCES, step = 0, lastRender = performance.now() - RENDER_LOOP_INTERVAL;
+    const RenderPipeline = new Renderer.Pipeline();
+    const ComputePipeline = new Computation.Pipeline();
 
-    const renderDescriptor = Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment(undefined, "clear", "store", [0, 0, 0.4, 1])
-    );
+    const WORKGROUP_SIZE = 8, RENDER_LOOP_INTERVAL = 200;
+    let step = 0, lastRender = performance.now() - RENDER_LOOP_INTERVAL;
+    const computeVertex = GPUShaderStage.COMPUTE | GPUShaderStage.VERTEX;
 
-    const bindGroupLayout = Computation.CreateBindGroupLayout([{
-        buffer: { type: 'uniform' },
-        visibility: GPUShaderStage.COMPUTE | GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT
-    }, {
-        buffer: { type: 'read-only-storage' },
-        visibility: GPUShaderStage.COMPUTE | GPUShaderStage.VERTEX
-    }, {
-        buffer: { type: 'storage' },
-        visibility: GPUShaderStage.COMPUTE
-    }]);
+    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new Color(0x000066)));
 
-    const renderModule = Renderer.CreateShaderModule(Render);
-    const fragment = Renderer.CreateFragmentState(renderModule);
+    const layout = ComputePipeline.CreatePipelineLayout(ComputePipeline.CreateBindGroupLayout([
+        Computation.CreateBufferBindingLayout("uniform", false, 0, computeVertex | GPUShaderStage.FRAGMENT),
+        Computation.CreateBufferBindingLayout("read-only-storage", false, 0, computeVertex),
+        Computation.CreateBufferBindingLayout("storage")
+    ]));
 
-    const vertex = Renderer.CreateVertexState(renderModule, "vertex", {
-        attributes: [Renderer.CreateVertexBufferAttribute("float32x2")],
-        arrayStride: 8
+    const renderModule = RenderPipeline.CreateShaderModule(Render);
+
+    await Computation.AddPipeline(ComputePipeline, { layout,
+        module: ComputePipeline.CreateShaderModule(Compute)
     });
 
-    const layout = Computation.CreatePipelineLayout(bindGroupLayout);
-    const module = Computation.CreateShaderModule(Compute);
+    const { layout: vertexLayout, buffer: vertexBuffer } =
+        RenderPipeline.CreateVertexBuffer("position", 6);
 
-    Renderer.CreatePipeline({ layout, vertex, fragment });
-    Computation.CreatePipeline({ layout, module });
+    await Renderer.AddPipeline(RenderPipeline, { layout,
+        fragment: RenderPipeline.CreateFragmentState(renderModule),
+        vertex: RenderPipeline.CreateVertexState(renderModule, void 0, vertexLayout)
+    });
 
-    const vertices = new Float32Array([
-        //  X     Y
+    RenderPipeline.WriteBuffer(vertexBuffer, new Float32Array([
          -0.8, -0.8, //     4_____ 2, 3
           0.8, -0.8, //     |    /|
           0.8,  0.8, //     |   / |
           0.8,  0.8, //     |  /  |
          -0.8,  0.8, //     | /   |
          -0.8, -0.8  // 0, 5|/____|1
-    ]);
+    ]));
 
-    const VERTICES = vertices.length / 2;
-
-    vertexBuffer = Renderer.CreateBuffer({
-        size: vertices.byteLength,
-        usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
-    });
-
-    Renderer.WriteBuffer(vertexBuffer, vertices);
-    Renderer.SetVertexBuffers(vertexBuffer);
+    RenderPipeline.SetVertexBuffers(vertexBuffer);
 
     function clean()
     {
         cancelAnimationFrame(raf);
-        bindGroups.splice(step = 0);
+        buffers.forEach(buffer => buffer?.destroy());
         lastRender = performance.now() - RENDER_LOOP_INTERVAL;
-
-        [uniformBuffer, storageBufferIn, storageBufferOut]
-            .forEach(buffer => buffer?.destroy());
     }
 
     function start(size = 48)
     {
         const ratio = Renderer.AspectRatio;
-        const { width, height } = Renderer.Canvas;
+        const [width, height] = Renderer.CanvasSize;
 
-        const uniformArray = width < height
-            ? new Float32Array([size, Math.round(size / ratio)])
-            : new Float32Array([Math.round(size * ratio), size]);
+        const { grid, buffer: bufferGrid } =
+            RenderPipeline.CreateUniformBuffer("grid");
 
-        uniformBuffer = Renderer.CreateBuffer({
-            size: uniformArray.byteLength,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-        });
-
-        Renderer.WriteBuffer(uniformBuffer, uniformArray);
-
-        INSTANCES = uniformArray[0] * uniformArray[1];
-        const storageArray = new Uint32Array(INSTANCES);
-
-        storageBufferIn = Computation.CreateBuffer({
-            size: storageArray.byteLength,
-            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
-        });
-
-        storageBufferOut = Computation.CreateBuffer({
-            size: storageArray.byteLength,
-            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
-        });
-
-        for (let s = 0; s < storageArray.length; s++)
-            storageArray[s] = +(Math.random() > 0.6);
-
-        Computation.WriteBuffer(storageBufferIn, storageArray);
-
-        Computation.Workgroups = [
-            Math.ceil(uniformArray[0] / WORKGROUP_SIZE),
-            Math.ceil(uniformArray[1] / WORKGROUP_SIZE)
-        ];
-
-        bindGroups.push(
-            Computation.CreateBindGroup(
-                Computation.CreateBindGroupEntries([
-                    { buffer: uniformBuffer },
-                    { buffer: storageBufferIn },
-                    { buffer: storageBufferOut }
-                ]), bindGroupLayout
-            ),
-
-            Computation.CreateBindGroup(
-                Computation.CreateBindGroupEntries([
-                    { buffer: uniformBuffer },
-                    { buffer: storageBufferOut },
-                    { buffer: storageBufferIn }
-                ]), bindGroupLayout
-            )
+        grid.set(width < height
+            ? [size, Math.round(size / ratio)]
+            : [Math.round(size * ratio), size]
         );
 
+        const length = grid[0] * grid[1];
+        RenderPipeline.WriteBuffer(bufferGrid, grid);
+
+        const { cellStateIn, buffer: bufferIn } =
+            ComputePipeline.CreateStorageBuffer("cellStateIn", length);
+
+        const { buffer: bufferOut } =
+            ComputePipeline.CreateStorageBuffer("cellStateOut", length);
+
+        for (let s = 0; s < cellStateIn.length; s++)
+            cellStateIn[s] = +(Math.random() > 0.6);
+
+        ComputePipeline.WriteBuffer(bufferOut, cellStateIn);
+        ComputePipeline.WriteBuffer(bufferIn, cellStateIn);
+
+        buffers.push(bufferGrid, bufferIn, bufferOut);
+
+        Computation.Workgroups = [
+            Math.ceil(grid[0] / WORKGROUP_SIZE),
+            Math.ceil(grid[1] / WORKGROUP_SIZE)
+        ];
+
+        const bindGroups = [
+            ComputePipeline.CreateBindGroup(
+                ComputePipeline.CreateBindGroupEntries([
+                    bufferGrid, bufferIn, bufferOut
+                ])
+            ),
+
+            ComputePipeline.CreateBindGroup(
+                ComputePipeline.CreateBindGroupEntries([
+                    bufferGrid, bufferOut, bufferIn
+                ])
+            )
+        ];
+
+        ComputePipeline.SetBindGroups(bindGroups);
+        RenderPipeline.SetBindGroups(bindGroups);
+
+        RenderPipeline.SetDrawParams(6, length);
         raf = requestAnimationFrame(render);
     }
 
-    /** @param {DOMHighResTimeStamp} time */
     function render(time)
     {
-        raf = requestAnimationFrame(render);
         if (time - lastRender < RENDER_LOOP_INTERVAL) return;
-
         const encoder = Computation.CreateCommandEncoder();
-        Computation.SetBindGroups(bindGroups[step % 2]);
-        Computation.Compute();
 
-        Renderer.SetCommandEncoder(encoder);
-        Renderer.SetBindGroups(bindGroups[++step % 2]);
+        ComputePipeline.SetActiveBindGroups(step % 2);
+        Computation.Compute(false);
 
-        renderDescriptor.colorAttachments[0].view = Renderer.CurrentTextureView;
-        Renderer.Render([VERTICES, INSTANCES]);
+        Renderer.CommandEncoder = encoder;
+        RenderPipeline.SetActiveBindGroups(++step % 2);
 
-        lastRender = time;
+        raf = requestAnimationFrame(render);
+        Renderer.Render(); lastRender = time;
     }
 
     observer = new ResizeObserver(entries =>
@@ -191,16 +167,10 @@ export async function run(canvas)
 
 export function destroy()
 {
-    UWAL.OnDeviceLost = () => void 0;
+    Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
-    observer.disconnect();
     Computation.Destroy();
+    observer.disconnect();
     Renderer.Destroy();
-
-    UWAL.Destroy([
-        vertexBuffer,
-        uniformBuffer,
-        storageBufferIn,
-        storageBufferOut
-    ]);
+    Device.Destroy(buffers);
 }
