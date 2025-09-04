@@ -67,8 +67,8 @@ export async function run(canvas)
 export function destroy()
 {
     Device.OnLost = () => void 0;
-    Device.Destroy(screenBuffer);
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
+    Device.Destroy(screenBuffer);
 }

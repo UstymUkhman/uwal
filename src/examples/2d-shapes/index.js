@@ -155,6 +155,6 @@ export function destroy()
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
-    Device.Destroy();
     shapes.splice(0);
+    Device.Destroy();
 }
