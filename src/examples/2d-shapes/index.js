@@ -111,7 +111,7 @@ export async function run(canvas)
             // handle this data, all under the hood. However, that would be somewhat inefficient to swap between 20
             // pipelines every frame, so instead we use one rendering pipeline and update its data from each shape.
             // For fewer shapes it's ok to have dedicated pipelines, it'd make the code a bit shorter and simpler.
-            ShapePipeline.SetBindGroupsFromResources(shape.BindGroupResources);
+            ShapePipeline.SetBindGroupFromResources(shape.BindGroupResources);
             ShapePipeline.SetVertexBuffers(shape.VertexBuffer);
             ShapePipeline.SetIndexBuffer(...shape.IndexBuffer);
             ShapePipeline.SetDrawParams(shape.Vertices);

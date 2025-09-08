@@ -112,7 +112,7 @@ export async function run(canvas)
             { flipY: true, create: { mipmaps: false } }
         );
 
-        TexturesPipeline.AddBindGroupsFromResources([
+        TexturesPipeline.AddBindGroupFromResources([
             Texture.CreateSampler(),
             texture.createView(),
             storageBuffer

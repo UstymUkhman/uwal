@@ -135,7 +135,7 @@ export async function run(canvas)
     {
         const texture = Texture.ImportExternalTexture(video);
 
-        VideoPipeline.SetBindGroupsFromResources([
+        VideoPipeline.SetBindGroupFromResources([
             Renderer.ResolutionBuffer,
             videoSampler,
             sizeBuffer,
