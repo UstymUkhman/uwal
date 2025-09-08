@@ -133,6 +133,7 @@ export async function run(canvas)
 
     function render()
     {
+        raf = requestAnimationFrame(render);
         const texture = Texture.ImportExternalTexture(video);
 
         VideoPipeline.SetBindGroupFromResources([
@@ -143,7 +144,6 @@ export async function run(canvas)
         ]);
 
         Renderer.Render();
-        raf = requestAnimationFrame(render);
     }
 
     observer = new ResizeObserver(entries =>
@@ -156,8 +156,8 @@ export async function run(canvas)
             Renderer.SetCanvasSize(width, blockSize);
         }
 
-        videoWidth && videoHeight && setVideoPosition();
-        cancelAnimationFrame(raf), start();
+        ((videoWidth && videoHeight) || raf) &&
+            ~setVideoPosition() && ~cancelAnimationFrame(raf) && start();
     });
 
     observer.observe(document.body);

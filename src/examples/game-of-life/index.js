@@ -137,17 +137,18 @@ export async function run(canvas)
 
     function render(time)
     {
+        raf = requestAnimationFrame(render);
         if (time - lastRender < RENDER_LOOP_INTERVAL) return;
-        const encoder = Computation.CreateCommandEncoder();
 
+        const encoder = Computation.CreateCommandEncoder();
         ComputePipeline.SetActiveBindGroups(step % 2);
         Computation.Compute(false);
 
         Renderer.CommandEncoder = encoder;
         RenderPipeline.SetActiveBindGroups(++step % 2);
 
-        raf = requestAnimationFrame(render);
-        Renderer.Render(); lastRender = time;
+        Renderer.Render();
+        lastRender = time;
     }
 
     observer = new ResizeObserver(entries =>

@@ -156,7 +156,6 @@ export function destroy()
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
-
     Device.Destroy([
         storageBuffer,
         translationBuffer
