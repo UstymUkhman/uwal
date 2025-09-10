@@ -4,44 +4,28 @@
 /// <reference types="@webgpu/types" />
 /// <reference types="vite-plugin-glsl/ext" />
 
-import OrthographicCamera from "./types/cameras/OrthographicCamera";
-import PerspectiveCamera from "./types/cameras/PerspectiveCamera";
-import { USAGE, BLEND_STATE } from "./types/pipelines/Constants";
-import * as TEXTURE from "./types/textures/Constants";
-import { GPUTiming, MathUtils } from "./types/utils";
-import CubeGeometry from "./types/geometries/Cube";
-import SHAPE from "./types/primitives/Constants";
-import Camera2D from "./types/cameras/Camera2D";
-import Shape from "./types/primitives/Shape";
-import { ERROR_CAUSE } from "./types/Errors";
-import * as Shaders from "./types/shaders";
+export { USAGE, BLEND_STATE } from "./types/pipelines/Constants";
+export * as TEXTURE from "./types/textures/Constants";
+export { GPUTiming, MathUtils } from "./types/utils";
+export { default as Device } from "./types/Device";
+export { default as Color } from "./types/Color";
+export * as Geometries from "./types/geometries";
+export * as Materials from "./types/materials";
+export { ERROR_CAUSE } from "./types/Errors";
+export * as Shaders from "./types/shaders";
+export { Shape } from "./types/primitives";
 /** @deprecated `SDFText` will be replaced by `MSDFText`. */
-import SDFText from "./types/text/SDFText";
-import Device from "./types/Device";
-import Color from "./types/Color";
+export { SDFText } from "./types/text";
 
 export
 {
     OrthographicCamera,
     PerspectiveCamera,
-    CubeGeometry,
-    Shape, SHAPE,
-    BLEND_STATE,
-    ERROR_CAUSE,
-    GPUTiming,
-    MathUtils,
-    Camera2D,
-    /** @deprecated `SDFText` will be replaced by `MSDFText`. */
-    SDFText,
-    TEXTURE,
-    Shaders,
-    Device,
-    USAGE,
-    Color
-};
+    Camera2D
+}
+from "./types/cameras";
 
-// Global types:
-export type
+export
 {
     ComputePipeline,
     RenderPipeline,
