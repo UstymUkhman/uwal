@@ -218,7 +218,7 @@ export async function run(canvas)
 
             const oy = height - height / 3.6;
             const nw = (width - 360) / 1320;
-            orthoRotation = nw * 0.25 + 0.1;
+            orthoRotation = nw * 0.2 + 0.1;
             nextOrthoY = oy * 0.39;
             const s = nw + 1;
 

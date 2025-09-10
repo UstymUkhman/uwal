@@ -9,8 +9,8 @@ struct VertexOutput
 @group(0) @binding(2) var<uniform> projection: mat4x4f;
 
 @vertex fn vertex(
-    @location(1) textureCoords: vec2f,
-    @location(0) position: vec4f
+    @location(0) position: vec4f,
+    @location(1) textureCoords: vec2f
 ) -> VertexOutput
 {
     var output: VertexOutput;
