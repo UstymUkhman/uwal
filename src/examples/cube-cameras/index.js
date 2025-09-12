@@ -16,7 +16,7 @@ import {
     Device,
     TEXTURE,
     MathUtils,
-    CubeGeometry,
+    Geometries,
     PerspectiveCamera,
     OrthographicCamera
 } from "#/index";
@@ -41,12 +41,12 @@ export async function run(canvas)
     let orthoRotation, nextOrthoY;
     let dropTimeout, dropTime = Infinity;
 
-    const perspectiveCube = new CubeGeometry();
-    const orthographicCube = new CubeGeometry();
-    const CubePipeline = new Renderer.Pipeline();
-
     const tempPosition = MathUtils.Vec3.create();
     const tempRotation = MathUtils.Vec3.create();
+
+    const CubePipeline = new Renderer.Pipeline();
+    const perspectiveCube = new Geometries.Cube();
+    const orthographicCube = new Geometries.Cube();
 
     const perspectiveCamera = new PerspectiveCamera();
     const orthographicCamera = new OrthographicCamera();
