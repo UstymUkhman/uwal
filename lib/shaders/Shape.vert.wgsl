@@ -1,7 +1,6 @@
 #include "Resolution.wgsl";
 
-@group(0) @binding(1) var<uniform> color: vec4f;
-@group(0) @binding(2) var<uniform> matrix: mat3x3f;
+@group(0) @binding(1) var<uniform> matrix: mat3x3f;
 
 fn GetVertexClipSpace(position: vec2f) -> vec4f
 {
