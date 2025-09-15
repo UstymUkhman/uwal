@@ -38,7 +38,6 @@ export async function run(canvas)
     }
 
     const radius = 128, textures = 256;
-    const shape = new Shape(new Geometries.Shape());
     const TexturesPipeline = new Renderer.Pipeline();
 
     let storage, vertices, spawnTimeout, textureIndex, lastTexture,
@@ -55,8 +54,7 @@ export async function run(canvas)
     await Renderer.AddPipeline(TexturesPipeline, {
         fragment: TexturesPipeline.CreateFragmentState(module),
         vertex: TexturesPipeline.CreateVertexState(module, [
-            shape.GetPositionBufferLayout(TexturesPipeline),
-            translationLayout
+            Shape.GetPositionBufferLayout(TexturesPipeline), translationLayout
         ], void 0, "textureVertex")
     });
 
@@ -70,7 +68,6 @@ export async function run(canvas)
     async function start()
     {
         createShape();
-        shape.Destroy();
         createStorageBuffer();
         await createLogoTexture();
         requestAnimationFrame(render);

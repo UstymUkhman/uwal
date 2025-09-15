@@ -38,13 +38,12 @@ export async function run(canvas)
     const color = new Color(0x331a4d);
     const spin = [], speed = [], direction = [];
     const ShapePipeline = new Renderer.Pipeline();
-    const shape = new Shape(new Geometries.Shape());
     const module = ShapePipeline.CreateShaderModule(Shaders.Shape);
 
     await Renderer.AddPipeline(ShapePipeline, {
         fragment: ShapePipeline.CreateFragmentState(module),
         vertex: ShapePipeline.CreateVertexState(module,
-            shape.GetPositionBufferLayout(ShapePipeline)
+            Shape.GetPositionBufferLayout(ShapePipeline)
         )
     });
 
@@ -61,7 +60,6 @@ export async function run(canvas)
 
     function start()
     {
-        shape.Destroy();
         createRandomShapes();
         raf = requestAnimationFrame(render);
     }
