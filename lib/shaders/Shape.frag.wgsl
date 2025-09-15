@@ -1,4 +1,4 @@
-@fragment fn shapeFragment() -> @location(0) vec4f
+@fragment fn fragment() -> @location(0) vec4f
 {
-    return shape.color;
+    return color;
 }
