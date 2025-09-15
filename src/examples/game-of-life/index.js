@@ -58,7 +58,7 @@ export async function run(canvas)
 
     await Renderer.AddPipeline(RenderPipeline, { layout,
         fragment: RenderPipeline.CreateFragmentState(renderModule),
-        vertex: RenderPipeline.CreateVertexState(renderModule, void 0, vertexLayout)
+        vertex: RenderPipeline.CreateVertexState(renderModule, vertexLayout)
     });
 
     RenderPipeline.WriteBuffer(vertexBuffer, new Float32Array([

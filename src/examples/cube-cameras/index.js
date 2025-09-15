@@ -71,7 +71,7 @@ export async function run(canvas)
         fragment: CubePipeline.CreateFragmentState(module),
         multisample: CubePipeline.CreateMultisampleState(),
         depthStencil: CubePipeline.CreateDepthStencilState(),
-        vertex: CubePipeline.CreateVertexState(module, void 0, [
+        vertex: CubePipeline.CreateVertexState(module, [
             perspectiveCube.GetPositionBufferLayout(),
             perspectiveCube.GetTextureCoordsBufferLayout()
         ])
