@@ -9,7 +9,7 @@ struct VertexOutput
 @group(1) @binding(1) var Texture: texture_2d<f32>;
 @group(1) @binding(2) var<storage, read> visible: array<u32>;
 
-@vertex fn vertex(
+@vertex fn textureVertex(
     @location(0) position: vec2f,
     @location(1) translation: vec2f,
     @builtin(instance_index) instance: u32

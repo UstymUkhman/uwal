@@ -8,9 +8,17 @@
  * @license MIT
  */
 
-import { Device, Shaders, Color, Shape, MathUtils } from "#/index";
-import Logo from "/assets/images/logo.jpg";
+import {
+    Shape,
+    Color,
+    Device,
+    Shaders,
+    MathUtils,
+    Geometries
+} from "#/index";
+
 import Texture from "./Texture.wgsl";
+import Logo from "/assets/images/logo.jpg";
 
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
@@ -30,6 +38,7 @@ export async function run(canvas)
     }
 
     const radius = 128, textures = 256;
+    const shape = new Shape(new Geometries.Shape());
     const TexturesPipeline = new Renderer.Pipeline();
 
     let storage, vertices, spawnTimeout, textureIndex, lastTexture,
@@ -39,15 +48,16 @@ export async function run(canvas)
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new Color(0x19334c)));
 
     const { buffer: translationBuffer, layout: translationLayout } =
-        TexturesPipeline.CreateVertexBuffer("translation", textures, "instance");
+        TexturesPipeline.CreateVertexBuffer("translation", textures, "instance", "textureVertex");
 
     TexturesPipeline.WriteBuffer(translationBuffer, createTranslationData());
 
     await Renderer.AddPipeline(TexturesPipeline, {
         fragment: TexturesPipeline.CreateFragmentState(module),
-        vertex: TexturesPipeline.CreateVertexState(module, undefined, [
-            TexturesPipeline.CreateVertexBufferLayout("position"), translationLayout
-        ])
+        vertex: TexturesPipeline.CreateVertexState(module, [
+            shape.GetPositionBufferLayout(TexturesPipeline),
+            translationLayout
+        ], void 0, "textureVertex")
     });
 
     function clean()
@@ -60,6 +70,7 @@ export async function run(canvas)
     async function start()
     {
         createShape();
+        shape.Destroy();
         createStorageBuffer();
         await createLogoTexture();
         requestAnimationFrame(render);
@@ -71,12 +82,13 @@ export async function run(canvas)
 
     function createShape()
     {
-        const shape = new Shape();
+        const geometry = new Geometries.Shape({ radius });
         const [width, height] = Renderer.CanvasSize;
-        shape.SetRenderPipeline(Renderer, TexturesPipeline, { radius });
+        const shape = new Shape(geometry);
 
-        TexturesPipeline.SetDrawParams(shape.Vertices, textures);
-        TexturesPipeline.AddVertexBuffers(translationBuffer);
+        shape.SetRenderPipeline(TexturesPipeline, Renderer.ResolutionBuffer);
+        TexturesPipeline.SetDrawParams(geometry.Vertices, textures);
+        shape.AddVertexBuffers(translationBuffer);
 
         shape.Position = [width / 2, height / 2];
         shape.Rotation = Math.PI / 4;
