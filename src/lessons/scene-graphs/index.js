@@ -10,11 +10,9 @@
  */
 
 import { addButtonLeftJustified } from "https://webgpufundamentals.org/webgpu/resources/js/gui-helpers.js";
-import { Device, PerspectiveCamera, Mesh, Geometries, MathUtils } from "#/index";
+import { Device, PerspectiveCamera, Node, Mesh, Geometries, MathUtils } from "#/index";
 import { mat4, vec3 } from "wgpu-matrix";
 import CubeShader from "./Cube.wgsl";
-import SceneNode from "./SceneNode";
-import Transform from "./Transform";
 
 (async function(canvas)
 {
@@ -81,8 +79,8 @@ import Transform from "./Transform";
         scale: vec3.create(1, 1, 1)
     };
 
-    const stack = new SceneNode();
-    const root = new SceneNode("root");
+    const stack = new Node();
+    const root = new Node("root");
     const gui = new GUI().onChange(requestRender);
     const lerp = (v1, v2, t) => (v2 - v1) * t + v1;
 
@@ -156,17 +154,17 @@ import Transform from "./Transform";
         addCabinet(root, c);
 
     const nodesFolder = gui.addFolder("Nodes");
-    const nodeButtons = addSceneNodeGUI(nodesFolder, root);
+    const nodeButtons = addNodeGUI(nodesFolder, root);
 
     setCurrentNode(root.Children[0]);
     showTransforms(false);
     showMeshNodes(false);
 
-    function addSceneNodeGUI(gui, node, last, prefix)
+    function addNodeGUI(gui, node, last, prefix)
     {
         const nodes = [], empty = prefix === void 0;
 
-        if (node.Transform instanceof Transform)
+        if (node.Label !== "root")
         {
             const label = `${empty ? "" : `${prefix}\u00a0+-`}${node.Label}`;
             nodes.push(addButtonLeftJustified(gui, label, () => setCurrentNode(node)));
@@ -175,7 +173,7 @@ import Transform from "./Transform";
         prefix = empty ? "" : `${prefix}${last ? "\u00a0\u00a0\u00a0" : "\u00a0|\u00a0"}`;
 
         nodes.push(...node.Children.map((child, c) =>
-            addSceneNodeGUI(gui, child, c === node.Children.length - 1, prefix)
+            addNodeGUI(gui, child, c === node.Children.length - 1, prefix)
         ));
 
         return nodes.flat();
@@ -183,18 +181,18 @@ import Transform from "./Transform";
 
     function updateCurrentNodeSettings()
     {
-        const transform = currentNode.Transform;
-        transform.Translation.set(settings.translation);
-        transform.Rotation.set(settings.rotation);
-        transform.Scale.set(settings.scale);
+        const { Translation, Rotation, Scale } = currentNode;
+        Translation.set(settings.translation);
+        Rotation.set(settings.rotation);
+        Scale.set(settings.scale);
     }
 
     function updateCurrentNodeGUI()
     {
-        const transform = currentNode.Transform;
-        settings.translation.set(transform.Translation);
-        settings.rotation.set(transform.Rotation);
-        settings.scale.set(transform.Scale);
+        const { Translation, Rotation, Scale } = currentNode;
+        settings.translation.set(Translation);
+        settings.rotation.set(Rotation);
+        settings.scale.set(Scale);
         transformFolder.updateDisplay();
     }
 
@@ -248,8 +246,8 @@ import Transform from "./Transform";
     {
         // Would be: `const node = new Mesh(CubeGeometry);`
         // and `node.SetRenderPipeline(CubePipeline);`
-        const node = new SceneNode(label, new Transform(...transform));
-        if (parent) node.Parent = parent;
+        const node = new Node(label, parent);
+        node.Transform = transform;
         return node;
     }
 
@@ -333,7 +331,7 @@ import Transform from "./Transform";
 
     function animate()
     {
-        animatedNodes.forEach((node, n) => node.Transform.Translation[2] =
+        animatedNodes.forEach((node, n) => node.Translation[2] =
             lerp(3, drawerSize[2] * 0.8, Math.sin(time + n) * 0.5 + 0.5)
         );
     }
