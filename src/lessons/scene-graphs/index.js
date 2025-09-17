@@ -9,9 +9,8 @@
  * @license MIT
  */
 
+import { Node, Mesh, Device, Shaders, MathUtils, Materials, Geometries, PerspectiveCamera } from "#/index";
 import { addButtonLeftJustified } from "https://webgpufundamentals.org/webgpu/resources/js/gui-helpers.js";
-import { Device, PerspectiveCamera, Node, Mesh, Geometries, MathUtils } from "#/index";
-import { mat4, vec3 } from "wgpu-matrix";
 import CubeShader from "./Cube.wgsl";
 
 (async function(canvas)
@@ -58,11 +57,11 @@ import CubeShader from "./Cube.wgsl";
 
     const animatedNodes = [];
     let wasRunning = false;
-    const objectInfos = [];
 
     let requestId, then;
     let objectIndex = 0;
     const cabinets = 5;
+    let bindGroups = 0;
 
     const meshes = [];
     let currentNode;
@@ -74,12 +73,11 @@ import CubeShader from "./Cube.wgsl";
         animate: false,
         showMeshNodes: false,
         showAllTransforms: false,
-        translation: vec3.zero(),
-        rotation: vec3.zero(),
-        scale: vec3.create(1, 1, 1)
+        translation: MathUtils.Vec3.create(),
+        rotation: MathUtils.Vec3.create(),
+        scale: MathUtils.Vec3.create(1, 1, 1)
     };
 
-    const stack = new Node();
     const root = new Node("root");
     const gui = new GUI().onChange(requestRender);
     const lerp = (v1, v2, t) => (v2 - v1) * t + v1;
@@ -126,35 +124,29 @@ import CubeShader from "./Cube.wgsl";
 
     let viewProjection = Camera.UpdateViewProjection();
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
+    const totBindGroups = (drawersPerCabinet * 2 + 1) * cabinets;
     const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;
 
-    const module = CubePipeline.CreateShaderModule(CubeShader);
-    const bindGroups = (drawersPerCabinet * 2 + 1) * cabinets + 1;
-    const { layout: colorLayout, buffer: colorBuffer } = createVertexColors();
+    const module = CubePipeline.CreateShaderModule(Shaders.Cube);
+    // const module = CubePipeline.CreateShaderModule(CubeShader);
+    // const { layout: colorLayout, buffer: colorBuffer } = createVertexColors();
 
     await Renderer.AddPipeline(CubePipeline, {
         primitive: { cullMode: "back" },
         fragment: CubePipeline.CreateFragmentState(module),
         depthStencil: CubePipeline.CreateDepthStencilState(),
         vertex: CubePipeline.CreateVertexState(module, [
-            Mesh.GetPositionBufferLayout(CubePipeline), colorLayout
+            Mesh.GetPositionBufferLayout(CubePipeline), // colorLayout
         ])
     });
-
-    const Cube = new Mesh(CubeGeometry);
-    Cube.SetRenderPipeline(CubePipeline);
-    Cube.AddVertexBuffers(colorBuffer);
 
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(),
         Renderer.CreateDepthStencilAttachment()
     );
 
-    for (let c = 0; c < cabinets; ++c)
-        addCabinet(root, c);
-
-    const nodesFolder = gui.addFolder("Nodes");
-    const nodeButtons = addNodeGUI(nodesFolder, root);
+    Array.from({ length: 5 }).forEach((_, c) => addCabinet(root, c))
+    const nodeButtons = addNodeGUI(gui.addFolder("Nodes"), root);
 
     setCurrentNode(root.Children[0]);
     showTransforms(false);
@@ -242,18 +234,18 @@ import CubeShader from "./Cube.wgsl";
                 child.show(show);
     }
 
-    function addSceneNode(label, parent, transform)
+    function addMesh(label, parent, transform, color)
     {
-        // Would be: `const node = new Mesh(CubeGeometry);`
-        // and `node.SetRenderPipeline(CubePipeline);`
-        const node = new Node(label, parent);
-        node.Transform = transform;
-        return node;
-    }
+        const MeshMaterial = new Materials.Mesh(color); // Can be just 3.
+        const cube = new Mesh(CubeGeometry, MeshMaterial, label, parent);
 
-    function addCube(label, parent, transform, color)
-    {
-        meshes.push({ node: addSceneNode(label, parent, transform), color });
+        cube.SetRenderPipeline(CubePipeline);
+        // cube.AddVertexBuffers(colorBuffer);
+
+        cube.Transform = transform;
+        color && meshes.push(cube);
+
+        return cube;
     }
 
     function addDrawer(parent, index)
@@ -262,17 +254,17 @@ import CubeShader from "./Cube.wgsl";
         const middle = cabinetSize[height] / 2 -
             drawerSize[height] / 2 - 5;
 
-        const drawer = addSceneNode(label, parent, [
+        const drawer = addMesh(label, parent, [
             [0, drawerSpacing * index - middle, 3]
         ]);
 
         animatedNodes.push(drawer);
 
-        addCube(`${label}-drawer-mesh`, drawer, [
+        addMesh(`${label}-drawer-mesh`, drawer, [
             void 0, void 0, drawerSize
         ], drawerColor);
 
-        addCube(`${label}-handle-mesh`, drawer, [
+        addMesh(`${label}-handle-mesh`, drawer, [
             handlePosition, void 0, handleSize
         ], handleColor);
     }
@@ -281,11 +273,11 @@ import CubeShader from "./Cube.wgsl";
     {
         const label = `cabinet${index}`;
 
-        const cabinet = addSceneNode(label, parent, [
+        const cabinet = addMesh(label, parent, [
             [index * cabinetSpacing, 0, 0]
         ]);
 
-        addCube(`${label}-mesh`, cabinet, [
+        addMesh(`${label}-mesh`, cabinet, [
             void 0, void 0, cabinetSize
         ], cabinetColor);
 
@@ -293,34 +285,20 @@ import CubeShader from "./Cube.wgsl";
             addDrawer(cabinet, d);
     }
 
-    function drawObject(matrix, color)
+    function drawObject(cube)
     {
         // Create Object Info Function:
-        if (objectIndex === objectInfos.length)
+        if (objectIndex === bindGroups)
         {
-            // Will be available as `node.ProjectionBuffer`:
-            const { projection: projectionValue, buffer: projectionBuffer } =
-                CubePipeline.CreateUniformBuffer("projection");
-
-            // Will be available as `node.Material.ColorBuffer`:
-            const { color: colorValue, buffer: colorBuffer } =
-                CubePipeline.CreateUniformBuffer("color");
-
-            CubePipeline.AddBindGroupFromResources([colorBuffer, projectionBuffer]);
-            objectInfos.push({ projectionValue, projectionBuffer, colorValue, colorBuffer });
+            CubePipeline.AddBindGroupFromResources([cube.ProjectionBuffer, cube.Material.ColorBuffer]);
+            bindGroups = Math.min(++bindGroups, totBindGroups);
         }
 
-        const { projectionValue, projectionBuffer, colorValue, colorBuffer } =
-            objectInfos[objectIndex];
-
-        colorValue.set(color);
-        CubePipeline.WriteBuffer(colorBuffer, colorValue);
-
-        mat4.multiply(viewProjection, matrix, projectionValue);
-        CubePipeline.WriteBuffer(projectionBuffer, projectionValue);
-
+        MathUtils.Mat4.multiply(viewProjection, cube.WorldMatrix, cube.Projection);
         CubePipeline.SetActiveBindGroups(objectIndex);
-        objectIndex = ++objectIndex % bindGroups;
+        objectIndex = ++objectIndex % totBindGroups;
+
+        cube.Update();
         Renderer.Render(false);
     }
 
@@ -348,9 +326,7 @@ import CubeShader from "./Cube.wgsl";
         viewProjection = Camera.UpdateViewProjection();
         root.UpdateWorldMatrix();
 
-        for (const mesh of meshes)
-            drawObject(mesh.node.WorldMatrix, mesh.color);
-
+        meshes.forEach(mesh => drawObject(mesh));
         Renderer.Submit();
 
         const isRunning = settings.animate;
