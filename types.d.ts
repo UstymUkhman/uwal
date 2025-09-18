@@ -9,6 +9,7 @@ export { Node, Mesh, Shape } from "./types/primitives";
 export * as TEXTURE from "./types/textures/Constants";
 export { GPUTiming, MathUtils } from "./types/utils";
 export { default as Device } from "./types/Device";
+export { default as Scene } from "./types/Scene";
 export { default as Color } from "./types/Color";
 export * as Geometries from "./types/geometries";
 export * as Materials from "./types/materials";
