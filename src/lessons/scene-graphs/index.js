@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { Node, Mesh, Device, Shaders, MathUtils, Materials, Geometries, PerspectiveCamera } from "#/index";
+import { Node, Mesh, Color, Device, Shaders, MathUtils, Materials, Geometries, PerspectiveCamera } from "#/index";
 import { addButtonLeftJustified } from "https://webgpufundamentals.org/webgpu/resources/js/gui-helpers.js";
 import CubeShader from "./Cube.wgsl";
 
@@ -45,16 +45,17 @@ import CubeShader from "./Cube.wgsl";
         converters: GUI.converters.radToDeg
     };
 
-    const cabinetColor = [0.75, 0.75, 0.75, 0.75];
-    const [width, height, depth] = [0, 1, 2];
-    const handleColor = [0.5, 0.5, 0.5, 1];
-    const alwaysShow = new Set([0, 1, 2]);
+    const materialColor = new Color();
+    const drawerMaterial = new Materials.Mesh();
+    const handleMaterial = new Materials.Mesh(materialColor.Set(0x7f7f7f));
+    const cabinetMaterial = new Materials.Mesh(materialColor.Set(0xbfbfbf, 0xbf));
 
-    const drawerColor = [1, 1, 1, 1];
+    const [width, height, depth] = [0, 1, 2];
+    const alwaysShow = new Set([0, 1, 2]);
     const drawerSize = [40, 30, 50];
     const handleSize = [10, 2, 2];
-    const drawersPerCabinet = 4;
 
+    const drawersPerCabinet = 4;
     const animatedNodes = [];
     let wasRunning = false;
 
@@ -127,17 +128,16 @@ import CubeShader from "./Cube.wgsl";
     const totBindGroups = (drawersPerCabinet * 2 + 1) * cabinets;
     const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;
 
-    const module = CubePipeline.CreateShaderModule(Shaders.Cube);
-    // const module = CubePipeline.CreateShaderModule(CubeShader);
-    // const { layout: colorLayout, buffer: colorBuffer } = createVertexColors();
+    const module = CubePipeline.CreateShaderModule([Shaders.Cube, CubeShader]);
+    const { layout: colorLayout, buffer: colorBuffer } = createVertexColors();
 
     await Renderer.AddPipeline(CubePipeline, {
-        primitive: { cullMode: "back" },
-        fragment: CubePipeline.CreateFragmentState(module),
+        fragment: CubePipeline.CreateFragmentState(module, void 0, void 0, "cubeFragment"),
         depthStencil: CubePipeline.CreateDepthStencilState(),
         vertex: CubePipeline.CreateVertexState(module, [
-            Mesh.GetPositionBufferLayout(CubePipeline), // colorLayout
-        ])
+            Mesh.GetPositionBufferLayout(CubePipeline), colorLayout
+        ], void 0, "cubeVertex"),
+        primitive: { cullMode: "back" }
     });
 
     Renderer.CreatePassDescriptor(
@@ -191,7 +191,8 @@ import CubeShader from "./Cube.wgsl";
     function createVertexColors()
     {
         const { buffer, layout } = CubePipeline.CreateVertexBuffer(
-            { name: "color", format: "unorm8x4" }, CubeGeometry.Vertices
+            { name: "color", format: "unorm8x4" },
+            CubeGeometry.Vertices, void 0, "cubeVertex"
         );
 
         const vertices = 6 * 4, data = new Uint8Array(vertices * 4);
@@ -234,16 +235,16 @@ import CubeShader from "./Cube.wgsl";
                 child.show(show);
     }
 
-    function addMesh(label, parent, transform, color)
+    function addMesh(label, parent, transform, material)
     {
-        const MeshMaterial = new Materials.Mesh(color); // Can be just 3.
-        const cube = new Mesh(CubeGeometry, MeshMaterial, label, parent);
+        // A default material is required to match the expected number of entries in the shader:
+        const cube = new Mesh(CubeGeometry, material ?? new Materials.Mesh(), label, parent);
 
         cube.SetRenderPipeline(CubePipeline);
-        // cube.AddVertexBuffers(colorBuffer);
+        cube.AddVertexBuffers(colorBuffer);
 
+        material && meshes.push(cube);
         cube.Transform = transform;
-        color && meshes.push(cube);
 
         return cube;
     }
@@ -262,11 +263,11 @@ import CubeShader from "./Cube.wgsl";
 
         addMesh(`${label}-drawer-mesh`, drawer, [
             void 0, void 0, drawerSize
-        ], drawerColor);
+        ], drawerMaterial);
 
         addMesh(`${label}-handle-mesh`, drawer, [
             handlePosition, void 0, handleSize
-        ], handleColor);
+        ], handleMaterial);
     }
 
     function addCabinet(parent, index)
@@ -279,7 +280,7 @@ import CubeShader from "./Cube.wgsl";
 
         addMesh(`${label}-mesh`, cabinet, [
             void 0, void 0, cabinetSize
-        ], cabinetColor);
+        ], cabinetMaterial);
 
         for (let d = 0; d < drawersPerCabinet; ++d)
             addDrawer(cabinet, d);

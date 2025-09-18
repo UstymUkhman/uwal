@@ -10,20 +10,12 @@ struct VertexOutput
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(0) var<uniform> color: vec4f;
-@group(0) @binding(1) var<uniform> projection: mat4x4f;
-
-@vertex fn vertex(input: VertexInput) -> VertexOutput
+@vertex fn cubeVertex(input: VertexInput) -> VertexOutput
 {
-    var output: VertexOutput;
-
-    output.position = projection * input.position;
-    output.color = input.color;
-
-    return output;
+    return VertexOutput(input.color, GetVertexClipSpace(input.position));
 }
 
-@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f
+@fragment fn cubeFragment(vertex: VertexOutput) -> @location(0) vec4f
 {
-    return input.color * color;
+    return vertex.color * color;
 }
