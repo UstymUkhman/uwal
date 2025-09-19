@@ -11,7 +11,7 @@
 
 import { Node, Mesh, Color, Device, Shaders, MathUtils, Materials, Geometries, PerspectiveCamera } from "#/index";
 import { addButtonLeftJustified } from "https://webgpufundamentals.org/webgpu/resources/js/gui-helpers.js";
-import CubeShader from "./Cube.wgsl";
+import Cube from "./Cube.wgsl";
 
 (async function(canvas)
 {
@@ -74,14 +74,13 @@ import CubeShader from "./Cube.wgsl";
         animate: false,
         showMeshNodes: false,
         showAllTransforms: false,
-        translation: MathUtils.Vec3.create(),
+        position: MathUtils.Vec3.create(),
         rotation: MathUtils.Vec3.create(),
-        scale: MathUtils.Vec3.create(1, 1, 1)
+        scale: MathUtils.Vec3.set(1, 1, 1)
     };
 
     const root = new Node("root");
     const gui = new GUI().onChange(requestRender);
-    const lerp = (v1, v2, t) => (v2 - v1) * t + v1;
 
     gui.add(settings, "cameraRotation", cameraRadToDegOptions);
     gui.add(settings, "animate").onChange(v => transformFolder.enable(!v));
@@ -89,12 +88,14 @@ import CubeShader from "./Cube.wgsl";
     gui.add(settings, "showAllTransforms").onChange(showTransforms);
 
     const transformFolder = gui.addFolder("Orientation");
-    transformFolder.onChange(updateCurrentNodeSettings);
+    transformFolder.onChange(() => (currentNode.Transform =
+        [settings.position, settings.rotation, settings.scale]
+    ));
 
     const transformControls = [
-        transformFolder.add(settings.translation, "0", -200, 200, 1).name("Translation X"),
-        transformFolder.add(settings.translation, "1", -200, 200, 1).name("Translation Y"),
-        transformFolder.add(settings.translation, "2", -200, 200, 1).name("Translation Z"),
+        transformFolder.add(settings.position, "0", -200, 200, 1).name("Position X"),
+        transformFolder.add(settings.position, "1", -200, 200, 1).name("Position Y"),
+        transformFolder.add(settings.position, "2", -200, 200, 1).name("Position Z"),
 
         transformFolder.add(settings.rotation, "0", radToDegOptions).name("Rotation X"),
         transformFolder.add(settings.rotation, "1", radToDegOptions).name("Rotation Y"),
@@ -123,21 +124,21 @@ import CubeShader from "./Cube.wgsl";
     const CubeGeometry = new Geometries.Cube();
     const CubePipeline = new Renderer.Pipeline();
 
-    let viewProjection = Camera.UpdateViewProjection();
+    let viewProjection = Camera.UpdateViewProjectionMatrix();
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
     const totBindGroups = (drawersPerCabinet * 2 + 1) * cabinets;
     const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;
 
-    const module = CubePipeline.CreateShaderModule([Shaders.Cube, CubeShader]);
+    const module = CubePipeline.CreateShaderModule([Shaders.Cube, Cube]);
     const { layout: colorLayout, buffer: colorBuffer } = createVertexColors();
 
     await Renderer.AddPipeline(CubePipeline, {
-        fragment: CubePipeline.CreateFragmentState(module, void 0, void 0, "cubeFragment"),
+        primitive: CubePipeline.CreatePrimitiveState(),
         depthStencil: CubePipeline.CreateDepthStencilState(),
+        fragment: CubePipeline.CreateFragmentState(module, void 0, void 0, "cubeFragment"),
         vertex: CubePipeline.CreateVertexState(module, [
-            Mesh.GetPositionBufferLayout(CubePipeline), colorLayout
+            CubeGeometry.GetPositionBufferLayout(CubePipeline), colorLayout
         ], void 0, "cubeVertex"),
-        primitive: { cullMode: "back" }
     });
 
     Renderer.CreatePassDescriptor(
@@ -171,18 +172,10 @@ import CubeShader from "./Cube.wgsl";
         return nodes.flat();
     }
 
-    function updateCurrentNodeSettings()
-    {
-        const { Translation, Rotation, Scale } = currentNode;
-        Translation.set(settings.translation);
-        Rotation.set(settings.rotation);
-        Scale.set(settings.scale);
-    }
-
     function updateCurrentNodeGUI()
     {
-        const { Translation, Rotation, Scale } = currentNode;
-        settings.translation.set(Translation);
+        const { Position, Rotation, Scale } = currentNode;
+        settings.position.set(Position);
         settings.rotation.set(Rotation);
         settings.scale.set(Scale);
         transformFolder.updateDisplay();
@@ -190,11 +183,6 @@ import CubeShader from "./Cube.wgsl";
 
     function createVertexColors()
     {
-        const { buffer, layout } = CubePipeline.CreateVertexBuffer(
-            { name: "color", format: "unorm8x4" },
-            CubeGeometry.Vertices, void 0, "cubeVertex"
-        );
-
         const vertices = 6 * 4, data = new Uint8Array(vertices * 4);
 
         const colors = [
@@ -209,9 +197,9 @@ import CubeShader from "./Cube.wgsl";
             data[v * 4 + 3] = 255;
         }
 
-        CubePipeline.WriteBuffer(buffer, data);
-
-        return { buffer, layout };
+        return CubeGeometry.AddVertexBuffer(
+            CubePipeline, data, { name: "color", format: "unorm8x4" }, void 0, "cubeVertex"
+        );
     }
 
     function setCurrentNode(node)
@@ -238,10 +226,10 @@ import CubeShader from "./Cube.wgsl";
     function addMesh(label, parent, transform, material)
     {
         // A default material is required to match the expected number of entries in the shader:
-        const cube = new Mesh(CubeGeometry, material ?? new Materials.Mesh(), label, parent);
+        const cube = new Mesh(CubeGeometry, material ?? drawerMaterial, label, parent);
 
         cube.SetRenderPipeline(CubePipeline);
-        cube.AddVertexBuffers(colorBuffer);
+        CubePipeline.AddVertexBuffers(colorBuffer);
 
         material && meshes.push(cube);
         cube.Transform = transform;
@@ -310,8 +298,8 @@ import CubeShader from "./Cube.wgsl";
 
     function animate()
     {
-        animatedNodes.forEach((node, n) => node.Translation[2] =
-            lerp(3, drawerSize[2] * 0.8, Math.sin(time + n) * 0.5 + 0.5)
+        animatedNodes.forEach((node, n) => node.Position[2] =
+            MathUtils.Lerp(3, drawerSize[2] * 0.8, Math.sin(time + n) * 0.5 + 0.5)
         );
     }
 
@@ -319,12 +307,12 @@ import CubeShader from "./Cube.wgsl";
     {
         requestId = void 0;
 
-        Camera.ResetMatrix();
+        Camera.ResetLocalMatrix();
         Camera.Translate([cameraOffsetX, 20, 0]);
         Camera.RotateY(settings.cameraRotation);
         Camera.Translate([0, 0, 300]);
 
-        viewProjection = Camera.UpdateViewProjection();
+        viewProjection = Camera.UpdateViewProjectionMatrix();
         root.UpdateWorldMatrix();
 
         meshes.forEach(mesh => drawObject(mesh));
@@ -352,7 +340,7 @@ import CubeShader from "./Cube.wgsl";
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
-            Camera.UpdateViewProjection();
+            Camera.UpdateViewProjectionMatrix();
         }
 
         requestRender();

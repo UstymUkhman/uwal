@@ -39,6 +39,7 @@ export async function run(canvas)
 
     const radius = 128, textures = 256;
     const TexturesPipeline = new Renderer.Pipeline();
+    const geometry = new Geometries.Shape({ radius });
 
     let storage, vertices, spawnTimeout, textureIndex, lastTexture,
         textureUpdate = 512, lastRender = performance.now() - textureUpdate;
@@ -54,7 +55,7 @@ export async function run(canvas)
     await Renderer.AddPipeline(TexturesPipeline, {
         fragment: TexturesPipeline.CreateFragmentState(module),
         vertex: TexturesPipeline.CreateVertexState(module, [
-            Shape.GetPositionBufferLayout(TexturesPipeline), translationLayout
+            geometry.GetPositionBufferLayout(TexturesPipeline), translationLayout
         ], void 0, "textureVertex")
     });
 
@@ -79,13 +80,12 @@ export async function run(canvas)
 
     function createShape()
     {
-        const geometry = new Geometries.Shape({ radius });
-        const [width, height] = Renderer.CanvasSize;
         const shape = new Shape(geometry);
+        const [width, height] = Renderer.CanvasSize;
 
         shape.SetRenderPipeline(TexturesPipeline, Renderer.ResolutionBuffer);
         TexturesPipeline.SetDrawParams(geometry.Vertices, textures);
-        shape.AddVertexBuffers(translationBuffer);
+        TexturesPipeline.AddVertexBuffers(translationBuffer);
 
         shape.Position = [width / 2, height / 2];
         shape.Rotation = Math.PI / 4;

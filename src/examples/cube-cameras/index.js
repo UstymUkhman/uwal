@@ -12,9 +12,11 @@ import Dice from "/assets/images/dice.jpg";
 import Cube from "./Cube.wgsl";
 
 import {
+    Mesh,
     Color,
     Device,
     TEXTURE,
+    Shaders,
     MathUtils,
     Geometries,
     PerspectiveCamera,
@@ -41,16 +43,17 @@ export async function run(canvas)
     let orthoRotation, nextOrthoY;
     let dropTimeout, dropTime = Infinity;
 
+    const CubeGeometry = new Geometries.Cube();
+    const CubePipeline = new Renderer.Pipeline();
+
     const tempPosition = MathUtils.Vec3.create();
     const tempRotation = MathUtils.Vec3.create();
 
-    const CubePipeline = new Renderer.Pipeline();
-    const perspectiveCube = new Geometries.Cube();
-    const orthographicCube = new Geometries.Cube();
+    const perspectiveCube = new Mesh(CubeGeometry);
+    const orthographicCube = new Mesh(CubeGeometry);
 
     const perspectiveCamera = new PerspectiveCamera();
     const orthographicCamera = new OrthographicCamera();
-    const module = CubePipeline.CreateShaderModule(Cube);
 
     const perspectiveScale    = MathUtils.Vec3.create();
     const perspectivePosition = MathUtils.Vec3.create();
@@ -63,41 +66,50 @@ export async function run(canvas)
     const nextPerspectiveRotation  = MathUtils.Vec3.create();
     const nextOrthographicRotation = MathUtils.Vec3.create();
 
-    orthographicCube.SetRenderPipeline(CubePipeline);
-    perspectiveCube.SetRenderPipeline(CubePipeline);
+    const fragmentEntry = [undefined, undefined, "cubeFragment"];
+    const viewProjection = perspectiveCamera.UpdateViewProjectionMatrix();
+    const module = CubePipeline.CreateShaderModule([Shaders.CubeVertex, Cube]);
+
+    const { buffer: textureCoordsBuffer, layout: textureCoordsLayout } =
+        CubeGeometry.CreateTextureCoordsBuffer(CubePipeline, void 0, void 0, "cubeVertex");
 
     await Renderer.AddPipeline(CubePipeline, {
         primitive: CubePipeline.CreatePrimitiveState(),
-        fragment: CubePipeline.CreateFragmentState(module),
+        fragment: CubePipeline.CreateFragmentState(module, ...fragmentEntry),
         multisample: CubePipeline.CreateMultisampleState(),
         depthStencil: CubePipeline.CreateDepthStencilState(),
         vertex: CubePipeline.CreateVertexState(module, [
-            perspectiveCube.GetPositionBufferLayout(),
-            perspectiveCube.GetTextureCoordsBufferLayout()
-        ])
+            CubeGeometry.GetPositionBufferLayout(CubePipeline),
+            textureCoordsLayout
+        ], undefined, "cubeVertex")
     });
 
-    const viewProjection = perspectiveCamera.UpdateViewProjection();
+    orthographicCube.SetRenderPipeline(CubePipeline, false);
+    perspectiveCube.SetRenderPipeline(CubePipeline, false);
+
     const Texture = new (await Device.Texture(Renderer));
     const source = await Texture.CreateImageBitmap(Dice);
     texture = await Texture.CopyImageToTexture(source);
 
-    CubePipeline.AddBindGroupFromResources([
+    CubePipeline.SetBindGroupFromResources([
+        perspectiveCube.ProjectionBuffer,
         Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
-        texture.createView(),
-        perspectiveCube.ProjectionBuffer
+        texture.createView()
     ]);
 
     CubePipeline.AddBindGroupFromResources([
+        orthographicCube.ProjectionBuffer,
         Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
-        texture.createView(),
-        orthographicCube.ProjectionBuffer
+        texture.createView()
     ]);
 
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(new Color(0x194c33)),
         Renderer.CreateDepthStencilAttachment()
     );
+
+    CubePipeline.AddVertexBuffers(textureCoordsBuffer);
+    CubePipeline.AddVertexBuffers(textureCoordsBuffer);
 
     function clean()
     {
@@ -178,8 +190,8 @@ export async function run(canvas)
         // Orthographic View:
         {
             const projection = orthographicCube.Projection;
-            MathUtils.Mat4.copy(orthographicCamera.Projection, projection);
             MathUtils.Vec3.copy(orthographicPosition, tempPosition);
+            MathUtils.Mat4.copy(orthographicCamera.ProjectionMatrix, projection);
 
             tempPosition[1] = MathUtils.Lerp(orthographicPosition[1], nextOrthoY, smootherTime);
             MathUtils.Mat4.translate(projection, tempPosition, projection);
@@ -210,7 +222,7 @@ export async function run(canvas)
             Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             perspectiveCamera.AspectRatio = Renderer.AspectRatio;
             perspectiveCamera.Position = [width / 360, 2, 8];
-            perspectiveCamera.UpdateViewProjection();
+            perspectiveCamera.UpdateViewProjectionMatrix();
 
             orthographicCamera.Bottom = height;
             orthographicCamera.Right = width;

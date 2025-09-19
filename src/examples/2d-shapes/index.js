@@ -37,17 +37,19 @@ export async function run(canvas)
 
     const color = new Color(0x331a4d);
     const spin = [], speed = [], direction = [];
+    const DummyGeometry = new Geometries.Shape();
     const ShapePipeline = new Renderer.Pipeline();
     const module = ShapePipeline.CreateShaderModule(Shaders.Shape);
 
     await Renderer.AddPipeline(ShapePipeline, {
         fragment: ShapePipeline.CreateFragmentState(module),
         vertex: ShapePipeline.CreateVertexState(module,
-            Shape.GetPositionBufferLayout(ShapePipeline)
+            DummyGeometry.GetPositionBufferLayout(ShapePipeline)
         )
     });
 
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(color));
+    DummyGeometry.Destroy();
 
     function clean()
     {
