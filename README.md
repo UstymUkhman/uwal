@@ -83,5 +83,5 @@ bun add uwal
   - [Cameras](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#cameras)
   - [Matrix Stacks](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#matrix-stacks)
   - [Recursive Tree](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#recursive-tree)
-  - [Scene Graphs](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#scene-graphs)
+  - [Scene Graphs](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#scene-graphs)
   - [Making a Hand](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#making-hand)

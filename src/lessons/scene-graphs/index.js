@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { Node, Mesh, Color, Device, Shaders, MathUtils, Materials, Geometries, PerspectiveCamera } from "#/index";
+import { Scene, Mesh, Color, Device, Shaders, MathUtils, Materials, Geometries, PerspectiveCamera } from "#/index";
 import { addButtonLeftJustified } from "https://webgpufundamentals.org/webgpu/resources/js/gui-helpers.js";
 import Cube from "./Cube.wgsl";
 
@@ -79,7 +79,7 @@ import Cube from "./Cube.wgsl";
         scale: MathUtils.Vec3.set(1, 1, 1)
     };
 
-    const root = new Node("root");
+    const scene = new Scene();
     const gui = new GUI().onChange(requestRender);
 
     gui.add(settings, "cameraRotation", cameraRadToDegOptions);
@@ -124,7 +124,6 @@ import Cube from "./Cube.wgsl";
     const CubeGeometry = new Geometries.Cube();
     const CubePipeline = new Renderer.Pipeline();
 
-    let viewProjection = Camera.UpdateViewProjectionMatrix();
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
     const totBindGroups = (drawersPerCabinet * 2 + 1) * cabinets;
     const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;
@@ -146,18 +145,17 @@ import Cube from "./Cube.wgsl";
         Renderer.CreateDepthStencilAttachment()
     );
 
-    Array.from({ length: 5 }).forEach((_, c) => addCabinet(root, c))
-    const nodeButtons = addNodeGUI(gui.addFolder("Nodes"), root);
+    Array.from({ length: 5 }).forEach((_, c) => addCabinet(scene, c))
+    const nodeButtons = addNodeGUI(gui.addFolder("Nodes"), scene);
 
-    setCurrentNode(root.Children[0]);
-    showTransforms(false);
-    showMeshNodes(false);
+    setCurrentNode(scene.Children[0]);
+    showTransforms(false); showMeshNodes(false);
 
     function addNodeGUI(gui, node, last, prefix)
     {
         const nodes = [], empty = prefix === void 0;
 
-        if (node.Label !== "root")
+        if (node.Label !== "Scene")
         {
             const label = `${empty ? "" : `${prefix}\u00a0+-`}${node.Label}`;
             nodes.push(addButtonLeftJustified(gui, label, () => setCurrentNode(node)));
@@ -174,10 +172,10 @@ import Cube from "./Cube.wgsl";
 
     function updateCurrentNodeGUI()
     {
-        const { Position, Rotation, Scale } = currentNode;
+        const { Position, Rotation, Scaling } = currentNode;
         settings.position.set(Position);
         settings.rotation.set(Rotation);
-        settings.scale.set(Scale);
+        settings.scale.set(Scaling);
         transformFolder.updateDisplay();
     }
 
@@ -283,11 +281,9 @@ import Cube from "./Cube.wgsl";
             bindGroups = Math.min(++bindGroups, totBindGroups);
         }
 
-        MathUtils.Mat4.multiply(viewProjection, cube.WorldMatrix, cube.Projection);
         CubePipeline.SetActiveBindGroups(objectIndex);
         objectIndex = ++objectIndex % totBindGroups;
-
-        cube.Update();
+        cube.Update(Camera.ViewProjectionMatrix);
         Renderer.Render(false);
     }
 
@@ -311,10 +307,9 @@ import Cube from "./Cube.wgsl";
         Camera.Translate([cameraOffsetX, 20, 0]);
         Camera.RotateY(settings.cameraRotation);
         Camera.Translate([0, 0, 300]);
+        Camera.UpdateViewProjectionMatrix();
 
-        viewProjection = Camera.UpdateViewProjectionMatrix();
-        root.UpdateWorldMatrix();
-
+        scene.UpdateWorldMatrix();
         meshes.forEach(mesh => drawObject(mesh));
         Renderer.Submit();
 
