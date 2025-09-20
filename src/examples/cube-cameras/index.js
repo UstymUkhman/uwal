@@ -45,8 +45,6 @@ export async function run(canvas)
 
     const CubeGeometry = new Geometries.Cube();
     const CubePipeline = new Renderer.Pipeline();
-
-    const tempPosition = MathUtils.Vec3.create();
     const tempRotation = MathUtils.Vec3.create();
 
     const perspectiveCube = new Mesh(CubeGeometry);
@@ -55,19 +53,13 @@ export async function run(canvas)
     const perspectiveCamera = new PerspectiveCamera();
     const orthographicCamera = new OrthographicCamera();
 
-    const perspectiveScale    = MathUtils.Vec3.create();
-    const perspectivePosition = MathUtils.Vec3.create();
-    const perspectiveRotation = MathUtils.Vec3.create();
-
-    const orthographicScale    = MathUtils.Vec3.create();
     const orthographicPosition = MathUtils.Vec3.create();
     const orthographicRotation = MathUtils.Vec3.create();
 
     const nextPerspectiveRotation  = MathUtils.Vec3.create();
     const nextOrthographicRotation = MathUtils.Vec3.create();
+    const initialPerspectiveRotation = MathUtils.Vec3.create();
 
-    const fragmentEntry = [undefined, undefined, "cubeFragment"];
-    const viewProjection = perspectiveCamera.UpdateViewProjectionMatrix();
     const module = CubePipeline.CreateShaderModule([Shaders.CubeVertex, Cube]);
 
     const { buffer: textureCoordsBuffer, layout: textureCoordsLayout } =
@@ -75,13 +67,13 @@ export async function run(canvas)
 
     await Renderer.AddPipeline(CubePipeline, {
         primitive: CubePipeline.CreatePrimitiveState(),
-        fragment: CubePipeline.CreateFragmentState(module, ...fragmentEntry),
+        fragment: CubePipeline.CreateFragmentState(module, void 0, void 0, "cubeFragment"),
         multisample: CubePipeline.CreateMultisampleState(),
         depthStencil: CubePipeline.CreateDepthStencilState(),
         vertex: CubePipeline.CreateVertexState(module, [
             CubeGeometry.GetPositionBufferLayout(CubePipeline),
             textureCoordsLayout
-        ], undefined, "cubeVertex")
+        ], void 0, "cubeVertex")
     });
 
     orthographicCube.SetRenderPipeline(CubePipeline, false);
@@ -157,8 +149,8 @@ export async function run(canvas)
 
             if (smoothTime === 1)
             {
+                MathUtils.Vec3.copy(nextPerspectiveRotation, initialPerspectiveRotation);
                 MathUtils.Vec3.copy(nextOrthographicRotation, orthographicRotation);
-                MathUtils.Vec3.copy(nextPerspectiveRotation, perspectiveRotation);
                 dropTime = Infinity;
                 drop();
             }
@@ -166,47 +158,34 @@ export async function run(canvas)
 
         // Perspective View:
         {
-            const projection = perspectiveCube.Projection;
-            MathUtils.Mat4.copy(viewProjection, projection);
-            MathUtils.Vec3.copy(perspectivePosition, tempPosition);
+            const [rx, ry, rz] = initialPerspectiveRotation;
 
-            tempPosition[1] = MathUtils.Lerp(perspectivePosition[1], 4, smootherTime);
-            MathUtils.Mat4.translate(projection, tempPosition, projection);
+            tempRotation[0] = MathUtils.Lerp(rx, nextPerspectiveRotation[0], smoothTime);
+            tempRotation[1] = MathUtils.Lerp(ry, nextPerspectiveRotation[1], smoothTime);
+            tempRotation[2] = MathUtils.Lerp(rz, nextPerspectiveRotation[2], smoothTime);
 
-            tempRotation[0] = MathUtils.Lerp(perspectiveRotation[0], nextPerspectiveRotation[0], smoothTime);
-            tempRotation[1] = MathUtils.Lerp(perspectiveRotation[1], nextPerspectiveRotation[1], smoothTime);
-            tempRotation[2] = MathUtils.Lerp(perspectiveRotation[2], nextPerspectiveRotation[2], smoothTime);
+            perspectiveCube.Transform = [[0, MathUtils.Lerp(0, 4, smootherTime), 0], tempRotation];
+            perspectiveCube.UpdateWorldMatrix(); // Will be updated by the scene.
+            perspectiveCube.Update(perspectiveCamera.ViewProjectionMatrix);
 
-            MathUtils.Mat4.rotateX(projection, tempRotation[0], projection);
-            MathUtils.Mat4.rotateY(projection, tempRotation[1], projection);
-            MathUtils.Mat4.rotateZ(projection, tempRotation[2], projection);
-
-            MathUtils.Mat4.scale(projection, perspectiveScale, projection);
             CubePipeline.SetActiveBindGroups(0);
-            perspectiveCube.Update();
             Renderer.Render(false);
         }
 
         // Orthographic View:
         {
-            const projection = orthographicCube.Projection;
-            MathUtils.Vec3.copy(orthographicPosition, tempPosition);
-            MathUtils.Mat4.copy(orthographicCamera.ProjectionMatrix, projection);
+            const [px, py, pz] = orthographicPosition;
+            const [rx, ry, rz] = orthographicRotation;
 
-            tempPosition[1] = MathUtils.Lerp(orthographicPosition[1], nextOrthoY, smootherTime);
-            MathUtils.Mat4.translate(projection, tempPosition, projection);
+            tempRotation[0] = MathUtils.Lerp(rx, nextOrthographicRotation[0], smoothTime);
+            tempRotation[1] = MathUtils.Lerp(ry, nextOrthographicRotation[1], smoothTime);
+            tempRotation[2] = MathUtils.Lerp(rz, nextOrthographicRotation[2], smoothTime);
 
-            tempRotation[0] = MathUtils.Lerp(orthographicRotation[0], nextOrthographicRotation[0], smoothTime);
-            tempRotation[1] = MathUtils.Lerp(orthographicRotation[1], nextOrthographicRotation[1], smoothTime);
-            tempRotation[2] = MathUtils.Lerp(orthographicRotation[2], nextOrthographicRotation[2], smoothTime);
+            orthographicCube.Transform = [[px, MathUtils.Lerp(py, nextOrthoY, smootherTime), pz], tempRotation];
+            orthographicCube.UpdateWorldMatrix(); // Will be updated by the scene.
+            orthographicCube.Update(orthographicCamera.ProjectionMatrix);
 
-            MathUtils.Mat4.rotateX(projection, tempRotation[0], projection);
-            MathUtils.Mat4.rotateY(projection, tempRotation[1], projection);
-            MathUtils.Mat4.rotateZ(projection, tempRotation[2], projection);
-
-            MathUtils.Mat4.scale(projection, orthographicScale, projection);
             CubePipeline.SetActiveBindGroups(1);
-            orthographicCube.Update();
             Renderer.Render();
         }
     }
@@ -234,11 +213,10 @@ export async function run(canvas)
             nextOrthoY = oy * 0.39;
             const s = nw + 1;
 
-            MathUtils.Vec3.set(s, s, s, perspectiveScale);
-            MathUtils.Vec3.set(0, 0, 0, perspectivePosition);
+            perspectiveCube.Scaling = [s, s, s];
             const os = (1 - (height - 1e3) / -400) * 36 + 72;
+            orthographicCube.Scaling = [os * s, os * s, os * s];
 
-            MathUtils.Vec3.set(os * s, os * s, os * s, orthographicScale);
             MathUtils.Vec3.set(0.2, orthoRotation, 0, orthographicRotation);
             MathUtils.Vec3.set(width - (nw * 250 + 100), oy, 0, orthographicPosition);
         }
