@@ -166,7 +166,7 @@ export async function run(canvas)
 
             perspectiveCube.Transform = [[0, MathUtils.Lerp(0, 4, smootherTime), 0], tempRotation];
             perspectiveCube.UpdateWorldMatrix(); // Will be updated by the scene.
-            perspectiveCube.Update(perspectiveCamera.ViewProjectionMatrix);
+            perspectiveCube.UpdateProjectionMatrix(perspectiveCamera.ViewProjectionMatrix);
 
             CubePipeline.SetActiveBindGroups(0);
             Renderer.Render(false);
@@ -183,7 +183,7 @@ export async function run(canvas)
 
             orthographicCube.Transform = [[px, MathUtils.Lerp(py, nextOrthoY, smootherTime), pz], tempRotation];
             orthographicCube.UpdateWorldMatrix(); // Will be updated by the scene.
-            orthographicCube.Update(orthographicCamera.ProjectionMatrix);
+            orthographicCube.UpdateProjectionMatrix(orthographicCamera.ProjectionMatrix);
 
             CubePipeline.SetActiveBindGroups(1);
             Renderer.Render();

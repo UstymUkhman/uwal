@@ -281,9 +281,9 @@ import Cube from "./Cube.wgsl";
             bindGroups = Math.min(++bindGroups, totBindGroups);
         }
 
+        cube.UpdateProjectionMatrix(Camera.ViewProjectionMatrix);
         CubePipeline.SetActiveBindGroups(objectIndex);
         objectIndex = ++objectIndex % totBindGroups;
-        cube.Update(Camera.ViewProjectionMatrix);
         Renderer.Render(false);
     }
 
