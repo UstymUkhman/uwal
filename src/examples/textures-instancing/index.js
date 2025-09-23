@@ -89,7 +89,7 @@ export async function run(canvas)
 
         shape.Position = [width / 2, height / 2];
         shape.Rotation = Math.PI / 4;
-        shape.Update();
+        shape.UpdateProjectionMatrix();
     }
 
     function createStorageBuffer()

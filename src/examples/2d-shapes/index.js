@@ -124,7 +124,7 @@ export async function run(canvas)
             shape.Position = [x + dir[0] * speed[s], y + dir[1] * speed[s]];
             shape.Rotation += spin[s];
 
-            shape.Update();
+            shape.UpdateProjectionMatrix();
             shape.SetPipelineData();
             Renderer.Render(false);
         }

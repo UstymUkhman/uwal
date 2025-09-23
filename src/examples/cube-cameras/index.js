@@ -67,7 +67,7 @@ export async function run(canvas)
 
     await Renderer.AddPipeline(CubePipeline, {
         primitive: CubePipeline.CreatePrimitiveState(),
-        fragment: CubePipeline.CreateFragmentState(module, void 0, void 0, "cubeFragment"),
+        fragment: CubePipeline.CreateFragmentState(module),
         multisample: CubePipeline.CreateMultisampleState(),
         depthStencil: CubePipeline.CreateDepthStencilState(),
         vertex: CubePipeline.CreateVertexState(module, [

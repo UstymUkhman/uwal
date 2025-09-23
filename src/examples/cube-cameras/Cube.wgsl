@@ -12,7 +12,7 @@ struct VertexOutput
     return VertexOutput(textureCoords, GetVertexClipSpace(position));
 }
 
-@fragment fn cubeFragment(@location(0) textureCoords: vec2f) -> @location(0) vec4f
+@fragment fn fragment(@location(0) textureCoords: vec2f) -> @location(0) vec4f
 {
     return textureSample(Texture, Sampler, textureCoords);
 }
