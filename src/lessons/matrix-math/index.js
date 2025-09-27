@@ -9,8 +9,16 @@
  * @license MIT
  */
 
-import { Device, Camera2D, MathUtils } from "#/index";
-import Projection from "./Projection.wgsl";
+import {
+    Color,
+    Shape,
+    Device,
+    Shaders,
+    MathUtils,
+    Materials,
+    Geometries
+} from "#/index";
+
 import createVertices from "./F.js";
 
 (async function(canvas)
@@ -36,10 +44,13 @@ import createVertices from "./F.js";
         alert(error);
     }
 
-    const objectUniforms = [];
-    const camera = new Camera2D();
+    // const camera = new Camera2D();
     const gui = new GUI().onChange(render);
     const RenderPipeline = new Renderer.Pipeline();
+
+    const { vertexData, indexData } = createVertices();
+    const module = RenderPipeline.CreateShaderModule(Shaders.Shape);
+    const geometry = new Geometries.Shape({ radius: 150, indexFormat: "uint32" });
 
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
     const settings = { translation: [150, 100], rotation: MathUtils.DegreesToRadians(30), scale: [1, 1], objects: 1 };
@@ -51,65 +62,49 @@ import createVertices from "./F.js";
     gui.add(settings.scale, "1", -5, 5).name("scale.y");
     gui.add(settings, "objects", 1, 5, 1).name("objects");
 
-    const { vertexData, indexData, vertices } = createVertices();
-    const module = RenderPipeline.CreateShaderModule(Projection);
-
-    const { buffer: vertexBuffer, layout } =
-        RenderPipeline.CreateVertexBuffer("position", vertexData.length / 2);
-
-    const indexBuffer = RenderPipeline.CreateIndexBuffer(indexData);
-
     await Renderer.AddPipeline(RenderPipeline, {
-        vertex: RenderPipeline.CreateVertexState(module, layout),
-        fragment: RenderPipeline.CreateFragmentState(module)
+        fragment: RenderPipeline.CreateFragmentState(module),
+        vertex: RenderPipeline.CreateVertexState(module,
+            geometry.GetPositionBufferLayout(RenderPipeline)
+        )
     });
 
-    RenderPipeline.WriteBuffer(vertexBuffer, vertexData);
-    RenderPipeline.WriteBuffer(indexBuffer, indexData);
+    const color = new Color();
+    geometry.IndexData = indexData;
+    geometry.VertexData = vertexData;
 
-    RenderPipeline.SetVertexBuffers(vertexBuffer);
-    RenderPipeline.SetIndexBuffer(indexBuffer);
-    RenderPipeline.SetDrawParams(vertices);
-
-    for (let o = 0; o < 5; ++o)
-    {
-        const Uniforms = RenderPipeline.CreateUniformBuffer("uniforms");
-        Uniforms.uniforms.color.set([MathUtils.Random(), MathUtils.Random(), MathUtils.Random(), 1]);
-
-        RenderPipeline.WriteBuffer(Uniforms.buffer, Uniforms.uniforms.color);
-        RenderPipeline.AddBindGroupFromResources(Uniforms.buffer);
-        objectUniforms.push(Uniforms);
-    }
+    const shapes = Array.from({ length: 5 }).map(() => {
+        const shape = new Shape(geometry, new Materials.Shape(color.Random()));
+        shape.SetRenderPipeline(RenderPipeline, Renderer.ResolutionBuffer);
+        return shape;
+    });
 
     function render()
     {
-        const translationMatrix = MathUtils.Mat3.translation(settings.translation);
-        const rotationMatrix = MathUtils.Mat3.rotation(settings.rotation);
-        const scaleMatrix = MathUtils.Mat3.scaling(settings.scale);
-
-        // Set the origin of the "F" to its center:
-        const originMatrix = MathUtils.Mat3.translation([-50, -75]);
-
-        let matrix = MathUtils.Mat3.identity();
+        const origin = [-50, -75];
+        const matrix = MathUtils.Mat3.identity();
 
         for (let o = 0; o < settings.objects; ++o)
         {
-            const { uniforms, buffer } = objectUniforms[o];
-            /* MathUtils.Mat3.copy(camera.ProjectionMatrix, uniforms.matrix);
+            const projection = shapes[o].ProjectionMatrix;
+            MathUtils.Mat3.copy(matrix, projection);
 
-            MathUtils.Mat3.translate(uniforms.matrix, settings.translation, uniforms.matrix);
-            MathUtils.Mat3.rotate(uniforms.matrix, settings.rotation, uniforms.matrix);
-            MathUtils.Mat3.scale(uniforms.matrix, settings.scale, uniforms.matrix); */
+            // !o && MathUtils.Mat3.copy(camera.ProjectionMatrix, projection);
 
-            matrix = MathUtils.Mat3.multiply(matrix, translationMatrix);
-            matrix = MathUtils.Mat3.multiply(matrix, rotationMatrix);
-            matrix = MathUtils.Mat3.multiply(matrix, scaleMatrix);
-            matrix = MathUtils.Mat3.multiply(matrix, originMatrix);
+            MathUtils.Mat3.translate(projection, settings.translation, projection);
+            MathUtils.Mat3.rotate(projection, settings.rotation, projection);
+            MathUtils.Mat3.scale(projection, settings.scale, projection);
+            MathUtils.Mat3.translate(projection, origin, projection);
 
-            uniforms.matrix.set(matrix);
+            RenderPipeline.WriteBuffer(shapes[o].ProjectionBuffer, projection);
+            MathUtils.Mat3.copy(projection, matrix);
 
-            RenderPipeline.WriteBuffer(buffer, uniforms.matrix.buffer);
-            RenderPipeline.SetActiveBindGroups(o);
+            // shapes[o].Position = settings.translation;
+            // shapes[o].Rotation = settings.rotation;
+            // shapes[o].Scale = settings.scale;
+
+            // shapes[o].UpdateProjectionMatrix();
+            shapes[o].SetPipelineData();
             Renderer.Render(false);
         }
 
@@ -122,7 +117,7 @@ import createVertices from "./F.js";
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
-            camera.UpdateProjectionMatrix();
+            // camera.UpdateProjectionMatrix();
         }
 
         render();

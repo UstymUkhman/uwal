@@ -2,9 +2,9 @@ export default function()
 {
     const vertexData = new Float32Array(
     [
-         0,  0,  30,  0,  0, 150,  30, 150, // Base:
-        30,  0, 100,  0, 30,  30, 100,  30, // Top rung:
-        30, 60,  70, 60, 30,  90,  70,  90  // Middle rung:
+         0,  0,  30,  0,  0, 150,  30, 150, // Base
+        30,  0, 100,  0, 30,  30, 100,  30, // Top rung
+        30, 60,  70, 60, 30,  90,  70,  90  // Middle rung
     ]);
 
     const indexData = new Uint32Array(
@@ -14,5 +14,5 @@ export default function()
         8,  9, 10, 10, 9, 11  // Middle rung
     ]);
 
-    return { vertexData, indexData, vertices: indexData.length };
+    return { vertexData, indexData };
 }
