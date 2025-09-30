@@ -14,6 +14,7 @@ import {
     Shape,
     Device,
     Shaders,
+    Camera2D,
     MathUtils,
     Materials,
     Geometries
@@ -44,7 +45,7 @@ import createVertices from "./F.js";
         alert(error);
     }
 
-    // const camera = new Camera2D();
+    const camera = new Camera2D();
     const gui = new GUI().onChange(render);
     const RenderPipeline = new Renderer.Pipeline();
 
@@ -75,21 +76,19 @@ import createVertices from "./F.js";
 
     const shapes = Array.from({ length: 5 }).map(() => {
         const shape = new Shape(geometry, new Materials.Shape(color.Random()));
-        shape.SetRenderPipeline(RenderPipeline, Renderer.ResolutionBuffer);
+        shape.SetRenderPipeline(RenderPipeline);
         return shape;
     });
 
     function render()
     {
         const origin = [-50, -75];
-        const matrix = MathUtils.Mat3.identity();
+        const matrix = MathUtils.Mat3.copy(camera.ProjectionMatrix);
 
         for (let o = 0; o < settings.objects; ++o)
         {
             const projection = shapes[o].ProjectionMatrix;
             MathUtils.Mat3.copy(matrix, projection);
-
-            // !o && MathUtils.Mat3.copy(camera.ProjectionMatrix, projection);
 
             MathUtils.Mat3.translate(projection, settings.translation, projection);
             MathUtils.Mat3.rotate(projection, settings.rotation, projection);
@@ -117,7 +116,7 @@ import createVertices from "./F.js";
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
-            // camera.UpdateProjectionMatrix();
+            camera.UpdateProjectionMatrix();
         }
 
         render();
