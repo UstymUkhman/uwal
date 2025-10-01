@@ -1,9 +1,19 @@
-struct Char
+#include "Quad.wgsl";
+
+struct char
 {
     coords: vec2f,
     extent: vec2f,
-    size:   vec2f,
+    size  : vec2f,
     offset: vec2f
+};
+
+struct text
+{
+    scale: f32,
+    color: vec4f,
+    transform: mat4x4f,
+    chars: array<vec3f>
 };
 
 struct VertexOutput
@@ -14,7 +24,9 @@ struct VertexOutput
 
 @group(0) @binding(0) var Sampler: sampler;
 @group(0) @binding(1) var Texture: texture_2d<f32>;
-@group(0) @binding(2) var<storage> Characters: array<Char>;
+@group(0) @binding(2) var<storage> Characters: array<char>;
+
+@group(1) @binding(0) var<storage> Text: text;
 
 fn MapQuadCoord(index: u32) -> vec2f
 {
