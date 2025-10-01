@@ -1,5 +1,5 @@
+import { Device, Shaders, BLEND_STATE } from "#/index";
 import Font from "./ya-hei-ascii.json?url";
-import { Device, Shaders } from "#/index";
 import MSDFText from "#/text/MSDFText";
 import Text from "./Text.wgsl";
 
@@ -16,13 +16,28 @@ import Text from "./Text.wgsl";
         alert(error);
     }
 
-    const TextPipeline = await Renderer.CreatePipeline([Shaders.Quad, Text]);
+    Renderer.CreatePassDescriptor(
+        Renderer.CreateColorAttachment(),
+        Renderer.CreateDepthStencilAttachment()
+    );
+
+    const TextPipeline = new Renderer.Pipeline();
+    const module = TextPipeline.CreateShaderModule([Shaders.Quad, Text]);
+
+    await Renderer.AddPipeline(TextPipeline, {
+        vertex: TextPipeline.CreateVertexState(module),
+        fragment: TextPipeline.CreateFragmentState(module,
+            TextPipeline.CreateColorTargetState(BLEND_STATE.ALPHA_ADDITIVE)
+        ),
+        primitive: TextPipeline.CreatePrimitiveState("triangle-strip", void 0, "uint32"),
+        depthStencil: TextPipeline.CreateDepthStencilState(void 0, false)
+    });
 
     const msdfText = new MSDFText();
     msdfText.SetRenderPipeline(TextPipeline);
-    await msdfText.LoadFont(Font);
+    const font = await msdfText.LoadFont(Font);
 
-    TextPipeline.SetDrawParams(6);
+    console.log(font);
 
     const observer = new ResizeObserver(entries =>
     {
@@ -32,6 +47,7 @@ import Text from "./Text.wgsl";
             Renderer.SetCanvasSize(inlineSize, blockSize);
         }
 
+        TextPipeline.SetDrawParams(6);
         Renderer.Render();
     });
 

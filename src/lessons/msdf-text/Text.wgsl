@@ -33,11 +33,11 @@ fn MapQuadCoord(index: u32) -> vec2f
     var output: VertexOutput;
     let character = Characters[0];
 
-    output.position = vec4f(GetQuadCoord(index), 0, 1);
-
     output.textureCoord  = quad[index];
     output.textureCoord *= character.extent;
     output.textureCoord += character.offset;
+
+    output.position = vec4f(GetQuadCoord(index), 0, 1);
 
     return output;
 }
