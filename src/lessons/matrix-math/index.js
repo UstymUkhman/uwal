@@ -51,7 +51,7 @@ import createVertices from "./F.js";
 
     const { vertexData, indexData } = createVertices();
     const module = RenderPipeline.CreateShaderModule(Shaders.Shape);
-    const geometry = new Geometries.Shape({ radius: 150, indexFormat: "uint32" });
+    const geometry = new Geometries.Shape({ radius: 75, indexFormat: "uint32" });
 
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
     const settings = { translation: [150, 100], rotation: MathUtils.DegreesToRadians(30), scale: [1, 1], objects: 1 };
@@ -77,32 +77,23 @@ import createVertices from "./F.js";
     const shapes = Array.from({ length: 5 }).map(() => {
         const shape = new Shape(geometry, new Materials.Shape(color.Random()));
         shape.SetRenderPipeline(RenderPipeline);
+        shape.Origin = [50, 75];
         return shape;
     });
 
+    for (let s = 0; s < 4; ++s)
+        shapes[s].Add(shapes[s + 1]);
+
     function render()
     {
-        const origin = [-50, -75];
-        const matrix = MathUtils.Mat3.copy(camera.ProjectionMatrix);
-
         for (let o = 0; o < settings.objects; ++o)
         {
-            const projection = shapes[o].ProjectionMatrix;
-            MathUtils.Mat3.copy(matrix, projection);
+            const { translation, rotation, scale } = settings;
+            shapes[o].Transform = [translation, rotation, scale];
 
-            MathUtils.Mat3.translate(projection, settings.translation, projection);
-            MathUtils.Mat3.rotate(projection, settings.rotation, projection);
-            MathUtils.Mat3.scale(projection, settings.scale, projection);
-            MathUtils.Mat3.translate(projection, origin, projection);
+            shapes[o].UpdateWorldMatrix(); // Will be updated by the scene.
+            shapes[o].UpdateProjectionMatrix(camera.ProjectionMatrix);
 
-            RenderPipeline.WriteBuffer(shapes[o].ProjectionBuffer, projection);
-            MathUtils.Mat3.copy(projection, matrix);
-
-            // shapes[o].Position = settings.translation;
-            // shapes[o].Rotation = settings.rotation;
-            // shapes[o].Scale = settings.scale;
-
-            // shapes[o].UpdateProjectionMatrix();
             shapes[o].SetPipelineData();
             Renderer.Render(false);
         }
@@ -116,7 +107,7 @@ import createVertices from "./F.js";
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
-            camera.UpdateProjectionMatrix();
+            camera.Size = [inlineSize, blockSize];
         }
 
         render();

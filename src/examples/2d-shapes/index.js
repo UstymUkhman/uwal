@@ -13,6 +13,7 @@ import {
     Color,
     Device,
     Shaders,
+    Camera2D,
     MathUtils,
     Materials,
     Geometries
@@ -35,11 +36,13 @@ export async function run(canvas)
         alert(error);
     }
 
+    const camera = new Camera2D();
     const color = new Color(0x331a4d);
     const spin = [], speed = [], direction = [];
     const DummyGeometry = new Geometries.Shape();
     const ShapePipeline = new Renderer.Pipeline();
     const module = ShapePipeline.CreateShaderModule(Shaders.Shape);
+    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(color));
 
     await Renderer.AddPipeline(ShapePipeline, {
         fragment: ShapePipeline.CreateFragmentState(module),
@@ -48,7 +51,6 @@ export async function run(canvas)
         )
     });
 
-    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(color));
     DummyGeometry.Destroy();
 
     function clean()
@@ -73,7 +75,7 @@ export async function run(canvas)
 
     function createRandomShapes()
     {
-        const [width, height] = Renderer.CanvasSize;
+        const [width, height] = Renderer.BaseCanvasSize;
 
         for (let s = 3; s <= 12; s++)
         {
@@ -110,21 +112,23 @@ export async function run(canvas)
 
     function render()
     {
-        const [width, height] = Renderer.CanvasSize;
+        const [width, height] = Renderer.BaseCanvasSize;
 
         for (let s = 0, l = shapes.length; s < l; s++)
         {
             const shape = shapes[s], dir = direction[s];
-            const { min, max } = shape.BoundingBox;
             const [x, y] = shape.Position;
-
-            if (min[0] <= 0 || max[0] >= width)  { dir[0] *= -1; shape.Material.Color = randomColor(); }
-            if (min[1] <= 0 || max[1] >= height) { dir[1] *= -1; shape.Material.Color = randomColor(); }
 
             shape.Position = [x + dir[0] * speed[s], y + dir[1] * speed[s]];
             shape.Rotation += spin[s];
 
-            shape.UpdateProjectionMatrix();
+            shape.UpdateLocalMatrix();
+            const { min, max } = shape.BoundingBox;
+            shape.UpdateProjectionMatrix(camera.ProjectionMatrix);
+
+            if (min[0] <= 0 || max[0] >= width)  { dir[0] *= -1; shape.Material.Color = randomColor(); }
+            if (min[1] <= 0 || max[1] >= height) { dir[1] *= -1; shape.Material.Color = randomColor(); }
+
             shape.SetPipelineData();
             Renderer.Render(false);
         }
@@ -140,6 +144,7 @@ export async function run(canvas)
             let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - 240;
             Renderer.SetCanvasSize(width, blockSize);
+            camera.Size = [width, blockSize];
         }
 
         clean(), start();
