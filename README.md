@@ -76,7 +76,7 @@ bun add uwal
   - [Translation](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#translation)
   - [Rotation](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#rotation)
   - [Scale](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#scale)
-  - [Matrix Math](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#matrix-math)
+  - [Matrix Math](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#matrix-math)
   - [Adding in Projection](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#adding-projection)
   - [Orthographic Projection](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#orthographic-projection)
   - [Perspective Projection](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#perspective-projection)
