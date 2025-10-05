@@ -7,7 +7,8 @@ struct VertexOutput
 
 @group(1) @binding(0) var Sampler: sampler;
 @group(1) @binding(1) var Texture: texture_2d<f32>;
-@group(1) @binding(2) var<storage, read> visible: array<u32>;
+@group(1) @binding(2) var<uniform> resolution: vec3f;
+@group(1) @binding(3) var<storage, read> visible: array<u32>;
 
 @vertex fn textureVertex(
     @location(0) position: vec2f,

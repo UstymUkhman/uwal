@@ -9,10 +9,11 @@
  */
 
 import {
-    Shape,
     Color,
+    Shape,
     Device,
     Shaders,
+    Camera2D,
     MathUtils,
     Geometries
 } from "#/index";
@@ -37,7 +38,9 @@ export async function run(canvas)
         alert(error);
     }
 
+    const camera = new Camera2D();
     const radius = 128, textures = 256;
+
     const TexturesPipeline = new Renderer.Pipeline();
     const geometry = new Geometries.Shape({ radius });
 
@@ -50,14 +53,14 @@ export async function run(canvas)
     const { buffer: translationBuffer, layout: translationLayout } =
         TexturesPipeline.CreateVertexBuffer("translation", textures, "instance", "textureVertex");
 
-    TexturesPipeline.WriteBuffer(translationBuffer, createTranslationData());
-
     await Renderer.AddPipeline(TexturesPipeline, {
         fragment: TexturesPipeline.CreateFragmentState(module),
         vertex: TexturesPipeline.CreateVertexState(module, [
             geometry.GetPositionBufferLayout(TexturesPipeline), translationLayout
         ], void 0, "textureVertex")
     });
+
+    setTranslationData();
 
     function clean()
     {
@@ -81,15 +84,30 @@ export async function run(canvas)
     function createShape()
     {
         const shape = new Shape(geometry);
+        shape.SetRenderPipeline(TexturesPipeline);
         const [width, height] = Renderer.CanvasSize;
 
-        shape.SetRenderPipeline(TexturesPipeline, Renderer.ResolutionBuffer);
-        TexturesPipeline.SetDrawParams(geometry.Vertices, textures);
         TexturesPipeline.AddVertexBuffers(translationBuffer);
+        TexturesPipeline.SetDrawParams(geometry.Vertices, textures);
 
-        shape.Position = [width / 2, height / 2];
-        shape.Rotation = Math.PI / 4;
-        shape.UpdateProjectionMatrix();
+        shape.Transform = [[width / 2, height / 2], Math.PI / 4];
+        shape.UpdateProjectionMatrix(camera.ProjectionMatrix);
+    }
+
+    function setTranslationData()
+    {
+        const translation = new Float32Array(textures * 2);
+        const x = 1 - Math.sqrt(2) * radius / canvas.offsetWidth;
+        const y = 1 - Math.sqrt(2) * radius / canvas.offsetHeight;
+
+        for (let t = textures; t--; )
+        {
+            const rx = MathUtils.Random(-x, x);
+            const ry = MathUtils.Random(-y, y);
+            translation.set([rx, ry], t * 2);
+        }
+
+        TexturesPipeline.WriteBuffer(translationBuffer, translation);
     }
 
     function createStorageBuffer()
@@ -100,20 +118,9 @@ export async function run(canvas)
         storageBuffer = Storage.buffer;
     }
 
-    function createTranslationData()
-    {
-        const translation = new Float32Array(textures * 2);
-        const x = 1 - Math.sqrt(2) * radius / canvas.offsetWidth;
-        const y = 1 - Math.sqrt(2) * radius / canvas.offsetHeight;
-
-        for (let t = textures; t--; )
-            translation.set([MathUtils.Random(-x, x), MathUtils.Random(-y, y)], t * 2);
-
-        return translation;
-    }
-
     async function createLogoTexture()
     {
+        const { ResolutionBuffer } = Renderer;
         const Texture = new (await Device.Texture());
 
         texture = await Texture.CopyImageToTexture(
@@ -124,6 +131,7 @@ export async function run(canvas)
         TexturesPipeline.AddBindGroupFromResources([
             Texture.CreateSampler(),
             texture.createView(),
+            ResolutionBuffer,
             storageBuffer
         ], 0, 1);
     }
@@ -151,6 +159,7 @@ export async function run(canvas)
             let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - 240;
             Renderer.SetCanvasSize(width, blockSize);
+            camera.Size = Renderer.CanvasSize;
         }
 
         clean(), start();

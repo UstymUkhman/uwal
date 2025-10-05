@@ -309,7 +309,7 @@ import Cube from "./Cube.wgsl";
         Camera.Translate([0, 0, 300]);
         Camera.UpdateViewProjectionMatrix();
 
-        scene.UpdateWorldMatrix();
+        scene.UpdateWorldMatrix(); // Will be updated by the scene.
         meshes.forEach(mesh => drawObject(mesh));
         Renderer.Submit();
 

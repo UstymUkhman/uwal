@@ -9,8 +9,8 @@
  */
 
 import {
-    Shape,
     Color,
+    Shape,
     Device,
     Shaders,
     Camera2D,
@@ -75,7 +75,7 @@ export async function run(canvas)
 
     function createRandomShapes()
     {
-        const [width, height] = Renderer.BaseCanvasSize;
+        const [width, height] = Renderer.CanvasSize;
 
         for (let s = 3; s <= 12; s++)
         {
@@ -112,7 +112,7 @@ export async function run(canvas)
 
     function render()
     {
-        const [width, height] = Renderer.BaseCanvasSize;
+        const [width, height] = Renderer.CanvasSize;
 
         for (let s = 0, l = shapes.length; s < l; s++)
         {
@@ -144,7 +144,7 @@ export async function run(canvas)
             let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - 240;
             Renderer.SetCanvasSize(width, blockSize);
-            camera.Size = [width, blockSize];
+            camera.Size = Renderer.CanvasSize;
         }
 
         clean(), start();
