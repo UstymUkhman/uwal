@@ -1,4 +1,4 @@
-import{G as F,C as z,D as v,M as n}from"./index-qOH1w7rj.js";import{S as U,C as G,a as P,b as L}from"./Camera2D-Cw4skKpE.js";var _="@group(0)@binding(1)var<uniform>color: vec4f;@fragment fn fragment()->@location(0)vec4f {return color;}";const j=`${U}
+import{G as F,C as z,D as v,M as n}from"./index-BvoO-MNg.js";import{S as U,C as G,a as P,b as L}from"./Camera2D-C-bxeTr1.js";var _="@group(0)@binding(1)var<uniform>color: vec4f;@fragment fn fragment()->@location(0)vec4f {return color;}";const j=`${U}
 
 ${_}`;class O{#r;#t;#n;#o;#e;constructor(t=16777215,f="Shape"){this.Color=t,this.#r=f}CreateColorBuffer(t,f=this.#r){const{color:l,buffer:i}=t.CreateUniformBuffer("color",{label:`${f} Color Buffer`});this.#t=l,this.#n=t,this.#e=i,this.#t.set(this.#o),t.WriteBuffer(i,l)}get ColorBuffer(){return this.#e}set Color(t){this.#o=typeof t=="number"&&F(t)||t instanceof z&&t.rgba||Object.values(t),this.#t?.fill(1).set(this.#o),this.#n?.WriteBuffer(this.#e,this.#t)}get Color(){return this.#o}Destroy(){this.#n=void 0,this.#e.destroy(),this.#e=void 0}}/**
  * @example 2D Shapes
