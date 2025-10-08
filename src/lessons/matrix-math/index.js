@@ -94,7 +94,7 @@ import createVertices from "./F.js";
             shapes[o].UpdateWorldMatrix(); // Will be updated by the scene.
             shapes[o].UpdateProjectionMatrix(camera.ProjectionMatrix);
 
-            shapes[o].SetPipelineData();
+            shapes[o].SetBindGroups();
             Renderer.Render(false);
         }
 

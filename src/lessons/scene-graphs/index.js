@@ -133,16 +133,17 @@ import Cube from "./Cube.wgsl";
         ], void 0, "cubeVertex"),
     });
 
+    Array.from({ length: 5 }).forEach((_, c) => addCabinet(scene, c))
+    const nodeButtons = addNodeGUI(gui.addFolder("Nodes"), scene);
+
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(),
         Renderer.CreateDepthStencilAttachment()
     );
 
-    Array.from({ length: 5 }).forEach((_, c) => addCabinet(scene, c))
-    const nodeButtons = addNodeGUI(gui.addFolder("Nodes"), scene);
-
     setCurrentNode(scene.Children[0]);
-    showTransforms(false); showMeshNodes(false);
+    showTransforms(false);
+    showMeshNodes(false);
 
     function addNodeGUI(gui, node, last, prefix)
     {
@@ -292,9 +293,9 @@ import Cube from "./Cube.wgsl";
         const deltaTime = wasRunning && now - then || 0;
 
         then = now;
-        if (isRunning) time += deltaTime;
-
         wasRunning = isRunning;
+
+        if (isRunning) time += deltaTime;
         if (!settings.animate) return;
 
         animate();

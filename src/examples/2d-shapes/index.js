@@ -114,22 +114,27 @@ export async function run(canvas)
     {
         const [width, height] = Renderer.CanvasSize;
 
-        for (let s = 0, l = shapes.length; s < l; s++)
+        for (let s = shapes.length; s--; )
         {
             const shape = shapes[s], dir = direction[s];
+            const { min, max } = shape.BoundingBox;
             const [x, y] = shape.Position;
 
             shape.Position = [x + dir[0] * speed[s], y + dir[1] * speed[s]];
             shape.Rotation += spin[s];
 
             shape.UpdateLocalMatrix();
-            const { min, max } = shape.BoundingBox;
             shape.UpdateProjectionMatrix(camera.ProjectionMatrix);
+            const { VertexBuffers, IndexBuffer, Vertices } = shape.Geometry;
 
             if (min[0] <= 0 || max[0] >= width)  { dir[0] *= -1; shape.Material.Color = randomColor(); }
             if (min[1] <= 0 || max[1] >= height) { dir[1] *= -1; shape.Material.Color = randomColor(); }
 
-            shape.SetPipelineData();
+            ShapePipeline.VertexBuffers = VertexBuffers;
+            ShapePipeline.IndexBuffer = IndexBuffer;
+            ShapePipeline.SetDrawParams(Vertices);
+
+            shape.SetBindGroups();
             Renderer.Render(false);
         }
 
