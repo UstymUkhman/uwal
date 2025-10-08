@@ -11,6 +11,7 @@
 
 import {
     Color,
+    Scene,
     Shape,
     Device,
     Shaders,
@@ -45,7 +46,8 @@ import createVertices from "./F.js";
         alert(error);
     }
 
-    const camera = new Camera2D();
+    const scene = new Scene();
+    const Camera = new Camera2D();
     const gui = new GUI().onChange(render);
     const RenderPipeline = new Renderer.Pipeline();
 
@@ -81,24 +83,21 @@ import createVertices from "./F.js";
         return shape;
     });
 
-    for (let s = 0; s < 4; ++s)
-        shapes[s].Add(shapes[s + 1]);
+    for (let s = -1; s < 4; ++s)
+        (s < 0 && scene || shapes[s]).Add(shapes[s + 1]);
 
-    function render()
+    function render(_, o = 0)
     {
-        for (let o = 0; o < settings.objects; ++o)
+        for ( ; o < settings.objects; ++o)
         {
+            shapes[o].Visible = true;
             const { translation, rotation, scale } = settings;
             shapes[o].Transform = [translation, rotation, scale];
-
-            shapes[o].UpdateWorldMatrix(); // Will be updated by the scene.
-            shapes[o].UpdateProjectionMatrix(camera.ProjectionMatrix);
-
-            shapes[o].SetPipelineData();
-            Renderer.Render(false);
         }
 
-        Renderer.Submit();
+        shapes[o] && (shapes[o].Visible = false);
+
+        Renderer.Render(scene);
     }
 
     const observer = new ResizeObserver(entries =>
@@ -107,7 +106,8 @@ import createVertices from "./F.js";
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
-            camera.Size = [inlineSize, blockSize];
+            Camera.Size = [inlineSize, blockSize];
+            scene.AddCamera(Camera);
         }
 
         render();
