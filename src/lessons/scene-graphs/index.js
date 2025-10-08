@@ -20,9 +20,7 @@ import Cube from "./Cube.wgsl";
 
     try
     {
-        Renderer = new (await Device.Renderer(
-            canvas, "Scene Graphs", { alphaMode: "premultiplied" }
-        ));
+        Renderer = new (await Device.Renderer(canvas, "Scene Graphs"));
     }
     catch (error)
     {
@@ -60,11 +58,7 @@ import Cube from "./Cube.wgsl";
     let wasRunning = false;
 
     let requestId, then;
-    let objectIndex = 0;
     const cabinets = 5;
-    let bindGroups = 0;
-
-    const meshes = [];
     let currentNode;
     let time = 0;
 
@@ -82,7 +76,7 @@ import Cube from "./Cube.wgsl";
     const scene = new Scene();
     const gui = new GUI().onChange(requestRender);
 
-    gui.add(settings, "cameraRotation", cameraRadToDegOptions);
+    gui.add(settings, "cameraRotation", cameraRadToDegOptions).onChange(updateCameraRotation);
     gui.add(settings, "animate").onChange(v => transformFolder.enable(!v));
     gui.add(settings, "showMeshNodes").onChange(showMeshNodes);
     gui.add(settings, "showAllTransforms").onChange(showTransforms);
@@ -125,7 +119,6 @@ import Cube from "./Cube.wgsl";
     const CubePipeline = new Renderer.Pipeline();
 
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
-    const totBindGroups = (drawersPerCabinet * 2 + 1) * cabinets;
     const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;
 
     const module = CubePipeline.CreateShaderModule([Shaders.Cube, Cube]);
@@ -168,6 +161,13 @@ import Cube from "./Cube.wgsl";
         ));
 
         return nodes.flat();
+    }
+
+    function updateCameraRotation(rotation)
+    {
+        Camera.Transform = [[cameraOffsetX, 20, 0], [0, rotation, 0]];
+        Camera.Position = [0, 0, 300];
+        Camera.UpdateViewProjectionMatrix();
     }
 
     function updateCurrentNodeGUI()
@@ -229,9 +229,7 @@ import Cube from "./Cube.wgsl";
         cube.SetRenderPipeline(CubePipeline);
         CubePipeline.AddVertexBuffers(colorBuffer);
 
-        material && meshes.push(cube);
         cube.Transform = transform;
-
         return cube;
     }
 
@@ -272,21 +270,6 @@ import Cube from "./Cube.wgsl";
             addDrawer(cabinet, d);
     }
 
-    function drawObject(cube)
-    {
-        // Create Object Info Function:
-        if (objectIndex === bindGroups)
-        {
-            CubePipeline.AddBindGroupFromResources([cube.ProjectionBuffer, cube.Material.ColorBuffer]);
-            bindGroups = Math.min(++bindGroups, totBindGroups);
-        }
-
-        cube.UpdateProjectionMatrix(Camera.ViewProjectionMatrix);
-        CubePipeline.SetActiveBindGroups(objectIndex);
-        objectIndex = ++objectIndex % totBindGroups;
-        Renderer.Render(false);
-    }
-
     function requestRender()
     {
         if (!requestId) requestId = requestAnimationFrame(render);
@@ -302,16 +285,7 @@ import Cube from "./Cube.wgsl";
     function render()
     {
         requestId = void 0;
-
-        Camera.ResetLocalMatrix();
-        Camera.Translate([cameraOffsetX, 20, 0]);
-        Camera.RotateY(settings.cameraRotation);
-        Camera.Translate([0, 0, 300]);
-        Camera.UpdateViewProjectionMatrix();
-
-        scene.UpdateWorldMatrix(); // Will be updated by the scene.
-        meshes.forEach(mesh => drawObject(mesh));
-        Renderer.Submit();
+        Renderer.Render(scene);
 
         const isRunning = settings.animate;
         const now = performance.now() * 0.001;
@@ -335,7 +309,8 @@ import Cube from "./Cube.wgsl";
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
-            Camera.UpdateViewProjectionMatrix();
+            updateCameraRotation(settings.cameraRotation);
+            scene.AddCamera(Camera);
         }
 
         requestRender();
