@@ -187,7 +187,7 @@ import Cube from "./Cube.wgsl";
         const colors = [
             /* Top:   */ 200, 200,  70, /* Bottom: */ 90, 130, 110,
             /* Front: */  70, 200, 210, /* Back:  */ 160, 160, 220,
-            /* Left:  */ 200, 70,  120, /* Right: */  80,  70, 200
+            /* Left:  */ 200,  70, 120, /* Right: */  80,  70, 200
         ];
 
         for (let v = 0, i = 0; v < vertices; i = (++v / 4 | 0) * 3)

@@ -10,6 +10,7 @@
 
 import {
     Color,
+    Scene,
     Shape,
     Device,
     Shaders,
@@ -21,8 +22,8 @@ import {
 
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
-/** @type {Shape[]} */ const shapes = [];
 /** @type {ResizeObserver} */ let observer;
+/** @type {Scene} */ const scene = new Scene();
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
@@ -36,11 +37,13 @@ export async function run(canvas)
         alert(error);
     }
 
-    const camera = new Camera2D();
+    const Camera = new Camera2D();
     const color = new Color(0x331a4d);
+
     const spin = [], speed = [], direction = [];
     const DummyGeometry = new Geometries.Shape();
     const ShapePipeline = new Renderer.Pipeline();
+
     const module = ShapePipeline.CreateShaderModule(Shaders.Shape);
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(color));
 
@@ -55,10 +58,15 @@ export async function run(canvas)
 
     function clean()
     {
+        scene.Traverse(node =>
+            scene !== node &&
+            node.Destroy?.()
+        );
+
         spin.splice(0);
         speed.splice(0);
-        shapes.splice(0);
         direction.splice(0);
+        scene.Children.splice(1);
         cancelAnimationFrame(raf);
     }
 
@@ -89,7 +97,7 @@ export async function run(canvas)
                 const geometry = new Geometries.Shape({ segments, radius, innerRadius: inner * r });
                 const shape = new Shape(geometry, new Materials.Shape(randomColor()));
 
-                shape.SetRenderPipeline(ShapePipeline, Renderer.ResolutionBuffer);
+                direction.push([MathUtils.Random(-1), MathUtils.Random(-1)]);
                 shape.Rotation = MathUtils.Random(0, MathUtils.TAU);
 
                 shape.Position = [
@@ -97,49 +105,34 @@ export async function run(canvas)
                     MathUtils.Random(radius, height - radius)
                 ];
 
+                shape.SetRenderPipeline(ShapePipeline);
+
                 speed.push(MathUtils.Random(1, 10));
                 spin.push(MathUtils.Random(0, 0.1));
 
-                direction.push([
-                    MathUtils.Random(-1, 1),
-                    MathUtils.Random(-1, 1)
-                ]);
-
-                shapes.push(shape);
+                scene.Add(shape);
             }
         }
     }
 
     function render()
     {
+        Renderer.Render(scene);
+        raf = requestAnimationFrame(render);
         const [width, height] = Renderer.CanvasSize;
 
-        for (let s = shapes.length; s--; )
+        for (let s = scene.Children.length, i = s - 2; --s; --i)
         {
-            const shape = shapes[s], dir = direction[s];
+            const shape = scene.Children[s], dir = direction[i];
             const { min, max } = shape.BoundingBox;
             const [x, y] = shape.Position;
-
-            shape.Position = [x + dir[0] * speed[s], y + dir[1] * speed[s]];
-            shape.Rotation += spin[s];
-
-            shape.UpdateLocalMatrix();
-            shape.UpdateProjectionMatrix(camera.ProjectionMatrix);
-            const { VertexBuffers, IndexBuffer, Vertices } = shape.Geometry;
 
             if (min[0] <= 0 || max[0] >= width)  { dir[0] *= -1; shape.Material.Color = randomColor(); }
             if (min[1] <= 0 || max[1] >= height) { dir[1] *= -1; shape.Material.Color = randomColor(); }
 
-            ShapePipeline.VertexBuffers = VertexBuffers;
-            ShapePipeline.IndexBuffer = IndexBuffer;
-            ShapePipeline.SetDrawParams(Vertices);
-
-            shape.SetBindGroups();
-            Renderer.Render(false);
+            shape.Position = [x + dir[0] * speed[i], y + dir[1] * speed[i]];
+            shape.Rotation += spin[i];
         }
-
-        Renderer.Submit();
-        raf = requestAnimationFrame(render);
     }
 
     observer = new ResizeObserver(entries =>
@@ -148,8 +141,9 @@ export async function run(canvas)
         {
             let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - 240;
+            !scene.MainCamera && scene.AddCamera(Camera);
             Renderer.SetCanvasSize(width, blockSize);
-            camera.Size = Renderer.CanvasSize;
+            Camera.Size = Renderer.CanvasSize;
         }
 
         clean(), start();
@@ -160,11 +154,10 @@ export async function run(canvas)
 
 export function destroy()
 {
-    shapes.forEach(shape => shape.Destroy());
     Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
-    shapes.splice(0);
     Device.Destroy();
+    scene.Destroy();
 }

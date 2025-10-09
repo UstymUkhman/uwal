@@ -106,7 +106,7 @@ import createVertices from "./F.js";
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
-            Camera.Size = [inlineSize, blockSize];
+            Camera.Size = Renderer.CanvasSize;
             scene.AddCamera(Camera);
         }
 
