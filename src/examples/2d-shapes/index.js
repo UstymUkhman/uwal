@@ -115,24 +115,23 @@ export async function run(canvas)
         }
     }
 
-    function render()
+    function render(_, s = 0)
     {
-        Renderer.Render(scene);
-        raf = requestAnimationFrame(render);
         const [width, height] = Renderer.CanvasSize;
+        raf = requestAnimationFrame(render);
+        Renderer.Render(scene);
 
-        for (let s = scene.Children.length, i = s - 2; --s; --i)
+        scene.Traverse(shape =>
         {
-            const shape = scene.Children[s], dir = direction[i];
-            const { min, max } = shape.BoundingBox;
-            const [x, y] = shape.Position;
+            if (scene === shape) return false;
+            const { min, max } = shape.BoundingBox, [x, y] = shape.Position, dir = direction[s];
 
             if (min[0] <= 0 || max[0] >= width)  { dir[0] *= -1; shape.Material.Color = randomColor(); }
             if (min[1] <= 0 || max[1] >= height) { dir[1] *= -1; shape.Material.Color = randomColor(); }
 
-            shape.Position = [x + dir[0] * speed[i], y + dir[1] * speed[i]];
-            shape.Rotation += spin[i];
-        }
+            shape.Position = [x + dir[0] * speed[s], y + dir[1] * speed[s]];
+            shape.Rotation += spin[s++];
+        });
     }
 
     observer = new ResizeObserver(entries =>

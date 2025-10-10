@@ -14,6 +14,7 @@ import Cube from "./Cube.wgsl";
 import {
     Mesh,
     Color,
+    Scene,
     Device,
     TEXTURE,
     Shaders,
@@ -27,6 +28,7 @@ import {
 /** @type {Renderer} */ let Renderer;
 /** @type {GPUTexture} */ let texture;
 /** @type {ResizeObserver} */ let observer;
+/** @type {Scene} */ const scene = new Scene();
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
@@ -47,14 +49,14 @@ export async function run(canvas)
     const CubePipeline = new Renderer.Pipeline();
     const tempRotation = MathUtils.Vec3.create();
 
-    const perspectiveCube = new Mesh(CubeGeometry);
-    const orthographicCube = new Mesh(CubeGeometry);
-
     const perspectiveCamera = new PerspectiveCamera();
     const orthographicCamera = new OrthographicCamera();
 
     const orthographicPosition = MathUtils.Vec3.create();
     const orthographicRotation = MathUtils.Vec3.create();
+
+    const perspectiveCube = new Mesh(CubeGeometry, null);
+    const orthographicCube = new Mesh(CubeGeometry, null);
 
     const nextPerspectiveRotation  = MathUtils.Vec3.create();
     const nextOrthographicRotation = MathUtils.Vec3.create();
@@ -76,21 +78,16 @@ export async function run(canvas)
         ], void 0, "cubeVertex")
     });
 
-    orthographicCube.SetRenderPipeline(CubePipeline, false);
-    perspectiveCube.SetRenderPipeline(CubePipeline, false);
-
     const Texture = new (await Device.Texture(Renderer));
     const source = await Texture.CreateImageBitmap(Dice);
     texture = await Texture.CopyImageToTexture(source);
 
-    CubePipeline.SetBindGroupFromResources([
-        perspectiveCube.ProjectionBuffer,
+    orthographicCube.SetRenderPipeline(CubePipeline, [
         Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
         texture.createView()
     ]);
 
-    CubePipeline.AddBindGroupFromResources([
-        orthographicCube.ProjectionBuffer,
+    perspectiveCube.SetRenderPipeline(CubePipeline, [
         Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
         texture.createView()
     ]);
@@ -102,6 +99,10 @@ export async function run(canvas)
 
     CubePipeline.AddVertexBuffers(textureCoordsBuffer);
     CubePipeline.AddVertexBuffers(textureCoordsBuffer);
+    scene.Add([perspectiveCube, orthographicCube]);
+
+    scene.AddCamera(orthographicCamera);
+    scene.AddCamera(perspectiveCamera);
 
     function clean()
     {
@@ -156,7 +157,7 @@ export async function run(canvas)
             }
         }
 
-        // Perspective View:
+        // Perspective Cube:
         {
             const [rx, ry, rz] = initialPerspectiveRotation;
 
@@ -165,14 +166,13 @@ export async function run(canvas)
             tempRotation[2] = MathUtils.Lerp(rz, nextPerspectiveRotation[2], smoothTime);
 
             perspectiveCube.Transform = [[0, MathUtils.Lerp(0, 4, smootherTime), 0], tempRotation];
-            perspectiveCube.UpdateWorldMatrix(); // Will be updated by the scene.
-            perspectiveCube.UpdateProjectionMatrix(perspectiveCamera.ViewProjectionMatrix);
+            perspectiveCube.Visible = !(orthographicCube.Visible = false);
 
-            CubePipeline.SetActiveBindGroups(0);
-            Renderer.Render(false);
+            scene.MainCamera = perspectiveCamera;
+            Renderer.Render(scene, false);
         }
 
-        // Orthographic View:
+        // Orthographic Cube:
         {
             const [px, py, pz] = orthographicPosition;
             const [rx, ry, rz] = orthographicRotation;
@@ -182,11 +182,10 @@ export async function run(canvas)
             tempRotation[2] = MathUtils.Lerp(rz, nextOrthographicRotation[2], smoothTime);
 
             orthographicCube.Transform = [[px, MathUtils.Lerp(py, nextOrthoY, smootherTime), pz], tempRotation];
-            orthographicCube.UpdateWorldMatrix(); // Will be updated by the scene.
-            orthographicCube.UpdateProjectionMatrix(orthographicCamera.ProjectionMatrix);
+            orthographicCube.Visible = !(perspectiveCube.Visible = false);
 
-            CubePipeline.SetActiveBindGroups(1);
-            Renderer.Render();
+            scene.MainCamera = orthographicCamera;
+            Renderer.Render(scene);
         }
     }
 
@@ -198,14 +197,15 @@ export async function run(canvas)
             width = (width <= 960 && width) || width - 240;
             Renderer.SetCanvasSize(width, height);
 
+            perspectiveCamera.ResetLocalMatrix();
+            orthographicCamera.Bottom = height;
+            orthographicCamera.Right = width;
+            orthographicCamera.Near = -100;
+
             Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             perspectiveCamera.AspectRatio = Renderer.AspectRatio;
             perspectiveCamera.Position = [width / 360, 2, 8];
             perspectiveCamera.UpdateViewProjectionMatrix();
-
-            orthographicCamera.Bottom = height;
-            orthographicCamera.Right = width;
-            orthographicCamera.Near = -100;
 
             const oy = height - height / 3.6;
             const nw = (width - 360) / 1320;
@@ -216,7 +216,6 @@ export async function run(canvas)
             perspectiveCube.Scaling = [s, s, s];
             const os = (1 - (height - 1e3) / -400) * 36 + 72;
             orthographicCube.Scaling = [os * s, os * s, os * s];
-
             MathUtils.Vec3.set(0.2, orthoRotation, 0, orthographicRotation);
             MathUtils.Vec3.set(width - (nw * 250 + 100), oy, 0, orthographicPosition);
         }
@@ -233,6 +232,7 @@ export function destroy()
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
+    scene.Destroy();
     Device.Destroy(
         undefined,
         texture

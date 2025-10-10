@@ -83,7 +83,7 @@ export async function run(canvas)
 
     function createShape()
     {
-        const shape = new Shape(geometry);
+        const shape = new Shape(geometry, null);
         shape.SetRenderPipeline(TexturesPipeline);
         const [width, height] = Renderer.CanvasSize;
 
