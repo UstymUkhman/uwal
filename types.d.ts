@@ -1,7 +1,5 @@
 /// <reference types="./global" />
 /// <reference types="vite/client" />
-/// <reference types="wgpu-matrix" />
-/// <reference types="@webgpu/types" />
 /// <reference types="vite-plugin-glsl/ext" />
 
 export { USAGE, BLEND_STATE } from "./types/pipelines/Constants";
