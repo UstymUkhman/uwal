@@ -44,6 +44,7 @@ import Cube from "./Cube.wgsl";
     };
 
     const materialColor = new Color();
+    const drawerMaterial = new Materials.Mesh();
     const handleMaterial = new Materials.Mesh(materialColor.Set(0x7f7f7f));
     const cabinetMaterial = new Materials.Mesh(materialColor.Set(0xbfbfbf, 0xbf));
 
@@ -223,7 +224,8 @@ import Cube from "./Cube.wgsl";
 
     function addMesh(label, parent, transform, material)
     {
-        const cube = new Mesh(CubeGeometry, material, label, parent);
+        // Reusing the same `drawerMaterial` to reduce number of opaque batches:
+        const cube = new Mesh(CubeGeometry, material ?? drawerMaterial, label, parent);
 
         cube.SetRenderPipeline(CubePipeline);
         CubePipeline.AddVertexBuffers(colorBuffer);
