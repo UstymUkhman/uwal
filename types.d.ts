@@ -12,8 +12,7 @@ export * as Geometries from "./types/geometries";
 export * as Materials from "./types/materials";
 export { ERROR_CAUSE } from "./types/Errors";
 export * as Shaders from "./types/shaders";
-/** @deprecated `SDFText` will be replaced by `MSDFText`. */
-export { SDFText } from "./types/text";
+export { MSDFText } from "./types/text";
 
 export
 {
