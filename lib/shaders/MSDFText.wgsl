@@ -1,4 +1,14 @@
-#include "Quad.wgsl";
+/**
+ * @description This shader is adapted from WebGPU Samples "Text Rendering MSDF".
+ * {@link https://webgpu.github.io/webgpu-samples/?sample=textRenderingMsdf#msdfText.wgsl}
+ */
+
+const VERTEX = array(
+    vec2f(0, -1),
+    vec2f(1, -1),
+    vec2f(0,  0),
+    vec2f(1,  0)
+);
 
 struct char
 {
@@ -16,7 +26,13 @@ struct text
     chars: array<vec3f>
 };
 
-struct VertexOutput
+struct camera
+{
+    view: mat4x4f,
+    projection: mat4x4f
+};
+
+struct MSDFTextVertexOutput
 {
     @location(0) textureCoord: vec2f,
     @builtin(position) position: vec4f
@@ -26,30 +42,27 @@ struct VertexOutput
 @group(0) @binding(1) var Texture: texture_2d<f32>;
 @group(0) @binding(2) var<storage> Characters: array<char>;
 
-@group(1) @binding(0) var<storage> Text: text;
+@group(1) @binding(0) var<uniform> Camera: camera;
+@group(1) @binding(1) var<storage> Text: text;
 
-fn MapQuadCoord(index: u32) -> vec2f
+@vertex fn vertex(
+    @builtin(vertex_index) index: u32,
+    @builtin(instance_index) instance: u32
+) -> MSDFTextVertexOutput
 {
-    return (GetQuadCoord(index) + vec2f(1)) / vec2f(2);
-}
+    var output: MSDFTextVertexOutput;
 
-@vertex fn vertex(@builtin(vertex_index) index: u32) -> VertexOutput
-{
-    let quad = array(
-        MapQuadCoord(4),
-        MapQuadCoord(2),
-        MapQuadCoord(0),
-        MapQuadCoord(1)
-    );
+    let vertexPosition = VERTEX[index];
+    let textElement = Text.chars[instance];
 
-    var output: VertexOutput;
-    let character = Characters[0];
+    let character = Characters[u32(textElement.z)];
+    output.textureCoord = vertexPosition * vec2f(1, -1);
 
-    output.textureCoord  = quad[index];
+    let characterPosition = (vertexPosition * character.size + textElement.xy + character.offset) * Text.scale;
+    output.position = Camera.projection * Camera.view * Text.transform * vec4f(characterPosition, 0, 1);
+
     output.textureCoord *= character.extent;
-    output.textureCoord += character.offset;
-
-    output.position = vec4f(GetQuadCoord(index), 0, 1);
+    output.textureCoord += character.coords;
 
     return output;
 }
@@ -62,5 +75,24 @@ fn SampleMSDFTexture(coord: vec2f) -> f32
 
 @fragment fn fragment(@location(0) textureCoord: vec2f) -> @location(0) vec4f
 {
-    return vec4f(vec3f(SampleMSDFTexture(textureCoord)), 1);
+    let signDistance = SampleMSDFTexture(textureCoord) - 0.5;
+    let dimension = vec2f(textureDimensions(Texture, 0));
+
+    let dpdx = dpdxFine(textureCoord);
+    let dpdy = dpdyFine(textureCoord);
+
+    let x = length(vec2f(dpdx.x, dpdy.x));
+    let y = length(vec2f(dpdx.y, dpdy.y));
+
+    let dx = dimension.x * x;
+    let dy = dimension.y * y;
+
+    let px = inverseSqrt(dx * dx + dy * dy) * 4;
+    let pxDistance = signDistance * px;
+
+    let alpha = smoothstep(-0.5, 0.5, pxDistance);
+
+    if (alpha < 0.001) { discard; }
+
+    return vec4f(Text.color.rgb, Text.color.a * alpha);
 }
