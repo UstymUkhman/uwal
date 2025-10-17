@@ -90,7 +90,7 @@ fn SampleMSDFTexture(coord: vec2f) -> f32
     let px = inverseSqrt(dx * dx + dy * dy) * 4;
     let pxDistance = signDistance * px;
 
-    let alpha = smoothstep(-0.5, 0.5, pxDistance);
+    let alpha = smoothstep(0.5, -0.5, pxDistance);
 
     if (alpha < 0.001) { discard; }
 
