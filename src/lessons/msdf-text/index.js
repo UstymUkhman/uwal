@@ -1,16 +1,6 @@
-import Font from "./ya-hei-ascii.json?url";
-import CubeShader from "./Cube.wgsl";
-
-import {
-    Mesh,
-    Scene,
-    Device,
-    Shaders,
-    MSDFText,
-    MathUtils,
-    Geometries,
-    PerspectiveCamera
-} from "#/index";
+import { Device, PerspectiveCamera, MSDFText, MathUtils, Color } from "#/index";
+import FontURL from "/assets/fonts/ShareTechMono.json?url";
+import Font from "/assets/fonts/ShareTechMono.json";
 
 (async function(canvas)
 {
@@ -30,41 +20,69 @@ import {
         Renderer.CreateDepthStencilAttachment()
     );
 
-    const CubePipeline = new Renderer.Pipeline();
-    const CubeGeometry = new Geometries.Cube();
-    const Cube = new Mesh(CubeGeometry, null);
+    async function createCharGrid()
+    {
+        const font = await Characters.LoadFont(FontURL);
+        const ids = Array.from({ length: Font.chars.length })
+            .map((_, c) => Font.chars[c].id);
 
-    const module = CubePipeline.CreateShaderModule(
-        [Shaders.CubeVertex, CubeShader]
-    );
+        for (let l = 0, lines = canvas.offsetHeight / 24; l < lines; ++l)
+        {
+            lineDelays.push([]);
+            lineIndexes.push([]);
 
-    Cube.SetRenderPipeline(await Renderer.AddPipeline(CubePipeline, {
-        depthStencil: CubePipeline.CreateDepthStencilState(),
-        fragment: CubePipeline.CreateFragmentState(module),
-        primitive: CubePipeline.CreatePrimitiveState(),
-        vertex: CubePipeline.CreateVertexState(module,
-            CubeGeometry.GetPositionBufferLayout(CubePipeline),
-            void 0, "cubeVertex"
-        )
-    }));
+            for (let c = 0; c < 80; ++c)
+            {
+                lineDelays[l].push(MathUtils.RandomInt(1, 240));
+                lineIndexes[l].push(MathUtils.RandomInt(0, 93));
+            }
 
-    Cube.Transform = [[0, 0, -2.5], [0.625, -0.75, 0]];
+            lineBuffers.push(Characters.Write(lineIndexes[l].map(i => String.fromCharCode(ids[i])).join(""), font));
+            Characters.SetTransform(MathUtils.Mat4.translation([-9.42, 4.5 - l * 0.4, -8]), lineBuffers[l]);
+            Characters.SetColor(new Color(0x00cc00, void 0, void 0, 0x40), lineBuffers[l]);
+        }
+
+        return lineBuffers[0].size;
+    }
+
+    const Characters = new MSDFText();
     const Camera = new PerspectiveCamera();
+    await Characters.CreateRenderPipeline(Renderer);
 
-    const Text = new MSDFText();
-    const scene = new Scene();
+    let bufferSize = await createCharGrid();
+    bufferSize /= Float32Array.BYTES_PER_ELEMENT;
 
-    scene.AddCamera(Camera);
-    scene.Add(Cube);
+    // 6 is: scale (1) + color (1) + transform (4):
+    const bufferOffset = Float32Array.BYTES_PER_ELEMENT * 6;
+    const lineDelays = [], lineIndexes = [], lineBuffers = [];
 
-    await Text.CreateRenderPipeline(Renderer);
-    const font = await Text.LoadFont(Font);
+    const start = Float32Array.BYTES_PER_ELEMENT * bufferOffset;
+    const lines = lineBuffers.map(() => new Float32Array(bufferSize));
 
-    const titleBuffer = Text.Write("UWAL", font, 0x005a9c, 0.08, true);
-    const subtitleBuffer = Text.Write("Unopinionated WebGPU Abstraction Library", font, 0xffffff, 0.001, true);
+    function render()
+    {
+        Renderer.Render();
+        requestAnimationFrame(render);
 
-    Text.SetTransform(MathUtils.Mat4.translate(MathUtils.Mat4.identity(), [0, 4, -12]), titleBuffer);
-    Text.SetTransform(MathUtils.Mat4.translate(MathUtils.Mat4.identity(), [0, 0.18, -1]), subtitleBuffer);
+        for (let l = 0, length = lines.length; l < length; ++l)
+        {
+            const line = lines[l], charDelays = lineDelays[l], charIndexes = lineIndexes[l];
+
+            for (let c = 0, o = 0, l = charIndexes.length; c < l; ++c, o += 4)
+            {
+                if (!--charDelays[c])
+                {
+                    charIndexes[c] = MathUtils.RandomInt(0, 93);
+                    charDelays[c] = MathUtils.RandomInt(120, 240);
+                }
+
+                line[o] = c * 24; line[o + 1] = 0;
+                line[o + 2] = charIndexes[c];
+            }
+
+            Characters.Pipeline.WriteBuffer(lineBuffers[l], line, start, 0, bufferSize - bufferOffset);
+        }
+    }
 
     const observer = new ResizeObserver(entries =>
     {
@@ -73,12 +91,10 @@ import {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
-            Camera.UpdateViewProjectionMatrix();
-            Text.UpdateFromCamera(Camera);
+            Characters.UpdateFromCamera(Camera);
         }
 
-        Renderer.Render(scene, false);
-        Renderer.Render();
+        requestAnimationFrame(render);
     });
 
     observer.observe(document.body);

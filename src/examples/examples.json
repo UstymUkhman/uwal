@@ -22,5 +22,9 @@
     {
         "name": "Cube / Cameras",
         "slug": "cube-cameras"
+    },
+    {
+        "name": "MSDF Text",
+        "slug": "msdf-text"
     }
 ]

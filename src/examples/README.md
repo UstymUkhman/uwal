@@ -8,6 +8,7 @@
 | [Textures / Instancing](https://ustymukhman.github.io/uwal/dist/examples/examples.html#textures-instancing) | [Code](./textures-instancing/index.js) |
 | [Video Color Grading](https://ustymukhman.github.io/uwal/dist/examples/examples.html#video-color-grading) | [Code](./video-color-grading/index.js) |
 | [Cube / Cameras](https://ustymukhman.github.io/uwal/dist/examples/examples.html#cube-cameras) | [Code](./cube-cameras/index.js) |
+| [MSDF Text](https://ustymukhman.github.io/uwal/dist/examples/examples.html#msdf-text) | [Code](./msdf-text/index.js) |
 | **Demo** |
 | [Basic Program](https://ustymukhman.github.io/uwal/dist/examples/examples.html#uwal-basic-program) | [Code](https://github.com/UstymUkhman/uwal-basic-program) |
 | [Ripple Effect](https://ustymukhman.github.io/uwal/dist/examples/examples.html#uwal-ripple-effect) | [Code](https://github.com/UstymUkhman/uwal-ripple-effect) |
