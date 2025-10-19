@@ -1,6 +1,6 @@
 import { Device, PerspectiveCamera, MSDFText, MathUtils, Color } from "#/index";
-import FontURL from "/assets/fonts/ShareTechMono.json?url";
-import Font from "/assets/fonts/ShareTechMono.json";
+import FontURL from "/assets/fonts/Matrix-Code-NFI.json?url";
+import Font from "/assets/fonts/Matrix-Code-NFI.json";
 
 (async function(canvas)
 {
@@ -15,72 +15,65 @@ import Font from "/assets/fonts/ShareTechMono.json";
         alert(error);
     }
 
+    const color = new Color(0x2e3440);
+    const Characters = new MSDFText();
+    const charIndex = new Float32Array(1);
+    const Camera = new PerspectiveCamera();
+
     Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment(),
+        Renderer.CreateColorAttachment(color),
         Renderer.CreateDepthStencilAttachment()
     );
 
+    await Characters.CreateRenderPipeline(Renderer);
+
+    // alpha & scale (4) + color (4) + transform (16) + x (1) + y (1):
+    const bufferOffset = Float32Array.BYTES_PER_ELEMENT * 6 + 2;
+    const start = Float32Array.BYTES_PER_ELEMENT * bufferOffset;
+    const charDelays = [], charIndexes = [], charBuffers = [];
+
     async function createCharGrid()
     {
-        const font = await Characters.LoadFont(FontURL);
+        const { offsetWidth, offsetHeight } = canvas;
+        const font = await Characters.LoadFont(FontURL, true);
         const ids = Array.from({ length: Font.chars.length })
             .map((_, c) => Font.chars[c].id);
 
-        for (let l = 0, lines = canvas.offsetHeight / 24; l < lines; ++l)
+        // const charWidth = offsetWidth / 12, x = charWidth / 16;
+        const charWidth = offsetWidth / 24, x = charWidth / 8;
+        // const lines = Math.ceil(offsetHeight / 20);
+        const lines = Math.ceil(offsetHeight / 40);
+        const chars = Math.ceil(charWidth);
+        const length = lines * chars;
+
+        for (let i = 0; i < length; ++i)
         {
-            lineDelays.push([]);
-            lineIndexes.push([]);
+            const c = i % chars, r = i / chars | 0;
 
-            for (let c = 0; c < 80; ++c)
-            {
-                lineDelays[l].push(MathUtils.RandomInt(1, 240));
-                lineIndexes[l].push(MathUtils.RandomInt(0, 93));
-            }
+            charDelays.push(MathUtils.RandomInt(1, 240));
+            charIndexes.push(MathUtils.RandomInt(0, 90));
 
-            lineBuffers.push(Characters.Write(lineIndexes[l].map(i => String.fromCharCode(ids[i])).join(""), font));
-            Characters.SetTransform(MathUtils.Mat4.translation([-9.42, 4.5 - l * 0.4, -8]), lineBuffers[l]);
-            Characters.SetColor(new Color(0x00cc00, void 0, void 0, 0x40), lineBuffers[l]);
+            charBuffers.push(Characters.Write(String.fromCharCode(ids[charIndexes[i]]), font, color));
+            // charBuffers.push(Characters.Write(String.fromCharCode(ids[charIndexes[i]]), font, color, 0.005));
+            Characters.SetTransform(MathUtils.Mat4.translation([-x + c * 0.25, 4.65 - r * 0.4, -8]), charBuffers[i]);
+            // Characters.SetTransform(MathUtils.Mat4.translation([-x + c * 0.125, 4.65 - r * 0.2, -8]), charBuffers[i]);
         }
-
-        return lineBuffers[0].size;
     }
 
-    const Characters = new MSDFText();
-    const Camera = new PerspectiveCamera();
-    await Characters.CreateRenderPipeline(Renderer);
-
-    let bufferSize = await createCharGrid();
-    bufferSize /= Float32Array.BYTES_PER_ELEMENT;
-
-    // 6 is: scale (1) + color (1) + transform (4):
-    const bufferOffset = Float32Array.BYTES_PER_ELEMENT * 6;
-    const lineDelays = [], lineIndexes = [], lineBuffers = [];
-
-    const start = Float32Array.BYTES_PER_ELEMENT * bufferOffset;
-    const lines = lineBuffers.map(() => new Float32Array(bufferSize));
+    color.Set(0x5e81ac);
+    await createCharGrid();
 
     function render()
     {
         Renderer.Render();
         requestAnimationFrame(render);
 
-        for (let l = 0, length = lines.length; l < length; ++l)
+        for (let d = 0, length = charDelays.length; d < length; ++d)
         {
-            const line = lines[l], charDelays = lineDelays[l], charIndexes = lineIndexes[l];
-
-            for (let c = 0, o = 0, l = charIndexes.length; c < l; ++c, o += 4)
-            {
-                if (!--charDelays[c])
-                {
-                    charIndexes[c] = MathUtils.RandomInt(0, 93);
-                    charDelays[c] = MathUtils.RandomInt(120, 240);
-                }
-
-                line[o] = c * 24; line[o + 1] = 0;
-                line[o + 2] = charIndexes[c];
-            }
-
-            Characters.Pipeline.WriteBuffer(lineBuffers[l], line, start, 0, bufferSize - bufferOffset);
+            if (--charDelays[d]) continue;
+            charIndex[0] = MathUtils.RandomInt(0, 90);
+            charDelays[d] = MathUtils.RandomInt(120, 240);
+            Characters.Pipeline.WriteBuffer(charBuffers[d], charIndex, start, 0, 1);
         }
     }
 
@@ -91,7 +84,7 @@ import Font from "/assets/fonts/ShareTechMono.json";
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
-            Characters.UpdateFromCamera(Camera);
+            Characters.UpdateFromPerspectiveCamera(Camera);
         }
 
         requestAnimationFrame(render);

@@ -20,6 +20,7 @@ struct char
 
 struct text
 {
+    alpha: f32,
     scale: f32,
     color: vec4f,
     transform: mat4x4f,
@@ -90,7 +91,7 @@ fn SampleMSDFTexture(coord: vec2f) -> f32
     let px = inverseSqrt(dx * dx + dy * dy) * 4;
     let pxDistance = signDistance * px;
 
-    let alpha = smoothstep(0.5, -0.5, pxDistance);
+    let alpha = smoothstep(Text.alpha, -Text.alpha, pxDistance);
 
     if (alpha < 0.001) { discard; }
 
