@@ -27,24 +27,24 @@ import Font from "/assets/fonts/Matrix-Code-NFI.json";
 
     await Characters.CreateRenderPipeline(Renderer);
 
-    // alpha & scale (4) + color (4) + transform (16) + x (1) + y (1):
+    // alpha & scale (4) + color (4) + transform (16) + x & y (2):
     const bufferOffset = Float32Array.BYTES_PER_ELEMENT * 6 + 2;
     const start = Float32Array.BYTES_PER_ELEMENT * bufferOffset;
     const charDelays = [], charIndexes = [], charBuffers = [];
 
+    const { offsetWidth, offsetHeight } = canvas;
+    const lines = Math.ceil(offsetHeight / 20) /* + 3 */;
+    const charWidth = offsetWidth / 12.0;
+    const chars = Math.ceil(charWidth) /* + 1 */;
+
     async function createCharGrid()
     {
-        const { offsetWidth, offsetHeight } = canvas;
         const font = await Characters.LoadFont(FontURL, true);
         const ids = Array.from({ length: Font.chars.length })
             .map((_, c) => Font.chars[c].id);
 
-        // const charWidth = offsetWidth / 12, x = charWidth / 16;
-        const charWidth = offsetWidth / 24, x = charWidth / 8;
-        // const lines = Math.ceil(offsetHeight / 20);
-        const lines = Math.ceil(offsetHeight / 40);
-        const chars = Math.ceil(charWidth);
         const length = lines * chars;
+        const x = charWidth / 15.35;
 
         for (let i = 0; i < length; ++i)
         {
@@ -53,27 +53,58 @@ import Font from "/assets/fonts/Matrix-Code-NFI.json";
             charDelays.push(MathUtils.RandomInt(1, 240));
             charIndexes.push(MathUtils.RandomInt(0, 90));
 
-            charBuffers.push(Characters.Write(String.fromCharCode(ids[charIndexes[i]]), font, color));
-            // charBuffers.push(Characters.Write(String.fromCharCode(ids[charIndexes[i]]), font, color, 0.005));
-            Characters.SetTransform(MathUtils.Mat4.translation([-x + c * 0.25, 4.65 - r * 0.4, -8]), charBuffers[i]);
-            // Characters.SetTransform(MathUtils.Mat4.translation([-x + c * 0.125, 4.65 - r * 0.2, -8]), charBuffers[i]);
+            charBuffers.push(Characters.Write(String.fromCharCode(ids[charIndexes[i]]), font, color, 0.005));
+            Characters.SetTransform(MathUtils.Mat4.translation([-x + c * 0.125, 4.65 - r * 0.2, -8]), charBuffers[i]);
         }
     }
 
-    color.Set(0x5e81ac);
+    color.Set(0x5e81ac, 0x40);
     await createCharGrid();
+    color.Set(0x88c0d0);
+
+    const m = { x: 0.5, y: 0.5 };
+    const { Pipeline } = Characters;
+    const col = new Float32Array(color.rgba);
 
     function render()
     {
         Renderer.Render();
         requestAnimationFrame(render);
+        const { AspectRatio } = Renderer;
 
         for (let d = 0, length = charDelays.length; d < length; ++d)
         {
-            if (--charDelays[d]) continue;
-            charIndex[0] = MathUtils.RandomInt(0, 90);
-            charDelays[d] = MathUtils.RandomInt(120, 240);
-            Characters.Pipeline.WriteBuffer(charBuffers[d], charIndex, start, 0, 1);
+            let minDelay = 120, maxDelay = 240;
+            const y = (d / chars | 0) / lines;
+            const x = (d % chars) / chars;
+
+            let dx = m.x - x;
+            dx *= AspectRatio;
+            const dy = m.y - y;
+            let dist = dx * dx + dy * dy;
+
+            if (dist < 0.02)
+            {
+                dist = (0.02 - dist) * 50;
+
+                minDelay -= dist * (minDelay * 0.5) | 0;
+                maxDelay -= dist * (maxDelay * 0.5) | 0;
+
+                col[3] = MathUtils.SmoothStep(dist) + 0.1;
+                charDelays[d] -= dist * charDelays[d] - 1 | 0;
+
+                // Update the color directly in the buffer:
+                Pipeline.WriteBuffer(charBuffers[d], col, 16, 1, 4);
+            }
+
+            if (!--charDelays[d])
+            {
+                charIndex[0] = MathUtils.RandomInt(0, 90);
+                charDelays[d] = MathUtils.RandomInt(minDelay, maxDelay);
+
+                // Update the character index directly in the buffer:
+                Pipeline.WriteBuffer(charBuffers[d], charIndex, start, 0, 1);
+            }
         }
     }
 
@@ -84,7 +115,7 @@ import Font from "/assets/fonts/Matrix-Code-NFI.json";
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
-            Characters.UpdateFromPerspectiveCamera(Camera);
+            Characters.UpdatePerspective(Camera);
         }
 
         requestAnimationFrame(render);

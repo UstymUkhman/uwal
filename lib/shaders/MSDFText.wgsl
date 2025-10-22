@@ -1,6 +1,7 @@
 /**
  * @description This shader is adapted from WebGPU Samples "Text Rendering MSDF".
  * {@link https://webgpu.github.io/webgpu-samples/?sample=textRenderingMsdf#msdfText.wgsl}
+ * @see https://github.com/Chlumsky/msdfgen/issues/22#issuecomment-234958005
  */
 
 const VERTEX = array(
@@ -77,7 +78,7 @@ fn SampleMSDFTexture(coord: vec2f) -> f32
 @fragment fn fragment(@location(0) textureCoord: vec2f) -> @location(0) vec4f
 {
     let signDistance = SampleMSDFTexture(textureCoord) - 0.5;
-    let dimension = vec2f(textureDimensions(Texture, 0));
+    let dimensions = vec2f(textureDimensions(Texture, 0));
 
     let dpdx = dpdxFine(textureCoord);
     let dpdy = dpdyFine(textureCoord);
@@ -85,15 +86,15 @@ fn SampleMSDFTexture(coord: vec2f) -> f32
     let x = length(vec2f(dpdx.x, dpdy.x));
     let y = length(vec2f(dpdx.y, dpdy.y));
 
-    let dx = dimension.x * x;
-    let dy = dimension.y * y;
+    let dx = dimensions.x * x;
+    let dy = dimensions.y * y;
 
     let px = inverseSqrt(dx * dx + dy * dy) * 4;
     let pxDistance = signDistance * px;
 
-    let alpha = smoothstep(Text.alpha, -Text.alpha, pxDistance);
+    let a = smoothstep(Text.alpha, -Text.alpha, pxDistance);
 
-    if (alpha < 0.001) { discard; }
+    if (a < 0.001) { discard; }
 
-    return vec4f(Text.color.rgb, Text.color.a * alpha);
+    return vec4f(Text.color.rgb, Text.color.a * a);
 }
