@@ -6,7 +6,7 @@
   "main": "./build/uwal.umd.cjs",
   "module": "./build/uwal.js",
   "types": "./types.d.ts",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": false,
   "license": "MIT",
   "type": "module",
@@ -76,14 +76,14 @@
     "build:lib": "bun run build:types && bun run build --mode lib"
   },
   "dependencies": {
-    "@webgpu/types": "^0.1.64"
+    "@webgpu/types": "^0.1.66"
   },
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
-    "sass": "^1.90.0",
-    "typescript": "^5.9.2",
-    "vite": "^7.1.1",
-    "vite-plugin-glsl": "^1.5.1",
+    "sass": "^1.93.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.11",
+    "vite-plugin-glsl": "^1.5.4",
     "wgpu-matrix": "^3.4.0",
     "wgsl_reflect": "^1.2.3"
   },
