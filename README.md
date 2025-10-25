@@ -24,6 +24,10 @@
 - It is aimed at developers who like minimal layers of abstraction and are interested in writing their own shaders.
 - To get started with UWAL, feel free to check out the [Wiki](https://github.com/UstymUkhman/uwal/wiki) page for some simple examples using version `0.2.0`.
 
+## Architectural Diagram
+
+![Architectural Diagram](assets/images/diagram.jpg)
+
 ## [Installation](https://www.npmjs.com/package/uwal)
 
 ```bash
@@ -45,7 +49,7 @@ bun add uwal
 | WebGPU Smallpt | Pong Game |
 | [![WebGPU Smallpt](assets/images/WebGPUSmallpt.jpg)](https://ustymukhman.github.io/uwal-webgpu-smallpt/dist/) | [![Pong Game](assets/images/PongGame.jpg)]() |
 
-### [WebGPU Fundamentals](https://webgpufundamentals.org/)
+## [Lessons](https://github.com/UstymUkhman/uwal-webgpu-fundamentals)
 
 - Basics
   - [Fundamentals](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#fundamentals)
@@ -85,3 +89,9 @@ bun add uwal
   - [Recursive Tree](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#recursive-tree)
   - [Scene Graphs](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#scene-graphs)
   - [Making a Hand](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#making-hand)
+
+## Acknowledgements
+
+- Inspired by the philosophy of the fantastic [ogl](https://github.com/oframe/ogl) library.
+- Born from the incredible lessons of [WebGPU Fundamentals](https://webgpufundamentals.org/).
+- Built upon the awesomeness of [wgpu-matrix](https://github.com/greggman/wgpu-matrix) and [wgsl_reflect](https://github.com/brendan-duncan/wgsl_reflect).
