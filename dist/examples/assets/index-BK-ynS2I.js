@@ -1,0 +1,11 @@
+import{D as v,C as _,M as e}from"./index-jg0arK8r.js";import{S as $,C as B,a as P,b as T,c as q}from"./Camera2D-BpYoc3BA.js";import{S as G}from"./Scene-B2emtRuX.js";import"./Node-DuQUmuyq.js";var L="@group(0)@binding(1)var<uniform>color: vec4f;@fragment fn fragment()->@location(0)vec4f {return color;}";const O=`${$}
+
+${L}`;/**
+ * @example 2D Shapes
+ * @author Ustym Ukhman <ustym.ukhman@gmail.com>
+ * @description This example is developed by using a version listed below.
+ * Please note that this code may be simplified in future
+ * thanks to more recent library APIs.
+ * @version 0.2.0
+ * @license MIT
+ */let S,o,w;const r=new G;async function E(b){try{o=new(await v.Renderer(b,"2D Shapes"))}catch(a){alert(a)}const y=new B,g=new _(3349069),p=[],l=[],C=[],D=new P,c=new o.Pipeline,z=c.CreateShaderModule(O);o.CreatePassDescriptor(o.CreateColorAttachment(g)),await o.AddPipeline(c,{fragment:c.CreateFragmentState(z),vertex:c.CreateVertexState(z,D.GetPositionBufferLayout(c))}),D.Destroy();function x(){r.Traverse(a=>r!==a&&a.Destroy?.()),p.splice(0),l.splice(0),C.splice(0),r.Children.splice(0),cancelAnimationFrame(S)}function M(){F(),S=requestAnimationFrame(A)}function R(){return g.rgb=[e.Random(.3),e.Random(.2),e.Random(.4)]}function F(){const[a,s]=o.CanvasSize;for(let n=3;n<=12;n++){const d=n===11&&64||n;for(let t=0;t<2;t++){const i=e.Random(50,100),f=e.Random(.75,.95)*i,h=new P({segments:d,radius:i,innerRadius:f*t}),m=new T(h,new q(R()));C.push([e.Random(-1),e.Random(-1)]),m.Rotation=e.Random(0,e.TAU),m.Position=[e.Random(i,a-i),e.Random(i,s-i)],m.SetRenderPipeline(c),l.push(e.Random(1,10)),p.push(e.Random(0,.1)),r.Add(m)}}}function A(a,s=0){const[n,d]=o.CanvasSize;S=requestAnimationFrame(A),o.Render(r),r.Traverse(t=>{if(r===t)return!1;const{min:i,max:f}=t.BoundingBox,[h,m]=t.Position,u=C[s];(i[0]<=0||f[0]>=n)&&(u[0]*=-1,t.Material.Color=R()),(i[1]<=0||f[1]>=d)&&(u[1]*=-1,t.Material.Color=R()),t.Position=[h+u[0]*l[s],m+u[1]*l[s]],t.Rotation+=p[s++]})}w=new ResizeObserver(a=>{for(const s of a){let{inlineSize:n,blockSize:d}=s.contentBoxSize[0];n=n<=960&&n||n-240,!r.MainCamera&&r.AddCamera(y),o.SetCanvasSize(n,d),y.Size=o.CanvasSize}x(),M()}),w.observe(document.body)}function H(){v.OnLost=()=>{},cancelAnimationFrame(S),w.disconnect(),o.Destroy(),v.Destroy(),r.Destroy()}export{H as destroy,E as run};
