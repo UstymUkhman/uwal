@@ -82,7 +82,7 @@
     "@rollup/plugin-terser": "^0.4.4",
     "sass": "^1.93.2",
     "typescript": "^5.9.3",
-    "vite": "^7.1.11",
+    "vite": "^7.1.12",
     "vite-plugin-glsl": "^1.5.4",
     "wgpu-matrix": "^3.4.0",
     "wgsl_reflect": "^1.2.3"

@@ -141,8 +141,8 @@ export async function run(canvas)
     function render()
     {
         Renderer.Render();
-        requestAnimationFrame(render);
         const { AspectRatio } = Renderer;
+        raf = requestAnimationFrame(render);
 
         for (let d = 0, l = delays.length; d < l; ++d)
         {
