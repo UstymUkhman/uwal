@@ -24,10 +24,6 @@
 - It is aimed at developers who like minimal layers of abstraction and are interested in writing their own shaders.
 - To get started with UWAL, feel free to check out the [Wiki](https://github.com/UstymUkhman/uwal/wiki) page for some simple examples using version `0.2.0`.
 
-## Architectural Diagram
-
-![Architectural Diagram](assets/images/diagram.jpg)
-
 ## [Installation](https://www.npmjs.com/package/uwal)
 
 ```bash
@@ -39,6 +35,10 @@ pnpm add uwal
 # or
 bun add uwal
 ```
+
+## Architectural Diagram
+
+![Architectural Diagram](assets/images/diagram.jpg)
 
 ## [Examples](https://ustymukhman.github.io/uwal/dist/examples/examples.html)
 

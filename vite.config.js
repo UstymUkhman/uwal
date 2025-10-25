@@ -59,6 +59,11 @@ export default({ mode }) =>
                 input:
                 {
                     app: resolve(`./${mode}.html`)
+                },
+                output:
+                {
+                    assetFileNames: ({ name }) => name === "Matrix-Code-NFI.png" &&
+                        "assets/[name].[ext]" || "assets/[name]-[hash].[ext]"
                 }
             }
         };
