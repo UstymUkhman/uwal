@@ -36,9 +36,9 @@ pnpm add uwal
 bun add uwal
 ```
 
-## Architectural Diagram
+## Diagram
 
-![Architectural Diagram](assets/images/diagram.jpg)
+![Diagram](assets/images/diagram.jpg)
 
 ## [Examples](https://ustymukhman.github.io/uwal/dist/examples/examples.html)
 
