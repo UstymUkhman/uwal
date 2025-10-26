@@ -1,6 +1,6 @@
 {
     "extends": "../tsconfig.json",
-    "include": ["**/*", "../global.d.ts"],
+    "include": ["**/*", "types.d.ts"],
 
     /** @todo Enable to improve types: */
     /* "compilerOptions":
