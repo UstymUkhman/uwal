@@ -1,7 +1,12 @@
-/// <reference types="./global" />
+/// <reference types="wgpu-matrix" />
 /// <reference types="vite/client" />
+/// <reference types="@webgpu/types" />
 /// <reference types="vite-plugin-glsl/ext" />
 
+export { default as Computation } from "./types/stages/ComputeStage";
+export { ComputePipeline } from "./types/pipelines/ComputePipeline";
+export { RenderPipeline } from "./types/pipelines/RenderPipeline";
+export { default as Renderer } from "./types/stages/RenderStage";
 export { USAGE, BLEND_STATE } from "./types/pipelines/Constants";
 export { Color, GPUTiming, MathUtils } from "./types/utils";
 export { Node, Mesh, Shape } from "./types/primitives";
@@ -21,11 +26,3 @@ export
     Camera2D
 }
 from "./types/cameras";
-
-export
-{
-    ComputePipeline,
-    RenderPipeline,
-    Computation,
-    Renderer
-};
