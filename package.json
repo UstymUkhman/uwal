@@ -70,9 +70,9 @@
     "preview": "bun x simple-server",
     "build:lessons": "bun run build --mode lessons",
     "build:examples": "bun run build --mode examples",
+    "build:types": "bun run tsc -p ./lib && tsc-alias",
     "build:pages": "bun build:lessons && bun build:examples",
-    "build:lib": "bun run build:types && bun run build --mode lib",
-    "build:types": "bun run tsc --project tsconfig.build.json && tsc-alias"
+    "build:lib": "bun run build:types && bun run build --mode lib"
   },
   "dependencies": {
     "@webgpu/types": "^0.1.66"
