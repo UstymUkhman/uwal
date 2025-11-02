@@ -10,5 +10,9 @@
     {
         "name": "WebGPU Smallpt",
         "slug": "webgpu-smallpt"
+    },
+    {
+        "name": "Pong Game",
+        "slug": "pong-game"
     }
 ]

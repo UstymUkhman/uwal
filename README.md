@@ -47,7 +47,7 @@ bun add uwal
 | Basic Program | Ripple Effect |
 | [![Basic Program](assets/images/BasicProgram.jpg)](https://www.youtube.com/watch?v=TOCvJR07H6k) | [![Ripple Effect](assets/images/RippleEffect.jpg)](https://www.youtube.com/watch?v=j07n96qDe20) |
 | WebGPU Smallpt | Pong Game |
-| [![WebGPU Smallpt](assets/images/WebGPUSmallpt.jpg)](https://ustymukhman.github.io/uwal-webgpu-smallpt/dist/) | [![Pong Game](assets/images/PongGame.jpg)]() |
+| [![WebGPU Smallpt](assets/images/WebGPUSmallpt.jpg)](https://ustymukhman.github.io/uwal/dist/examples/examples.html#webgpu-smallpt) | [![Pong Game](assets/images/PongGame.jpg)](https://ustymukhman.github.io/uwal/dist/examples/examples.html#pong-game) |
 
 ## [Lessons](https://github.com/UstymUkhman/uwal-webgpu-fundamentals)
 

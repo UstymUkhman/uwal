@@ -10,6 +10,7 @@
 | [Cube / Cameras](https://ustymukhman.github.io/uwal/dist/examples/examples.html#cube-cameras) | [Code](./cube-cameras/index.js) |
 | [MSDF Text](https://ustymukhman.github.io/uwal/dist/examples/examples.html#msdf-text) | [Code](./msdf-text/index.js) |
 | **Demo** |
-| [Basic Program](https://ustymukhman.github.io/uwal/dist/examples/examples.html#uwal-basic-program) | [Code](https://github.com/UstymUkhman/uwal-basic-program) |
-| [Ripple Effect](https://ustymukhman.github.io/uwal/dist/examples/examples.html#uwal-ripple-effect) | [Code](https://github.com/UstymUkhman/uwal-ripple-effect) |
-| [WebGPU Smallpt](https://ustymukhman.github.io/uwal/dist/examples/examples.html#uwal-webgpu-smallpt) | [Code](https://github.com/UstymUkhman/uwal-webgpu-smallpt) |
+| [Basic Program](https://ustymukhman.github.io/uwal/dist/examples/examples.html#basic-program) | [Code](https://github.com/UstymUkhman/uwal-basic-program) |
+| [Ripple Effect](https://ustymukhman.github.io/uwal/dist/examples/examples.html#ripple-effect) | [Code](https://github.com/UstymUkhman/uwal-ripple-effect) |
+| [WebGPU Smallpt](https://ustymukhman.github.io/uwal/dist/examples/examples.html#webgpu-smallpt) | [Code](https://github.com/UstymUkhman/uwal-webgpu-smallpt) |
+| [Pong Game](https://ustymukhman.github.io/uwal/dist/examples/examples.html#pong-game) | [Code](https://github.com/UstymUkhman/uwal-pong-game) |
