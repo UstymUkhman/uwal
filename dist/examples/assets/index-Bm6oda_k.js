@@ -1,4 +1,4 @@
-import{D as v,C as _,M as e}from"./index-CYkq1sYW.js";import{S as $,C as B,a as P,b as T,c as q}from"./Camera2D-_7FIs20X.js";import{S as G}from"./Scene-DIaNzWUA.js";import"./Node-B_MOKIna.js";var L="@group(0)@binding(1)var<uniform>color: vec4f;@fragment fn fragment()->@location(0)vec4f {return color;}";const O=`${$}
+import{D as v,C as _,M as e}from"./index-BRWgv0CZ.js";import{S as $,C as B,a as P,b as T,c as q}from"./Camera2D-Cw8zKIvz.js";import{S as G}from"./Scene-CR7R2Fsu.js";import"./Node-BwerG3u1.js";var L="@group(0)@binding(1)var<uniform>color: vec4f;@fragment fn fragment()->@location(0)vec4f {return color;}";const O=`${$}
 
 ${L}`;/**
  * @example 2D Shapes
