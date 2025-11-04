@@ -67,7 +67,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "preview": "bun x simple-server",
+    "preview": "bun x simple-server -d dist",
     "build:lessons": "bun run build --mode lessons",
     "build:examples": "bun run build --mode examples",
     "build:types": "bun run tsc -p ./lib && tsc-alias",
