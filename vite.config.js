@@ -1,7 +1,7 @@
 import { name, version } from "./package.json";
 import terser from "@rollup/plugin-terser";
 import { defineConfig } from "vite";
-import { transform } from "esbuild";
+import { minify } from "oxc-minify";
 import glsl from "vite-plugin-glsl";
 import { resolve } from "path";
 
@@ -33,11 +33,11 @@ export default({ mode }) =>
         }),
         {
             apply: "build", enforce: "post",
-            async generateBundle(_options, bundle)
+            generateBundle(_options, bundle)
             {
                 for (const asset of Object.values(bundle))
-                    if (asset.type === "chunk") asset.code = (
-                        await transform(asset.code, { minify: true })
+                    if (asset.type === "chunk") asset.code = minify(
+                        asset.fileName, asset.code, { module: true, sourcemap: true }
                     ).code;
             }
         }
