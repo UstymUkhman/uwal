@@ -59,7 +59,6 @@ export async function run(canvas)
     function clean()
     {
         scene.Traverse(node =>
-            scene !== node &&
             node.Destroy?.()
         );
 
@@ -123,7 +122,6 @@ export async function run(canvas)
 
         scene.Traverse(shape =>
         {
-            if (scene === shape) return false;
             const { min, max } = shape.BoundingBox, [x, y] = shape.Position, dir = direction[s];
 
             if (min[0] <= 0 || max[0] >= width)  { dir[0] *= -1; shape.Material.Color = randomColor(); }
