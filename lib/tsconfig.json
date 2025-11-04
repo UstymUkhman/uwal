@@ -3,18 +3,11 @@
     "extends": "../tsconfig.json"
 
     /* "exclude": [
-        "cameras",
-        "geometries",
         "materials",
         "pipelines",
-        "primitives",
         "stages",
         "text",
-        "textures",
-        "utils",
-        "Device.js",
-        "Errors.js",
-        "Scene.js"
+        "textures"
     ], */
 
     /** @todo Enable to improve types: */
