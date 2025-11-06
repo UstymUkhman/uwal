@@ -2,14 +2,8 @@
     "extends": "../tsconfig.json",
     "include": ["**/*"],
 
-    /* "exclude": [
-        "pipelines",
-        "stages",
-        "textures"
-    ], */
-
-    /* "compilerOptions":
+    "compilerOptions":
     {
         "checkJs": true
-    } */
+    }
 }
