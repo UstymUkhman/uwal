@@ -4,7 +4,7 @@
  * @description This example is developed by using a version listed below.
  * Please note that this code may be simplified in future
  * thanks to more recent library APIs.
- * @version 0.2.0
+ * @version 0.2.1
  * @license MIT
  */
 
