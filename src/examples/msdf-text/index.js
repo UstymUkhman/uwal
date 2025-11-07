@@ -4,7 +4,7 @@
  * @description This example is developed by using a version listed below.
  * Please note that this code may be simplified in future
  * thanks to more recent library APIs.
- * @version 0.2.0
+ * @version 0.2.1
  * @license MIT
  */
 
@@ -47,7 +47,6 @@ export async function run(canvas)
     );
 
     const Pipeline = await Characters.CreateRenderPipeline(Renderer);
-    const font = await Characters.LoadFont(FontURL, true);
 
     // alpha & scale (4) + color (4) + transform (16) + x & y (2):
     let bufferOffset = Float32Array.BYTES_PER_ELEMENT * 6 + 2;
@@ -68,11 +67,12 @@ export async function run(canvas)
     canvas.addEventListener("mouseleave", onOut);
     canvas.addEventListener("touchend", onOut);
 
+    await Characters.LoadFont(FontURL, true);
+    let rows = 0, columns = 0, delays = [];
     const position = { x: -1.0, y: -1.0 };
+
     const light = new Color(0x88c0d0);
     const data = new Float32Array(5);
-    let lines = 0, chars = 0;
-    const delays = [];
 
     function clean()
     {
@@ -96,9 +96,9 @@ export async function run(canvas)
         const [width, height] = Renderer.BaseCanvasSize;
         const ids = Font.chars.map(({ id }) => id);
 
-        lines = Math.ceil(height / 40);
         const charWidth = width / 24;
-        chars = Math.ceil(charWidth);
+        rows = Math.ceil(height / 40);
+        columns = Math.ceil(charWidth);
 
         dark.Set(0x5e81ac, 0x40);
         let x = charWidth / 8;
@@ -107,17 +107,17 @@ export async function run(canvas)
         {
             let add = height / 40;
             add = 23 - add | 0;
-            chars += add - 1;
+            columns += add - 1;
             x += add / 10;
-            lines += add;
+            rows += add;
         }
 
-        for (let i = 0, l = lines * chars; i < l; ++i)
+        for (let i = 0, l = rows * columns; i < l; ++i)
         {
-            const c = i % chars, r = i / chars | 0;
+            const c = i % columns, r = i / columns | 0;
             delays.push(MathUtils.RandomInt(1, 240));
 
-            buffers.push(Characters.Write(String.fromCharCode(ids[MathUtils.RandomInt(0, 90)]), font, dark));
+            buffers.push(Characters.Write(String.fromCharCode(ids[MathUtils.RandomInt(0, 90)]), dark));
             Characters.SetTransform(MathUtils.Mat4.translation([-x + c * 0.25, 4.65 - r * 0.4, -8]), buffers[i]);
         }
     }
@@ -146,8 +146,8 @@ export async function run(canvas)
 
         for (let d = 0, l = delays.length; d < l; ++d)
         {
-            const dx = (position.x - (d % chars) / chars) * AspectRatio;
-            const dy = position.y - (d / chars | 0) / lines;
+            const dx = (position.x - (d % columns) / columns) * AspectRatio;
+            const dy = position.y - (d / columns | 0) / rows;
 
             let minDelay = 120, maxDelay = 240;
             let dist = dx * dx + dy * dy;
