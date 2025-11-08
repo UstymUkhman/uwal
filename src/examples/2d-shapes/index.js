@@ -94,7 +94,7 @@ export async function run(canvas)
                 const inner = MathUtils.Random(0.75, 0.95) * radius;
 
                 const geometry = new Geometries.Shape({ segments, radius, innerRadius: inner * r });
-                const shape = new Shape(geometry, new Materials.Shape(randomColor()));
+                const shape = new Shape(geometry, new Materials.Color(randomColor()));
 
                 direction.push([MathUtils.Random(-1), MathUtils.Random(-1)]);
                 shape.Rotation = MathUtils.Random(0, MathUtils.TAU);

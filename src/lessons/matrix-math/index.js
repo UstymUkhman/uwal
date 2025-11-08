@@ -77,7 +77,7 @@ import createVertices from "./F.js";
     geometry.VertexData = vertexData;
 
     const shapes = Array.from({ length: 5 }).map(() => {
-        const shape = new Shape(geometry, new Materials.Shape(color.Random()));
+        const shape = new Shape(geometry, new Materials.Color(color.Random()));
         shape.SetRenderPipeline(RenderPipeline);
         shape.Origin = [50, 75];
         return shape;

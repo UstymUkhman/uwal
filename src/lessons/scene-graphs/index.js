@@ -44,9 +44,9 @@ import Cube from "./Cube.wgsl";
     };
 
     const materialColor = new Color();
-    const drawerMaterial = new Materials.Mesh();
-    const handleMaterial = new Materials.Mesh(materialColor.Set(0x7f7f7f));
-    const cabinetMaterial = new Materials.Mesh(materialColor.Set(0xbfbfbf, 0xbf));
+    const drawerMaterial = new Materials.Color();
+    const handleMaterial = new Materials.Color(materialColor.Set(0x7f7f7f));
+    const cabinetMaterial = new Materials.Color(materialColor.Set(0xbfbfbf, 0xbf));
 
     const [width, height, depth] = [0, 1, 2];
     const alwaysShow = new Set([0, 1, 2]);
