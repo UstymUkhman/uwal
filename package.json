@@ -2,11 +2,11 @@
   "name": "uwal",
   "description": "Unopinionated WebGPU Abstraction Library",
   "homepage": "https://github.com/UstymUkhman/uwal#readme",
-  "packageManager": "^npm@10.9.0",
+  "packageManager": "^npm@11.6.2",
   "main": "./build/uwal.umd.cjs",
   "module": "./build/uwal.js",
   "types": "./types.d.ts",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": false,
   "license": "MIT",
   "type": "module",
@@ -83,13 +83,13 @@
     "sass": "^1.93.3",
     "tsc-alias": "^1.8.16",
     "typescript": "^5.9.3",
-    "vite": "npm:rolldown-vite@7.1.20",
+    "vite": "npm:rolldown-vite@7.2.2",
     "vite-plugin-glsl": "^1.5.4",
     "wgpu-matrix": "^3.4.0",
     "wgsl_reflect": "^1.2.3"
   },
   "overrides": {
-    "vite": "npm:rolldown-vite@7.1.20"
+    "vite": "npm:rolldown-vite@7.2.2"
   },
   "trustedDependencies": [
     "@parcel/watcher"
