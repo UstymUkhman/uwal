@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-scene-graphs.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
- * @version 0.2.0
+ * @version 0.2.1
  * @license MIT
  */
 
@@ -43,8 +43,8 @@ import Cube from "./Cube.wgsl";
         converters: GUI.converters.radToDeg
     };
 
-    const materialColor = new Color();
-    const drawerMaterial = new Materials.Color();
+    const materialColor = new Color(0xffffff);
+    const drawerMaterial = new Materials.Color(0xffffff);
     const handleMaterial = new Materials.Color(materialColor.Set(0x7f7f7f));
     const cabinetMaterial = new Materials.Color(materialColor.Set(0xbfbfbf, 0xbf));
 
