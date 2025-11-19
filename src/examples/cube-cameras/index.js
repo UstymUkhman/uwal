@@ -174,8 +174,7 @@ export async function run(canvas)
 
         // Orthographic Cube:
         {
-            const [px, py, pz] = orthographicPosition;
-            const [rx, ry, rz] = orthographicRotation;
+            const [px, py, pz] = orthographicPosition, [rx, ry, rz] = orthographicRotation;
 
             tempRotation[0] = MathUtils.Lerp(rx, nextOrthographicRotation[0], smoothTime);
             tempRotation[1] = MathUtils.Lerp(ry, nextOrthographicRotation[1], smoothTime);
@@ -205,6 +204,7 @@ export async function run(canvas)
             Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             perspectiveCamera.AspectRatio = Renderer.AspectRatio;
             perspectiveCamera.Position = [width / 360, 2, 8];
+            orthographicCamera.UpdateViewProjectionMatrix();
             perspectiveCamera.UpdateViewProjectionMatrix();
 
             const oy = height - height / 3.6;
