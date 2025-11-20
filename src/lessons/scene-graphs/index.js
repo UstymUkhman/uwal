@@ -224,8 +224,7 @@ import Cube from "./Cube.wgsl";
 
     function addMesh(label, parent, transform, material)
     {
-        // Reusing the same `drawerMaterial` to reduce number of opaque batches:
-        const cube = new Mesh(CubeGeometry, material ?? drawerMaterial, label, parent);
+        const cube = new Mesh(CubeGeometry, material, label, parent);
 
         cube.SetRenderPipeline(CubePipeline);
         CubePipeline.AddVertexBuffers(colorBuffer);
@@ -248,7 +247,7 @@ import Cube from "./Cube.wgsl";
 
         addMesh(`${label}-drawer-mesh`, drawer, [
             void 0, void 0, drawerSize
-        ]);
+        ], drawerMaterial);
 
         addMesh(`${label}-handle-mesh`, drawer, [
             handlePosition, void 0, handleSize
