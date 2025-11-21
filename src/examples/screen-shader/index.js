@@ -29,7 +29,7 @@ export async function run(canvas)
         alert(error);
     }
 
-    const RenderPipeline = await Renderer.CreatePipeline([Shaders.Quad, ScreenShader]);
+    const RenderPipeline = await Renderer.CreatePipeline([Shaders.Fullscreen, ScreenShader]);
     const { screen, buffer } = RenderPipeline.CreateUniformBuffer("screen");
 
     RenderPipeline.SetBindGroupFromResources(buffer);

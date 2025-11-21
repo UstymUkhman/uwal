@@ -31,7 +31,7 @@ export async function run(canvas)
     }
 
     const VideoPipeline = await Renderer.CreatePipeline([
-        Shaders.Quad, Shaders.Resolution, SinCity
+        Shaders.Fullscreen, Shaders.Resolution, SinCity
     ]);
 
     const Texture = new (await Device.Texture());

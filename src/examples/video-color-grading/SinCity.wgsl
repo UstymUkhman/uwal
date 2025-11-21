@@ -17,7 +17,7 @@ struct VertexOutput
 {
     let max = ONE_THIRD * 2;
     var output: VertexOutput;
-    var coord = GetQuadCoord(index);
+    var coord = GetFullQuadCoord(index);
 
     let scale = vec2f(min(resolution.x / size.x, max)) * size / resolution.xy;
     let position = coord * scale * resolution.z - vec2f(0, scale.y);

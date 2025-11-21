@@ -15,7 +15,7 @@ struct VertexOutput
 @vertex fn vertex(@builtin(vertex_index) index: u32) -> VertexOutput
 {
     var output: VertexOutput;
-    let coord = GetQuadCoord(index);
+    let coord = GetFullQuadCoord(index);
 
     output.position = vec4f(coord, 0, 1);
     output.coord = (coord + 1) * 0.5;

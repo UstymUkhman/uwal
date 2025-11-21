@@ -1,4 +1,4 @@
-#include "Quad.wgsl";
+#include "Fullscreen.wgsl";
 
 struct VertexOutput
 {
@@ -11,7 +11,7 @@ struct VertexOutput
 
 @vertex fn vertex(@builtin(vertex_index) index: u32) -> VertexOutput
 {
-    let position = GetQuadCoord(index);
+    let position = GetFullQuadCoord(index);
     let coord = (position + 1) * 0.5;
     var output: VertexOutput;
 
