@@ -38,7 +38,77 @@ bun add uwal
 
 ## Diagram
 
-![Diagram](assets/images/diagram.jpg)
+```mermaid
+flowchart TD
+  GPU[WebGPU APIs]
+  DEV[Device]
+  APP[Your Appliation]
+
+  %% CONST[Constants] --> APP
+  %% TIME[GPUTiming]  --> APP
+  %% MATH[MathUtils]  --> APP
+  %% COL[Color]       --> APP
+
+  BP[Base Pipeline]
+  CP[Compute Pipeline]
+  RP[Render Pipeline]
+  BS[Base Stage]
+  COMP[Computation]
+  RNDR[Renderer]
+  TEX[Texture]
+
+  GPU  --> DEV
+  DEV  --> BS
+  DEV  --> TEX
+  BS   --> COMP
+  BS   --> RNDR
+  COMP --> CP
+  COMP --> APP
+  BP   --> CP
+  BP   --> RP
+  CP   --> APP
+  RP   --> APP
+  RNDR --> RP
+  RNDR --> APP
+
+  ND2[Node2D]
+  GEO[Geometries]
+  ND[Node]
+  MAT[Materials]
+  SHDS[Shaders]
+  CAM[Camera]
+  SHP[Shape]
+  MESH[Mesh]
+  SCN[Scene]
+  TXT[MSDFText]
+
+  ND2  --> APP
+  ND2  --> SCN
+  ND2  --> CAM
+  ND2  --> SHP
+  MAT  --> SHP
+  GEO  --> APP
+  GEO  --> SHP
+  GEO  --> MESH
+  MAT  --> MESH
+  ND   --> CAM
+  ND   --> MESH
+  ND   --> SCN
+  ND   --> APP
+  SHP  --> SCN
+  MESH --> SCN
+  CAM  --> APP
+  CAM  --> SCN
+  SHDS --> MAT
+  SHDS --> TXT
+  RP   --> APP
+  TEX  --> APP
+  SCN  --> APP
+  SHP  --> APP
+  MAT  --> APP
+  TXT  --> APP
+  SHDS --> APP
+```
 
 ## [Examples](https://ustymukhman.github.io/uwal/dist/examples/examples.html)
 
