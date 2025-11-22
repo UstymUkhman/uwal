@@ -44,11 +44,6 @@ flowchart TD
   DEV[Device]
   APP[Your Appliation]
 
-  %% CONST[Constants] --> APP
-  %% TIME[GPUTiming]  --> APP
-  %% MATH[MathUtils]  --> APP
-  %% COL[Color]       --> APP
-
   BP[Base Pipeline]
   CP[Compute Pipeline]
   RP[Render Pipeline]
@@ -71,6 +66,9 @@ flowchart TD
   RNDR --> RP
   RNDR --> APP
 
+  TIME[GPUTiming] --> APP
+  MATH[MathUtils] --> APP
+
   ND2[Node2D]
   GEO[Geometries]
   ND[Node]
@@ -81,6 +79,9 @@ flowchart TD
   MESH[Mesh]
   SCN[Scene]
   TXT[MSDFText]
+
+  CONST[Constants] --> APP
+  COL[Color]       --> APP
 
   ND2  --> APP
   ND2  --> SCN
@@ -159,6 +160,8 @@ flowchart TD
   - [Recursive Tree](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#recursive-tree)
   - [Scene Graphs](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#scene-graphs)
   - [Making a Hand](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#making-hand)
+- Lighting
+  - [Directional Lighting](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#directional-lighting)
 
 ## Acknowledgements
 
