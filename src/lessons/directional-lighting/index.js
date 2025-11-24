@@ -11,10 +11,11 @@
 
 import {
     Mesh,
+    Color,
     Scene,
     Device,
     Shaders,
-    Materials,
+    MathUtils,
     Geometries,
     PerspectiveCamera
 } from "#/index";
@@ -35,39 +36,59 @@ import createVertices from "./F.js";
         alert(error);
     }
 
+    const gui = new GUI();
+    gui.onChange(render);
+
     const Camera = new PerspectiveCamera();
     const FGeometry = new Geometries.Mesh();
+    const FMesh = new Mesh(FGeometry, null);
     const FPipeline = new Renderer.Pipeline();
 
-    const shaderModule = FPipeline.CreateShaderModule(FShader);
-    const FMesh = new Mesh(FGeometry, new Materials.Color(0xffffff));
+    Renderer.CreatePassDescriptor(
+        Renderer.CreateColorAttachment(),
+        Renderer.CreateDepthStencilAttachment()
+    );
+
+    const module = FPipeline.CreateShaderModule(FShader);
+    const settings = { rotation: MathUtils.DegreesToRadians(0) };
+    const { uniforms, buffer } = FPipeline.CreateUniformBuffer("uniforms");
+    const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
 
     const vertexBuffers = [
         FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }),
         FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" })
     ];
 
-    FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
-        vertex: FPipeline.CreateVertexState(shaderModule, vertexBuffers),
-        fragment: FPipeline.CreateFragmentState(shaderModule),
-        primitive: FPipeline.CreatePrimitiveState()
-    }));
-
-    const { vertexData, indexData, normalData } = createVertices();
+    const { vertexData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
 
-    FGeometry.CreateVertexBuffer(FPipeline, vertexData);
-    FGeometry.CreateIndexBuffer(FPipeline, indexData);
-    FPipeline.WriteBuffer(normalBuffer, normalData);
-    FPipeline.AddVertexBuffers(normalBuffer);
+    FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
+        vertex: FPipeline.CreateVertexState(module, vertexBuffers),
+        depthStencil: FPipeline.CreateDepthStencilState(),
+        fragment: FPipeline.CreateFragmentState(module),
+        primitive: FPipeline.CreatePrimitiveState()
+    }), buffer);
 
-    FMesh.Position = [0, 0, -400];
+    const light = MathUtils.Vec3.create(-0.5, -0.7, -1);
+    uniforms.color.set(new Color(0x33ff33).rgba);
+    MathUtils.Vec3.normalize(light, light);
+    uniforms.light.set(light);
+
+    FPipeline.WriteBuffer(buffer, uniforms.color.buffer);
+    FGeometry.CreateVertexBuffer(FPipeline, vertexData);
+
+    FPipeline.WriteBuffer(normalBuffer, normalData);
+    gui.add(settings, "rotation", radToDegOptions);
+
+    FPipeline.AddVertexBuffers(normalBuffer);
+    FGeometry.SetDrawParams(vertices);
+
     const scene = new Scene();
-    scene.AddCamera(Camera);
     scene.Add(FMesh);
 
     function render()
     {
+        FMesh.Rotation = [0, settings.rotation, 0];
         Renderer.Render(scene);
     }
 
@@ -79,6 +100,8 @@ import createVertices from "./F.js";
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
             Camera.UpdateViewProjectionMatrix();
+            Camera.Position = [100, 150, 200];
+            Camera.LookAt([0, 35, 0]);
             scene.AddCamera(Camera);
         }
 

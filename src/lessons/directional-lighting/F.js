@@ -1,6 +1,6 @@
 export default function()
 {
-    const vertexData = new Float32Array([
+    const positions = [
         // Front base:
         -50,  75,  15,
         -20,  75,  15,
@@ -36,9 +36,9 @@ export default function()
          20,  15, -15,
         -20, -15, -15,
          20, -15, -15
-    ]);
+    ];
 
-    const indexData = new Uint32Array([
+    const indices = [
          0,  2,  1,  2,  3,  1, // Front base
          4,  6,  5,  6,  7,  5, // Top front rung
          8, 10,  9, 10, 11,  9, // Middle front rung
@@ -59,9 +59,9 @@ export default function()
         10,  3, 22, 22,  3, 15, // Right
          2, 14,  3, 14, 15,  3, // Bottom
          0, 12,  2, 12, 14,  2  // Left
-    ]);
+    ];
 
-    const normalData = new Float32Array([
+    const normals = [
          0,    0,    1, // Front base
          0,    0,    1, // Top front rung
          0,    0,    1, // Middle front rung
@@ -82,7 +82,19 @@ export default function()
          1,    0,    0, // Right
          0,   -1,    0, // Bottom
         -1,    0,    0  // Left
-    ]);
+    ];
 
-    return { vertexData, indexData, normalData };
+    const vertices = indices.length;
+    const vertexData = new Float32Array(vertices * 3);
+    const normalData = new Float32Array(vertices * 3);
+
+    for (let v = 0; v < vertices; ++v)
+    {
+        const p = indices[v] * 3, n = (v / 6 | 0) * 3, o = v * 3;
+        vertexData.set(positions.slice(p, p + 3), o);
+        const normal = normals.slice(n, n + 3);
+        normalData.set(normal, o);
+    }
+
+    return { vertexData, normalData, vertices };
 }

@@ -1,3 +1,9 @@
+struct Uniforms
+{
+    color: vec4f,
+    light: vec3f
+};
+
 struct VertexOutput
 {
     @location(0) normal: vec3f,
@@ -11,9 +17,16 @@ struct VertexOutput
     return VertexOutput(normal, meshModelViewProjection * position);
 }
 
-@group(0) @binding(1) var<uniform> color: vec4f;
+@group(0) @binding(1) var<uniform> uniforms: Uniforms;
 
 @fragment fn fragment(@location(0) normal: vec3f) -> @location(0) vec4f
 {
-    return vec4f(normalize(normal), 1.0) * color;
+    // `normal` is interpolated so it's not a unit vector.
+    // Normalizing it will make it a unit vector again.
+    // Compute the light by taking the dot product
+    // of the normal to the light's reverse direction:
+    let light = dot(normalize(normal), -uniforms.light);
+
+    let color = uniforms.color.rgb * light;
+    return vec4f(color, uniforms.color.a);
 }
