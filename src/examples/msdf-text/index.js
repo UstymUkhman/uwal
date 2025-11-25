@@ -163,7 +163,7 @@ export async function run(canvas)
                 minDelay  -= dist * (minDelay * 0.5) | 0;
                 maxDelay  -= dist * (maxDelay * 0.5) | 0;
 
-                data[4] = MathUtils.SmoothStep(dist) + 0.1;
+                dist *= 1.2; data[4] = dist ** 2 + 0.2;
             }
 
             if (!--delays[d])

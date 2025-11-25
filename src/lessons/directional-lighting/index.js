@@ -36,6 +36,7 @@ import createVertices from "./F.js";
         alert(error);
     }
 
+    const scene = new Scene();
     const gui = new GUI();
     gui.onChange(render);
 
@@ -69,26 +70,30 @@ import createVertices from "./F.js";
         primitive: FPipeline.CreatePrimitiveState()
     }), buffer);
 
+    FGeometry.CreateVertexBuffer(FPipeline, vertexData);
+    FPipeline.WriteBuffer(normalBuffer, normalData);
+    gui.add(settings, "rotation", radToDegOptions);
+    FPipeline.AddVertexBuffers(normalBuffer);
+    FGeometry.SetDrawParams(vertices);
+
     const light = MathUtils.Vec3.create(-0.5, -0.7, -1);
     uniforms.color.set(new Color(0x33ff33).rgba);
     MathUtils.Vec3.normalize(light, light);
     uniforms.light.set(light);
-
-    FPipeline.WriteBuffer(buffer, uniforms.color.buffer);
-    FGeometry.CreateVertexBuffer(FPipeline, vertexData);
-
-    FPipeline.WriteBuffer(normalBuffer, normalData);
-    gui.add(settings, "rotation", radToDegOptions);
-
-    FPipeline.AddVertexBuffers(normalBuffer);
-    FGeometry.SetDrawParams(vertices);
-
-    const scene = new Scene();
     scene.Add(FMesh);
 
     function render()
     {
         FMesh.Rotation = [0, settings.rotation, 0];
+        const world = MathUtils.Mat4.rotationY(settings.rotation);
+
+        // Compute a world matrix, then inverse and transpose it into the normal matrix:
+        MathUtils.Mat3.fromMat4(MathUtils.Mat4.transpose(MathUtils.Mat4.inverse(
+            MathUtils.Mat4.rotationY(settings.rotation)
+        )), uniforms.normal);
+
+        FPipeline.WriteBuffer(buffer, uniforms.normal.buffer);
+
         Renderer.Render(scene);
     }
 
