@@ -43,3 +43,4 @@
 | [Making a Hand](https://webgpufundamentals.org/webgpu/lessons/webgpu-scene-graphs.html#a-hand) | [Preview](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#making-hand) | [Code](https://github.com/UstymUkhman/uwal-webgpu-fundamentals/blob/main/src/making-hand/index.js) |
 | _Lighting_ |
 | [Directional Lighting](https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-directional.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#directional-lighting) | [Code](./directional-lighting/index.js) |
+| [Point Lighting](https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-point.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#point-lighting) | [Code](./point-lighting/index.js) |

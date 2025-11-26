@@ -162,6 +162,7 @@ flowchart TD
   - [Making a Hand](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#making-hand)
 - Lighting
   - [Directional Lighting](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#directional-lighting)
+  - [Point Lighting](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#point-lighting)
 
 ## Acknowledgements
 

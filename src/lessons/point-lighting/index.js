@@ -1,8 +1,8 @@
 /**
- * @module Directional Lighting
+ * @module Point Lighting
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
- * @description This lesson is reproduced from WebGPU Directional Lighting
- * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-directional.html}&nbsp;
+ * @description This lesson is reproduced from WebGPU Point Lighting
+ * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-point.html}&nbsp;
  * and developed by using a version listed below. Please note that this code
  * may be simplified in future thanks to more recent library APIs.
  * @version 0.2.3
@@ -21,7 +21,7 @@ import {
 } from "#/index";
 
 import FShader from "./F.wgsl";
-import createVertices from "./F.js";
+import createVertices from "../directional-lighting/F.js";
 
 (async function(canvas)
 {
@@ -29,7 +29,7 @@ import createVertices from "./F.js";
 
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Directional Lighting"));
+        Renderer = new (await Device.Renderer(canvas, "Point Lighting"));
     }
     catch (error)
     {
@@ -76,16 +76,14 @@ import createVertices from "./F.js";
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);
 
-    const light = MathUtils.Vec3.create(-0.5, -0.7, -1);
     uniforms.color.set(new Color(0x33ff33).rgba);
-    MathUtils.Vec3.normalize(light, light);
-    uniforms.light.set(light);
+    uniforms.light.set([-10, 30, 100]);
     scene.Add(FMesh);
 
     function render()
     {
         FMesh.Rotation = [0, settings.rotation, 0];
-        const world = MathUtils.Mat4.rotationY(settings.rotation);
+        const world = MathUtils.Mat4.rotationY(settings.rotation, uniforms.world);
 
         // Compute a world matrix, then inverse and transpose it into the normal matrix:
         MathUtils.Mat3.fromMat4(MathUtils.Mat4.transpose(MathUtils.Mat4.inverse(world)), uniforms.normal);
