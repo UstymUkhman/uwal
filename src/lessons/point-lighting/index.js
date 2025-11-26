@@ -51,8 +51,8 @@ import createVertices from "../directional-lighting/F.js";
     );
 
     const module = FPipeline.CreateShaderModule(FShader);
-    const settings = { rotation: MathUtils.DegreesToRadians(0) };
     const { uniforms, buffer } = FPipeline.CreateUniformBuffer("uniforms");
+    const settings = { rotation: MathUtils.DegreesToRadians(0), shininess: 30 };
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
 
     const vertexBuffers = [
@@ -70,9 +70,11 @@ import createVertices from "../directional-lighting/F.js";
         primitive: FPipeline.CreatePrimitiveState()
     }), buffer);
 
+    gui.add(settings, "rotation", radToDegOptions);
+    gui.add(settings, "shininess", { min: 1, max: 250 });
+
     FGeometry.CreateVertexBuffer(FPipeline, vertexData);
     FPipeline.WriteBuffer(normalBuffer, normalData);
-    gui.add(settings, "rotation", radToDegOptions);
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);
 
@@ -82,14 +84,16 @@ import createVertices from "../directional-lighting/F.js";
 
     function render()
     {
-        FMesh.Rotation = [0, settings.rotation, 0];
+        uniforms.camera.set(Camera.Position);
+        uniforms.intensity[0] = settings.shininess;
+
         const world = MathUtils.Mat4.rotationY(settings.rotation, uniforms.world);
 
         // Compute a world matrix, then inverse and transpose it into the normal matrix:
         MathUtils.Mat3.fromMat4(MathUtils.Mat4.transpose(MathUtils.Mat4.inverse(world)), uniforms.normal);
 
         FPipeline.WriteBuffer(buffer, uniforms.normal.buffer);
-
+        FMesh.Rotation = [0, settings.rotation, 0];
         Renderer.Render(scene);
     }
 
