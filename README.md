@@ -163,6 +163,7 @@ flowchart TD
 - Lighting
   - [Directional Lighting](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#directional-lighting)
   - [Point Lighting](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#point-lighting)
+  - [Spot Lighting](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#spot-lighting)
 
 ## Acknowledgements
 
