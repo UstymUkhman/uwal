@@ -51,9 +51,12 @@ import createVertices from "../directional-lighting/F.js";
     );
 
     const settings = {
+        innerLimit: MathUtils.DegreesToRadians(15),
+        outerLimit: MathUtils.DegreesToRadians(25),
         rotation: MathUtils.DegreesToRadians(0),
         limit: MathUtils.DegreesToRadians(15),
-        aimOffsetX: -10, aimOffsetY: 10,
+        aimOffsetX: -10,
+        aimOffsetY: 10,
         shininess: 30
     };
 
@@ -79,7 +82,7 @@ import createVertices from "../directional-lighting/F.js";
 
     gui.add(settings, "rotation", radToDegOptions);
     gui.add(settings, "shininess", { min: 1, max: 250 });
-    gui.add(settings, "limit", limitOptions);
+    GUI.makeMinMaxPair(gui, settings, "innerLimit", "outerLimit", limitOptions);
     gui.add(settings, "aimOffsetX", -50, 50);
     gui.add(settings, "aimOffsetY", -50, 50);
 
@@ -97,7 +100,9 @@ import createVertices from "../directional-lighting/F.js";
     {
         uniforms.camera.set(Camera.Position);
         uniforms.intensity[0] = settings.shininess;
-        uniforms.limit[0] = Math.cos(settings.limit);
+
+        uniforms.limit[0] = Math.cos(settings.innerLimit);
+        uniforms.limit[1] = Math.cos(settings.outerLimit);
 
         const { aimOffsetX: x, aimOffsetY: y } = settings;
 

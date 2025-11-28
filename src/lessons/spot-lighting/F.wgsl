@@ -7,7 +7,7 @@ struct Uniforms
     normal: mat3x3f,
     direction: vec3f,
     intensity: f32,
-    limit: f32
+    limit: vec2f
 };
 
 struct VertexOutput
@@ -44,9 +44,6 @@ struct VertexOutput
 
 @fragment fn fragment(vertex: VertexOutput) -> @location(0) vec4f
 {
-    var light = 0.0;
-    var specular = 0.0;
-
     // `vertex.normal` is interpolated so it's not a unit vector.
     // Normalizing it will make it a unit vector again:
     let normal = normalize(vertex.normal);
@@ -54,20 +51,22 @@ struct VertexOutput
     // Convert the vertex to light vector to a unit vector:
     let lightDirection = normalize(vertex.lightVector);
 
-    if (uniforms.limit < dot(lightDirection, -uniforms.direction))
-    {
-        // Compute the light by taking the dot product
-        // of the normal with the direction to the light:
-        light = dot(normal, lightDirection);
+    let direction = dot(lightDirection, -uniforms.direction);
 
-        let cameraDirection = normalize(vertex.cameraVector);
+    // Lerp between light limits to avoid dividing by zero:
+    let inside = smoothstep(uniforms.limit.y, uniforms.limit.x, direction);
 
-        // Calculate the amount of light reflected into the camera:
-        specular = dot(normal, normalize(lightDirection + cameraDirection));
+    // Compute the light by taking the dot product
+    // of the normal with the direction to the light:
+    let light = dot(normal, lightDirection) * inside;
 
-        // Avoid negative specular values without a conditional statement:
-        specular = pow(max(0, specular), uniforms.intensity);
-    }
+    let cameraDirection = normalize(vertex.cameraVector);
+
+    // Calculate the amount of light reflected into the camera:
+    var specular = dot(normal, normalize(lightDirection + cameraDirection));
+
+    // Avoid negative specular values without a conditional statement:
+    specular = pow(max(0, specular), uniforms.intensity) * inside;
 
     let color = uniforms.color.rgb * light + specular;
 
