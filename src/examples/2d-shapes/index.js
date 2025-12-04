@@ -4,7 +4,7 @@
  * @description This example is developed by using a version listed below.
  * Please note that this code may be simplified in future
  * thanks to more recent library APIs.
- * @version 0.2.1
+ * @version 0.2.3
  * @license MIT
  */
 
@@ -122,10 +122,10 @@ export async function run(canvas)
 
         scene.Traverse(shape =>
         {
-            const { min, max } = shape.BoundingBox, [x, y] = shape.Position, dir = direction[s];
+            const { Min, Max } = shape.BoundingBox, [x, y] = shape.Position, dir = direction[s];
 
-            if (min[0] <= 0 || max[0] >= width)  { dir[0] *= -1; shape.Material.Color = randomColor(); }
-            if (min[1] <= 0 || max[1] >= height) { dir[1] *= -1; shape.Material.Color = randomColor(); }
+            if (Min[0] <= 0 || Max[0] >= width)  { dir[0] *= -1; shape.Material.Color = randomColor(); }
+            if (Min[1] <= 0 || Max[1] >= height) { dir[1] *= -1; shape.Material.Color = randomColor(); }
 
             shape.Position = [x + dir[0] * speed[s], y + dir[1] * speed[s]];
             shape.Rotation += spin[s++];

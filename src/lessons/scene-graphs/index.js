@@ -224,8 +224,7 @@ import Cube from "./Cube.wgsl";
 
     function addMesh(label, parent, transform, material)
     {
-        // When `material` is not defined, `null` has to be passed explicitly:
-        const cube = new Mesh(CubeGeometry, material ?? null, label, parent);
+        const cube = new Mesh(CubeGeometry, material, label, parent);
 
         cube.SetRenderPipeline(CubePipeline);
         CubePipeline.AddVertexBuffers(colorBuffer);
