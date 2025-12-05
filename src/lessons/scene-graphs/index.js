@@ -3,8 +3,8 @@
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Scene Graphs
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-scene-graphs.html}&nbsp;
- * and developed by using a version listed below. Please note that this code
- * may be simplified in future thanks to more recent library APIs.
+ * and developed using the version listed below. Please note that this code
+ * may be simplified in the future thanks to more recent library APIs.
  * @version 0.2.1
  * @license MIT
  */

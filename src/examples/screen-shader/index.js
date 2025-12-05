@@ -3,8 +3,8 @@
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This example is inspired by OGL's "Triangle Screen Shader"
  * {@link https://oframe.github.io/ogl/examples/?src=triangle-screen-shader.html}&nbsp;
- * and developed by using a version listed below. Please note that this code
- * may be simplified in future thanks to more recent library APIs.
+ * and developed using the version listed below. Please note that this code
+ * may be simplified in the future thanks to more recent library APIs.
  * @version 0.2.0
  * @license MIT
  */
