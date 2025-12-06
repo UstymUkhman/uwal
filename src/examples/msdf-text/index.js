@@ -38,7 +38,12 @@ export async function run(canvas)
         alert(error);
     }
 
+    const data = new Float32Array(5);
     const dark = new Color(0x2e3440);
+    const light = new Color(0x88c0d0);
+
+    const position = { x: -1.0, y: -1.0 };
+    let rows = 0, columns = 0, delays = [];
     const Camera = new PerspectiveCamera();
 
     Renderer.CreatePassDescriptor(
@@ -68,11 +73,6 @@ export async function run(canvas)
     canvas.addEventListener("touchend", onOut);
 
     await Characters.LoadFont(FontURL, true);
-    let rows = 0, columns = 0, delays = [];
-    const position = { x: -1.0, y: -1.0 };
-
-    const light = new Color(0x88c0d0);
-    const data = new Float32Array(5);
 
     function clean()
     {

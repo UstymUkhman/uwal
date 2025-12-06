@@ -26,5 +26,9 @@
     {
         "name": "MSDF Text",
         "slug": "msdf-text"
+    },
+    {
+        "name": "Compute Texture",
+        "slug": "compute-texture"
     }
 ]

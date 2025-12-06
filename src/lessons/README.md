@@ -45,3 +45,4 @@
 | [Directional Lighting](https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-directional.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#directional-lighting) | [Code](./directional-lighting/index.js) |
 | [Point Lighting](https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-point.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#point-lighting) | [Code](./point-lighting/index.js) |
 | [Spot Lighting](https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-spot.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#spot-lighting) | [Code](./spot-lighting/index.js) |
+<!-- | 2D Lighting | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#2d-lighting) | [Code](./2d-lighting/index.js) | -->
