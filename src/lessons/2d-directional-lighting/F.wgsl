@@ -11,8 +11,8 @@ struct VertexOutput
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(0) var<uniform> shapeModelViewProjection: mat3x3f;
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
+@group(0) @binding(0) var<uniform> shapeModelViewProjection: mat3x3f;
 
 fn GetVertexClipSpace(position: vec2f) -> vec4f
 {

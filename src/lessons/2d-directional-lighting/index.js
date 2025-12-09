@@ -1,5 +1,5 @@
 /**
- * @module 2D Lighting
+ * @module 2D Directional Lighting
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is developed using the version listed below. Please note
  * that this code may be simplified in the future thanks to more recent library APIs.
@@ -25,7 +25,7 @@ import createVertices from "../matrix-math/F.js";
 
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "2D Lighting"));
+        Renderer = new (await Device.Renderer(canvas, "2D Directional Lighting"));
     }
     catch (error)
     {
@@ -52,16 +52,16 @@ import createVertices from "../matrix-math/F.js";
     });
 
     const shape = new Shape(geometry, null);
-    const light = MathUtils.Vec3.create(0, 0, -1);
     shape.SetRenderPipeline(RenderPipeline, buffer);
 
-    MathUtils.Mat4.identity(uniforms.normal);
-    MathUtils.Vec3.normalize(light, light);
-    uniforms.color.set([0.5, 1, 0.5, 1]);
-    uniforms.light.set(light);
+    const light = MathUtils.Vec3.create(0, 0, -1);
+    MathUtils.Vec3.normalize(light, uniforms.light);
 
-    shape.Position = [512, 512];
-    shape.Scaling = [2, 2];
+    MathUtils.Mat4.identity(uniforms.normal);
+    uniforms.color.set([0.5, 1, 0.5, 1]);
+
+    shape.Position = [300, 200];
+    shape.Origin = [50, 75];
     scene.Add(shape);
 
     function render()
