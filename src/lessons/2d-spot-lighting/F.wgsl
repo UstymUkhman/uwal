@@ -5,7 +5,9 @@ struct Uniforms
     camera: vec3f,
     world: mat4x4f,
     normal: mat3x3f,
-    intensity: f32
+    direction: vec3f,
+    intensity: f32,
+    limit: vec2f
 };
 
 struct VertexOutput
@@ -47,16 +49,21 @@ fn GetVertexClipSpace(position: vec2f) -> vec4f
 
 @fragment fn fragment(vertex: VertexOutput) -> @location(0) vec4f
 {
-    // Convert the vertex to light vector to a unit vector:
-    let lightDirection = normalize(vertex.lightVector);
-
     // `vertex.normal` is interpolated so it's not a unit vector.
     // Normalizing it will make it a unit vector again:
     let normal = normalize(vertex.normal);
 
+    // Convert the vertex to light vector to a unit vector:
+    let lightDirection = normalize(vertex.lightVector);
+
+    let direction = dot(lightDirection, -uniforms.direction);
+
+    // Lerp between light limits to avoid dividing by zero:
+    let inside = smoothstep(uniforms.limit.y, uniforms.limit.x, direction);
+
     // Compute the light by taking the dot product
     // of the normal with the direction to the light:
-    let light = dot(normal, lightDirection);
+    let light = dot(normal, lightDirection) * inside;
 
     let cameraDirection = normalize(vertex.cameraVector);
 
@@ -64,9 +71,8 @@ fn GetVertexClipSpace(position: vec2f) -> vec4f
     var specular = dot(normal, normalize(lightDirection + cameraDirection));
 
     // Avoid negative specular values without a conditional statement:
-    specular = pow(max(0, specular), uniforms.intensity);
+    specular = pow(max(0, specular), uniforms.intensity) * inside;
 
     let color = uniforms.color.rgb * light + specular;
-
     return vec4f(color, uniforms.color.a);
 }

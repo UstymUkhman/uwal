@@ -54,7 +54,6 @@ import createVertices from "../directional-lighting/F.js";
         innerLimit: MathUtils.DegreesToRadians(15),
         outerLimit: MathUtils.DegreesToRadians(25),
         rotation: MathUtils.DegreesToRadians(0),
-        limit: MathUtils.DegreesToRadians(15),
         aimOffsetX: -10,
         aimOffsetY: 10,
         shininess: 30
