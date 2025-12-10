@@ -8,14 +8,16 @@
  * @license MIT
  */
 
+import ComputeShader from "./Compute.wgsl";
 import { Device, Shaders } from "#/index";
-import Compute from "./Compute.wgsl";
-import Render from "./Render.wgsl";
+import RenderShader from "./Render.wgsl";
 
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
+/** @type {unknown} */ let UniformsBuffer;
 /** @type {Computation} */ let Computation;
 /** @type {ResizeObserver} */ let observer;
+/** @type {ComputePipeline} */ let ComputePipeline;
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
@@ -30,18 +32,14 @@ export async function run(canvas)
         alert(error);
     }
 
+    canvas.removeEventListener("touchend", onOut);
+    canvas.removeEventListener("mouseleave", onOut);
+    canvas.removeEventListener("touchmove", onOver);
+    canvas.removeEventListener("mousemove", onOver);
+    canvas.removeEventListener("touchstart", onOver);
+    canvas.removeEventListener("mouseenter", onOver);
+
     const Texture = new (await Device.Texture(Renderer));
-
-    function clean() { cancelAnimationFrame(raf); }
-
-    function start()
-    {
-        createComputePipeline().then((texture) =>
-            createRenderPipeline(texture).then(() =>
-                ~Computation.Compute() && Renderer.Render()
-            )
-        );
-    }
 
     async function createComputePipeline(workgroupDimension = 8)
     {
@@ -51,41 +49,69 @@ export async function run(canvas)
         const textureBinding = "@group(0) @binding(0) var texture:";
         const textureStorage = `texture_storage_2d<${format}, write>;`;
 
-        const ComputePipeline = await Computation.CreatePipeline({
-            shader: [`${textureBinding} ${textureStorage}`, Compute],
+        ComputePipeline = await Computation.CreatePipeline({
+            shader: [`${textureBinding} ${textureStorage}`, ComputeShader],
             constants: { DIMENSION_SIZE: workgroupDimension }
         });
 
-        Computation.Workgroups = Renderer.CanvasSize.map(
-            size => size / workgroupDimension
-        );
+        UniformsBuffer = ComputePipeline.CreateUniformBuffer("uniforms");
+        ComputePipeline.SetBindGroupFromResources([texture, UniformsBuffer.buffer]);
+        Computation.Workgroups = Renderer.CanvasSize.map(size => size / workgroupDimension);
 
-        ComputePipeline.SetBindGroups(
-            ComputePipeline.CreateBindGroup(
-                ComputePipeline.CreateBindGroupEntries(
-                    texture
-                )
-            )
-        );
+        UniformsBuffer.uniforms.mouse.fill(Infinity);
+
+        canvas.addEventListener("mouseenter", onOver);
+        canvas.addEventListener("touchstart", onOver);
+        canvas.addEventListener("mousemove", onOver);
+        canvas.addEventListener("touchmove", onOver);
+        canvas.addEventListener("mouseleave", onOut);
+        canvas.addEventListener("touchend", onOut);
 
         return texture;
     }
 
     async function createRenderPipeline(texture)
     {
-        const RenderPipeline = await Renderer.CreatePipeline([
-            Shaders.Fullscreen, Render
-        ]);
-
-        RenderPipeline.SetBindGroups(
-            RenderPipeline.CreateBindGroup(
-                RenderPipeline.CreateBindGroupEntries([
-                    Texture.CreateSampler(), texture
-                ])
-            )
-        );
-
+        const RenderPipeline = await Renderer.CreatePipeline([Shaders.Fullscreen, RenderShader]);
+        RenderPipeline.SetBindGroupFromResources([Texture.CreateSampler(), texture]);
         RenderPipeline.SetDrawParams(3);
+    }
+
+    function onOver(event)
+    {
+        UniformsBuffer.uniforms.mouse[0] = event.touches?.[0].clientX ?? event.offsetX;
+        UniformsBuffer.uniforms.mouse[1] = canvas.offsetHeight - (event.touches?.[0].clientY ?? event.offsetY);
+    }
+
+    function onOut()
+    {
+        UniformsBuffer.uniforms.mouse.fill(Infinity);
+    }
+
+    function clean()
+    {
+        cancelAnimationFrame(raf);
+        UniformsBuffer?.buffer.destroy();
+    }
+
+    function start()
+    {
+        createComputePipeline().then((texture) =>
+            createRenderPipeline(texture).then(render)
+        );
+    }
+
+    function render(time)
+    {
+        raf = requestAnimationFrame(render);
+        UniformsBuffer.uniforms.time[0] = time * 0.001;
+
+        // By passing `UniformsBuffer.uniforms.time.buffer`, we're also
+        // writing `UniformsBuffer.uniforms.mouse` coordinates to the GPUBuffer:
+        ComputePipeline.WriteBuffer(UniformsBuffer.buffer, UniformsBuffer.uniforms.time.buffer);
+
+        Computation.Compute();
+        Renderer.Render();
     }
 
     observer = new ResizeObserver(entries =>
@@ -110,5 +136,5 @@ export function destroy()
     observer.disconnect();
     Computation.Destroy();
     Renderer.Destroy();
-    Device.Destroy();
+    Device.Destroy(UniformsBuffer.buffer);
 }
