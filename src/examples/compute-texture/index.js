@@ -48,12 +48,17 @@ export async function run(canvas)
         const format = Texture.PreferredStorageFormat;
         const texture = Texture.CreateStorageTexture();
 
+        const textureBinding = "@group(0) @binding(0) var texture:";
+        const textureStorage = `texture_storage_2d<${format}, write>;`;
+
         const ComputePipeline = await Computation.CreatePipeline({
-            shader: [`@group(0) @binding(0) var texture: texture_storage_2d<${format}, write>;`, Compute],
+            shader: [`${textureBinding} ${textureStorage}`, Compute],
             constants: { DIMENSION_SIZE: workgroupDimension }
         });
 
-        Computation.Workgroups = Renderer.CanvasSize.map(size => size / workgroupDimension);
+        Computation.Workgroups = Renderer.CanvasSize.map(
+            size => size / workgroupDimension
+        );
 
         ComputePipeline.SetBindGroups(
             ComputePipeline.CreateBindGroup(
