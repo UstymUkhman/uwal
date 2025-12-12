@@ -193,7 +193,7 @@ export async function run(canvas)
         for (const entry of entries)
         {
             let { inlineSize: width, blockSize: height } = entry.contentBoxSize[0];
-            width = (width <= 960 && width) || width - 240;
+            width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
             Renderer.SetCanvasSize(width, height);
 
             perspectiveCamera.ResetLocalMatrix();

@@ -181,8 +181,8 @@ export async function run(canvas)
     {
         for (const entry of entries)
         {
-            const { inlineSize, blockSize } = entry.contentBoxSize[0];
-            const width = (inlineSize <= 960 && inlineSize) || inlineSize - 240;
+            let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
+            width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
             Renderer.SetCanvasSize(width, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
             Camera.UpdateViewProjectionMatrix();

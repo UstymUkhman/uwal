@@ -152,7 +152,7 @@ export async function run(canvas)
         {
             Renderer.DevicePixelRatio = document.body.offsetWidth > 960 && devicePixelRatio || 1;
             let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
-            width = (width <= 960 && width) || width - 240;
+            width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
             Renderer.SetCanvasSize(width, blockSize);
         }
 
