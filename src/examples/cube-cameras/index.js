@@ -4,7 +4,7 @@
  * @description This example is developed using the version listed below.
  * Please note that this code may be simplified in the future
  * thanks to more recent library APIs.
- * @version 0.2.0
+ * @version 0.2.3
  * @license MIT
  */
 
@@ -62,7 +62,7 @@ export async function run(canvas)
     const nextOrthographicRotation = MathUtils.Vec3.create();
     const initialPerspectiveRotation = MathUtils.Vec3.create();
 
-    const module = CubePipeline.CreateShaderModule([Shaders.CubeVertex, Cube]);
+    const module = CubePipeline.CreateShaderModule([Shaders.MeshVertex, Cube]);
 
     const { buffer: textureCoordsBuffer, layout: textureCoordsLayout } =
         CubeGeometry.CreateTextureCoordsBuffer(CubePipeline, void 0, void 0, "cubeVertex");

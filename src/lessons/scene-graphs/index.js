@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-scene-graphs.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.2.1
+ * @version 0.2.3
  * @license MIT
  */
 
@@ -121,7 +121,7 @@ import Cube from "./Cube.wgsl";
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
     const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;
 
-    const module = CubePipeline.CreateShaderModule([Shaders.Cube, Cube]);
+    const module = CubePipeline.CreateShaderModule([Shaders.Mesh, Cube]);
     const { layout: colorLayout, buffer: colorBuffer } = createVertexColors();
 
     await Renderer.AddPipeline(CubePipeline, {
