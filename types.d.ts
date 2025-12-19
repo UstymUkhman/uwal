@@ -26,3 +26,11 @@ export
     Camera2D
 }
 from "./types/cameras";
+
+export
+{
+    DirectionalLight //,
+    // PointLight,
+    // SpotLight
+}
+from "./types/lights";
