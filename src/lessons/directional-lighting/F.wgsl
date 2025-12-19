@@ -17,7 +17,7 @@ struct VertexOutput
     var output: VertexOutput;
 
     output.normal = GetVertexNormal(MeshUniforms.worldNormal, normal);
-    output.position = MeshUniforms.modelViewProjection * position;
+    output.position = GetVertexClipSpace(position);
 
     return output;
 }

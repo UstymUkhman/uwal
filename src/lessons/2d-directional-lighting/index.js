@@ -56,8 +56,8 @@ import createVertices from "../matrix-math/F.js";
 
     const shape = new Shape(geometry, null);
     shape.SetRenderPipeline(RenderPipeline, buffer);
-    uniforms.color.set([0.5, 1, 0.5, 1]);
 
+    uniforms.color.set([0.5, 1, 0.5, 1]);
     uniforms.light.set(new DirectionalLight().Direction);
     RenderPipeline.WriteBuffer(buffer, uniforms.light.buffer);
 

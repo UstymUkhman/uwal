@@ -44,27 +44,28 @@ import createVertices from "../directional-lighting/F.js";
     const FGeometry = new Geometries.Mesh();
     const FMesh = new Mesh(FGeometry, null);
     const FPipeline = new Renderer.Pipeline();
+    const vertexEntry = [void 0, "meshVertex"];
 
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(),
         Renderer.CreateDepthStencilAttachment()
     );
 
-    const module = FPipeline.CreateShaderModule(FShader);
+    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.MeshVertex, FShader]);
     const { uniforms, buffer } = FPipeline.CreateUniformBuffer("uniforms");
     const settings = { rotation: MathUtils.DegreesToRadians(0), shininess: 30 };
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
 
     const vertexBuffers = [
-        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }),
-        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" })
+        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, ...vertexEntry),
+        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, ...vertexEntry)
     ];
 
     const { vertexData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
-        vertex: FPipeline.CreateVertexState(module, vertexBuffers),
+        vertex: FPipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
         depthStencil: FPipeline.CreateDepthStencilState(),
         fragment: FPipeline.CreateFragmentState(module),
         primitive: FPipeline.CreatePrimitiveState()
@@ -89,10 +90,7 @@ import createVertices from "../directional-lighting/F.js";
 
         const world = MathUtils.Mat4.rotationY(settings.rotation, uniforms.world);
 
-        // Compute a world matrix, then inverse and transpose it into the normal matrix:
-        MathUtils.Mat3.fromMat4(MathUtils.Mat4.transpose(MathUtils.Mat4.inverse(world)), uniforms.normal);
-
-        FPipeline.WriteBuffer(buffer, uniforms.normal.buffer);
+        FPipeline.WriteBuffer(buffer, uniforms.world.buffer);
         FMesh.Rotation = [0, settings.rotation, 0];
         Renderer.Render(scene);
     }

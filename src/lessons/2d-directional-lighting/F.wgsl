@@ -16,7 +16,7 @@ struct VertexOutput
 {
     var output: VertexOutput;
 
-    output.normal = GetVertexNormal(ShapeUniforms.worldNormal, vec3(0, 0, 1));
+    output.normal = GetVertexNormal(ShapeUniforms.worldNormal, vec3f(0, 0, 1));
     output.position = GetVertexClipSpace(position);
 
     return output;

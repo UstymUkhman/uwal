@@ -4,7 +4,6 @@ struct Uniforms
     light: vec3f,
     camera: vec3f,
     world: mat4x4f,
-    normal: mat3x3f,
     intensity: f32
 };
 
@@ -17,11 +16,12 @@ struct VertexOutput
 };
 
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
-@group(0) @binding(0) var<uniform> meshModelViewProjection: mat4x4f;
 
-@vertex fn vertex(@location(0) position: vec4f, @location(1) normal: vec3f) -> VertexOutput
+@vertex fn meshVertex(@location(0) position: vec4f, @location(1) normal: vec3f) -> VertexOutput
 {
     var output: VertexOutput;
+
+    output.position = GetVertexClipSpace(position);
 
     // Compute the world position of the vertex:
     let worldPosition = (uniforms.world * position).xyz;
@@ -32,10 +32,8 @@ struct VertexOutput
     // Compute the vector of the vertex to the camera position:
     output.cameraVector = uniforms.camera - worldPosition;
 
-    output.position = meshModelViewProjection * position;
-
     // Orient the normals and pass them to the fragment shader:
-    output.normal = uniforms.normal * normal;
+    output.normal = GetVertexNormal(MeshUniforms.worldNormal, normal);
 
     return output;
 }

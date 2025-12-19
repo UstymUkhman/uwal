@@ -45,6 +45,7 @@ import createVertices from "./F.js";
     const FGeometry = new Geometries.Mesh();
     const FMesh = new Mesh(FGeometry, null);
     const FPipeline = new Renderer.Pipeline();
+    const vertexEntry = [void 0, "meshVertex"];
 
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(),
@@ -57,30 +58,31 @@ import createVertices from "./F.js";
     const { uniforms, buffer } = FPipeline.CreateUniformBuffer("uniforms");
 
     const vertexBuffers = [
-        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, void 0, "meshVertex"),
-        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, void 0, "meshVertex")
+        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, ...vertexEntry),
+        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, ...vertexEntry)
     ];
 
     const { vertexData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
-        vertex: FPipeline.CreateVertexState(module, vertexBuffers, void 0, "meshVertex"),
+        vertex: FPipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
         depthStencil: FPipeline.CreateDepthStencilState(),
         fragment: FPipeline.CreateFragmentState(module),
         primitive: FPipeline.CreatePrimitiveState()
     }), buffer);
 
-    uniforms.light.set(new DirectionalLight(MathUtils.Vec3.create(-0.5, -0.7, -1)).Direction);
+    const direction = MathUtils.Vec3.create(-0.5, -0.7, -1);
+    uniforms.light.set(new DirectionalLight(direction).Direction);
     uniforms.color.set(new Color(0x33ff33).rgba);
     FPipeline.WriteBuffer(buffer, uniforms.light.buffer);
 
     FGeometry.CreateVertexBuffer(FPipeline, vertexData);
     FPipeline.WriteBuffer(normalBuffer, normalData);
     gui.add(settings, "rotation", radToDegOptions);
+
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);
-
     scene.Add(FMesh);
 
     function render()

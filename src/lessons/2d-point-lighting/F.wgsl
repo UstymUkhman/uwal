@@ -4,7 +4,6 @@ struct Uniforms
     light: vec3f,
     camera: vec3f,
     world: mat4x4f,
-    normal: mat3x3f,
     intensity: f32
 };
 
@@ -17,14 +16,8 @@ struct VertexOutput
 };
 
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
-@group(0) @binding(0) var<uniform> shapeModelViewProjection: mat3x3f;
 
-fn GetVertexClipSpace(position: vec2f) -> vec4f
-{
-    return vec4f((shapeModelViewProjection * vec3f(position, 1)).xy, 0, 1);
-}
-
-@vertex fn vertex(@location(0) position: vec2f) -> VertexOutput
+@vertex fn shapeVertex(@location(0) position: vec2f) -> VertexOutput
 {
     var output: VertexOutput;
 
@@ -37,10 +30,10 @@ fn GetVertexClipSpace(position: vec2f) -> vec4f
     // Compute the vector of the vertex to the camera position:
     output.cameraVector = uniforms.camera - worldPosition;
 
-    output.position = GetVertexClipSpace(position);
-
     // Orient the normals and pass them to the fragment shader:
-    output.normal = uniforms.normal * vec3f(0, 0, 1);
+    output.normal = GetVertexNormal(ShapeUniforms.worldNormal, vec3f(0, 0, 1));
+
+    output.position = GetVertexClipSpace(position);
 
     return output;
 }

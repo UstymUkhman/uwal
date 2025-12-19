@@ -11,6 +11,7 @@ import {
     Scene,
     Shape,
     Device,
+    Shaders,
     Camera2D,
     MathUtils,
     Geometries
@@ -41,17 +42,17 @@ import createVertices from "../matrix-math/F.js";
 
     const RenderPipeline = new Renderer.Pipeline();
     const { vertexData, indexData } = createVertices();
-    const module = RenderPipeline.CreateShaderModule(FShader);
 
+    const module = RenderPipeline.CreateShaderModule([Shaders.Light, Shaders.ShapeVertex, FShader]);
     const { uniforms, buffer } = RenderPipeline.CreateUniformBuffer("uniforms");
     const geometry = new Geometries.Shape({ radius: 75, indexFormat: "uint32" });
-
     geometry.IndexData = indexData; geometry.VertexData = vertexData;
 
     await Renderer.AddPipeline(RenderPipeline, {
         fragment: RenderPipeline.CreateFragmentState(module),
         vertex: RenderPipeline.CreateVertexState(module,
-            geometry.GetPositionBufferLayout(RenderPipeline)
+            geometry.GetPositionBufferLayout(RenderPipeline),
+            void 0, "shapeVertex"
         )
     });
 
@@ -59,9 +60,7 @@ import createVertices from "../matrix-math/F.js";
     shape.SetRenderPipeline(RenderPipeline, buffer);
     gui.add(settings, "shininess", { min: 1, max: 250 });
 
-    MathUtils.Mat4.identity(uniforms.normal);
     MathUtils.Mat4.identity(uniforms.world);
-
     uniforms.color.set([0.5, 1, 0.5, 1]);
     uniforms.light.set([60, 65, 70]);
 
@@ -74,7 +73,7 @@ import createVertices from "../matrix-math/F.js";
         uniforms.intensity[0] = settings.shininess;
         uniforms.camera.set([...Camera.Position, 200]);
 
-        RenderPipeline.WriteBuffer(buffer, uniforms.normal.buffer);
+        RenderPipeline.WriteBuffer(buffer, uniforms.world.buffer);
         Renderer.Render(scene);
     }
 
