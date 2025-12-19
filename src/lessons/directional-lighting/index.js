@@ -17,6 +17,7 @@ import {
     Shaders,
     MathUtils,
     Geometries,
+    DirectionalLight,
     PerspectiveCamera
 } from "#/index";
 
@@ -50,25 +51,29 @@ import createVertices from "./F.js";
         Renderer.CreateDepthStencilAttachment()
     );
 
-    const module = FPipeline.CreateShaderModule(FShader);
     const settings = { rotation: MathUtils.DegreesToRadians(0) };
-    const { uniforms, buffer } = FPipeline.CreateUniformBuffer("uniforms");
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
+    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.MeshVertex, FShader]);
+    const { uniforms, buffer } = FPipeline.CreateUniformBuffer("uniforms");
 
     const vertexBuffers = [
-        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }),
-        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" })
+        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, void 0, "meshVertex"),
+        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, void 0, "meshVertex")
     ];
 
     const { vertexData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
-        vertex: FPipeline.CreateVertexState(module, vertexBuffers),
+        vertex: FPipeline.CreateVertexState(module, vertexBuffers, void 0, "meshVertex"),
         depthStencil: FPipeline.CreateDepthStencilState(),
         fragment: FPipeline.CreateFragmentState(module),
         primitive: FPipeline.CreatePrimitiveState()
     }), buffer);
+
+    uniforms.light.set(new DirectionalLight(MathUtils.Vec3.create(-0.5, -0.7, -1)).Direction);
+    uniforms.color.set(new Color(0x33ff33).rgba);
+    FPipeline.WriteBuffer(buffer, uniforms.light.buffer);
 
     FGeometry.CreateVertexBuffer(FPipeline, vertexData);
     FPipeline.WriteBuffer(normalBuffer, normalData);
@@ -76,22 +81,11 @@ import createVertices from "./F.js";
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);
 
-    const light = MathUtils.Vec3.create(-0.5, -0.7, -1);
-    uniforms.color.set(new Color(0x33ff33).rgba);
-    MathUtils.Vec3.normalize(light, light);
-    uniforms.light.set(light);
     scene.Add(FMesh);
 
     function render()
     {
         FMesh.Rotation = [0, settings.rotation, 0];
-        const world = MathUtils.Mat4.rotationY(settings.rotation);
-
-        // Compute a world matrix, then inverse and transpose it into the normal matrix:
-        MathUtils.Mat3.fromMat4(MathUtils.Mat4.transpose(MathUtils.Mat4.inverse(world)), uniforms.normal);
-
-        FPipeline.WriteBuffer(buffer, uniforms.normal.buffer);
-
         Renderer.Render(scene);
     }
 

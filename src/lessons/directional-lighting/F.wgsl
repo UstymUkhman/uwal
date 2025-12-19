@@ -1,8 +1,7 @@
 struct Uniforms
 {
     color: vec4f,
-    light: vec3f,
-    normal: mat3x3f
+    light: vec3f
 };
 
 struct VertexOutput
@@ -12,21 +11,19 @@ struct VertexOutput
 };
 
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
-@group(0) @binding(0) var<uniform> meshModelViewProjection: mat4x4f;
 
-@vertex fn vertex(@location(0) position: vec4f, @location(1) normal: vec3f) -> VertexOutput
+@vertex fn meshVertex(@location(0) position: vec4f, @location(1) normal: vec3f) -> VertexOutput
 {
-    // Orient the normals before passing them to the fragment shader:
-    return VertexOutput(uniforms.normal * normal, meshModelViewProjection * position);
+    var output: VertexOutput;
+
+    output.normal = GetVertexNormal(MeshUniforms.worldNormal, normal);
+    output.position = MeshUniforms.modelViewProjection * position;
+
+    return output;
 }
 
 @fragment fn fragment(@location(0) normal: vec3f) -> @location(0) vec4f
 {
-    // `normal` is interpolated so it's not a unit vector.
-    // Normalizing it will make it a unit vector again.
-    // Compute the light by taking the dot product
-    // of the normal to the light's reverse direction:
-    let light = dot(normalize(normal), -uniforms.light);
-
+    let light = GetDirectionalLight(uniforms.light, normal);
     return vec4f(uniforms.color.rgb * light, uniforms.color.a);
 }
