@@ -29,8 +29,8 @@ from "./types/cameras";
 
 export
 {
-    DirectionalLight //,
-    // PointLight,
+    DirectionalLight,
+    PointLight //,
     // SpotLight
 }
 from "./types/lights";
