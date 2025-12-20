@@ -1,10 +1,16 @@
 struct ShapeMatrixUniforms
 {
+    world: mat3x3f,
     worldNormal: mat3x3f,
     modelViewProjection: mat3x3f
 };
 
 @group(0) @binding(0) var<uniform> ShapeUniforms: ShapeMatrixUniforms;
+
+fn GetVertexWorldPosition(position: vec2f) -> vec3f
+{
+    return ShapeUniforms.world * vec3f(position, 0);
+}
 
 fn GetVertexClipSpace(position: vec2f) -> vec4f
 {
