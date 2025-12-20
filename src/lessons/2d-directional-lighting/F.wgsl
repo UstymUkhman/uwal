@@ -1,16 +1,10 @@
-struct Uniforms
-{
-    color: vec4f,
-    light: vec3f
-};
-
 struct VertexOutput
 {
     @location(0) normal: vec3f,
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(1) var<uniform> uniforms: Uniforms;
+@group(0) @binding(2) var<uniform> light: vec3f;
 
 @vertex fn shapeVertex(@location(0) position: vec2f) -> VertexOutput
 {
@@ -22,8 +16,8 @@ struct VertexOutput
     return output;
 }
 
-@fragment fn fragment(@location(0) normal: vec3f) -> @location(0) vec4f
+@fragment fn shapeFragment(@location(0) normal: vec3f) -> @location(0) vec4f
 {
-    let light = GetDirectionalLight(uniforms.light, normal);
-    return vec4f(uniforms.color.rgb * light, uniforms.color.a);
+    let light = GetDirectionalLight(light, normal);
+    return vec4f(color.rgb * light, color.a);
 }

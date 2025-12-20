@@ -8,11 +8,13 @@
  */
 
 import {
+    Color,
     Scene,
     Shape,
     Device,
     Shaders,
     Camera2D,
+    Materials,
     MathUtils,
     Geometries,
     DirectionalLight
@@ -40,26 +42,28 @@ import createVertices from "../matrix-math/F.js";
     const RenderPipeline = new Renderer.Pipeline();
     const { vertexData, indexData } = createVertices();
 
-    const module = RenderPipeline.CreateShaderModule([Shaders.Light, Shaders.ShapeVertex, FShader]);
-    const { uniforms, buffer } = RenderPipeline.CreateUniformBuffer("uniforms");
+    const module = RenderPipeline.CreateShaderModule([Shaders.Light, Shaders.Shape, FShader]);
+    const { light, buffer } = RenderPipeline.CreateUniformBuffer("light");
 
     const geometry = new Geometries.Shape({ radius: 75, indexFormat: "uint32" });
     geometry.IndexData = indexData; geometry.VertexData = vertexData;
 
     await Renderer.AddPipeline(RenderPipeline, {
-        fragment: RenderPipeline.CreateFragmentState(module),
+        fragment: RenderPipeline.CreateFragmentState(
+                module, void 0, void 0, "shapeFragment"
+        ),
+
         vertex: RenderPipeline.CreateVertexState(module,
             geometry.GetPositionBufferLayout(RenderPipeline),
             void 0, "shapeVertex"
         )
     });
 
-    const shape = new Shape(geometry, null);
+    const shape = new Shape(geometry, new Materials.Color(0x33ff33));
     shape.SetRenderPipeline(RenderPipeline, buffer);
 
-    uniforms.color.set([0.5, 1, 0.5, 1]);
-    uniforms.light.set(new DirectionalLight().Direction);
-    RenderPipeline.WriteBuffer(buffer, uniforms.light.buffer);
+    light.set(new DirectionalLight().Direction);
+    RenderPipeline.WriteBuffer(buffer, light.buffer);
 
     shape.Position = [300, 200];
     shape.Origin = [50, 75];
