@@ -3,8 +3,8 @@
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This lesson is reproduced from WebGPU Point Lighting
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-point.html}&nbsp;
- * and developed by using a version listed below. Please note that this code
- * may be simplified in future thanks to more recent library APIs.
+ * and developed using the version listed below. Please note that this code
+ * may be simplified in the future thanks to more recent library APIs.
  * @version 0.2.3
  * @license MIT
  */
@@ -15,8 +15,10 @@ import {
     Scene,
     Device,
     Shaders,
+    Materials,
     MathUtils,
     Geometries,
+    PointLight,
     PerspectiveCamera
 } from "#/index";
 
@@ -42,54 +44,55 @@ import createVertices from "../directional-lighting/F.js";
 
     const Camera = new PerspectiveCamera();
     const FGeometry = new Geometries.Mesh();
-    const FMesh = new Mesh(FGeometry, null);
     const FPipeline = new Renderer.Pipeline();
+    const vertexEntry = [void 0, "meshVertex"];
 
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(),
         Renderer.CreateDepthStencilAttachment()
     );
 
-    const module = FPipeline.CreateShaderModule(FShader);
-    const settings = { rotation: MathUtils.DegreesToRadians(0) };
+    const FMesh = new Mesh(FGeometry, new Materials.Color(0x33ff33));
+    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Mesh, FShader]);
     const { uniforms, buffer } = FPipeline.CreateUniformBuffer("uniforms");
+
+    const settings = { rotation: MathUtils.DegreesToRadians(0), shininess: 30 };
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
 
     const vertexBuffers = [
-        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }),
-        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" })
+        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, ...vertexEntry),
+        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, ...vertexEntry)
     ];
 
     const { vertexData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
-        vertex: FPipeline.CreateVertexState(module, vertexBuffers),
+        fragment: FPipeline.CreateFragmentState(module, void 0, void 0, "meshFragment"),
+        vertex: FPipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
         depthStencil: FPipeline.CreateDepthStencilState(),
-        fragment: FPipeline.CreateFragmentState(module),
         primitive: FPipeline.CreatePrimitiveState()
     }), buffer);
 
+    gui.add(settings, "rotation", radToDegOptions);
+    gui.add(settings, "shininess", { min: 1, max: 250 });
+
     FGeometry.CreateVertexBuffer(FPipeline, vertexData);
     FPipeline.WriteBuffer(normalBuffer, normalData);
-    gui.add(settings, "rotation", radToDegOptions);
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);
 
-    uniforms.color.set(new Color(0x33ff33).rgba);
-    uniforms.light.set([-10, 30, 100]);
+    const light = new PointLight([-10, 30, 100]);
+    uniforms.light.set(light.Position);
     scene.Add(FMesh);
 
     function render()
     {
+        uniforms.camera.set(Camera.Position);
+        uniforms.intensity[0] = light.Intensity = settings.shininess;
+
+        FPipeline.WriteBuffer(buffer, uniforms.light.buffer);
         FMesh.Rotation = [0, settings.rotation, 0];
-        const world = MathUtils.Mat4.rotationY(settings.rotation, uniforms.world);
-
-        // Compute a world matrix, then inverse and transpose it into the normal matrix:
-        MathUtils.Mat3.fromMat4(MathUtils.Mat4.transpose(MathUtils.Mat4.inverse(world)), uniforms.normal);
-
-        FPipeline.WriteBuffer(buffer, uniforms.normal.buffer);
-
         Renderer.Render(scene);
     }
 

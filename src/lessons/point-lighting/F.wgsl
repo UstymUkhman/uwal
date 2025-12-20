@@ -1,9 +1,7 @@
 struct Uniforms
 {
-    color: vec4f,
     light: vec3f,
     camera: vec3f,
-    world: mat4x4f,
     intensity: f32
 };
 
@@ -15,7 +13,7 @@ struct VertexOutput
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(1) var<uniform> uniforms: Uniforms;
+@group(0) @binding(2) var<uniform> uniforms: Uniforms;
 
 @vertex fn meshVertex(@location(0) position: vec4f, @location(1) normal: vec3f) -> VertexOutput
 {
@@ -24,7 +22,7 @@ struct VertexOutput
     output.position = GetVertexClipSpace(position);
 
     // Compute the world position of the vertex:
-    let worldPosition = (uniforms.world * position).xyz;
+    let worldPosition = GetVertexWorldPosition(position);
 
     // Compute the vector of the vertex to the light position:
     output.lightVector = uniforms.light - worldPosition;
@@ -38,7 +36,7 @@ struct VertexOutput
     return output;
 }
 
-@fragment fn fragment(vertex: VertexOutput) -> @location(0) vec4f
+@fragment fn meshFragment(vertex: VertexOutput) -> @location(0) vec4f
 {
     // Convert the vertex to light vector to a unit vector:
     let lightDirection = normalize(vertex.lightVector);
@@ -59,6 +57,5 @@ struct VertexOutput
     // Avoid negative specular values without a conditional statement:
     specular = pow(max(0, specular), uniforms.intensity);
 
-    let color = uniforms.color.rgb * light + specular;
-    return vec4f(color, uniforms.color.a);
+    return vec4f(color.rgb * light + specular, color.a);
 }

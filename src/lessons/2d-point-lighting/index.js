@@ -8,13 +8,16 @@
  */
 
 import {
+    Color,
     Scene,
     Shape,
     Device,
     Shaders,
     Camera2D,
+    Materials,
     MathUtils,
-    Geometries
+    Geometries,
+    PointLight
 } from "#/index";
 
 import FShader from "./F.wgsl";
@@ -43,37 +46,35 @@ import createVertices from "../matrix-math/F.js";
     const RenderPipeline = new Renderer.Pipeline();
     const { vertexData, indexData } = createVertices();
 
-    const module = RenderPipeline.CreateShaderModule([Shaders.Light, Shaders.ShapeVertex, FShader]);
+    const module = RenderPipeline.CreateShaderModule([Shaders.Light, Shaders.Shape, FShader]);
     const { uniforms, buffer } = RenderPipeline.CreateUniformBuffer("uniforms");
     const geometry = new Geometries.Shape({ radius: 75, indexFormat: "uint32" });
     geometry.IndexData = indexData; geometry.VertexData = vertexData;
 
     await Renderer.AddPipeline(RenderPipeline, {
-        fragment: RenderPipeline.CreateFragmentState(module),
+        fragment: RenderPipeline.CreateFragmentState(module, void 0, void 0, "shapeFragment"),
         vertex: RenderPipeline.CreateVertexState(module,
             geometry.GetPositionBufferLayout(RenderPipeline),
             void 0, "shapeVertex"
         )
     });
 
-    const shape = new Shape(geometry, null);
-    shape.SetRenderPipeline(RenderPipeline, buffer);
+    const shape = new Shape(geometry, new Materials.Color(0x33ff33));
     gui.add(settings, "shininess", { min: 1, max: 250 });
+    shape.SetRenderPipeline(RenderPipeline, buffer);
 
-    MathUtils.Mat4.identity(uniforms.world);
-    uniforms.color.set([0.5, 1, 0.5, 1]);
-    uniforms.light.set([60, 65, 70]);
-
+    const light = new PointLight([60, 65, 70]);
+    uniforms.light.set(light.Position);
     shape.Position = [300, 200];
     shape.Origin = [50, 75];
     scene.Add(shape);
 
     function render()
     {
-        uniforms.intensity[0] = settings.shininess;
         uniforms.camera.set([...Camera.Position, 200]);
+        uniforms.intensity[0] = light.Intensity = settings.shininess;
 
-        RenderPipeline.WriteBuffer(buffer, uniforms.world.buffer);
+        RenderPipeline.WriteBuffer(buffer, uniforms.camera.buffer);
         Renderer.Render(scene);
     }
 
