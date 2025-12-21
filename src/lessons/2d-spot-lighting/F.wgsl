@@ -1,10 +1,7 @@
 struct Uniforms
 {
-    color: vec4f,
     light: vec3f,
     camera: vec3f,
-    world: mat4x4f,
-    normal: mat3x3f,
     direction: vec3f,
     intensity: f32,
     limit: vec2f
@@ -18,20 +15,14 @@ struct VertexOutput
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(1) var<uniform> uniforms: Uniforms;
-@group(0) @binding(0) var<uniform> shapeModelViewProjection: mat3x3f;
+@group(0) @binding(2) var<uniform> uniforms: Uniforms;
 
-fn GetVertexClipSpace(position: vec2f) -> vec4f
-{
-    return vec4f((shapeModelViewProjection * vec3f(position, 1)).xy, 0, 1);
-}
-
-@vertex fn vertex(@location(0) position: vec2f) -> VertexOutput
+@vertex fn shapeVertex(@location(0) position: vec2f) -> VertexOutput
 {
     var output: VertexOutput;
 
     // Compute the world position of the vertex:
-    let worldPosition = (uniforms.world * vec4f(position, 0, 0)).xyz;
+    let worldPosition = GetVertexWorldPosition(position);
 
     // Compute the vector of the vertex to the light position:
     output.lightVector = uniforms.light - worldPosition;
@@ -39,15 +30,15 @@ fn GetVertexClipSpace(position: vec2f) -> vec4f
     // Compute the vector of the vertex to the camera position:
     output.cameraVector = uniforms.camera - worldPosition;
 
-    output.position = GetVertexClipSpace(position);
-
     // Orient the normals and pass them to the fragment shader:
-    output.normal = uniforms.normal * vec3f(0, 0, 1);
+    output.normal = GetVertexNormal(ShapeUniforms.worldNormal, vec3f(0, 0, 1));
+
+    output.position = GetVertexClipSpace(position);
 
     return output;
 }
 
-@fragment fn fragment(vertex: VertexOutput) -> @location(0) vec4f
+@fragment fn shapeFragment(vertex: VertexOutput) -> @location(0) vec4f
 {
     // `vertex.normal` is interpolated so it's not a unit vector.
     // Normalizing it will make it a unit vector again:
@@ -73,6 +64,5 @@ fn GetVertexClipSpace(position: vec2f) -> vec4f
     // Avoid negative specular values without a conditional statement:
     specular = pow(max(0, specular), uniforms.intensity) * inside;
 
-    let color = uniforms.color.rgb * light + specular;
-    return vec4f(color, uniforms.color.a);
+    return vec4f(color.rgb * light + specular, color.a);
 }

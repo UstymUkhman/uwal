@@ -8,10 +8,13 @@
  */
 
 import {
+    Color,
     Scene,
     Shape,
     Device,
+    Shaders,
     Camera2D,
+    Materials,
     MathUtils,
     Geometries
 } from "#/index";
@@ -56,34 +59,29 @@ import createVertices from "../matrix-math/F.js";
 
     const RenderPipeline = new Renderer.Pipeline();
     const { vertexData, indexData } = createVertices();
-    const module = RenderPipeline.CreateShaderModule(FShader);
+    GUI.makeMinMaxPair(gui, settings, "innerLimit", "outerLimit", limitOptions);
+    const module = RenderPipeline.CreateShaderModule([Shaders.Light, Shaders.Shape, FShader]);
 
     const { uniforms, buffer } = RenderPipeline.CreateUniformBuffer("uniforms");
     const geometry = new Geometries.Shape({ radius: 75, indexFormat: "uint32" });
-
-    GUI.makeMinMaxPair(gui, settings, "innerLimit", "outerLimit", limitOptions);
     geometry.IndexData = indexData; geometry.VertexData = vertexData;
 
     await Renderer.AddPipeline(RenderPipeline, {
-        fragment: RenderPipeline.CreateFragmentState(module),
+        fragment: RenderPipeline.CreateFragmentState(module, void 0, void 0, "shapeFragment"),
         vertex: RenderPipeline.CreateVertexState(module,
-            geometry.GetPositionBufferLayout(RenderPipeline)
+            geometry.GetPositionBufferLayout(RenderPipeline),
+            void 0, "shapeVertex"
         )
     });
 
-    const shape = new Shape(geometry, null);
+    const shape = new Shape(geometry, new Materials.Color(0x33ff33));
     shape.SetRenderPipeline(RenderPipeline, buffer);
 
     gui.add(settings, "shininess", { min: 1, max: 250 });
     gui.add(settings, "aimOffsetX", -50, 100);
     gui.add(settings, "aimOffsetY", -50, 150);
 
-    MathUtils.Mat4.identity(uniforms.normal);
-    MathUtils.Mat4.identity(uniforms.world);
-
-    uniforms.color.set([0.5, 1, 0.5, 1]);
     uniforms.light.set([60, 65, 70]);
-
     shape.Position = [300, 200];
     shape.Origin = [50, 75];
     scene.Add(shape);
@@ -102,7 +100,7 @@ import createVertices from "../matrix-math/F.js";
         // Get the Z axis from the target matrix and negate it because `lookAt` looks down the -Z axis:
         uniforms.direction.set(MathUtils.Mat4.aim(uniforms.light, target, [0, 1, 0]).slice(8, 11));
 
-        RenderPipeline.WriteBuffer(buffer, uniforms.normal.buffer);
+        RenderPipeline.WriteBuffer(buffer, uniforms.camera.buffer);
         Renderer.Render(scene);
     }
 

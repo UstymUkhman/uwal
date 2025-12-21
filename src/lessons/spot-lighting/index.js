@@ -15,6 +15,7 @@ import {
     Scene,
     Device,
     Shaders,
+    Materials,
     MathUtils,
     Geometries,
     PerspectiveCamera
@@ -40,15 +41,15 @@ import createVertices from "../directional-lighting/F.js";
     const gui = new GUI();
     gui.onChange(render);
 
-    const Camera = new PerspectiveCamera();
-    const FGeometry = new Geometries.Mesh();
-    const FMesh = new Mesh(FGeometry, null);
-    const FPipeline = new Renderer.Pipeline();
-
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(),
         Renderer.CreateDepthStencilAttachment()
     );
+
+    const Camera = new PerspectiveCamera();
+    const FGeometry = new Geometries.Mesh();
+    const FPipeline = new Renderer.Pipeline();
+    const vertexEntry = [void 0, "meshVertex"];
 
     const settings = {
         innerLimit: MathUtils.DegreesToRadians(15),
@@ -59,25 +60,27 @@ import createVertices from "../directional-lighting/F.js";
         shininess: 30
     };
 
-    const module = FPipeline.CreateShaderModule(FShader);
+    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Mesh, FShader]);
     const { uniforms, buffer } = FPipeline.CreateUniformBuffer("uniforms");
+    const FMesh = new Mesh(FGeometry, new Materials.Color(0x33ff33));
+
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
     const limitOptions = { min: 0, max: 90, minRange: 1, step: 1, converters: GUI.converters.radToDeg };
 
     const vertexBuffers = [
-        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }),
-        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" })
+        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, ...vertexEntry),
+        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, ...vertexEntry)
     ];
+
+    FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
+        fragment: FPipeline.CreateFragmentState(module, void 0, void 0, "meshFragment"),
+        vertex: FPipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
+        depthStencil: FPipeline.CreateDepthStencilState(),
+        primitive: FPipeline.CreatePrimitiveState()
+    }), buffer);
 
     const { vertexData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
-
-    FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
-        vertex: FPipeline.CreateVertexState(module, vertexBuffers),
-        depthStencil: FPipeline.CreateDepthStencilState(),
-        fragment: FPipeline.CreateFragmentState(module),
-        primitive: FPipeline.CreatePrimitiveState()
-    }), buffer);
 
     gui.add(settings, "rotation", radToDegOptions);
     gui.add(settings, "shininess", { min: 1, max: 250 });
@@ -90,7 +93,6 @@ import createVertices from "../directional-lighting/F.js";
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);
 
-    uniforms.color.set(new Color(0x33ff33).rgba);
     uniforms.light.set([-10, 30, 100]);
     const cameraTarget = [0, 35, 0];
     scene.Add(FMesh);
@@ -111,12 +113,7 @@ import createVertices from "../directional-lighting/F.js";
         // Get the Z axis from the target matrix and negate it because `lookAt` looks down the -Z axis:
         uniforms.direction.set(MathUtils.Mat4.aim(uniforms.light, target, [0, 1, 0]).slice(8, 11));
 
-        const world = MathUtils.Mat4.rotationY(settings.rotation, uniforms.world);
-
-        // Compute a world matrix, then inverse and transpose it into the normal matrix:
-        MathUtils.Mat3.fromMat4(MathUtils.Mat4.transpose(MathUtils.Mat4.inverse(world)), uniforms.normal);
-
-        FPipeline.WriteBuffer(buffer, uniforms.normal.buffer);
+        FPipeline.WriteBuffer(buffer, uniforms.light.buffer);
         FMesh.Rotation = [0, settings.rotation, 0];
         Renderer.Render(scene);
     }

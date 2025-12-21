@@ -42,19 +42,19 @@ import createVertices from "../directional-lighting/F.js";
     const gui = new GUI();
     gui.onChange(render);
 
-    const Camera = new PerspectiveCamera();
-    const FGeometry = new Geometries.Mesh();
-    const FPipeline = new Renderer.Pipeline();
-    const vertexEntry = [void 0, "meshVertex"];
-
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(),
         Renderer.CreateDepthStencilAttachment()
     );
 
-    const FMesh = new Mesh(FGeometry, new Materials.Color(0x33ff33));
+    const Camera = new PerspectiveCamera();
+    const FGeometry = new Geometries.Mesh();
+    const FPipeline = new Renderer.Pipeline();
+    const vertexEntry = [void 0, "meshVertex"];
+
     const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Mesh, FShader]);
     const { uniforms, buffer } = FPipeline.CreateUniformBuffer("uniforms");
+    const FMesh = new Mesh(FGeometry, new Materials.Color(0x33ff33));
 
     const settings = { rotation: MathUtils.DegreesToRadians(0), shininess: 30 };
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
@@ -64,9 +64,6 @@ import createVertices from "../directional-lighting/F.js";
         FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, ...vertexEntry)
     ];
 
-    const { vertexData, normalData, vertices } = createVertices();
-    const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
-
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
         fragment: FPipeline.CreateFragmentState(module, void 0, void 0, "meshFragment"),
         vertex: FPipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
@@ -74,13 +71,16 @@ import createVertices from "../directional-lighting/F.js";
         primitive: FPipeline.CreatePrimitiveState()
     }), buffer);
 
-    gui.add(settings, "rotation", radToDegOptions);
-    gui.add(settings, "shininess", { min: 1, max: 250 });
+    const { vertexData, normalData, vertices } = createVertices();
+    const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
 
     FGeometry.CreateVertexBuffer(FPipeline, vertexData);
     FPipeline.WriteBuffer(normalBuffer, normalData);
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);
+
+    gui.add(settings, "rotation", radToDegOptions);
+    gui.add(settings, "shininess", { min: 1, max: 250 });
 
     const light = new PointLight([-10, 30, 100]);
     uniforms.light.set(light.Position);

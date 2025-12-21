@@ -1,10 +1,7 @@
 struct Uniforms
 {
-    color: vec4f,
     light: vec3f,
     camera: vec3f,
-    world: mat4x4f,
-    normal: mat3x3f,
     direction: vec3f,
     intensity: f32,
     limit: vec2f
@@ -18,15 +15,16 @@ struct VertexOutput
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(1) var<uniform> uniforms: Uniforms;
-@group(0) @binding(0) var<uniform> meshModelViewProjection: mat4x4f;
+@group(0) @binding(2) var<uniform> uniforms: Uniforms;
 
-@vertex fn vertex(@location(0) position: vec4f, @location(1) normal: vec3f) -> VertexOutput
+@vertex fn meshVertex(@location(0) position: vec4f, @location(1) normal: vec3f) -> VertexOutput
 {
     var output: VertexOutput;
 
+    output.position = GetVertexClipSpace(position);
+
     // Compute the world position of the vertex:
-    let worldPosition = (uniforms.world * position).xyz;
+    let worldPosition = GetVertexWorldPosition(position);
 
     // Compute the vector of the vertex to the light position:
     output.lightVector = uniforms.light - worldPosition;
@@ -34,15 +32,13 @@ struct VertexOutput
     // Compute the vector of the vertex to the camera position:
     output.cameraVector = uniforms.camera - worldPosition;
 
-    output.position = meshModelViewProjection * position;
-
     // Orient the normals and pass them to the fragment shader:
-    output.normal = uniforms.normal * normal;
+    output.normal = GetVertexNormal(MeshUniforms.worldNormal, normal);
 
     return output;
 }
 
-@fragment fn fragment(vertex: VertexOutput) -> @location(0) vec4f
+@fragment fn meshFragment(vertex: VertexOutput) -> @location(0) vec4f
 {
     // `vertex.normal` is interpolated so it's not a unit vector.
     // Normalizing it will make it a unit vector again:
@@ -68,7 +64,5 @@ struct VertexOutput
     // Avoid negative specular values without a conditional statement:
     specular = pow(max(0, specular), uniforms.intensity) * inside;
 
-    let color = uniforms.color.rgb * light + specular;
-
-    return vec4f(color, uniforms.color.a);
+    return vec4f(color.rgb * light + specular, color.a);
 }
