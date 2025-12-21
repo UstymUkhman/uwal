@@ -4,7 +4,7 @@ struct VertexOutput
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(2) var<uniform> light: vec3f;
+@group(0) @binding(2) var<uniform> Light: LightUniforms;
 
 @vertex fn meshVertex(@location(0) position: vec4f, @location(1) normal: vec3f) -> VertexOutput
 {
@@ -18,6 +18,6 @@ struct VertexOutput
 
 @fragment fn meshFragment(@location(0) normal: vec3f) -> @location(0) vec4f
 {
-    let light = GetDirectionalLight(light, normal);
+    let light = GetDirectionalLight(Light.direction, normal);
     return vec4f(color.rgb * light, color.a);
 }

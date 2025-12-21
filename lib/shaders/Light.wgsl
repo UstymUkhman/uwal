@@ -1,3 +1,8 @@
+struct LightUniforms
+{
+    direction: vec3f
+};
+
 // Orient vertex normals before passing them to the fragment shader.
 // For 2D shapes, `vec3f(0, 0, 1)` has to be used as `vertex` value.
 fn GetVertexNormal(world: mat3x3f, vertex: vec3f) -> vec3f

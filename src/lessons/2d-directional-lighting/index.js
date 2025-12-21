@@ -43,7 +43,7 @@ import createVertices from "../matrix-math/F.js";
     const { vertexData, indexData } = createVertices();
 
     const module = RenderPipeline.CreateShaderModule([Shaders.Light, Shaders.Shape, FShader]);
-    const { light, buffer } = RenderPipeline.CreateUniformBuffer("light");
+    const { Light, buffer } = RenderPipeline.CreateUniformBuffer("Light");
 
     const geometry = new Geometries.Shape({ radius: 75, indexFormat: "uint32" });
     geometry.IndexData = indexData; geometry.VertexData = vertexData;
@@ -62,8 +62,8 @@ import createVertices from "../matrix-math/F.js";
     const shape = new Shape(geometry, new Materials.Color(0x33ff33));
     shape.SetRenderPipeline(RenderPipeline, buffer);
 
-    light.set(new DirectionalLight().Direction);
-    RenderPipeline.WriteBuffer(buffer, light.buffer);
+    Light.direction.set(new DirectionalLight().Direction);
+    RenderPipeline.WriteBuffer(buffer, Light.direction.buffer);
 
     shape.Position = [300, 200];
     shape.Origin = [50, 75];

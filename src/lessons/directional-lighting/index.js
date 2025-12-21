@@ -42,30 +42,27 @@ import createVertices from "./F.js";
     const gui = new GUI();
     gui.onChange(render);
 
-    const Camera = new PerspectiveCamera();
-    const FGeometry = new Geometries.Mesh();
-    const FPipeline = new Renderer.Pipeline();
-    const vertexEntry = [void 0, "meshVertex"];
-
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(),
         Renderer.CreateDepthStencilAttachment()
     );
 
+    const Camera = new PerspectiveCamera();
+    const FGeometry = new Geometries.Mesh();
+    const FPipeline = new Renderer.Pipeline();
+    const vertexEntry = [void 0, "meshVertex"];
+
     const settings = { rotation: MathUtils.DegreesToRadians(0) };
     const FMesh = new Mesh(FGeometry, new Materials.Color(0x33ff33));
 
-    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Mesh, FShader]);
-    const { light, buffer } = FPipeline.CreateUniformBuffer("light");
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
+    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Mesh, FShader]);
+    const { Light, buffer } = FPipeline.CreateUniformBuffer("Light");
 
     const vertexBuffers = [
         FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, ...vertexEntry),
         FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, ...vertexEntry)
     ];
-
-    const { vertexData, normalData, vertices } = createVertices();
-    const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
         fragment: FPipeline.CreateFragmentState(module, void 0, void 0, "meshFragment"),
@@ -74,9 +71,12 @@ import createVertices from "./F.js";
         primitive: FPipeline.CreatePrimitiveState()
     }), buffer);
 
+    const { vertexData, normalData, vertices } = createVertices();
+    const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
+
     const direction = MathUtils.Vec3.create(-0.5, -0.7, -1);
-    light.set(new DirectionalLight(direction).Direction);
-    FPipeline.WriteBuffer(buffer, light.buffer);
+    Light.direction.set(new DirectionalLight(direction).Direction);
+    FPipeline.WriteBuffer(buffer, Light.direction.buffer);
 
     FGeometry.CreateVertexBuffer(FPipeline, vertexData);
     FPipeline.WriteBuffer(normalBuffer, normalData);
