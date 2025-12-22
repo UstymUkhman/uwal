@@ -24,7 +24,7 @@
 - It is aimed at developers who like minimal layers of abstraction and are interested in writing their own shaders.
 - To get started with UWAL, feel free to check out the [Wiki](https://github.com/UstymUkhman/uwal/wiki) page for some simple examples using version `0.2.x`.
 
-## [Installation](https://www.npmjs.com/package/uwal)
+## Installation
 
 ```bash
 npm i uwal
@@ -111,7 +111,7 @@ flowchart TD
   SHDS --> APP
 ```
 
-## [Examples](https://ustymukhman.github.io/uwal/dist/examples/examples.html)
+## Examples
 
 |   |   |
 |:-:|:-:|
@@ -120,7 +120,7 @@ flowchart TD
 | WebGPU Smallpt | Pong Game |
 | [![WebGPU Smallpt](assets/images/WebGPUSmallpt.jpg)](https://ustymukhman.github.io/uwal/dist/examples/examples.html#webgpu-smallpt) | [![Pong Game](assets/images/PongGame.jpg)](https://ustymukhman.github.io/uwal/dist/examples/examples.html#pong-game) |
 
-## [Lessons](https://github.com/UstymUkhman/uwal-webgpu-fundamentals)
+## Lessons
 
 - Basics
   - [Fundamentals](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#fundamentals)
