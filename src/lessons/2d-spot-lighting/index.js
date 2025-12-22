@@ -84,12 +84,13 @@ import createVertices from "../matrix-math/F.js";
     uniforms.light.set([60, 65, 70]);
     shape.Position = [300, 200];
     shape.Origin = [50, 75];
+    Camera.PositionZ = 200;
     scene.Add(shape);
 
     function render()
     {
+        uniforms.camera.set(Camera.Position3D);
         uniforms.intensity[0] = settings.shininess;
-        uniforms.camera.set([...Camera.Position, 200]);
 
         uniforms.limit[0] = Math.cos(settings.innerLimit);
         uniforms.limit[1] = Math.cos(settings.outerLimit);

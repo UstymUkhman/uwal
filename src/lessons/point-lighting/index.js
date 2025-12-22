@@ -52,8 +52,9 @@ import createVertices from "../directional-lighting/F.js";
     const FPipeline = new Renderer.Pipeline();
     const vertexEntry = [void 0, "meshVertex"];
 
-    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Mesh, FShader]);
-    const { uniforms, buffer } = FPipeline.CreateUniformBuffer("uniforms");
+    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Camera, Shaders.Mesh, FShader]);
+    const { Camera: camera, buffer: cameraBuffer } = FPipeline.CreateUniformBuffer("Camera");
+    const { Light, buffer: lightBuffer } = FPipeline.CreateUniformBuffer("Light");
     const FMesh = new Mesh(FGeometry, new Materials.Color(0x33ff33));
 
     const settings = { rotation: MathUtils.DegreesToRadians(0), shininess: 30 };
@@ -69,7 +70,7 @@ import createVertices from "../directional-lighting/F.js";
         vertex: FPipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
         depthStencil: FPipeline.CreateDepthStencilState(),
         primitive: FPipeline.CreatePrimitiveState()
-    }), buffer);
+    }), [lightBuffer, cameraBuffer]);
 
     const { vertexData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
@@ -83,15 +84,17 @@ import createVertices from "../directional-lighting/F.js";
     gui.add(settings, "shininess", { min: 1, max: 250 });
 
     const light = new PointLight([-10, 30, 100]);
-    uniforms.light.set(light.Position);
+    Light.position.set(light.Position);
     scene.Add(FMesh);
 
     function render()
     {
-        uniforms.camera.set(Camera.Position);
-        uniforms.intensity[0] = light.Intensity = settings.shininess;
+        camera.position.set(Camera.Position);
+        Light.intensity[0] = light.Intensity = settings.shininess;
 
-        FPipeline.WriteBuffer(buffer, uniforms.light.buffer);
+        FPipeline.WriteBuffer(lightBuffer, Light.position.buffer);
+        FPipeline.WriteBuffer(cameraBuffer, camera.position);
+
         FMesh.Rotation = [0, settings.rotation, 0];
         Renderer.Render(scene);
     }

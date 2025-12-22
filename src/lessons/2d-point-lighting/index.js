@@ -46,8 +46,10 @@ import createVertices from "../matrix-math/F.js";
     const RenderPipeline = new Renderer.Pipeline();
     const { vertexData, indexData } = createVertices();
 
-    const module = RenderPipeline.CreateShaderModule([Shaders.Light, Shaders.Shape, FShader]);
-    const { uniforms, buffer } = RenderPipeline.CreateUniformBuffer("uniforms");
+    const module = RenderPipeline.CreateShaderModule([Shaders.Light, Shaders.Camera, Shaders.Shape, FShader]);
+    const { Camera: camera, buffer: cameraBuffer } = RenderPipeline.CreateUniformBuffer("Camera");
+    const { Light, buffer: lightBuffer } = RenderPipeline.CreateUniformBuffer("Light");
+
     const geometry = new Geometries.Shape({ radius: 75, indexFormat: "uint32" });
     geometry.IndexData = indexData; geometry.VertexData = vertexData;
 
@@ -60,21 +62,25 @@ import createVertices from "../matrix-math/F.js";
     });
 
     const shape = new Shape(geometry, new Materials.Color(0x33ff33));
+    shape.SetRenderPipeline(RenderPipeline, [lightBuffer, cameraBuffer]);
     gui.add(settings, "shininess", { min: 1, max: 250 });
-    shape.SetRenderPipeline(RenderPipeline, buffer);
 
     const light = new PointLight([60, 65, 70]);
-    uniforms.light.set(light.Position);
+    Light.position.set(light.Position);
+
     shape.Position = [300, 200];
     shape.Origin = [50, 75];
+
+    Camera.PositionZ = 200;
     scene.Add(shape);
 
     function render()
     {
-        uniforms.camera.set([...Camera.Position, 200]);
-        uniforms.intensity[0] = light.Intensity = settings.shininess;
+        camera.position.set(Camera.Position3D);
+        Light.intensity[0] = light.Intensity = settings.shininess;
 
-        RenderPipeline.WriteBuffer(buffer, uniforms.camera.buffer);
+        RenderPipeline.WriteBuffer(lightBuffer, Light.position.buffer);
+        RenderPipeline.WriteBuffer(cameraBuffer, camera.position);
         Renderer.Render(scene);
     }
 

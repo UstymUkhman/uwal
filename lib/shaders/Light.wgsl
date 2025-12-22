@@ -1,6 +1,16 @@
 struct LightUniforms
 {
-    direction: vec3f
+    direction: vec3f,
+    position: vec3f,
+    intensity: f32
+};
+
+struct PointLight
+{
+    lightIntensity: f32,
+    vertexNormal: vec3f,
+    lightDirection: vec3f,
+    cameraDirection: vec3f
 };
 
 // Orient vertex normals before passing them to the fragment shader.
@@ -15,4 +25,29 @@ fn GetVertexNormal(world: mat3x3f, vertex: vec3f) -> vec3f
 fn GetDirectionalLight(direction: vec3f, normal: vec3f) -> f32
 {
     return dot(normalize(normal), -direction);
+}
+
+// Compute the vector of the vertex world position to the light position.
+fn GetLightDirection(vertexWorldPosition: vec3f, lightPosition: vec3f) -> vec3f
+{
+    return lightPosition - vertexWorldPosition;
+}
+
+fn GetPointLightColor(input: PointLight, color: vec3f) -> vec3f
+{
+    // `vertexNormal` is interpolated, normalize it to a unit vector:
+    let normal = normalize(input.vertexNormal);
+
+    // Convert "vertex to light direction" to a unit vector:
+    let lightDirection = normalize(input.lightDirection);
+
+    let cameraDirection = normalize(input.cameraDirection);
+
+    // Calculate the amount of light reflected into the camera:
+    var specular = dot(normal, normalize(lightDirection + cameraDirection));
+
+    // Avoid negative specular values without a conditional statement:
+    specular = pow(max(0, specular), input.lightIntensity);
+
+    return color * dot(normal, lightDirection) + specular;
 }
