@@ -2,15 +2,26 @@ struct LightUniforms
 {
     direction: vec3f,
     position: vec3f,
-    intensity: f32
+    intensity: f32,
+    limit: vec2f
 };
 
 struct PointLight
 {
-    lightIntensity: f32,
     vertexNormal: vec3f,
+    lightIntensity: f32,
     lightDirection: vec3f,
     cameraDirection: vec3f
+};
+
+struct SpotLight
+{
+    vertexNormal: vec3f,
+    lightIntensity: f32,
+    lightDirection: vec3f,
+    cameraDirection: vec3f,
+    spotDirection: vec3f,
+    spotLimit: vec2f
 };
 
 // Orient vertex normals before passing them to the fragment shader.
@@ -33,7 +44,7 @@ fn GetLightDirection(vertexWorldPosition: vec3f, lightPosition: vec3f) -> vec3f
     return lightPosition - vertexWorldPosition;
 }
 
-fn GetPointLightColor(input: PointLight, color: vec3f) -> vec3f
+fn GetLightColor(input: PointLight, color: vec3f, amount: f32) -> vec3f
 {
     // `vertexNormal` is interpolated, normalize it to a unit vector:
     let normal = normalize(input.vertexNormal);
@@ -47,7 +58,29 @@ fn GetPointLightColor(input: PointLight, color: vec3f) -> vec3f
     var specular = dot(normal, normalize(lightDirection + cameraDirection));
 
     // Avoid negative specular values without a conditional statement:
-    specular = pow(max(0, specular), input.lightIntensity);
+    specular = pow(max(0, specular), input.lightIntensity) * amount;
 
-    return color * dot(normal, lightDirection) + specular;
+    return color * dot(normal, lightDirection) * amount + specular;
+}
+
+fn GetPointLightColor(input: PointLight, color: vec3f) -> vec3f
+{
+    return GetLightColor(input, color, 1);
+}
+
+fn GetSpotLightColor(input: SpotLight, color: vec3f) -> vec3f
+{
+    let direction = dot(normalize(input.lightDirection), -input.spotDirection);
+
+    // Lerp between light limits to avoid dividing by zero:
+    let inside = smoothstep(input.spotLimit.y, input.spotLimit.x, direction);
+
+    let point = PointLight(
+        input.vertexNormal,
+        input.lightIntensity,
+        input.lightDirection,
+        input.cameraDirection
+    );
+
+    return GetLightColor(point, color, inside);
 }

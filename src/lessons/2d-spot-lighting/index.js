@@ -16,6 +16,7 @@ import {
     Camera2D,
     Materials,
     MathUtils,
+    SpotLight,
     Geometries
 } from "#/index";
 
@@ -60,9 +61,11 @@ import createVertices from "../matrix-math/F.js";
     const RenderPipeline = new Renderer.Pipeline();
     const { vertexData, indexData } = createVertices();
     GUI.makeMinMaxPair(gui, settings, "innerLimit", "outerLimit", limitOptions);
-    const module = RenderPipeline.CreateShaderModule([Shaders.Light, Shaders.Shape, FShader]);
+    const module = RenderPipeline.CreateShaderModule([Shaders.Light, Shaders.Camera, Shaders.Shape, FShader]);
 
-    const { uniforms, buffer } = RenderPipeline.CreateUniformBuffer("uniforms");
+    const { Camera: camera, buffer: cameraBuffer } = RenderPipeline.CreateUniformBuffer("Camera");
+    const { Light, buffer: lightBuffer } = RenderPipeline.CreateUniformBuffer("Light");
+
     const geometry = new Geometries.Shape({ radius: 75, indexFormat: "uint32" });
     geometry.IndexData = indexData; geometry.VertexData = vertexData;
 
@@ -75,13 +78,14 @@ import createVertices from "../matrix-math/F.js";
     });
 
     const shape = new Shape(geometry, new Materials.Color(0x33ff33));
-    shape.SetRenderPipeline(RenderPipeline, buffer);
+    shape.SetRenderPipeline(RenderPipeline, [lightBuffer, cameraBuffer]);
 
     gui.add(settings, "shininess", { min: 1, max: 250 });
     gui.add(settings, "aimOffsetX", -50, 100);
     gui.add(settings, "aimOffsetY", -50, 150);
 
-    uniforms.light.set([60, 65, 70]);
+    const light = new SpotLight([60, 65, 70]);
+    Light.position.set(light.Position);
     shape.Position = [300, 200];
     shape.Origin = [50, 75];
     Camera.PositionZ = 200;
@@ -89,19 +93,18 @@ import createVertices from "../matrix-math/F.js";
 
     function render()
     {
-        uniforms.camera.set(Camera.Position3D);
-        uniforms.intensity[0] = settings.shininess;
+        camera.position.set(Camera.Position3D);
+        Light.intensity[0] = light.Intensity = settings.shininess;
 
-        uniforms.limit[0] = Math.cos(settings.innerLimit);
-        uniforms.limit[1] = Math.cos(settings.outerLimit);
+        const { innerLimit, outerLimit } = settings;
+        light.Limit = [innerLimit, outerLimit];
+        Light.limit.set(light.Limit);
 
         // Point the spot light at the camera target (FMesh) + settings offsets:
-        const target = [settings.aimOffsetX, settings.aimOffsetY, 0];
+        Light.direction.set(light.LookAt([settings.aimOffsetX, settings.aimOffsetY, 0]));
 
-        // Get the Z axis from the target matrix and negate it because `lookAt` looks down the -Z axis:
-        uniforms.direction.set(MathUtils.Mat4.aim(uniforms.light, target, [0, 1, 0]).slice(8, 11));
-
-        RenderPipeline.WriteBuffer(buffer, uniforms.camera.buffer);
+        RenderPipeline.WriteBuffer(lightBuffer, Light.position.buffer);
+        RenderPipeline.WriteBuffer(cameraBuffer, camera.position);
         Renderer.Render(scene);
     }
 

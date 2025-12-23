@@ -34,8 +34,8 @@ struct VertexOutput
 {
     let pointLightColor = GetPointLightColor(
         PointLight(
-            Light.intensity,
             vertex.normal,
+            Light.intensity,
             vertex.lightDirection,
             vertex.cameraDirection
         ), color.rgb

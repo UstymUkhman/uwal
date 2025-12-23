@@ -17,8 +17,8 @@ import {
     Shaders,
     Materials,
     MathUtils,
-    Geometries,
     PointLight,
+    Geometries,
     PerspectiveCamera
 } from "#/index";
 

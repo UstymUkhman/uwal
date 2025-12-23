@@ -30,7 +30,7 @@ from "./types/cameras";
 export
 {
     DirectionalLight,
-    PointLight //,
-    // SpotLight
+    PointLight,
+    SpotLight
 }
 from "./types/lights";

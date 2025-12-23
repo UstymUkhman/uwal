@@ -17,6 +17,7 @@ import {
     Shaders,
     Materials,
     MathUtils,
+    SpotLight,
     Geometries,
     PerspectiveCamera
 } from "#/index";
@@ -60,8 +61,9 @@ import createVertices from "../directional-lighting/F.js";
         shininess: 30
     };
 
-    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Mesh, FShader]);
-    const { uniforms, buffer } = FPipeline.CreateUniformBuffer("uniforms");
+    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Camera, Shaders.Mesh, FShader]);
+    const { Camera: camera, buffer: cameraBuffer } = FPipeline.CreateUniformBuffer("Camera");
+    const { Light, buffer: lightBuffer } = FPipeline.CreateUniformBuffer("Light");
     const FMesh = new Mesh(FGeometry, new Materials.Color(0x33ff33));
 
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
@@ -77,7 +79,7 @@ import createVertices from "../directional-lighting/F.js";
         vertex: FPipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
         depthStencil: FPipeline.CreateDepthStencilState(),
         primitive: FPipeline.CreatePrimitiveState()
-    }), buffer);
+    }), [lightBuffer, cameraBuffer]);
 
     const { vertexData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
@@ -93,27 +95,28 @@ import createVertices from "../directional-lighting/F.js";
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);
 
-    uniforms.light.set([-10, 30, 100]);
+    const light = new SpotLight([-10, 30, 100]);
+    Light.position.set(light.Position);
     const cameraTarget = [0, 35, 0];
     scene.Add(FMesh);
 
     function render()
     {
-        uniforms.camera.set(Camera.Position);
-        uniforms.intensity[0] = settings.shininess;
-
-        uniforms.limit[0] = Math.cos(settings.innerLimit);
-        uniforms.limit[1] = Math.cos(settings.outerLimit);
+        camera.position.set(Camera.Position);
+        Light.intensity[0] = light.Intensity = settings.shininess;
 
         const { aimOffsetX: x, aimOffsetY: y } = settings;
+        const { innerLimit, outerLimit } = settings;
+
+        light.Limit = [innerLimit, outerLimit];
+        Light.limit.set(light.Limit);
 
         // Point the spot light at the camera target (FMesh) + settings offsets:
-        const target = [cameraTarget[0] + x, cameraTarget[1] + y, cameraTarget[2]];
+        Light.direction.set(light.LookAt([cameraTarget[0] + x, cameraTarget[1] + y, cameraTarget[2]]));
 
-        // Get the Z axis from the target matrix and negate it because `lookAt` looks down the -Z axis:
-        uniforms.direction.set(MathUtils.Mat4.aim(uniforms.light, target, [0, 1, 0]).slice(8, 11));
+        FPipeline.WriteBuffer(lightBuffer, Light.position.buffer);
+        FPipeline.WriteBuffer(cameraBuffer, camera.position);
 
-        FPipeline.WriteBuffer(buffer, uniforms.light.buffer);
         FMesh.Rotation = [0, settings.rotation, 0];
         Renderer.Render(scene);
     }
