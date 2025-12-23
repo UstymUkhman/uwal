@@ -1,7 +1,3 @@
-import "/assets/css/preview.scss";
-
-const lessonsTitle = document.title;
-
 document.getElementById("code").addEventListener("click", () =>
 {
     window.open(`https://github.com/UstymUkhman/uwal/blob/main/src/lessons/${
@@ -18,7 +14,7 @@ function runLesson()
     ).join(" ");
 
     import(`./${name}/index.js`);
-    document.title = `${lessonsTitle} | ${title}`;
+    document.title = `${document.title} | ${title}`;
 };
 
 addEventListener("hashchange", runLesson, false);

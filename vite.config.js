@@ -1,7 +1,7 @@
 import { name, version } from "./package.json";
 import terser from "@rollup/plugin-terser";
+import { minifySync } from "oxc-minify";
 import { defineConfig } from "vite";
-import { minify } from "oxc-minify";
 import glsl from "vite-plugin-glsl";
 import { resolve } from "path";
 
@@ -36,7 +36,7 @@ export default({ mode }) =>
             generateBundle(_options, bundle)
             {
                 for (const asset of Object.values(bundle))
-                    if (asset.type === "chunk") asset.code = minify(
+                    if (asset.type === "chunk") asset.code = minifySync(
                         asset.fileName, asset.code, { module: true, sourcemap: true }
                     ).code;
             }

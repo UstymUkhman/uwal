@@ -1,7 +1,5 @@
-import DEMOS from "./demos.json";
-import "/assets/css/preview.scss";
-import "/assets/css/examples.scss";
 import EXAMPLES from "./examples.json";
+import DEMOS from "./demos.json";
 
 /** @type {string} */
 let runningType = null;
