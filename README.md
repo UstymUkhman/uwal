@@ -80,8 +80,9 @@ flowchart TD
   SCN[Scene]
   TXT[MSDFText]
 
-  CONST[Constants] --> APP
+  LGHT[Lights]     --> APP
   COL[Color]       --> APP
+  CONST[Constants] --> APP
 
   ND2  --> APP
   ND2  --> SCN
@@ -167,6 +168,7 @@ flowchart TD
 
 ## Acknowledgements
 
-- Inspired by the philosophy of the fantastic [ogl](https://github.com/oframe/ogl) library.
+- Inspired by the philosophy of the great [ogl](https://github.com/oframe/ogl) library.
 - Born from the incredible lessons of [WebGPU Fundamentals](https://webgpufundamentals.org/).
 - Built upon the awesomeness of [wgpu-matrix](https://github.com/greggman/wgpu-matrix) and [wgsl_reflect](https://github.com/brendan-duncan/wgsl_reflect).
+- Leveraging a fantastic [primitive-geometry](https://github.com/dmnsgn/primitive-geometry) NPM package.
