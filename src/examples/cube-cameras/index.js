@@ -98,7 +98,6 @@ export async function run(canvas)
     );
 
     CubePipeline.AddVertexBuffers(textureCoordsBuffer);
-    CubePipeline.AddVertexBuffers(textureCoordsBuffer);
     scene.Add([perspectiveCube, orthographicCube]);
 
     scene.AddCamera(orthographicCamera);
@@ -174,7 +173,8 @@ export async function run(canvas)
 
         // Orthographic Cube:
         {
-            const [px, py, pz] = orthographicPosition, [rx, ry, rz] = orthographicRotation;
+            const [px, py, pz] = orthographicPosition;
+            const [rx, ry, rz] = orthographicRotation;
 
             tempRotation[0] = MathUtils.Lerp(rx, nextOrthographicRotation[0], smoothTime);
             tempRotation[1] = MathUtils.Lerp(ry, nextOrthographicRotation[1], smoothTime);
