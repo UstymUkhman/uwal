@@ -8,21 +8,8 @@
  * @license MIT
  */
 
-import {
-    Mesh,
-    Color,
-    Scene,
-    Device,
-    Shaders,
-    Materials,
-    MathUtils,
-    Geometries,
-    PerspectiveCamera
-} from "#/index";
-
+import { Mesh, Scene, Device, Shaders, Geometries, PerspectiveCamera } from "#/index";
 import CubeShader from "./Cube.wgsl";
-import * as Primitives from "primitive-geometry";
-import createVertices from "../directional-lighting/F.js";
 
 (async function(canvas)
 {
@@ -42,46 +29,35 @@ import createVertices from "../directional-lighting/F.js";
         Renderer.CreateDepthStencilAttachment()
     );
 
-    Primitives.utils.setTypedArrayType(Uint16Array);
-    const vertexEntry = [void 0, "meshVertex"];
-    const FPipeline = new Renderer.Pipeline();
-    const Camera = new PerspectiveCamera();
-    const Cube = Primitives.cube();
     const scene = new Scene();
+    const Camera = new PerspectiveCamera();
+    const Pipeline = new Renderer.Pipeline();
 
-    const FGeometry = new Geometries.Mesh("Cube", "uint16");
-    FGeometry.CreateIndexBuffer(FPipeline, Cube.cells);
-    const FMesh = new Mesh(FGeometry, null);
+    const Geometry = new Geometries.Mesh("Cube", "uint16");
+    Geometry.Primitive = Geometries.Primitives.cube();
 
-    const settings = { rotation: MathUtils.DegreesToRadians(0) };
-    const module = FPipeline.CreateShaderModule([Shaders.MeshVertex, CubeShader]);
+    const Cube = new Mesh(Geometry, null);
+    const vertexEntry = [void 0, "meshVertex"];
+
+    Cube.Transform = [[0, 0, -2.5], [0.625, -0.75, 0]];
+    const module = Pipeline.CreateShaderModule([Shaders.MeshVertex, CubeShader]);
 
     const vertexBuffers = [
-        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, ...vertexEntry),
-        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, ...vertexEntry)
+        Pipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, ...vertexEntry),
+        Pipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, ...vertexEntry)
     ];
 
-    FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
-        fragment: FPipeline.CreateFragmentState(module, void 0, void 0, "meshFragment"),
-        vertex: FPipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
-        depthStencil: FPipeline.CreateDepthStencilState(),
-        primitive: FPipeline.CreatePrimitiveState()
+    Cube.SetRenderPipeline(await Renderer.AddPipeline(Pipeline, {
+        fragment: Pipeline.CreateFragmentState(module, void 0, void 0, "meshFragment"),
+        vertex: Pipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
+        depthStencil: Pipeline.CreateDepthStencilState(),
+        primitive: Pipeline.CreatePrimitiveState()
     }));
 
-    const normalBuffer = FPipeline.CreateVertexBuffer(Cube.normals);
-    FGeometry.CreateVertexBuffer(FPipeline, Cube.positions);
-    FPipeline.WriteBuffer(normalBuffer, Cube.normals);
-    FPipeline.AddVertexBuffers(normalBuffer);
-
-    FMesh.Scaling = [100, 100, 100];
-    FMesh.Position = [0, 50, 0];
-    scene.Add(FMesh);
-
-    function render()
-    {
-        FMesh.Rotation = [0, settings.rotation, 0];
-        Renderer.Render(scene);
-    }
+    const normalBuffer = Pipeline.CreateVertexBuffer(Geometry.Primitive.normals);
+    Pipeline.WriteBuffer(normalBuffer, Geometry.Primitive.normals);
+    Pipeline.AddVertexBuffers(normalBuffer);
+    scene.Add(Cube);
 
     const observer = new ResizeObserver(entries =>
     {
@@ -91,12 +67,10 @@ import createVertices from "../directional-lighting/F.js";
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
             Camera.UpdateViewProjectionMatrix();
-            Camera.Position = [100, 150, 200];
-            Camera.LookAt([0, 35, 0]);
             scene.AddCamera(Camera);
         }
 
-        render();
+        Renderer.Render(scene);
     });
 
     observer.observe(document.body);
