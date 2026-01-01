@@ -4,7 +4,7 @@
  * @description This lesson is inspired by dmnsgn's "Primitive Geometry"
  * {@link https://dmnsgn.github.io/primitive-geometry/} and developed using the version listed below.
  * Please note that this code may be simplified in the future thanks to more recent library APIs.
- * @version 0.2.3
+ * @version 0.2.4
  * @license MIT
  */
 
@@ -35,7 +35,6 @@ import CubeShader from "./Cube.wgsl";
 
     const Geometry = new Geometries.Mesh("Cube", "uint16");
     Geometry.Primitive = Geometries.Primitives.cube();
-
     const Cube = new Mesh(Geometry, null);
     const vertexEntry = [void 0, "meshVertex"];
 
@@ -43,8 +42,8 @@ import CubeShader from "./Cube.wgsl";
     const module = Pipeline.CreateShaderModule([Shaders.MeshVertex, CubeShader]);
 
     const vertexBuffers = [
-        Pipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, ...vertexEntry),
-        Pipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, ...vertexEntry)
+        Geometry.GetPositionBufferLayout(Pipeline, void 0, ...vertexEntry),
+        Geometry.GetNormalBufferLayout(Pipeline, void 0, ...vertexEntry)
     ];
 
     Cube.SetRenderPipeline(await Renderer.AddPipeline(Pipeline, {
@@ -54,9 +53,8 @@ import CubeShader from "./Cube.wgsl";
         primitive: Pipeline.CreatePrimitiveState()
     }));
 
-    const normalBuffer = Pipeline.CreateVertexBuffer(Geometry.Primitive.normals);
-    Pipeline.WriteBuffer(normalBuffer, Geometry.Primitive.normals);
-    Pipeline.AddVertexBuffers(normalBuffer);
+    Geometry.AddNormalBuffer(Pipeline, void 0, void 0, ...vertexEntry);
+
     scene.Add(Cube);
 
     const observer = new ResizeObserver(entries =>
