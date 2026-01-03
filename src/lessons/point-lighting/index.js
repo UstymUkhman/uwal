@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-point.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.2.3
+ * @version 0.2.4
  * @license MIT
  */
 
@@ -50,7 +50,6 @@ import createVertices from "../directional-lighting/F.js";
     const Camera = new PerspectiveCamera();
     const FGeometry = new Geometries.Mesh();
     const FPipeline = new Renderer.Pipeline();
-    const vertexEntry = [void 0, "meshVertex"];
 
     const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Camera, Shaders.Mesh, FShader]);
     const { Camera: camera, buffer: cameraBuffer } = FPipeline.CreateUniformBuffer("Camera");
@@ -61,21 +60,21 @@ import createVertices from "../directional-lighting/F.js";
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
 
     const vertexBuffers = [
-        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, ...vertexEntry),
-        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, ...vertexEntry)
+        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, "meshVertex"),
+        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, "meshVertex")
     ];
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
-        fragment: FPipeline.CreateFragmentState(module, void 0, void 0, "meshFragment"),
-        vertex: FPipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
+        vertex: FPipeline.CreateVertexState(module, vertexBuffers, "meshVertex"),
+        fragment: FPipeline.CreateFragmentState(module, void 0, "meshFragment"),
         depthStencil: FPipeline.CreateDepthStencilState(),
         primitive: FPipeline.CreatePrimitiveState()
     }), [lightBuffer, cameraBuffer]);
 
-    const { vertexData, normalData, vertices } = createVertices();
+    const { positionData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
 
-    FGeometry.CreateVertexBuffer(FPipeline, vertexData);
+    FGeometry.CreatePositionBuffer(FPipeline, positionData);
     FPipeline.WriteBuffer(normalBuffer, normalData);
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);

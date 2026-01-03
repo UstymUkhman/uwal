@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-spot.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.2.3
+ * @version 0.2.4
  * @license MIT
  */
 
@@ -50,7 +50,6 @@ import createVertices from "../directional-lighting/F.js";
     const Camera = new PerspectiveCamera();
     const FGeometry = new Geometries.Mesh();
     const FPipeline = new Renderer.Pipeline();
-    const vertexEntry = [void 0, "meshVertex"];
 
     const settings = {
         innerLimit: MathUtils.DegreesToRadians(15),
@@ -70,18 +69,18 @@ import createVertices from "../directional-lighting/F.js";
     const limitOptions = { min: 0, max: 90, minRange: 1, step: 1, converters: GUI.converters.radToDeg };
 
     const vertexBuffers = [
-        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, ...vertexEntry),
-        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, ...vertexEntry)
+        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, "meshVertex"),
+        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, "meshVertex")
     ];
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
-        fragment: FPipeline.CreateFragmentState(module, void 0, void 0, "meshFragment"),
-        vertex: FPipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
+        vertex: FPipeline.CreateVertexState(module, vertexBuffers, "meshVertex"),
+        fragment: FPipeline.CreateFragmentState(module, void 0, "meshFragment"),
         depthStencil: FPipeline.CreateDepthStencilState(),
         primitive: FPipeline.CreatePrimitiveState()
     }), [lightBuffer, cameraBuffer]);
 
-    const { vertexData, normalData, vertices } = createVertices();
+    const { positionData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
 
     gui.add(settings, "rotation", radToDegOptions);
@@ -90,7 +89,7 @@ import createVertices from "../directional-lighting/F.js";
     gui.add(settings, "aimOffsetX", -50, 50);
     gui.add(settings, "aimOffsetY", -50, 50);
 
-    FGeometry.CreateVertexBuffer(FPipeline, vertexData);
+    FGeometry.CreatePositionBuffer(FPipeline, positionData);
     FPipeline.WriteBuffer(normalBuffer, normalData);
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);

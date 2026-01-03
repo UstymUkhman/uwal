@@ -51,13 +51,13 @@ export async function run(canvas)
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new Color(0x19334c)));
 
     const { buffer: translationBuffer, layout: translationLayout } =
-        TexturesPipeline.CreateVertexBuffer("translation", textures, "instance", "textureVertex");
+        TexturesPipeline.CreateVertexBuffer("translation", textures, "textureVertex", "instance");
 
     await Renderer.AddPipeline(TexturesPipeline, {
         fragment: TexturesPipeline.CreateFragmentState(module),
         vertex: TexturesPipeline.CreateVertexState(module, [
             geometry.GetPositionBufferLayout(TexturesPipeline), translationLayout
-        ], void 0, "textureVertex")
+        ], "textureVertex")
     });
 
     setTranslationData();
@@ -125,7 +125,7 @@ export async function run(canvas)
 
         texture = await Texture.CopyImageToTexture(
             await Texture.CreateImageBitmap(Logo),
-            { flipY: true, create: { mipmaps: false } }
+            { flipY: true, mipmaps: false }
         );
 
         TexturesPipeline.AddBindGroupFromResources([

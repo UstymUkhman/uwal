@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-directional.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.2.3
+ * @version 0.2.4
  * @license MIT
  */
 
@@ -50,7 +50,6 @@ import createVertices from "./F.js";
     const Camera = new PerspectiveCamera();
     const FGeometry = new Geometries.Mesh();
     const FPipeline = new Renderer.Pipeline();
-    const vertexEntry = [void 0, "meshVertex"];
 
     const settings = { rotation: MathUtils.DegreesToRadians(0) };
     const FMesh = new Mesh(FGeometry, new Materials.Color(0x33ff33));
@@ -60,25 +59,25 @@ import createVertices from "./F.js";
     const { Light, buffer } = FPipeline.CreateUniformBuffer("Light");
 
     const vertexBuffers = [
-        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, ...vertexEntry),
-        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, ...vertexEntry)
+        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, "meshVertex"),
+        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, "meshVertex")
     ];
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
-        fragment: FPipeline.CreateFragmentState(module, void 0, void 0, "meshFragment"),
-        vertex: FPipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
+        vertex: FPipeline.CreateVertexState(module, vertexBuffers, "meshVertex"),
+        fragment: FPipeline.CreateFragmentState(module, void 0, "meshFragment"),
         depthStencil: FPipeline.CreateDepthStencilState(),
         primitive: FPipeline.CreatePrimitiveState()
     }), buffer);
 
-    const { vertexData, normalData, vertices } = createVertices();
+    const { positionData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
 
     const direction = MathUtils.Vec3.create(-0.5, -0.7, -1);
     Light.direction.set(new DirectionalLight(direction).Direction);
     FPipeline.WriteBuffer(buffer, Light.direction.buffer);
 
-    FGeometry.CreateVertexBuffer(FPipeline, vertexData);
+    FGeometry.CreatePositionBuffer(FPipeline, positionData);
     FPipeline.WriteBuffer(normalBuffer, normalData);
     gui.add(settings, "rotation", radToDegOptions);
 

@@ -75,7 +75,7 @@ export async function run(canvas)
         vertex: CubePipeline.CreateVertexState(module, [
             CubeGeometry.GetPositionBufferLayout(CubePipeline),
             textureCoordsLayout
-        ], void 0, "cubeVertex")
+        ], "cubeVertex")
     });
 
     const Texture = new (await Device.Texture(Renderer));

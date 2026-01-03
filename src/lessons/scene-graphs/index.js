@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-scene-graphs.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.2.3
+ * @version 0.2.4
  * @license MIT
  */
 
@@ -127,10 +127,10 @@ import Cube from "./Cube.wgsl";
     await Renderer.AddPipeline(CubePipeline, {
         primitive: CubePipeline.CreatePrimitiveState(),
         depthStencil: CubePipeline.CreateDepthStencilState(),
-        fragment: CubePipeline.CreateFragmentState(module, void 0, void 0, "cubeFragment"),
+        fragment: CubePipeline.CreateFragmentState(module, void 0, "cubeFragment"),
         vertex: CubePipeline.CreateVertexState(module, [
             CubeGeometry.GetPositionBufferLayout(CubePipeline), colorLayout
-        ], void 0, "cubeVertex"),
+        ], "cubeVertex"),
     });
 
     Array.from({ length: 5 }).forEach((_, c) => addCabinet(scene, c))

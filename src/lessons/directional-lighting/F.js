@@ -85,16 +85,16 @@ export default function()
     ];
 
     const vertices = indices.length;
-    const vertexData = new Float32Array(vertices * 3);
     const normalData = new Float32Array(vertices * 3);
+    const positionData = new Float32Array(vertices * 3);
 
     for (let v = 0; v < vertices; ++v)
     {
         const p = indices[v] * 3, n = (v / 6 | 0) * 3, o = v * 3;
-        vertexData.set(positions.slice(p, p + 3), o);
+        positionData.set(positions.slice(p, p + 3), o);
         const normal = normals.slice(n, n + 3);
         normalData.set(normal, o);
     }
 
-    return { vertexData, normalData, vertices };
+    return { positionData, normalData, vertices };
 }
