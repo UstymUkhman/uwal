@@ -8,8 +8,17 @@
  * @license MIT
  */
 
-import { Mesh, Scene, Device, Shaders, Geometries, PerspectiveCamera } from "#/index";
+import {
+    Mesh,
+    Scene,
+    Device,
+    Shaders,
+    Geometries,
+    PerspectiveCamera
+} from "#/index";
+
 import CubeShader from "./Cube.wgsl";
+import UV from "/assets/images/uv.jpg";
 
 (async function(canvas)
 {
@@ -24,38 +33,42 @@ import CubeShader from "./Cube.wgsl";
         alert(error);
     }
 
-    Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment(),
-        Renderer.CreateDepthStencilAttachment()
-    );
-
     const scene = new Scene();
     const Camera = new PerspectiveCamera();
     const Pipeline = new Renderer.Pipeline();
+    const Texture = new (await Device.Texture(Renderer));
 
     const Geometry = new Geometries.Mesh("Cube", "uint16");
     Geometry.Primitive = Geometries.Primitives.cube();
     const Cube = new Mesh(Geometry, null);
-    const vertexEntry = [void 0, "meshVertex"];
 
     Cube.Transform = [[0, 0, -2.5], [0.625, -0.75, 0]];
+    const source = await Texture.CreateImageBitmap(UV);
+    const texture = await Texture.CopyImageToTexture(source);
     const module = Pipeline.CreateShaderModule([Shaders.MeshVertex, CubeShader]);
 
     const vertexBuffers = [
-        Geometry.GetPositionBufferLayout(Pipeline, void 0, ...vertexEntry),
-        Geometry.GetNormalBufferLayout(Pipeline, void 0, ...vertexEntry)
+        Geometry.GetPositionBufferLayout(Pipeline, "vertexNormalUV"),
+        Geometry.GetNormalBufferLayout(Pipeline, "vertexNormalUV"),
+        Geometry.GetUVBufferLayout(Pipeline, "vertexNormalUV")
     ];
 
     Cube.SetRenderPipeline(await Renderer.AddPipeline(Pipeline, {
-        fragment: Pipeline.CreateFragmentState(module, void 0, void 0, "meshFragment"),
-        vertex: Pipeline.CreateVertexState(module, vertexBuffers, ...vertexEntry),
+        vertex: Pipeline.CreateVertexState(module, vertexBuffers, "vertexNormalUV"),
         depthStencil: Pipeline.CreateDepthStencilState(),
+        fragment: Pipeline.CreateFragmentState(module),
         primitive: Pipeline.CreatePrimitiveState()
-    }));
-
-    Geometry.AddNormalBuffer(Pipeline, void 0, void 0, ...vertexEntry);
+    }), [
+        Texture.CreateSampler(),
+        texture.createView()
+    ]);
 
     scene.Add(Cube);
+
+    Renderer.CreatePassDescriptor(
+        Renderer.CreateColorAttachment(),
+        Renderer.CreateDepthStencilAttachment()
+    );
 
     const observer = new ResizeObserver(entries =>
     {

@@ -1,15 +1,7 @@
-struct VertexOutput
-{
-    @location(0) normal: vec3f,
-    @builtin(position) position: vec4f
-};
+@group(0) @binding(1) var Sampler: sampler;
+@group(0) @binding(2) var Texture: texture_2d<f32>;
 
-@vertex fn meshVertex(@location(0) position: vec4f, @location(1) normal: vec3f) -> VertexOutput
+@fragment fn fragment(mesh: MeshVertexNormalUV) -> @location(0) vec4f
 {
-    return VertexOutput(normal, GetVertexClipSpace(position));
-}
-
-@fragment fn meshFragment(input: VertexOutput) -> @location(0) vec4f
-{
-    return vec4f(input.normal, 1.0);
+    return textureSample(Texture, Sampler, mesh.uv);
 }
