@@ -42,11 +42,6 @@ import createVertices from "./F.js";
     const gui = new GUI();
     gui.onChange(render);
 
-    Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment(),
-        Renderer.CreateDepthStencilAttachment()
-    );
-
     const Camera = new PerspectiveCamera();
     const FGeometry = new Geometries.Mesh();
     const FPipeline = new Renderer.Pipeline();

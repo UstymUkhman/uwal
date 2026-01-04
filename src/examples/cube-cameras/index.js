@@ -4,7 +4,7 @@
  * @description This example is developed using the version listed below.
  * Please note that this code may be simplified in the future
  * thanks to more recent library APIs.
- * @version 0.2.3
+ * @version 0.2.4
  * @license MIT
  */
 
@@ -45,7 +45,6 @@ export async function run(canvas)
     let orthoRotation, nextOrthoY;
     let dropTimeout, dropTime = Infinity;
 
-    const CubeGeometry = new Geometries.Cube();
     const CubePipeline = new Renderer.Pipeline();
     const tempRotation = MathUtils.Vec3.create();
 
@@ -55,32 +54,33 @@ export async function run(canvas)
     const orthographicPosition = MathUtils.Vec3.create();
     const orthographicRotation = MathUtils.Vec3.create();
 
+    const CubeGeometry = new Geometries.Mesh("Cube", "uint16");
+    CubeGeometry.Primitive = Geometries.Primitives.cube();
+
     const perspectiveCube = new Mesh(CubeGeometry, null);
     const orthographicCube = new Mesh(CubeGeometry, null);
 
+    const initialPerspectiveRotation = MathUtils.Vec3.create();
     const nextPerspectiveRotation  = MathUtils.Vec3.create();
     const nextOrthographicRotation = MathUtils.Vec3.create();
-    const initialPerspectiveRotation = MathUtils.Vec3.create();
-
-    const module = CubePipeline.CreateShaderModule([Shaders.MeshVertex, Cube]);
-
-    const { buffer: textureCoordsBuffer, layout: textureCoordsLayout } =
-        CubeGeometry.CreateTextureCoordsBuffer(CubePipeline, void 0, void 0, "cubeVertex");
-
-    await Renderer.AddPipeline(CubePipeline, {
-        primitive: CubePipeline.CreatePrimitiveState(),
-        fragment: CubePipeline.CreateFragmentState(module),
-        multisample: CubePipeline.CreateMultisampleState(),
-        depthStencil: CubePipeline.CreateDepthStencilState(),
-        vertex: CubePipeline.CreateVertexState(module, [
-            CubeGeometry.GetPositionBufferLayout(CubePipeline),
-            textureCoordsLayout
-        ], "cubeVertex")
-    });
 
     const Texture = new (await Device.Texture(Renderer));
     const source = await Texture.CreateImageBitmap(Dice);
     texture = await Texture.CopyImageToTexture(source);
+
+    const module = CubePipeline.CreateShaderModule([Shaders.MeshVertex, Cube]);
+    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new Color(0x194c33)));
+
+    await Renderer.AddPipeline(CubePipeline, {
+        primitive: CubePipeline.CreatePrimitiveState(),
+        multisample: CubePipeline.CreateMultisampleState(),
+        depthStencil: CubePipeline.CreateDepthStencilState(),
+        fragment: CubePipeline.CreateFragmentState(module),
+        vertex: CubePipeline.CreateVertexState(module, [
+            CubeGeometry.GetPositionBufferLayout(CubePipeline, "vertexUV"),
+            CubePipeline.CreateVertexBufferLayout("uv", "vertexUV")
+        ], "vertexUV")
+    });
 
     orthographicCube.SetRenderPipeline(CubePipeline, [
         Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
@@ -92,12 +92,16 @@ export async function run(canvas)
         texture.createView()
     ]);
 
-    Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment(new Color(0x194c33)),
-        Renderer.CreateDepthStencilAttachment()
-    );
+    CubeGeometry.AddVertexBuffer(CubePipeline, new Float32Array(
+    [
+        0.5 , 0.5, 0.75, 0.5, 0.5 , 1  , 0.75, 1  , // Top
+        0.25, 0.5, 0.5 , 0.5, 0.25, 1  , 0.5 , 1  , // Bottom
+        0   , 0  , 0   , 0.5, 0.25, 0  , 0.25, 0.5, // Front
+        0.5 , 0  , 0.5 , 0.5, 0.75, 0  , 0.75, 0.5, // Back
+        0   , 0.5, 0.25, 0.5, 0   , 1  , 0.25, 1  , // Left
+        0.25, 0  , 0.5 , 0  , 0.25, 0.5, 0.5 , 0.5  // Right
+    ]), "uv", "vertexUV");
 
-    CubePipeline.AddVertexBuffers(textureCoordsBuffer);
     scene.Add([perspectiveCube, orthographicCube]);
 
     scene.AddCamera(orthographicCamera);

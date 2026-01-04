@@ -65,11 +65,6 @@ import UV from "/assets/images/uv.jpg";
 
     scene.Add(Cube);
 
-    Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment(),
-        Renderer.CreateDepthStencilAttachment()
-    );
-
     const observer = new ResizeObserver(entries =>
     {
         for (const entry of entries)

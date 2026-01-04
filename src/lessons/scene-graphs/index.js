@@ -114,32 +114,29 @@ import Cube from "./Cube.wgsl";
         drawerSize[depth] + 4,
     ];
 
-    const Camera = new PerspectiveCamera();
-    const CubeGeometry = new Geometries.Cube();
+    const CubeGeometry = new Geometries.Mesh("Cube", "uint16");
+    CubeGeometry.Primitive = Geometries.Primitives.cube();
     const CubePipeline = new Renderer.Pipeline();
+    const Camera = new PerspectiveCamera();
 
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
+    const colorAttribute = { name: "color", format: "unorm8x4" };
     const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;
-
     const module = CubePipeline.CreateShaderModule([Shaders.Mesh, Cube]);
-    const { layout: colorLayout, buffer: colorBuffer } = createVertexColors();
 
     await Renderer.AddPipeline(CubePipeline, {
         primitive: CubePipeline.CreatePrimitiveState(),
         depthStencil: CubePipeline.CreateDepthStencilState(),
         fragment: CubePipeline.CreateFragmentState(module, void 0, "cubeFragment"),
         vertex: CubePipeline.CreateVertexState(module, [
-            CubeGeometry.GetPositionBufferLayout(CubePipeline), colorLayout
+            CubeGeometry.GetPositionBufferLayout(CubePipeline),
+            CubePipeline.CreateVertexBufferLayout(colorAttribute, "cubeVertex")
         ], "cubeVertex"),
     });
 
+    const colorBuffer = createVertexColors(colorAttribute);
     Array.from({ length: 5 }).forEach((_, c) => addCabinet(scene, c))
     const nodeButtons = addNodeGUI(gui.addFolder("Nodes"), scene);
-
-    Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment(),
-        Renderer.CreateDepthStencilAttachment()
-    );
 
     setCurrentNode(scene.Children[0]);
     showTransforms(false);
@@ -180,14 +177,14 @@ import Cube from "./Cube.wgsl";
         transformFolder.updateDisplay();
     }
 
-    function createVertexColors()
+    function createVertexColors(attribute)
     {
         const vertices = 6 * 4, data = new Uint8Array(vertices * 4);
 
         const colors = [
-            /* Top:   */ 200, 200,  70, /* Bottom: */ 90, 130, 110,
             /* Front: */  70, 200, 210, /* Back:  */ 160, 160, 220,
-            /* Left:  */ 200,  70, 120, /* Right: */  80,  70, 200
+            /* Left:  */ 200,  70, 120, /* Right: */  80,  70, 200,
+            /* Top:   */ 200, 200,  70, /* Bottom: */ 90, 130, 110
         ];
 
         for (let v = 0, i = 0; v < vertices; i = (++v / 4 | 0) * 3)
@@ -196,9 +193,9 @@ import Cube from "./Cube.wgsl";
             data[v * 4 + 3] = 255;
         }
 
-        return CubeGeometry.AddVertexBuffer(
-            CubePipeline, data, { name: "color", format: "unorm8x4" }, void 0, "cubeVertex"
-        );
+        const { buffer } = CubePipeline.CreateVertexBuffer(attribute, vertices, "cubeVertex");
+        CubePipeline.WriteBuffer(buffer, data);
+        return buffer;
     }
 
     function setCurrentNode(node)
