@@ -22,7 +22,7 @@
 - UWAL is very minimal, under development and in early beta stage, so expect breaking changes in the future.
 - There are no plans to implement any WebGL fallback, so keep an eye on [browsers that support](https://caniuse.com/webgpu) WebGPU APIs.
 - It is aimed at developers who like minimal layers of abstraction and are interested in writing their own shaders.
-- To get started with UWAL, feel free to check out the [Wiki](https://github.com/UstymUkhman/uwal/wiki) page for some simple examples using version `0.2.x`.
+- To get started, feel free to check out the [Wiki](https://github.com/UstymUkhman/uwal/wiki) page for some simple examples using the latest versions.
 
 ## Installation
 
