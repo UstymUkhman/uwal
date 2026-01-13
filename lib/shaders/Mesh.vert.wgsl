@@ -18,43 +18,57 @@ fn GetVertexClipSpace(position: vec4f) -> vec4f
     return modelViewProjection * position;
 }
 
-@vertex fn vertex(@location(0) position: vec4f) -> @builtin(position) vec4f
+struct MeshVertexPosition
 {
-    return GetVertexClipSpace(position);
+    @builtin(position) position: vec4f,
+    @location(0) worldPosition: vec3f
+};
+
+@vertex fn vertex(@location(0) position: vec4f) -> MeshVertexPosition
+{
+    return MeshVertexPosition(GetVertexClipSpace(position), GetVertexWorldPosition(position));
 }
 
 struct MeshVertexNormal
 {
     @builtin(position) position: vec4f,
-    @location(0) normal: vec3f
+    @location(0) worldPosition: vec3f,
+    @location(1) normal: vec3f
 };
 
 @vertex fn vertexNormal(@location(0) position: vec4f, @location(1) normal: vec3f) -> MeshVertexNormal
 {
-    return MeshVertexNormal(GetVertexClipSpace(position), normal);
+    return MeshVertexNormal(GetVertexClipSpace(position), GetVertexWorldPosition(position), normal);
 }
 
 struct MeshVertexUV
 {
     @builtin(position) position: vec4f,
-    @location(0) uv: vec2f
+    @location(0) worldPosition: vec3f,
+    @location(1) uv: vec2f
 };
 
 @vertex fn vertexUV(@location(0) position: vec4f, @location(1) uv: vec2f) -> MeshVertexUV
 {
-    return MeshVertexUV(GetVertexClipSpace(position), uv);
+    return MeshVertexUV(GetVertexClipSpace(position), GetVertexWorldPosition(position), uv);
 }
 
 struct MeshVertexNormalUV
 {
     @builtin(position) position: vec4f,
-    @location(0) normal: vec3f,
-    @location(1) uv: vec2f
+    @location(0) worldPosition: vec3f,
+    @location(1) normal: vec3f,
+    @location(2) uv: vec2f
 };
 
 @vertex fn vertexNormalUV(
     @location(0) position: vec4f, @location(1) normal: vec3f, @location(2) uv: vec2f
 ) -> MeshVertexNormalUV
 {
-    return MeshVertexNormalUV(GetVertexClipSpace(position), normal, uv);
+    return MeshVertexNormalUV(
+        GetVertexClipSpace(position),
+        GetVertexWorldPosition(position),
+        normal,
+        uv
+    );
 }
