@@ -32,7 +32,7 @@
         "slug": "compute-texture"
     },
     {
-        "name": "Geometries / Lights",
-        "slug": "geometries-lights"
+        "name": "Primitives / Lights",
+        "slug": "primitives-lights"
     }
 ]
