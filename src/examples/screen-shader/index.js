@@ -10,7 +10,7 @@
  */
 
 import { Device, Shaders, Color } from "#/index";
-import ScreenShader from "./ScreenShader.wgsl";
+import Screen from "./Screen.wgsl";
 
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
@@ -29,7 +29,7 @@ export async function run(canvas)
         alert(error);
     }
 
-    const RenderPipeline = await Renderer.CreatePipeline([Shaders.Fullscreen, ScreenShader]);
+    const RenderPipeline = await Renderer.CreatePipeline([Shaders.Fullscreen, Screen]);
     const { screen, buffer } = RenderPipeline.CreateUniformBuffer("screen");
 
     RenderPipeline.SetBindGroupFromResources(buffer);
