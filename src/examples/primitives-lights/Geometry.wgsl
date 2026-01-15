@@ -2,18 +2,22 @@
 @group(0) @binding(3) var Sampler: sampler;
 @group(0) @binding(4) var Texture: texture_2d<f32>;
 
+@group(1) @binding(0) var<uniform> DirectionalLight: LightUniforms;
+
 @fragment fn baseFragment(mesh: MeshVertexNormalUV) -> @location(0) vec4f
 {
+    var rgb = color.rgb;
+
     // Texture:
     if (mode == 0)
     {
-        return textureSample(Texture, Sampler, mesh.uv);
+        rgb = textureSample(Texture, Sampler, mesh.uv).rgb;
     }
 
     // Normal:
     if (mode == 1)
     {
-        return vec4f(mesh.normal * 0.5 + 0.5, 1);
+        rgb = vec3f(mesh.normal * 0.5 + 0.5);
     }
 
     // Flat Shaded:
@@ -21,16 +25,15 @@
     {
         let fdx = vec3f(dpdx(mesh.worldPosition.x), dpdx(mesh.worldPosition.y), dpdx(mesh.worldPosition.z));
         let fdy = vec3f(dpdy(mesh.worldPosition.x), dpdy(mesh.worldPosition.y), dpdy(mesh.worldPosition.z));
-        let color = normalize(cross(fdx, fdy));
-        return vec4f(color * 0.5 + 0.5, 1);
+        rgb = normalize(cross(fdx, fdy)) * 0.5 + 0.5;
     }
 
     // UV:
     if (mode == 3)
     {
-        return vec4f(mesh.uv, 0, 1);
+        rgb = vec3f(mesh.uv, 0);
     }
 
-    // Fallback (Wireframe):
-    return color;
+    let directionalLight = GetDirectionalLight(DirectionalLight.direction, mesh.normal);
+    return vec4f(rgb * directionalLight * DirectionalLight.intensity, 1);
 }

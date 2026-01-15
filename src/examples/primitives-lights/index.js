@@ -9,61 +9,56 @@
  * @license MIT
  */
 
-import {
-    Node,
-    Mesh,
-    Color,
-    Scene,
-    Device,
-    Shaders,
-    Materials,
-    Geometries,
-    BLEND_STATE,
-    PerspectiveCamera
-} from "#/index";
-
-import BaseShader from "./Base.wgsl";
+import * as UWAL from "#/index";
 import UV from "/assets/images/uv.jpg";
+import GeometryShader from "./Geometry.wgsl";
 
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
-/** @type {Mesh[]} */ let meshes = [];
 /** @type {GPUTexture} */ let texture;
 /** @type {ResizeObserver} */ let observer;
-/** @type {Scene} */ const scene = new Scene();
+/** @type {Scene} */ const scene = new UWAL.Scene();
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Primitives / Lights"));
+        Renderer = new (await UWAL.Device.Renderer(canvas, "Primitives / Lights"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const grid = new Node();
-    const scene = new Scene();
-
+    let startTime;
+    const grid = new UWAL.Node();
     const wireResources = new Array(2);
-    const Camera = new PerspectiveCamera();
+    const origin = UWAL.MathUtils.Vec3.create();
 
+    const Camera = new UWAL.PerspectiveCamera();
     const BasePipeline = new Renderer.Pipeline();
     const WirePipeline = new Renderer.Pipeline();
-    const material = new Materials.Color(0xffffff);
+    const material = new UWAL.Materials.Color(0xffffff);
 
-    const Texture = new (await Device.Texture(Renderer));
+    const Texture = new (await UWAL.Device.Texture(Renderer));
     const source = await Texture.CreateImageBitmap(UV);
     texture = await Texture.CopyImageToTexture(source);
 
-    const Geometry = new Geometries.Mesh("Dummy", "uint16");
-    const wireModule = WirePipeline.CreateShaderModule(Shaders.Mesh);
-    const baseModule = BasePipeline.CreateShaderModule([Shaders.Mesh, BaseShader]);
+    const Geometry = new UWAL.Geometries.Mesh("Dummy", "uint16");
+    const wireModule = WirePipeline.CreateShaderModule(UWAL.Shaders.Mesh);
+    const baseModule = BasePipeline.CreateShaderModule([UWAL.Shaders.Light, UWAL.Shaders.Mesh, GeometryShader]);
 
+    const { DirectionalLight, buffer: directionalBuffer } = BasePipeline.CreateUniformBuffer("DirectionalLight");
     const { mode, buffer: modeBuffer } = BasePipeline.CreateUniformBuffer("mode");
     let baseResources = [modeBuffer, Texture.CreateSampler(), texture.createView()];
+
+    const directionalLight = new UWAL.DirectionalLight([0, -1, -1]);
+    DirectionalLight.intensity.set([directionalLight.Intensity]);
+    DirectionalLight.direction.set(directionalLight.Direction);
+
+    BasePipeline.WriteBuffer(directionalBuffer, DirectionalLight.direction.buffer);
+    const lightResources = [directionalBuffer];
 
     await Renderer.AddPipeline(WirePipeline, {
         vertex: WirePipeline.CreateVertexState(wireModule, Geometry.GetPositionBufferLayout(WirePipeline)),
@@ -71,7 +66,7 @@ export async function run(canvas)
         depthStencil: WirePipeline.CreateDepthStencilState(),
         multisample: WirePipeline.CreateMultisampleState(),
         fragment: WirePipeline.CreateFragmentState(wireModule,
-            WirePipeline.CreateColorTargetState(BLEND_STATE.ALPHA_ADDITIVE)
+            WirePipeline.CreateColorTargetState(UWAL.BLEND_STATE.ALPHA_ADDITIVE)
         )
     });
 
@@ -96,39 +91,39 @@ export async function run(canvas)
         const gridSize = 6, halfSize = (gridSize - 1) * 0.5, offset = 1.5;
 
         const primitives = [
-            Geometries.Primitives.box,
-            () => Geometries.Primitives.circle({ closed: true }),
-            () => Geometries.Primitives.plane({ nx: 10, quads: true }),
-            Geometries.Primitives.quad,
+            UWAL.Geometries.Primitives.box,
+            () => UWAL.Geometries.Primitives.circle({ closed: true }),
+            () => UWAL.Geometries.Primitives.plane({ nx: 10, quads: true }),
+            UWAL.Geometries.Primitives.quad,
             null,
-            Geometries.Primitives.plane,
-            Geometries.Primitives.roundedRectangle,
-            Geometries.Primitives.stadium,
+            UWAL.Geometries.Primitives.plane,
+            UWAL.Geometries.Primitives.roundedRectangle,
+            UWAL.Geometries.Primitives.stadium,
             null,
-            Geometries.Primitives.ellipse,
-            Geometries.Primitives.disc,
-            Geometries.Primitives.superellipse,
-            Geometries.Primitives.squircle,
-            Geometries.Primitives.annulus,
-            Geometries.Primitives.reuleux,
+            UWAL.Geometries.Primitives.ellipse,
+            UWAL.Geometries.Primitives.disc,
+            UWAL.Geometries.Primitives.superellipse,
+            UWAL.Geometries.Primitives.squircle,
+            UWAL.Geometries.Primitives.annulus,
+            UWAL.Geometries.Primitives.reuleux,
             null,
-            Geometries.Primitives.cube,
-            Geometries.Primitives.roundedCube,
+            UWAL.Geometries.Primitives.cube,
+            UWAL.Geometries.Primitives.roundedCube,
             null,
-            Geometries.Primitives.sphere,
-            Geometries.Primitives.icosphere,
-            Geometries.Primitives.ellipsoid,
+            UWAL.Geometries.Primitives.sphere,
+            UWAL.Geometries.Primitives.icosphere,
+            UWAL.Geometries.Primitives.ellipsoid,
             null,
-            Geometries.Primitives.cylinder,
-            Geometries.Primitives.cone,
-            Geometries.Primitives.capsule,
-            Geometries.Primitives.torus,
+            UWAL.Geometries.Primitives.cylinder,
+            UWAL.Geometries.Primitives.cone,
+            UWAL.Geometries.Primitives.capsule,
+            UWAL.Geometries.Primitives.torus,
             null,
-            Geometries.Primitives.tetrahedron,
-            Geometries.Primitives.icosahedron
+            UWAL.Geometries.Primitives.tetrahedron,
+            UWAL.Geometries.Primitives.icosahedron
         ];
 
-        meshes = primitives.map((primitive, p) =>
+        primitives.forEach((primitive, p) =>
         {
             if (!primitive)
             {
@@ -138,9 +133,9 @@ export async function run(canvas)
                 return;
             }
 
-            const Geometry = new Geometries.Mesh(void 0, "uint16");
+            const Geometry = new UWAL.Geometries.Mesh(void 0, "uint16");
             const Primitive = Geometry.Primitive = primitive();
-            const mesh = new Mesh(Geometry, material);
+            const mesh = new UWAL.Mesh(Geometry, material);
 
             mesh.SetRenderPipeline(WirePipeline);
             wireResources[1] = mesh.Material.ColorBuffer;
@@ -161,48 +156,51 @@ export async function run(canvas)
                 ~~(g++ / gridSize) * offset,
             ];
 
-            scene.Add(mesh);
-            return mesh;
+            grid.Add(mesh);
         });
 
-        meshes = meshes.filter(Boolean);
-        const halfGridSize = meshes.at(-1).Position[2] / 2;
-        meshes.forEach((mesh) => mesh.Position[2] -= halfGridSize);
+        grid.Position[2] = grid.Children.at(-1).Position[2] / -2;
     }
 
     function clean()
     {
-        meshes.forEach(mesh => mesh.Destroy());
+        grid.Traverse(mesh => mesh.Destroy?.());
         cancelAnimationFrame(raf);
-        scene.Children.splice(0);
-        meshes.splice(0);
+        grid.Children.splice(0);
     }
 
     function start()
     {
         createMeshes();
+        startTime = Date.now();
         raf = requestAnimationFrame(render);
         baseResources.length === 3 && (baseResources = wireResources.concat(baseResources));
     }
 
-    function render(time)
+    function render()
     {
-        time /= 1e3;
-        mode.set([(time | 0) % 5]);
+        const time = (Date.now() - startTime) / 2e3;
         const sin = (Math.sin(time) + 1) / 2;
+        let m = 0;
 
+        mode.set([(time | 0) % 5]);
         BasePipeline.WriteBuffer(modeBuffer, mode);
         Camera.Position = [-sin * 12 + 4, sin * 2 + 2, 8];
 
-        for (let m = 3, l = meshes.length; m < l; ++m)
+        grid.Traverse((mesh) =>
         {
-            const mesh = meshes[m];
+            if (m++ < 4) return;
             baseResources[0] = wireResources[0] = mesh.ProjectionBuffer;
 
             if (!mode[0])
             {
                 mesh.Pipeline = BasePipeline;
-                mesh.BindGroups = BasePipeline.SetBindGroupFromResources(baseResources);
+
+                mesh.BindGroups = BasePipeline.SetBindGroups([
+                    BasePipeline.CreateBindGroup(BasePipeline.CreateBindGroupEntries(baseResources)),
+                    BasePipeline.CreateBindGroup(BasePipeline.CreateBindGroupEntries(lightResources), 1)
+                ]);
+
                 mesh.Geometry.CreateIndexBuffer(BasePipeline, mesh.Geometry.Primitive.cells);
             }
 
@@ -212,11 +210,11 @@ export async function run(canvas)
                 mesh.Geometry.CreateEdgeBuffer(WirePipeline);
                 mesh.BindGroups = WirePipeline.SetBindGroupFromResources(wireResources);
             }
-        }
+        });
 
-        raf = requestAnimationFrame(render);
-        Camera.LookAt(grid.Position);
+        Camera.LookAt(origin);
         Renderer.Render(scene);
+        raf = requestAnimationFrame(render);
     }
 
     observer = new ResizeObserver(entries =>
@@ -239,14 +237,12 @@ export async function run(canvas)
 
 export function destroy()
 {
-    meshes.forEach(mesh => mesh.Destroy());
-    Device.OnLost = () => void 0;
+    UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
-    meshes.splice(0);
     scene.Destroy();
-    Device.Destroy(
+    UWAL.Device.Destroy(
         undefined,
         texture
     );
