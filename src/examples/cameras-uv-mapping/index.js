@@ -1,5 +1,5 @@
 /**
- * @example Cube / Cameras
+ * @example Cameras / UV Mapping
  * @author Ustym Ukhman <ustym.ukhman@gmail.com>
  * @description This example is developed using the version listed below.
  * Please note that this code may be simplified in the future
@@ -35,7 +35,7 @@ export async function run(canvas)
 {
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Cube / Cameras"));
+        Renderer = new (await Device.Renderer(canvas, "Cameras / UV Mapping"));
     }
     catch (error)
     {

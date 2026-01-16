@@ -7,7 +7,7 @@
 | [2D Shapes](https://ustymukhman.github.io/uwal/dist/examples/examples.html#2d-shapes) | [Code](./2d-shapes/index.js) |
 | [Textures / Instancing](https://ustymukhman.github.io/uwal/dist/examples/examples.html#textures-instancing) | [Code](./textures-instancing/index.js) |
 | [Video Color Grading](https://ustymukhman.github.io/uwal/dist/examples/examples.html#video-color-grading) | [Code](./video-color-grading/index.js) |
-| [Cube / Cameras](https://ustymukhman.github.io/uwal/dist/examples/examples.html#cube-cameras) | [Code](./cube-cameras/index.js) |
+| [Cameras / UV Mapping](https://ustymukhman.github.io/uwal/dist/examples/examples.html#cameras-uv-mapping) | [Code](./cameras-uv-mapping/index.js) |
 | [MSDF Text](https://ustymukhman.github.io/uwal/dist/examples/examples.html#msdf-text) | [Code](./msdf-text/index.js) |
 | [Compute Texture](https://ustymukhman.github.io/uwal/dist/examples/examples.html#compute-texture) | [Code](./compute-texture/index.js) |
 | [Primitives / Lights](https://ustymukhman.github.io/uwal/dist/examples/examples.html#primitives-lights) | [Code](./primitives-lights/index.js) |
