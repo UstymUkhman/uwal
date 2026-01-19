@@ -18,6 +18,6 @@ struct VertexOutput
 
 @fragment fn meshFragment(@location(0) normal: vec3f) -> @location(0) vec4f
 {
-    let light = GetDirectionalLight(Light.direction, normal);
+    let light = GetDirectionalLight(Light, normal);
     return vec4f(color.rgb * light, color.a);
 }

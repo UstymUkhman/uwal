@@ -69,7 +69,10 @@ import createVertices from "./F.js";
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
 
     const direction = MathUtils.Vec3.create(-0.5, -0.7, -1);
-    Light.direction.set(new DirectionalLight(direction).Direction);
+    const directionalLight = new DirectionalLight(direction);
+
+    Light.direction.set(directionalLight.Direction);
+    Light.intensity.set([directionalLight.Intensity]);
     FPipeline.WriteBuffer(buffer, Light.direction.buffer);
 
     FGeometry.CreatePositionBuffer(FPipeline, positionData);
