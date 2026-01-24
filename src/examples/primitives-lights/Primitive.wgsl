@@ -2,11 +2,12 @@ struct Mesh
 {
     @builtin(position) position: vec4f,
     @location(0) cameraDirection: vec3f,
-    @location(1) lightDirection: vec3f,
-    @location(2) worldPosition: vec3f,
-    @location(3) vertexNormal: vec3f,
-    @location(4) normal: vec3f,
-    @location(5) uv: vec2f
+    @location(1) pointDirection: vec3f,
+    @location(2) spotDirection: vec3f,
+    @location(3) worldPosition: vec3f,
+    @location(4) vertexNormal: vec3f,
+    @location(5) normal: vec3f,
+    @location(6) uv: vec2f
 };
 
 @group(0) @binding(2) var<uniform> mode: f32;
@@ -14,9 +15,9 @@ struct Mesh
 @group(0) @binding(4) var Texture: texture_2d<f32>;
 
 @group(1) @binding(0) var<uniform> uCamera: CameraUniforms;
-// @group(1) @binding(1) var<uniform> uSpotLight: LightUniforms;
-@group(1) @binding(1) var<uniform> uPointLight: LightUniforms;
-@group(1) @binding(2) var<uniform> uDirectionalLight: LightUniforms;
+@group(1) @binding(1) var<uniform> uSpotLight: LightUniforms;
+@group(1) @binding(2) var<uniform> uPointLight: LightUniforms;
+@group(1) @binding(3) var<uniform> uDirectionalLight: LightUniforms;
 
 @vertex fn baseVertex(
     @location(0) position: vec4f, @location(1) normal: vec3f, @location(2) uv: vec2f
@@ -28,6 +29,7 @@ struct Mesh
         GetVertexClipSpace(position),
         GetCameraDirection(worldPosition, uCamera.position),
         GetLightDirection(worldPosition, uPointLight.position),
+        GetLightDirection(worldPosition, uSpotLight.position),
         worldPosition,
         GetVertexNormal(MeshUniforms.worldNormal, normal),
         normal,
@@ -71,24 +73,23 @@ struct Mesh
         PointLight(
             mesh.normal,
             uPointLight.intensity,
-            mesh.lightDirection,
+            mesh.pointDirection,
             mesh.cameraDirection
         )
     );
 
-    /* let spotLight = GetSpotLight(
+    let spotLight = GetSpotLight(
         SpotLight(
             mesh.normal,
             uSpotLight.intensity,
-            mesh.lightDirection,
+            mesh.spotDirection,
             mesh.cameraDirection,
             uSpotLight.direction,
             uSpotLight.limit
         )
-    ); */
+    );
 
-    let specular = pointLight.specular /* + spotLight.specular */;
-    light += pointLight.value /* + spotLight.value */;
-
+    let specular = pointLight.specular + spotLight.specular;
+    light += pointLight.value + spotLight.value;
     return vec4f(rgb * light + specular, 1);
 }

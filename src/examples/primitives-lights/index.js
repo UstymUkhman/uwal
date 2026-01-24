@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import GeometryShader from "./Geometry.wgsl";
+import Primitive from "./Primitive.wgsl";
 import UV from "/assets/images/uv.jpg";
 import * as UWAL from "#/index";
 
@@ -56,19 +56,19 @@ export async function run(canvas)
     texture = await Texture.CopyImageToTexture(source);
 
     const baseModule = BasePipeline.CreateShaderModule([
-        UWAL.Shaders.Camera, UWAL.Shaders.Light, UWAL.Shaders.Mesh, GeometryShader
+        UWAL.Shaders.Camera, UWAL.Shaders.Light, UWAL.Shaders.Mesh, Primitive
     ]);
 
-    const wireModule = WirePipeline.CreateShaderModule(UWAL.Shaders.Mesh);
     const Geometry = new UWAL.Geometries.Mesh("Dummy", "uint16");
+    const wireModule = WirePipeline.CreateShaderModule(UWAL.Shaders.Mesh);
 
     const { mode, buffer: modeBuffer } = BasePipeline.CreateUniformBuffer("mode");
     const { uCamera, buffer: cameraBuffer } = BasePipeline.CreateUniformBuffer("uCamera");
-    // const { uSpotLight, buffer: spotBuffer } = BasePipeline.CreateUniformBuffer("uSpotLight");
+    const { uSpotLight, buffer: spotBuffer } = BasePipeline.CreateUniformBuffer("uSpotLight");
     const { uPointLight, buffer: pointBuffer } = BasePipeline.CreateUniformBuffer("uPointLight");
     const { uDirectionalLight, buffer: directionalBuffer } = BasePipeline.CreateUniformBuffer("uDirectionalLight");
 
-    const lightResources = [cameraBuffer, /* spotBuffer, */ pointBuffer, directionalBuffer];
+    const lightResources = [cameraBuffer, spotBuffer, pointBuffer, directionalBuffer];
     let baseResources = [modeBuffer, Texture.CreateSampler(), texture.createView()];
 
     await Renderer.AddPipeline(WirePipeline, {
@@ -175,45 +175,6 @@ export async function run(canvas)
         return halfSize * -offset;
     }
 
-    function clean()
-    {
-        grid.Traverse(mesh => mesh.Destroy?.());
-        cancelAnimationFrame(raf);
-        grid.Children.splice(0);
-    }
-
-    function start()
-    {
-        startTime = Date.now();
-        createLights(createMeshes());
-        raf = requestAnimationFrame(render);
-        baseResources.length === 3 && (baseResources = wireResources.concat(baseResources));
-    }
-
-    function createLights(x)
-    {
-        const directionalLight = new UWAL.DirectionalLight([0, -1, -1]);
-        pointLight = new UWAL.PointLight([pointX = -x, 1, pointZ = 0]);
-        // spotLight = new UWAL.SpotLight([spotX = x, 1, spotZ = 0]);
-        // const rad15 = MathUtils.DegreesToRadians(15);
-        // const rad30 = MathUtils.DegreesToRadians(30);
-
-        directionalLight.Intensity = 0.2;
-        // spotLight.Limit = [rad15, rad30];
-        pointLight.Intensity = 0x800;
-        // spotLight.Intensity = 0x400;
-
-        uDirectionalLight.intensity.set([directionalLight.Intensity]);
-        uDirectionalLight.direction.set(directionalLight.Direction);
-        uPointLight.intensity.set([pointLight.Intensity]);
-
-        // uSpotLight.direction.set(spotLight.LookAt([1, -0.5, -1]));
-        // uSpotLight.intensity.set([spotLight.Intensity]);
-        // uSpotLight.limit.set(spotLight.Limit);
-
-        BasePipeline.WriteBuffer(directionalBuffer, uDirectionalLight.direction.buffer);
-    }
-
     function updateLights(time)
     {
         const progress = time * 0.2;
@@ -229,21 +190,60 @@ export async function run(canvas)
         pointLight.Position[0] = pointX - wiggle * -Math.SQRT1_2;
         pointLight.Position[2] = pointZ + wiggle * Math.SQRT1_2;
 
-        // Vec2.mulScalar(spotDirection, k, direction);
-        //
-        // spotX += deltaTime * direction[0] * 0.8;
-        // spotZ += deltaTime * direction[1] * 0.8;
-        //
-        // spotLight.Position[0] = spotX + wiggle * -Math.SQRT1_2;
-        // spotLight.Position[2] = spotZ + wiggle * Math.SQRT1_2;
+        Vec2.mulScalar(spotDirection, k, direction);
+
+        spotX += deltaTime * direction[0] * 0.8;
+        spotZ += deltaTime * direction[1] * 0.8;
+
+        spotLight.Position[0] = spotX + wiggle * -Math.SQRT1_2;
+        spotLight.Position[2] = spotZ + wiggle * Math.SQRT1_2;
 
         uCamera.position.set(Camera.Position);
-        // uSpotLight.position.set(spotLight.Position);
+        uSpotLight.position.set(spotLight.Position);
         uPointLight.position.set(pointLight.Position);
 
         BasePipeline.WriteBuffer(cameraBuffer, uCamera.position);
-        // BasePipeline.WriteBuffer(spotBuffer, uSpotLight.position.buffer);
+        BasePipeline.WriteBuffer(spotBuffer, uSpotLight.position.buffer);
         BasePipeline.WriteBuffer(pointBuffer, uPointLight.position.buffer);
+    }
+
+    function createLights(x)
+    {
+        const directionalLight = new UWAL.DirectionalLight([0, -1, -1]);
+        pointLight = new UWAL.PointLight([pointX = -x, 1, pointZ = 0]);
+        spotLight = new UWAL.SpotLight([spotX = x, 1, spotZ = 0]);
+        const rad15 = UWAL.MathUtils.DegreesToRadians(15);
+        const rad30 = UWAL.MathUtils.DegreesToRadians(30);
+
+        directionalLight.Intensity = 0.2;
+        spotLight.Limit = [rad15, rad30];
+        pointLight.Intensity = 0x800;
+        spotLight.Intensity = 0x400;
+
+        uDirectionalLight.intensity.set([directionalLight.Intensity]);
+        uDirectionalLight.direction.set(directionalLight.Direction);
+        uPointLight.intensity.set([pointLight.Intensity]);
+
+        uSpotLight.direction.set(spotLight.LookAt([-1, -0.5, -1]));
+        uSpotLight.intensity.set([spotLight.Intensity]);
+        uSpotLight.limit.set(spotLight.Limit);
+
+        BasePipeline.WriteBuffer(directionalBuffer, uDirectionalLight.direction.buffer);
+    }
+
+    function clean()
+    {
+        grid.Traverse(mesh => mesh.Destroy?.());
+        cancelAnimationFrame(raf);
+        grid.Children.splice(0);
+    }
+
+    function start()
+    {
+        startTime = Date.now();
+        createLights(createMeshes());
+        raf = requestAnimationFrame(render);
+        baseResources.length === 3 && (baseResources = wireResources.concat(baseResources));
     }
 
     function render()
