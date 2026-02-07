@@ -135,7 +135,7 @@ import Cube from "./Cube.wgsl";
     });
 
     const colorBuffer = createVertexColors(colorAttribute);
-    Array.from({ length: 5 }).forEach((_, c) => addCabinet(scene, c))
+    Array.from({ length: cabinets }).forEach((_, c) => addCabinet(scene, c));
     const nodeButtons = addNodeGUI(gui.addFolder("Nodes"), scene);
 
     setCurrentNode(scene.Children[0]);

@@ -217,8 +217,8 @@ export async function run(canvas)
 
         directionalLight.Intensity = 0.2;
         spotLight.Limit = [rad15, rad30];
-        pointLight.Intensity = 0x800;
-        spotLight.Intensity = 0x400;
+        pointLight.Intensity = 0x400;
+        spotLight.Intensity = 0x800;
 
         uDirectionalLight.intensity.set([directionalLight.Intensity]);
         uDirectionalLight.direction.set(directionalLight.Direction);
