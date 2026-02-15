@@ -124,8 +124,8 @@ import createVertices from "../directional-lighting/F.js";
             Camera.AspectRatio = Renderer.AspectRatio;
             Camera.UpdateViewProjectionMatrix();
             Camera.Position = [100, 150, 200];
+            scene.AddMainCamera(Camera);
             Camera.LookAt(cameraTarget);
-            scene.AddCamera(Camera);
         }
 
         render();

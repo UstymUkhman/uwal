@@ -98,8 +98,8 @@ import createVertices from "./F.js";
             Camera.AspectRatio = Renderer.AspectRatio;
             Camera.UpdateViewProjectionMatrix();
             Camera.Position = [100, 150, 200];
+            scene.AddMainCamera(Camera);
             Camera.LookAt([0, 35, 0]);
-            scene.AddCamera(Camera);
         }
 
         render();

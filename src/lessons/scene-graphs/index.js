@@ -307,7 +307,7 @@ import Cube from "./Cube.wgsl";
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
             updateCameraRotation(settings.cameraRotation);
-            scene.AddCamera(Camera);
+            scene.AddMainCamera(Camera);
         }
 
         requestRender();

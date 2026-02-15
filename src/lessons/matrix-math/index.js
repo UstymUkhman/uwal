@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-math.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.2.0
+ * @version 0.3.0
  * @license MIT
  */
 
@@ -107,7 +107,7 @@ import createVertices from "./F.js";
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.Size = Renderer.CanvasSize;
-            scene.AddCamera(Camera);
+            scene.AddMainCamera(Camera);
         }
 
         render();

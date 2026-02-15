@@ -102,10 +102,8 @@ export async function run(canvas)
         0.25, 0  , 0.5 , 0  , 0.25, 0.5, 0.5 , 0.5  // Right
     ]), "uv", "vertexUV");
 
+    scene.Add([perspectiveCamera, orthographicCamera]);
     scene.Add([perspectiveCube, orthographicCube]);
-
-    scene.AddCamera(orthographicCamera);
-    scene.AddCamera(perspectiveCamera);
 
     function clean()
     {

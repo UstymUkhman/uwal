@@ -4,7 +4,7 @@
  * @description This example is developed using the version listed below.
  * Please note that this code may be simplified in the future
  * thanks to more recent library APIs.
- * @version 0.2.3
+ * @version 0.3.0
  * @license MIT
  */
 
@@ -138,7 +138,7 @@ export async function run(canvas)
         {
             let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
-            !scene.MainCamera && scene.AddCamera(Camera);
+            !scene.MainCamera && scene.AddMainCamera(Camera);
             Renderer.SetCanvasSize(width, blockSize);
             Camera.Size = Renderer.CanvasSize;
         }

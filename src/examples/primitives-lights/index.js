@@ -94,7 +94,7 @@ export async function run(canvas)
 
     scene.Add(grid);
     Camera.CullTest = 0;
-    scene.AddCamera(Camera);
+    scene.AddMainCamera(Camera);
     Camera.Position = [-8, 4, 8];
 
     function createMeshes(g = 0)
