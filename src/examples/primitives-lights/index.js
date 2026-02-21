@@ -4,7 +4,6 @@
  * @description This example is inspired by dmnsgn's "Primitive Geometry"
  * {https://dmnsgn.github.io/primitive-geometry/} and developed using the version listed below.
  * Please note that this code may be simplified in the future thanks to more recent library APIs.
- * @todo Should work with culling enabled.
  * @version 0.3.0
  * @license MIT
  */
@@ -93,7 +92,6 @@ export async function run(canvas)
     });
 
     scene.Add(grid);
-    Camera.CullTest = 0;
     scene.AddMainCamera(Camera);
     Camera.Position = [-8, 4, 8];
 
