@@ -6,8 +6,8 @@ struct VertexOutput
     @location(0) textureCoord: vec2f
 };
 
-@group(0) @binding(0) var Sampler: sampler;
-@group(0) @binding(1) var Texture: texture_2d<f32>;
+@group(0) @binding(5) var Sampler: sampler;
+@group(0) @binding(6) var Texture: texture_2d<f32>;
 
 @vertex fn vertex(@builtin(vertex_index) index: u32) -> VertexOutput
 {
