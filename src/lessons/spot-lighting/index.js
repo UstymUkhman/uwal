@@ -122,10 +122,10 @@ import createVertices from "../directional-lighting/F.js";
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
-            Camera.UpdateViewProjectionMatrix();
             Camera.Position = [100, 150, 200];
             scene.AddMainCamera(Camera);
             Camera.LookAt(cameraTarget);
+            Camera.UpdateWorldMatrix(true);
         }
 
         render();

@@ -295,7 +295,7 @@ export async function run(canvas)
             Renderer.SetCanvasSize(width, blockSize);
             Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             Camera.AspectRatio = Renderer.AspectRatio;
-            Camera.UpdateViewProjectionMatrix();
+            Camera.AutoUpdateWorldMatrix = true;
         }
 
         clean(), start();
