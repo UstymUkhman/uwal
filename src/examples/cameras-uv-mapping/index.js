@@ -198,14 +198,14 @@ export async function run(canvas)
             width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
             Renderer.SetCanvasSize(width, height);
 
-            perspectiveCamera.ResetLocalMatrix();
             orthographicCamera.Bottom = height;
             orthographicCamera.Right = width;
             orthographicCamera.Near = -100;
 
-            Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
+            // `Transform` also resets camera's local matrix:
+            perspectiveCamera.Transform = [[width / 360, 2, 8]];
             perspectiveCamera.AspectRatio = Renderer.AspectRatio;
-            perspectiveCamera.Position = [width / 360, 2, 8];
+
             orthographicCamera.UpdateViewProjectionMatrix();
             perspectiveCamera.UpdateViewProjectionMatrix();
 
@@ -218,6 +218,8 @@ export async function run(canvas)
             perspectiveCube.Scaling = [s, s, s];
             const os = (1 - (height - 1e3) / -400) * 36 + 72;
             orthographicCube.Scaling = [os * s, os * s, os * s];
+
+            Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             MathUtils.Vec3.set(0.2, orthoRotation, 0, orthographicRotation);
             MathUtils.Vec3.set(width - (nw * 250 + 100), oy, 0, orthographicPosition);
         }
