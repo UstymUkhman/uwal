@@ -52,6 +52,7 @@ export async function run(canvas)
     );
 
     const Pipeline = await Characters.CreateRenderPipeline(Renderer);
+    Characters.CameraMatrixBuffer = Camera.SetRenderPipeline(Pipeline);
 
     // alpha & scale (4) + color (4) + transform (16) + x & y (2):
     let bufferOffset = Float32Array.BYTES_PER_ELEMENT * 6 + 2;
@@ -88,7 +89,6 @@ export async function run(canvas)
         createCharGrid();
         data.set([1, ...light.rgba]);
         raf = requestAnimationFrame(render);
-        Characters.UpdatePerspective(Camera);
     }
 
     function createCharGrid()
@@ -185,7 +185,7 @@ export async function run(canvas)
             width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
             Renderer.SetCanvasSize(width, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
-            Camera.UpdateViewProjectionMatrix();
+            Camera.UpdateWorldMatrix();
         }
 
         clean(), start();

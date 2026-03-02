@@ -47,10 +47,10 @@ import createVertices from "../directional-lighting/F.js";
     const FPipeline = new Renderer.Pipeline();
 
     const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Camera, Shaders.Mesh, FShader]);
-    const { Camera: camera, buffer: cameraBuffer } = FPipeline.CreateUniformBuffer("Camera");
     const { Light, buffer: lightBuffer } = FPipeline.CreateUniformBuffer("Light");
     const FMesh = new Mesh(FGeometry, new Materials.Color(0x33ff33));
 
+    const cameraBuffer = Camera.SetRenderPipeline(FPipeline);
     const settings = { rotation: MathUtils.DegreesToRadians(0), shininess: 30 };
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
 
@@ -83,12 +83,8 @@ import createVertices from "../directional-lighting/F.js";
 
     function render()
     {
-        camera.position.set(Camera.Position);
         Light.intensity[0] = light.Intensity = settings.shininess;
-
         FPipeline.WriteBuffer(lightBuffer, Light.position.buffer);
-        FPipeline.WriteBuffer(cameraBuffer, camera.position);
-
         FMesh.Rotation = [0, settings.rotation, 0];
         Renderer.Render(scene);
     }

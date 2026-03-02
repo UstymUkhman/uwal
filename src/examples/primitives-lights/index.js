@@ -60,9 +60,9 @@ export async function run(canvas)
 
     const Geometry = new UWAL.Geometries.Mesh("Dummy", "uint16");
     const wireModule = WirePipeline.CreateShaderModule(UWAL.Shaders.Mesh);
+    const cameraBuffer = Camera.SetRenderPipeline(BasePipeline, "uCamera");
 
     const { mode, buffer: modeBuffer } = BasePipeline.CreateUniformBuffer("mode");
-    const { uCamera, buffer: cameraBuffer } = BasePipeline.CreateUniformBuffer("uCamera");
     const { uSpotLight, buffer: spotBuffer } = BasePipeline.CreateUniformBuffer("uSpotLight");
     const { uPointLight, buffer: pointBuffer } = BasePipeline.CreateUniformBuffer("uPointLight");
     const { uDirectionalLight, buffer: directionalBuffer } = BasePipeline.CreateUniformBuffer("uDirectionalLight");
@@ -137,7 +137,7 @@ export async function run(canvas)
             if (!primitive)
             {
                 if (g % gridSize)
-                        g += gridSize - (g % gridSize);
+                    g += gridSize - (g % gridSize);
 
                 return;
             }
@@ -196,11 +196,9 @@ export async function run(canvas)
         spotLight.Position[0] = spotX + wiggle * -Math.SQRT1_2;
         spotLight.Position[2] = spotZ + wiggle * Math.SQRT1_2;
 
-        uCamera.position.set(Camera.Position);
         uSpotLight.position.set(spotLight.Position);
         uPointLight.position.set(pointLight.Position);
 
-        BasePipeline.WriteBuffer(cameraBuffer, uCamera.position);
         BasePipeline.WriteBuffer(spotBuffer, uSpotLight.position.buffer);
         BasePipeline.WriteBuffer(pointBuffer, uPointLight.position.buffer);
     }
