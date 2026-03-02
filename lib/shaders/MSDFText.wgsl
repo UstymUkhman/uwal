@@ -4,6 +4,8 @@
  * @see https://github.com/Chlumsky/msdfgen/issues/22#issuecomment-234958005
  */
 
+#include "Camera.wgsl";
+
 const VERTEX = array(
     vec2f(0, -1),
     vec2f(1, -1),
@@ -28,12 +30,6 @@ struct text
     chars: array<vec3f>
 };
 
-struct camera
-{
-    view: mat4x4f,
-    projection: mat4x4f
-};
-
 struct MSDFTextVertexOutput
 {
     @location(0) textureCoord: vec2f,
@@ -45,7 +41,7 @@ struct MSDFTextVertexOutput
 @group(0) @binding(2) var Sampler: sampler;
 
 @group(1) @binding(0) var<storage> Text: text;
-@group(0) @binding(3) var<uniform> Camera: camera;
+@group(0) @binding(3) var<uniform> Camera: CameraMatrixUniforms;
 
 @vertex fn vertex(
     @builtin(vertex_index) index: u32,
@@ -61,7 +57,7 @@ struct MSDFTextVertexOutput
     output.textureCoord = vertexPosition * vec2f(1, -1);
 
     let characterPosition = (vertexPosition * character.size + textElement.xy + character.offset) * Text.scale;
-    output.position = Camera.projection * Camera.view * Text.transform * vec4f(characterPosition, 0, 1);
+    output.position = Camera.projection * Camera.world * Text.transform * vec4f(characterPosition, 0, 1);
 
     output.textureCoord *= character.extent;
     output.textureCoord += character.coords;
