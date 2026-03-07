@@ -51,7 +51,7 @@ export async function run(canvas)
         Renderer.CreateDepthStencilAttachment()
     );
 
-    const Pipeline = await Characters.CreateRenderPipeline(Renderer);
+    const Pipeline = await Characters.SetRenderPipeline(Renderer);
     Characters.CameraMatrixBuffer = Camera.SetRenderPipeline(Pipeline);
 
     // alpha & scale (4) + color (4) + transform (16) + x & y (2):
@@ -118,7 +118,7 @@ export async function run(canvas)
             delays.push(MathUtils.RandomInt(1, 240));
 
             buffers.push(Characters.Write(String.fromCharCode(ids[MathUtils.RandomInt(0, 90)]), dark));
-            Characters.SetTransform(MathUtils.Mat4.translation([-x + c * 0.25, 4.65 - r * 0.4, -8]), buffers[i]);
+            Characters.SetTranslation(MathUtils.Mat4.translation([-x + c * 0.25, 4.65 - r * 0.4, -8]), buffers[i]);
         }
     }
 
