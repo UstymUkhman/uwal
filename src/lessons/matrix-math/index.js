@@ -17,7 +17,6 @@ import {
     Shaders,
     Camera2D,
     MathUtils,
-    Materials,
     Geometries
 } from "#/index";
 
@@ -76,9 +75,18 @@ import createVertices from "./F.js";
     geometry.IndexData = indexData;
     geometry.VertexData = vertexData;
 
+    function setRandomColor(Pipeline)
+    {
+        const uniform = RenderPipeline.CreateUniformBuffer("color");
+        uniform.color.set(color.Random().rgba);
+
+        RenderPipeline.WriteBuffer(uniform.buffer, uniform.color);
+        return uniform.buffer;
+    }
+
     const shapes = Array.from({ length: 5 }).map(() => {
-        const shape = new Shape(geometry, new Materials.Color(color.Random()));
-        shape.SetRenderPipeline(RenderPipeline);
+        const shape = new Shape(geometry);
+        shape.SetRenderPipeline(RenderPipeline, setRandomColor());
         shape.Origin = [50, 75];
         return shape;
     });

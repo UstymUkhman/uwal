@@ -16,7 +16,6 @@ import {
     Shaders,
     Camera2D,
     MathUtils,
-    Materials,
     Geometries
 } from "#/index";
 
@@ -40,10 +39,10 @@ export async function run(canvas)
     const Camera = new Camera2D();
     const color = new Color(0x331a4d);
 
-    const spin = [], speed = [], direction = [];
     const DummyGeometry = new Geometries.Shape();
     const ShapePipeline = new Renderer.Pipeline();
 
+    const spin = [], speed = [], direction = [], uniform = [];
     const module = ShapePipeline.CreateShaderModule(Shaders.Shape);
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(color));
 
@@ -75,9 +74,13 @@ export async function run(canvas)
         raf = requestAnimationFrame(render);
     }
 
-    function randomColor()
+    function randomColor(uniform)
     {
-        return color.rgb = [MathUtils.Random(0.3), MathUtils.Random(0.2), MathUtils.Random(0.4)];
+        color.rgb = [MathUtils.Random(0.3), MathUtils.Random(0.2), MathUtils.Random(0.4)];
+        uniform.color.set(color.rgba);
+
+        ShapePipeline.WriteBuffer(uniform.buffer, uniform.color);
+        return uniform.buffer;
     }
 
     function createRandomShapes()
@@ -92,9 +95,10 @@ export async function run(canvas)
             {
                 const radius = MathUtils.Random(50, 100);
                 const inner = MathUtils.Random(0.75, 0.95) * radius;
+                const shape = new Shape(new Geometries.Shape({ segments, radius, innerRadius: inner * r }));
 
-                const geometry = new Geometries.Shape({ segments, radius, innerRadius: inner * r });
-                const shape = new Shape(geometry, new Materials.Color(randomColor()));
+                uniform.push(ShapePipeline.CreateUniformBuffer("color"));
+                shape.SetRenderPipeline(ShapePipeline, randomColor(uniform.at(-1)));
 
                 direction.push([MathUtils.Random(-1), MathUtils.Random(-1)]);
                 shape.Rotation = MathUtils.Random(0, MathUtils.TAU);
@@ -103,8 +107,6 @@ export async function run(canvas)
                     MathUtils.Random(radius,  width - radius),
                     MathUtils.Random(radius, height - radius)
                 ];
-
-                shape.SetRenderPipeline(ShapePipeline);
 
                 speed.push(MathUtils.Random(1, 10));
                 spin.push(MathUtils.Random(0, 0.1));
@@ -124,8 +126,8 @@ export async function run(canvas)
         {
             const { Min, Max } = shape.BoundingBox, [x, y] = shape.Position, dir = direction[s];
 
-            if (Min[0] <= 0 || Max[0] >= width)  { dir[0] *= -1; shape.Material.Color = randomColor(); }
-            if (Min[1] <= 0 || Max[1] >= height) { dir[1] *= -1; shape.Material.Color = randomColor(); }
+            if (Min[0] <= 0 || Max[0] >= width)  { dir[0] *= -1; randomColor(uniform[s]); }
+            if (Min[1] <= 0 || Max[1] >= height) { dir[1] *= -1; randomColor(uniform[s]); }
 
             shape.Position = [x + dir[0] * speed[s], y + dir[1] * speed[s]];
             shape.Rotation += spin[s++];
