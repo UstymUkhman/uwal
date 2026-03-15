@@ -72,7 +72,6 @@ flowchart TD
   ND2[Node2D]
   GEO[Geometries]
   ND[Node]
-  MAT[Materials]
   SHDS[Shaders]
   CAM[Camera]
   SHP[Shape]
@@ -88,11 +87,9 @@ flowchart TD
   ND2  --> SCN
   ND2  --> CAM
   ND2  --> SHP
-  MAT  --> SHP
   GEO  --> APP
   GEO  --> SHP
   GEO  --> MESH
-  MAT  --> MESH
   ND   --> CAM
   ND   --> MESH
   ND   --> SCN
@@ -101,13 +98,11 @@ flowchart TD
   MESH --> SCN
   CAM  --> APP
   CAM  --> SCN
-  SHDS --> MAT
   SHDS --> TXT
   RP   --> APP
   TEX  --> APP
   SCN  --> APP
   SHP  --> APP
-  MAT  --> APP
   TXT  --> APP
   SHDS --> APP
 ```

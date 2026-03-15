@@ -97,7 +97,7 @@ export async function run(canvas)
                 const inner = MathUtils.Random(0.75, 0.95) * radius;
                 const shape = new Shape(new Geometries.Shape({ segments, radius, innerRadius: inner * r }));
 
-                uniform.push(ShapePipeline.CreateUniformBuffer("color"));
+                uniform.push(shape.CreateColorBuffer(ShapePipeline));
                 shape.SetRenderPipeline(ShapePipeline, randomColor(uniform.at(-1)));
 
                 direction.push([MathUtils.Random(-1), MathUtils.Random(-1)]);

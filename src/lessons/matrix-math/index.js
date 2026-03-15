@@ -75,19 +75,15 @@ import createVertices from "./F.js";
     geometry.IndexData = indexData;
     geometry.VertexData = vertexData;
 
-    function setRandomColor(Pipeline)
-    {
-        const uniform = RenderPipeline.CreateUniformBuffer("color");
+    const shapes = Array.from({ length: 5 }).map(() => {
+        const shape = new Shape(geometry);
+        const uniform = shape.CreateColorBuffer(RenderPipeline);
         uniform.color.set(color.Random().rgba);
 
         RenderPipeline.WriteBuffer(uniform.buffer, uniform.color);
-        return uniform.buffer;
-    }
-
-    const shapes = Array.from({ length: 5 }).map(() => {
-        const shape = new Shape(geometry);
-        shape.SetRenderPipeline(RenderPipeline, setRandomColor());
+        shape.SetRenderPipeline(RenderPipeline, uniform.buffer);
         shape.Origin = [50, 75];
+
         return shape;
     });
 
