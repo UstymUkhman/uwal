@@ -48,7 +48,6 @@ export async function run(canvas)
 
     const spotDirection = Vec2.create(-0.85, -1);
     const pointDirection = Vec2.create(0.85, -1);
-    const material = new UWAL.Materials.Color(0xffffff);
 
     const Texture = new (await UWAL.Device.Texture(Renderer));
     const source = await Texture.CreateImageBitmap(UV);
@@ -61,6 +60,10 @@ export async function run(canvas)
     const Geometry = new UWAL.Geometries.Mesh("Dummy", "uint16");
     const wireModule = WirePipeline.CreateShaderModule(UWAL.Shaders.Mesh);
     const cameraBuffer = Camera.SetRenderPipeline(BasePipeline, "uCamera");
+    const { color, buffer: colorBuffer } = WirePipeline.CreateUniformBuffer("color");
+
+    color.set(new UWAL.Color(0xffffff).rgba);
+    WirePipeline.WriteBuffer(wireResources[1] = colorBuffer, color.buffer);
 
     const { mode, buffer: modeBuffer } = BasePipeline.CreateUniformBuffer("mode");
     const { uSpotLight, buffer: spotBuffer } = BasePipeline.CreateUniformBuffer("uSpotLight");
@@ -144,17 +147,16 @@ export async function run(canvas)
 
             const Geometry = new UWAL.Geometries.Mesh(void 0, "uint16");
             const Primitive = Geometry.Primitive = primitive();
-            const mesh = new UWAL.Mesh(Geometry, material);
 
-            mesh.SetRenderPipeline(WirePipeline);
-            wireResources[1] = mesh.Material.ColorBuffer;
+            const mesh = new UWAL.Mesh(Geometry);
+            mesh.SetRenderPipeline(WirePipeline, colorBuffer);
 
             if (p < 3)
                 p !== 1 && mesh.Geometry.CreateEdgeBuffer(WirePipeline, 4);
 
             else
             {
-                mesh.SetRenderPipeline(BasePipeline, baseResources.slice(-3));
+                mesh.SetRenderPipeline(BasePipeline, [colorBuffer].concat(baseResources.slice(-3)));
                 Geometry.AddNormalBuffer(BasePipeline, Primitive.normals, "baseVertex");
                 Geometry.AddUVBuffer(BasePipeline, Primitive.uvs, "baseVertex");
             }

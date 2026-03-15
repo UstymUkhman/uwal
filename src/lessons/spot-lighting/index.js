@@ -15,7 +15,6 @@ import {
     Scene,
     Device,
     Shaders,
-    Materials,
     MathUtils,
     SpotLight,
     Geometries,
@@ -38,13 +37,14 @@ import createVertices from "../directional-lighting/F.js";
         alert(error);
     }
 
+    const FPipeline = new Renderer.Pipeline();
+    const FGeometry = new Geometries.Mesh();
+    const Camera = new PerspectiveCamera();
+    const FMesh = new Mesh(FGeometry);
+
     const scene = new Scene();
     const gui = new GUI();
     gui.onChange(render);
-
-    const Camera = new PerspectiveCamera();
-    const FGeometry = new Geometries.Mesh();
-    const FPipeline = new Renderer.Pipeline();
 
     const settings = {
         innerLimit: MathUtils.DegreesToRadians(15),
@@ -57,7 +57,7 @@ import createVertices from "../directional-lighting/F.js";
 
     const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Camera, Shaders.Mesh, FShader]);
     const { Light, buffer: lightBuffer } = FPipeline.CreateUniformBuffer("Light");
-    const FMesh = new Mesh(FGeometry, new Materials.Color(0x33ff33));
+    const { color, buffer: colorBuffer } = FMesh.CreateColorBuffer(FPipeline);
 
     const cameraBuffer = Camera.SetRenderPipeline(FPipeline);
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
@@ -73,10 +73,11 @@ import createVertices from "../directional-lighting/F.js";
         fragment: FPipeline.CreateFragmentState(module, void 0, "meshFragment"),
         depthStencil: FPipeline.CreateDepthStencilState(),
         primitive: FPipeline.CreatePrimitiveState()
-    }), [lightBuffer, cameraBuffer]);
+    }), [colorBuffer, lightBuffer, cameraBuffer]);
 
     const { positionData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
+    color.set(new Color(0x33ff33).rgba);
 
     gui.add(settings, "rotation", radToDegOptions);
     gui.add(settings, "shininess", { min: 1, max: 250 });
@@ -85,6 +86,7 @@ import createVertices from "../directional-lighting/F.js";
     gui.add(settings, "aimOffsetY", -50, 50);
 
     FGeometry.CreatePositionBuffer(FPipeline, positionData);
+    FPipeline.WriteBuffer(colorBuffer, color.buffer);
     FPipeline.WriteBuffer(normalBuffer, normalData);
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);

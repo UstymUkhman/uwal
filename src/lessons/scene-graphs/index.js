@@ -9,8 +9,8 @@
  * @license MIT
  */
 
-import { Scene, Mesh, Color, Device, Shaders, MathUtils, Materials, Geometries, PerspectiveCamera } from "#/index";
 import { addButtonLeftJustified } from "https://webgpufundamentals.org/webgpu/resources/js/gui-helpers.js";
+import { Scene, Mesh, Color, Device, Shaders, MathUtils, Geometries, PerspectiveCamera } from "#/index";
 import Cube from "./Cube.wgsl";
 
 (async function(canvas)
@@ -42,11 +42,6 @@ import Cube from "./Cube.wgsl";
         step: 1,
         converters: GUI.converters.radToDeg
     };
-
-    const materialColor = new Color(0xffffff);
-    const drawerMaterial = new Materials.Color(0xffffff);
-    const handleMaterial = new Materials.Color(materialColor.Set(0x7f7f7f));
-    const cabinetMaterial = new Materials.Color(materialColor.Set(0xbfbfbf, 0xbf));
 
     const [width, height, depth] = [0, 1, 2];
     const alwaysShow = new Set([0, 1, 2]);
@@ -118,6 +113,7 @@ import Cube from "./Cube.wgsl";
     CubeGeometry.Primitive = Geometries.Primitives.cube();
     const CubePipeline = new Renderer.Pipeline();
     const Camera = new PerspectiveCamera();
+    const color = new Color(0xffffff);
 
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
     const colorAttribute = { name: "color", format: "unorm8x4" };
@@ -133,6 +129,19 @@ import Cube from "./Cube.wgsl";
             CubePipeline.CreateVertexBufferLayout(colorAttribute, "cubeVertex")
         ], "cubeVertex"),
     });
+
+    const { color: drawerColor, buffer: drawerBuffer } = CubePipeline.CreateUniformBuffer("color");
+    const { color: handleColor, buffer: handleBuffer } = CubePipeline.CreateUniformBuffer("color");
+    const { color: cabinetColor, buffer: cabinetBuffer } = CubePipeline.CreateUniformBuffer("color");
+
+    drawerColor.set(color.rgba);
+    CubePipeline.WriteBuffer(drawerBuffer, drawerColor.buffer);
+
+    handleColor.set(color.Set(0x7f7f7f).rgba);
+    CubePipeline.WriteBuffer(handleBuffer, handleColor.buffer);
+
+    cabinetColor.set(color.Set(0xbfbfbf, 0xbf).rgba);
+    CubePipeline.WriteBuffer(cabinetBuffer, cabinetColor.buffer);
 
     const colorBuffer = createVertexColors(colorAttribute);
     Array.from({ length: cabinets }).forEach((_, c) => addCabinet(scene, c));
@@ -219,11 +228,10 @@ import Cube from "./Cube.wgsl";
                 child.show(show);
     }
 
-    function addMesh(label, parent, transform, material)
+    function addMesh(label, parent, transform, buffer = drawerBuffer)
     {
-        const cube = new Mesh(CubeGeometry, material, label, parent);
-
-        cube.SetRenderPipeline(CubePipeline);
+        const cube = new Mesh(CubeGeometry, label, parent);
+        cube.SetRenderPipeline(CubePipeline, buffer);
         CubePipeline.AddVertexBuffers(colorBuffer);
 
         cube.Transform = transform;
@@ -244,11 +252,11 @@ import Cube from "./Cube.wgsl";
 
         addMesh(`${label}-drawer-mesh`, drawer, [
             void 0, void 0, drawerSize
-        ], drawerMaterial);
+        ], drawerBuffer);
 
         addMesh(`${label}-handle-mesh`, drawer, [
             handlePosition, void 0, handleSize
-        ], handleMaterial);
+        ], handleBuffer);
     }
 
     function addCabinet(parent, index)
@@ -261,7 +269,7 @@ import Cube from "./Cube.wgsl";
 
         addMesh(`${label}-mesh`, cabinet, [
             void 0, void 0, cabinetSize
-        ], cabinetMaterial);
+        ], cabinetBuffer);
 
         for (let d = 0; d < drawersPerCabinet; ++d)
             addDrawer(cabinet, d);

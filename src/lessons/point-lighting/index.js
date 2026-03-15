@@ -15,7 +15,6 @@ import {
     Scene,
     Device,
     Shaders,
-    Materials,
     MathUtils,
     PointLight,
     Geometries,
@@ -38,17 +37,18 @@ import createVertices from "../directional-lighting/F.js";
         alert(error);
     }
 
+    const FPipeline = new Renderer.Pipeline();
+    const FGeometry = new Geometries.Mesh();
+    const Camera = new PerspectiveCamera();
+    const FMesh = new Mesh(FGeometry);
+
     const scene = new Scene();
     const gui = new GUI();
     gui.onChange(render);
 
-    const Camera = new PerspectiveCamera();
-    const FGeometry = new Geometries.Mesh();
-    const FPipeline = new Renderer.Pipeline();
-
     const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Camera, Shaders.Mesh, FShader]);
     const { Light, buffer: lightBuffer } = FPipeline.CreateUniformBuffer("Light");
-    const FMesh = new Mesh(FGeometry, new Materials.Color(0x33ff33));
+    const { color, buffer: colorBuffer } = FMesh.CreateColorBuffer(FPipeline);
 
     const cameraBuffer = Camera.SetRenderPipeline(FPipeline);
     const settings = { rotation: MathUtils.DegreesToRadians(0), shininess: 30 };
@@ -64,12 +64,14 @@ import createVertices from "../directional-lighting/F.js";
         fragment: FPipeline.CreateFragmentState(module, void 0, "meshFragment"),
         depthStencil: FPipeline.CreateDepthStencilState(),
         primitive: FPipeline.CreatePrimitiveState()
-    }), [lightBuffer, cameraBuffer]);
+    }), [colorBuffer, lightBuffer, cameraBuffer]);
 
     const { positionData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
+    color.set(new Color(0x33ff33).rgba);
 
     FGeometry.CreatePositionBuffer(FPipeline, positionData);
+    FPipeline.WriteBuffer(colorBuffer, color.buffer);
     FPipeline.WriteBuffer(normalBuffer, normalData);
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);
