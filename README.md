@@ -66,9 +66,6 @@ flowchart TD
   RNDR --> RP
   RNDR --> APP
 
-  TIME[GPUTiming] --> APP
-  MATH[MathUtils] --> APP
-
   ND2[Node2D]
   GEO[Geometries]
   ND[Node]
@@ -81,14 +78,15 @@ flowchart TD
 
   LGHT[Lights]     --> APP
   COL[Color]       --> APP
+  MATH[MathUtils]  --> APP
   CONST[Constants] --> APP
 
   ND2  --> APP
   ND2  --> SCN
-  ND2  --> CAM
   ND2  --> SHP
-  GEO  --> APP
+  ND2  --> CAM
   GEO  --> SHP
+  GEO  --> APP
   GEO  --> MESH
   ND   --> CAM
   ND   --> MESH
@@ -112,9 +110,9 @@ flowchart TD
 |   |   |
 |:-:|:-:|
 | Basic Program | Ripple Effect |
-| [![Basic Program](assets/images/BasicProgram.jpg)](https://www.youtube.com/watch?v=TOCvJR07H6k) | [![Ripple Effect](assets/images/RippleEffect.jpg)](https://www.youtube.com/watch?v=j07n96qDe20) |
+| [![Basic Program](https://github.com/UstymUkhman/uwal-basic-program/blob/main/public/preview.jpg)](https://www.youtube.com/watch?v=TOCvJR07H6k) | [![Ripple Effect](https://github.com/UstymUkhman/uwal-ripple-effect/blob/main/public/preview.jpg)](https://www.youtube.com/watch?v=j07n96qDe20) |
 | WebGPU Smallpt | Pong Game |
-| [![WebGPU Smallpt](assets/images/WebGPUSmallpt.jpg)](https://ustymukhman.github.io/uwal/dist/examples/examples.html#webgpu-smallpt) | [![Pong Game](assets/images/PongGame.jpg)](https://ustymukhman.github.io/uwal/dist/examples/examples.html#pong-game) |
+| [![WebGPU Smallpt](https://github.com/UstymUkhman/uwal-webgpu-smallpt/blob/main/public/preview.jpg)](https://ustymukhman.github.io/uwal/dist/examples/examples.html#webgpu-smallpt) | [![Pong Game](https://github.com/UstymUkhman/uwal-pong-game/blob/main/public/preview.jpg)](https://ustymukhman.github.io/uwal/dist/examples/examples.html#pong-game) |
 
 ## Lessons
 
