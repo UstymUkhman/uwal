@@ -5,16 +5,16 @@ struct MeshMatrixUniforms
     viewProjection: mat4x4f
 };
 
-@group(0) @binding(0) var<uniform> MeshUniforms: MeshMatrixUniforms;
+@group(0) @binding(30) var<uniform> MeshMatrix: MeshMatrixUniforms;
 
 fn GetVertexWorldPosition(position: vec4f) -> vec3f
 {
-    return (MeshUniforms.world * position).xyz;
+    return (MeshMatrix.world * position).xyz;
 }
 
 fn GetVertexClipSpace(position: vec4f) -> vec4f
 {
-    let modelViewProjection = MeshUniforms.viewProjection * MeshUniforms.world;
+    let modelViewProjection = MeshMatrix.viewProjection * MeshMatrix.world;
     return modelViewProjection * position;
 }
 

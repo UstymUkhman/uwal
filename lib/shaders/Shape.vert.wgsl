@@ -11,16 +11,16 @@ struct ShapeVertexPosition
     @location(0) worldPosition: vec3f
 };
 
-@group(0) @binding(0) var<uniform> ShapeUniforms: ShapeMatrixUniforms;
+@group(0) @binding(20) var<uniform> ShapeMatrix: ShapeMatrixUniforms;
 
 fn GetVertexWorldPosition(position: vec2f) -> vec3f
 {
-    return ShapeUniforms.world * vec3f(position, 0);
+    return ShapeMatrix.world * vec3f(position, 0);
 }
 
 fn GetVertexClipSpace(position: vec2f) -> vec4f
 {
-    let modelViewProjection = ShapeUniforms.viewProjection * ShapeUniforms.world;
+    let modelViewProjection = ShapeMatrix.viewProjection * ShapeMatrix.world;
     return vec4f((modelViewProjection * vec3f(position, 1)).xy, 0, 1);
 }
 
