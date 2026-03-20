@@ -10,9 +10,9 @@ struct Mesh
     @location(6) uv: vec2f
 };
 
-@group(0) @binding(2) var<uniform> mode: f32;
-@group(0) @binding(3) var Sampler: sampler;
-@group(0) @binding(4) var Texture: texture_2d<f32>;
+@group(0) @binding(32) var<uniform> mode: f32;
+@group(0) @binding(33) var Sampler: sampler;
+@group(0) @binding(34) var Texture: texture_2d<f32>;
 
 @group(1) @binding(0) var<uniform> uCamera: CameraMatrixUniforms;
 @group(1) @binding(1) var<uniform> uSpotLight: LightUniforms;
@@ -31,7 +31,7 @@ struct Mesh
         GetLightDirection(worldPosition, uPointLight.position),
         GetLightDirection(worldPosition, uSpotLight.position),
         worldPosition,
-        GetVertexNormal(MeshUniforms.worldNormal, normal),
+        GetVertexNormal(MeshMatrix.worldNormal, normal),
         normal,
         uv
     );

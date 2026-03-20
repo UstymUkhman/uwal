@@ -63,6 +63,7 @@ export async function run(canvas)
 
         spin.splice(0);
         speed.splice(0);
+        uniform.splice(0);
         direction.splice(0);
         scene.Children.splice(0);
         cancelAnimationFrame(raf);

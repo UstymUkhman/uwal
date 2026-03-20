@@ -133,7 +133,6 @@ export async function run(canvas)
 
     function render()
     {
-        raf = requestAnimationFrame(render);
         const texture = Texture.ImportExternalTexture(video);
 
         VideoPipeline.SetBindGroupFromResources([
@@ -144,6 +143,7 @@ export async function run(canvas)
         ]);
 
         Renderer.Render();
+        raf = requestAnimationFrame(render);
     }
 
     observer = new ResizeObserver(entries =>

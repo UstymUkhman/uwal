@@ -252,20 +252,22 @@ export async function run(canvas)
         let m = 0;
         updateLights(time);
         mode.set([(time | 0) % 5]);
+
+        const B = UWAL.BINDINGS.MESH_MATRIX;
         BasePipeline.WriteBuffer(modeBuffer, mode);
         Camera.Position = [-sin * 12 + 4, sin * 2 + 2, 8];
 
         grid.Traverse((mesh) =>
         {
             if (m++ < 4) return;
-            baseResources[0] = wireResources[0] = mesh.ProjectionBuffer;
+            baseResources[0] = wireResources[0] = mesh.MatrixBuffer;
 
             if (!mode[0])
             {
                 mesh.Pipeline = BasePipeline;
 
                 mesh.BindGroups = BasePipeline.SetBindGroups([
-                    BasePipeline.CreateBindGroup(BasePipeline.CreateBindGroupEntries(baseResources)),
+                    BasePipeline.CreateBindGroup(BasePipeline.CreateBindGroupEntries(baseResources, B)),
                     BasePipeline.CreateBindGroup(BasePipeline.CreateBindGroupEntries(lightResources), 1)
                 ]);
 
@@ -276,7 +278,7 @@ export async function run(canvas)
             {
                 mesh.Pipeline = WirePipeline;
                 mesh.Geometry.CreateEdgeBuffer(WirePipeline);
-                mesh.BindGroups = WirePipeline.SetBindGroupFromResources(wireResources);
+                mesh.BindGroups = WirePipeline.SetBindGroupFromResources(wireResources, B);
             }
         });
 

@@ -60,14 +60,14 @@ export async function run(canvas)
         ComputePipeline.SetBindGroupFromResources([storageTexture, UniformsBuffer.buffer]);
         Computation.Workgroups = Renderer.CanvasSize.map(size => size / WORKGROUP_DIMENSION);
 
-        UniformsBuffer.uniforms.mouse.fill(Infinity);
-
         canvas.addEventListener("mouseenter", onOver);
         canvas.addEventListener("touchstart", onOver);
         canvas.addEventListener("mousemove", onOver);
         canvas.addEventListener("touchmove", onOver);
         canvas.addEventListener("mouseleave", onOut);
         canvas.addEventListener("touchend", onOut);
+
+        onOut();
     }
 
     async function createRenderPipeline()
@@ -110,7 +110,7 @@ export async function run(canvas)
             RenderPipeline.SetBindGroupFromResources([Texture.CreateSampler(), storageTexture]);
             Computation.Workgroups = Renderer.CanvasSize.map(size => size / WORKGROUP_DIMENSION);
 
-            return ~UniformsBuffer.uniforms.mouse.fill(Infinity) && render();
+            return ~onOut() && render();
         }
 
         createComputePipeline().then((texture) => createRenderPipeline(texture).then(render));
