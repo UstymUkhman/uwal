@@ -4,13 +4,13 @@ struct VertexOutput
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(2) var<uniform> Light: LightUniforms;
+@group(0) @binding(32) var<uniform> Light: LightUniforms;
 
 @vertex fn meshVertex(@location(0) position: vec4f, @location(1) normal: vec3f) -> VertexOutput
 {
     var output: VertexOutput;
 
-    output.normal = GetVertexNormal(MeshUniforms.worldNormal, normal);
+    output.normal = GetVertexNormal(MeshMatrix.worldNormal, normal);
     output.position = GetVertexClipSpace(position);
 
     return output;

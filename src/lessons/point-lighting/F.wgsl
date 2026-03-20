@@ -6,8 +6,8 @@ struct VertexOutput
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(2) var<uniform> Light: LightUniforms;
-@group(0) @binding(3) var<uniform> Camera: CameraMatrixUniforms;
+@group(0) @binding(32) var<uniform> Light: LightUniforms;
+@group(0) @binding(33) var<uniform> Camera: CameraMatrixUniforms;
 
 @vertex fn meshVertex(@location(0) position: vec4f, @location(1) normal: vec3f) -> VertexOutput
 {
@@ -25,7 +25,7 @@ struct VertexOutput
     output.cameraDirection = GetCameraDirection(Camera, worldPosition);
 
     // Orient the normals and pass them to the fragment shader:
-    output.normal = GetVertexNormal(MeshUniforms.worldNormal, normal);
+    output.normal = GetVertexNormal(MeshMatrix.worldNormal, normal);
 
     return output;
 }
