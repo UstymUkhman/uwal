@@ -69,20 +69,12 @@ flowchart TD
   ND2[Node2D]
   GEO[Geometries]
   ND[Node]
-  SHDS[Shaders]
   CAM[Camera]
   SHP[Shape]
   MESH[Mesh]
   SCN[Scene]
-  TXT[MSDFText]
-
-  LGHT[Lights]     --> APP
-  COL[Color]       --> APP
-  MATH[MathUtils]  --> APP
-  CONST[Constants] --> APP
 
   ND2  --> APP
-  ND2  --> SCN
   ND2  --> SHP
   ND2  --> CAM
   GEO  --> SHP
@@ -90,19 +82,22 @@ flowchart TD
   GEO  --> MESH
   ND   --> CAM
   ND   --> MESH
-  ND   --> SCN
   ND   --> APP
+  SHP  --> APP
   SHP  --> SCN
   MESH --> SCN
   CAM  --> APP
   CAM  --> SCN
-  SHDS --> TXT
   RP   --> APP
   TEX  --> APP
   SCN  --> APP
-  SHP  --> APP
-  TXT  --> APP
-  SHDS --> APP
+
+  TXT[MSDFText]    --> APP
+  LGHT[Lights]     --> APP
+  COL[Color]       --> APP
+  SHDS[Shaders]    --> APP
+  MATH[MathUtils]  --> APP
+  CONST[Constants] --> APP
 ```
 
 ## Examples

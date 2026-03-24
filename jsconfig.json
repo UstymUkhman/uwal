@@ -6,11 +6,10 @@
     {
         "allowSyntheticDefaultImports": true,
         "typeRoots": ["node_modules/@types"],
-        "paths": { "#/*": ["lib/*"] },
-        "moduleResolution": "Node",
+        "paths": { "#/*": ["./lib/*"] },
+        "moduleResolution": "bundler",
         "module": "ESNext",
         "target": "ESNext",
-        "checkJs": true,
-        "baseUrl": "."
+        "checkJs": true
     }
 }

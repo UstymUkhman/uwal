@@ -7,13 +7,14 @@
         "forceConsistentCasingInFileNames": true,
         "allowSyntheticDefaultImports": true,
         "typeRoots": ["node_modules/@types"],
-        "paths": { "#/*": ["lib/*"] },
+
+        "paths": { "#/*": ["./lib/*"] },
+        "moduleResolution": "bundler",
         "verbatimModuleSyntax": true,
 
         "emitDeclarationOnly": true,
         "noUnusedParameters": false,
         "noImplicitOverride": true,
-        "moduleResolution": "Node",
         "noImplicitReturns": true,
 
         "resolveJsonModule": true,
@@ -34,7 +35,6 @@
         "outDir": "types",
         "checkJs": false,
         "allowJs": true,
-        "baseUrl": ".",
         "strict": true
     }
 }
