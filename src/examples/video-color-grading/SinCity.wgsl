@@ -9,6 +9,7 @@ struct VertexOutput
     @builtin(position) position: vec4f
 };
 
+@group(0) @binding(0) var<uniform> resolution: vec3f;
 @group(0) @binding(1) var Sampler: sampler;
 @group(0) @binding(2) var<uniform> size: vec2f;
 @group(0) @binding(3) var Texture: texture_external;

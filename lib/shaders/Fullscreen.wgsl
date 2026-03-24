@@ -28,3 +28,9 @@ fn GetFullTexCoord(coord: vec2f) -> vec2f
 {
     return vec2f(coord * 0.5 + vec2f(0.5));
 }
+
+fn GetClipSpace(position: vec2f, resolution: vec2f) -> vec2f
+{
+    // Convert position from pixel space to clip space:
+    return (position / resolution * 2 - 1) * vec2f(1, -1);
+}
