@@ -17,7 +17,7 @@ export default({ mode }) =>
             module: true,
             compress:
             {
-                passes: 4,
+                passes: 2,
                 ecma: 2020,
                 unsafe: true,
                 unsafe_arrows: true,

@@ -83,7 +83,7 @@
     "primitive-geometry": "^2.11.0",
     "tsc-alias": "^1.8.16",
     "typescript": "^6.0.2",
-    "vite": "^8.0.2",
+    "vite": "^8.0.3",
     "vite-plugin-glsl": "^1.5.6",
     "wgpu-matrix": "^3.4.2",
     "wgsl_reflect": "^1.2.3"
