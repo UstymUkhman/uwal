@@ -1,38 +1,29 @@
-struct VertexOutput
-{
-    @location(0) textureCoord: vec2f,
-    @builtin(position) position: vec4f,
-    @location(1) @interpolate(flat) instance: u32
-};
-
-@group(1) @binding(0) var Sampler: sampler;
-@group(1) @binding(1) var Texture: texture_2d<f32>;
-@group(1) @binding(2) var<uniform> resolution: vec3f;
-@group(1) @binding(3) var<storage, read> visible: array<u32>;
-
-@vertex fn textureVertex(
-    @location(0) position: vec2f,
-    @location(1) translation: vec2f,
-    @builtin(instance_index) instance: u32
-) -> VertexOutput
-{
-    var output: VertexOutput;
-    let dpr = resolution.z * 2.75;
-    let aspect = resolution.xy / resolution.y;
-    let clipSpace = GetVertexClipSpace(position).xy;
-
-    output.position = vec4f(clipSpace + translation, 0, 1);
-    output.textureCoord = clipSpace * aspect * dpr + 0.5;
-    output.instance = instance;
-
-    return output;
-}
+@group(0) @binding(21) var Sampler: sampler;
+@group(0) @binding(22) var Texture: texture_2d<f32>;
+@group(0) @binding(23) var<uniform> resolution: vec3f;
+@group(0) @binding(24) var<storage, read> visible: array<u32>;
 
 @fragment fn fragment(
-    @location(0) textureCoord: vec2f,
+    @builtin(position) position: vec4f,
     @location(1) @interpolate(flat) instance: u32
 ) -> @location(0) vec4f
 {
     if (visible[instance] == 0) { discard; }
-    return textureSample(Texture, Sampler, textureCoord);
+
+    let x = resolution.x;
+    let y = resolution.y;
+
+    // Get screen coordinates:
+    var xy = position.xy / vec2f(y);
+
+    // Calculate horizontal offset:
+    let o = (y - x) / y / -2;
+
+    // Center horizontally & flip Y:
+    xy = (xy - vec2f(o, 1)) * vec2f(1, -1);
+
+    // Add canvas padding:
+    xy = xy * 1.5 - 0.25;
+
+    return textureSample(Texture, Sampler, xy);
 }

@@ -4,11 +4,12 @@
  * @description This example is developed using the version listed below.
  * Please note that this code may be simplified in the future
  * thanks to more recent library APIs.
- * @version 0.2.0
+ * @version 0.3.1
  * @license MIT
  */
 
 import {
+    Scene,
     Color,
     Shape,
     Device,
@@ -21,10 +22,10 @@ import {
 import Texture from "./Texture.wgsl";
 import Logo from "/assets/images/logo.jpg";
 
+let Storage, texture;
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
 /** @type {ResizeObserver} */ let observer;
-let texture, storageBuffer, translationBuffer;
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
@@ -38,102 +39,92 @@ export async function run(canvas)
         alert(error);
     }
 
-    const camera = new Camera2D();
+    const scene = new Scene();
+    const Camera = new Camera2D();
     const radius = 128, textures = 256;
+    const Pipeline = new Renderer.Pipeline();
+    const Geometry = new Geometries.Shape({ radius });
 
-    const TexturesPipeline = new Renderer.Pipeline();
-    const geometry = new Geometries.Shape({ radius });
-
-    let storage, vertices, spawnTimeout, textureIndex, lastTexture,
-        textureUpdate = 512, lastRender = performance.now() - textureUpdate;
-
-    const module = TexturesPipeline.CreateShaderModule([Shaders.ShapeVertex, Texture]);
+    let spawnTimeout, textureIndex, lastTexture = textures - 1;
+    let textureUpdate = 512, lastRender = performance.now() - textureUpdate;
+    const module = Pipeline.CreateShaderModule([Shaders.ShapeVertexInstance, Texture]);
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new Color(0x19334c)));
 
-    const { buffer: translationBuffer, layout: translationLayout } =
-        TexturesPipeline.CreateVertexBuffer("translation", textures, "textureVertex", "instance");
-
-    await Renderer.AddPipeline(TexturesPipeline, {
-        fragment: TexturesPipeline.CreateFragmentState(module),
-        vertex: TexturesPipeline.CreateVertexState(module, [
-            geometry.GetPositionBufferLayout(TexturesPipeline), translationLayout
-        ], "textureVertex")
+    await Renderer.AddPipeline(Pipeline, {
+        fragment: Pipeline.CreateFragmentState(module),
+        vertex: Pipeline.CreateVertexState(module, [
+            Geometry.GetPositionBufferLayout(Pipeline),
+            ...Geometry.GetInstanceBufferLayout(Pipeline)
+        ])
     });
-
-    setTranslationData();
 
     function clean()
     {
         cancelAnimationFrame(raf);
-        clearTimeout(spawnTimeout);
-        lastRender = performance.now() - textureUpdate;
+        scene.Children.splice(1)[0]?.Destroy();
+        spawnTimeout = clearTimeout(spawnTimeout);
+        lastRender = performance.now() - (textureUpdate = 512);
     }
 
     async function start()
     {
-        createShape();
-        createStorageBuffer();
-        await createLogoTexture();
-        requestAnimationFrame(render);
+        setTranslationData(createShape(await createTexture()));
+        raf = requestAnimationFrame(render);
 
         spawnTimeout = setTimeout(() =>
             textureUpdate = ~(textureIndex = -1)
         , textureUpdate * 3);
     }
 
-    function createShape()
+    async function createTexture()
     {
-        const shape = new Shape(geometry, null);
-        shape.SetRenderPipeline(TexturesPipeline);
-        const [width, height] = Renderer.CanvasSize;
+        Storage = Pipeline.CreateStorageBuffer("visible", textures);
 
-        TexturesPipeline.AddVertexBuffers(translationBuffer);
-        TexturesPipeline.SetDrawParams(geometry.Vertices, textures);
-
-        shape.Transform = [[width / 2, height / 2], Math.PI / 4];
-        shape.UpdateProjectionMatrix(camera.ProjectionMatrix);
-    }
-
-    function setTranslationData()
-    {
-        const translation = new Float32Array(textures * 2);
-        const x = 1 - Math.sqrt(2) * radius / canvas.offsetWidth;
-        const y = 1 - Math.sqrt(2) * radius / canvas.offsetHeight;
-
-        for (let t = textures; t--; )
-        {
-            const rx = MathUtils.Random(-x, x);
-            const ry = MathUtils.Random(-y, y);
-            translation.set([rx, ry], t * 2);
-        }
-
-        TexturesPipeline.WriteBuffer(translationBuffer, translation);
-    }
-
-    function createStorageBuffer()
-    {
-        const Storage = TexturesPipeline.CreateStorageBuffer("visible", textures);
-        TexturesPipeline.WriteBuffer(Storage.buffer, Storage.visible);
-        lastTexture = (storage = Storage.visible).length - 1;
-        storageBuffer = Storage.buffer;
-    }
-
-    async function createLogoTexture()
-    {
-        const { ResolutionBuffer } = Renderer;
         const Texture = new (await Device.Texture());
 
         texture = await Texture.CopyImageToTexture(
             await Texture.CreateImageBitmap(Logo),
-            { flipY: true, mipmaps: false }
+            { mipmaps: false }
         );
 
-        TexturesPipeline.AddBindGroupFromResources([
-            Texture.CreateSampler(),
-            texture.createView(),
-            ResolutionBuffer,
-            storageBuffer
-        ], 0, 1);
+        return {
+            sampler: Texture.CreateSampler(),
+            view: texture.createView()
+        };
+    }
+
+    function createShape({ sampler, view })
+    {
+        const shape = new Shape(Geometry);
+
+        shape.SetRenderPipeline(Pipeline, [
+            sampler, view, Renderer.ResolutionBuffer, Storage.buffer
+        ]);
+
+        scene.Add(shape);
+        shape.UpdateWorldMatrix();
+        shape.SetInstanceBuffers(textures);
+
+        return shape;
+    }
+
+    function setTranslationData(shape)
+    {
+        const matrix = MathUtils.Mat3.copy(shape.WorldMatrix);
+        const translation = MathUtils.Vec2.create();
+        const [x, y] = Renderer.CanvasSize;
+
+        for (let t = textures; t--; )
+        {
+            translation.set([MathUtils.Random(0, x), MathUtils.Random(0, y)]);
+            MathUtils.Mat3.translate(matrix, translation, matrix);
+            MathUtils.Mat3.rotate(matrix, MathUtils.Random(0, MathUtils.HPI), matrix);
+
+            shape.SetInstanceMatrix(matrix, t, false);
+            MathUtils.Mat3.copy(shape.WorldMatrix, matrix);
+        }
+
+        shape.UpdateInstanceBuffers();
     }
 
     function render(time)
@@ -142,14 +133,14 @@ export async function run(canvas)
         if (time - lastRender < textureUpdate) return;
 
         textureUpdate
-            ? storage.fill(0) && (textureIndex = MathUtils.RandomInt(0, lastTexture))
+            ? Storage.visible.fill(0) && (textureIndex = MathUtils.RandomInt(0, lastTexture))
             : ++textureIndex === lastTexture && cancelAnimationFrame(raf);
 
         lastRender = time;
-        storage[textureIndex] = 1;
+        Storage.visible[textureIndex] = 1;
 
-        TexturesPipeline.WriteBuffer(storageBuffer, storage);
-        Renderer.Render();
+        Pipeline.WriteBuffer(Storage.buffer, Storage.visible);
+        Renderer.Render(scene);
     }
 
     observer = new ResizeObserver(entries =>
@@ -158,8 +149,9 @@ export async function run(canvas)
         {
             let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
+            !scene.MainCamera && scene.AddMainCamera(Camera);
             Renderer.SetCanvasSize(width, blockSize);
-            camera.Size = Renderer.CanvasSize;
+            Camera.Size = Renderer.CanvasSize;
         }
 
         clean(), start();
@@ -174,8 +166,5 @@ export function destroy()
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
-    Device.Destroy([
-        storageBuffer,
-        translationBuffer
-    ], texture);
+    Device.Destroy([Storage.buffer], texture);
 }
