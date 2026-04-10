@@ -54,7 +54,7 @@ export async function run(canvas)
         fragment: Pipeline.CreateFragmentState(module),
         vertex: Pipeline.CreateVertexState(module, [
             Geometry.GetPositionBufferLayout(Pipeline),
-            ...Geometry.GetInstanceBufferLayout(Pipeline)
+            Geometry.GetInstanceBufferLayout(Pipeline)
         ])
     });
 
@@ -103,7 +103,7 @@ export async function run(canvas)
 
         scene.Add(shape);
         shape.UpdateWorldMatrix();
-        shape.SetInstanceBuffers(textures);
+        shape.AddInstanceBuffer(textures);
 
         return shape;
     }
@@ -124,7 +124,7 @@ export async function run(canvas)
             MathUtils.Mat3.copy(shape.WorldMatrix, matrix);
         }
 
-        shape.UpdateInstanceBuffers();
+        shape.UpdateInstanceBuffer();
     }
 
     function render(time)
