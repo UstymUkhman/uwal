@@ -26,7 +26,10 @@ struct MeshVertexPosition
 
 @vertex fn vertex(@location(0) position: vec4f) -> MeshVertexPosition
 {
-    return MeshVertexPosition(GetVertexClipSpace(position), GetVertexWorldPosition(position));
+    return MeshVertexPosition(
+        GetVertexClipSpace(position),
+        GetVertexWorldPosition(position)
+    );
 }
 
 struct MeshVertexNormal
@@ -36,9 +39,16 @@ struct MeshVertexNormal
     @location(1) normal: vec3f
 };
 
-@vertex fn vertexNormal(@location(0) position: vec4f, @location(1) normal: vec3f) -> MeshVertexNormal
+@vertex fn vertexNormal(
+    @location(0) position: vec4f,
+    @location(1) normal: vec3f
+) -> MeshVertexNormal
 {
-    return MeshVertexNormal(GetVertexClipSpace(position), GetVertexWorldPosition(position), normal);
+    return MeshVertexNormal(
+        GetVertexClipSpace(position),
+        GetVertexWorldPosition(position),
+        MeshMatrix.worldNormal * normal
+    );
 }
 
 struct MeshVertexUV
@@ -48,9 +58,16 @@ struct MeshVertexUV
     @location(1) uv: vec2f
 };
 
-@vertex fn vertexUV(@location(0) position: vec4f, @location(1) uv: vec2f) -> MeshVertexUV
+@vertex fn vertexUV(
+    @location(0) position: vec4f,
+    @location(1) uv: vec2f
+) -> MeshVertexUV
 {
-    return MeshVertexUV(GetVertexClipSpace(position), GetVertexWorldPosition(position), uv);
+    return MeshVertexUV(
+        GetVertexClipSpace(position),
+        GetVertexWorldPosition(position),
+        uv
+    );
 }
 
 struct MeshVertexNormalUV
@@ -62,13 +79,15 @@ struct MeshVertexNormalUV
 };
 
 @vertex fn vertexNormalUV(
-    @location(0) position: vec4f, @location(1) normal: vec3f, @location(2) uv: vec2f
+    @location(0) position: vec4f,
+    @location(1) normal: vec3f,
+    @location(2) uv: vec2f
 ) -> MeshVertexNormalUV
 {
     return MeshVertexNormalUV(
         GetVertexClipSpace(position),
         GetVertexWorldPosition(position),
-        normal,
+        MeshMatrix.worldNormal * normal,
         uv
     );
 }

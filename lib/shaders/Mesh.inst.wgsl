@@ -76,7 +76,7 @@ struct MeshVertexNormal
     return MeshVertexNormal(
         GetVertexClipSpace(position, instanceMatrix),
         GetVertexWorldPosition(position, instanceMatrix),
-        normal,
+        MeshMatrix.worldNormal * normal,
         instance
     );
 }
@@ -144,7 +144,7 @@ struct MeshVertexNormalUV
     return MeshVertexNormalUV(
         GetVertexClipSpace(position, instanceMatrix),
         GetVertexWorldPosition(position, instanceMatrix),
-        normal,
+        MeshMatrix.worldNormal * normal,
         uv,
         instance
     );

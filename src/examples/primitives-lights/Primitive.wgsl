@@ -5,9 +5,8 @@ struct Mesh
     @location(1) pointDirection: vec3f,
     @location(2) spotDirection: vec3f,
     @location(3) worldPosition: vec3f,
-    @location(4) vertexNormal: vec3f,
-    @location(5) normal: vec3f,
-    @location(6) uv: vec2f
+    @location(4) normal: vec3f,
+    @location(5) uv: vec2f
 };
 
 @group(0) @binding(32) var<uniform> mode: f32;
@@ -32,7 +31,6 @@ struct Mesh
         GetLightDirection(worldPosition, uSpotLight.position),
         worldPosition,
         GetVertexNormal(MeshMatrix.worldNormal, normal),
-        normal,
         uv
     );
 }

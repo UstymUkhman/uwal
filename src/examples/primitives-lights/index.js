@@ -30,9 +30,8 @@ export async function run(canvas)
         alert(error);
     }
 
-    let pointLight, spotLight;
-    let startTime, lastTime = 0;
     const grid = new UWAL.Node();
+    const startTime = Date.now();
 
     const { Vec2 } = UWAL.MathUtils;
     const direction = Vec2.create();
@@ -40,9 +39,11 @@ export async function run(canvas)
 
     const wireResources = new Array(2);
     const amplitude = 2.4, frequency = 8;
-    const origin = UWAL.MathUtils.Vec3.create();
+    let pointLight, spotLight, lastTime = 0;
 
+    const origin = UWAL.MathUtils.Vec3.create();
     const Camera = new UWAL.PerspectiveCamera();
+
     const BasePipeline = new Renderer.Pipeline();
     const WirePipeline = new Renderer.Pipeline();
 
@@ -229,19 +230,13 @@ export async function run(canvas)
         BasePipeline.WriteBuffer(directionalBuffer, uDirectionalLight.direction.buffer);
     }
 
-    function clean()
-    {
-        grid.Traverse(mesh => mesh.Destroy?.());
-        cancelAnimationFrame(raf);
-        grid.Children.splice(0);
-    }
-
     function start()
     {
-        startTime = Date.now();
-        createLights(createMeshes());
         raf = requestAnimationFrame(render);
-        baseResources.length === 3 && (baseResources = wireResources.concat(baseResources));
+
+        baseResources.length === 3 &&
+            ~createLights(createMeshes()) &&
+            (baseResources = wireResources.concat(baseResources));
     }
 
     function render()
@@ -300,7 +295,7 @@ export async function run(canvas)
             Camera.AutoUpdateWorldMatrix = true;
         }
 
-        clean(), start();
+        cancelAnimationFrame(raf), start();
     });
 
     observer.observe(document.body);
