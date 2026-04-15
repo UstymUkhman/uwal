@@ -26,8 +26,17 @@ fn GetVertexClipSpace(position: vec2f) -> vec4f
 
 @vertex fn vertex(@location(0) position: vec2f) -> ShapeVertexPosition
 {
-    return ShapeVertexPosition(
-        GetVertexClipSpace(position),
-        GetVertexWorldPosition(position)
-    );
+    return ShapeVertexPosition(GetVertexClipSpace(position), GetVertexWorldPosition(position));
+}
+
+struct ShapeVertexUV
+{
+    @builtin(position) position: vec4f,
+    @location(0) worldPosition: vec3f,
+    @location(1) uv: vec2f
+};
+
+@vertex fn vertexUV(@location(0) position: vec2f, @location(1) uv: vec2f) -> ShapeVertexUV
+{
+    return ShapeVertexUV(GetVertexClipSpace(position), GetVertexWorldPosition(position), uv);
 }

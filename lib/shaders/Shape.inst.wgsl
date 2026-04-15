@@ -45,3 +45,34 @@ fn GetVertexClipSpace(position: vec2f, world: mat3x3f) -> vec4f
         instance
     );
 }
+
+struct ShapeVertexUV
+{
+    @builtin(position) position: vec4f,
+    @location(0) worldPosition: vec3f,
+    @location(1) uv: vec2f,
+    @location(2) @interpolate(flat) instance: u32
+};
+
+@vertex fn vertexUV(
+    @location(0) position: vec2f,
+    @location(1) uv: vec2f,
+    @location(2) instanceColumn0: vec3f,
+    @location(3) instanceColumn1: vec3f,
+    @location(4) instanceColumn2: vec3f,
+    @builtin(instance_index) instance: u32
+) -> ShapeVertexUV
+{
+    let instanceMatrix = mat3x3f(
+        instanceColumn0,
+        instanceColumn1,
+        instanceColumn2
+    );
+
+    return ShapeVertexUV(
+        GetVertexClipSpace(position, instanceMatrix),
+        GetVertexWorldPosition(position, instanceMatrix),
+        uv,
+        instance
+    );
+}
