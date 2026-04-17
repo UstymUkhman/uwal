@@ -1,8 +1,9 @@
+#include "Camera.wgsl";
+
 struct ShapeMatrixUniforms
 {
     world: mat3x3f,
-    worldNormal: mat3x3f,
-    viewProjection: mat3x3f
+    worldNormal: mat3x3f
 };
 
 struct ShapeVertexPosition
@@ -20,7 +21,7 @@ fn GetVertexWorldPosition(position: vec2f) -> vec3f
 
 fn GetVertexClipSpace(position: vec2f) -> vec4f
 {
-    let modelViewProjection = ShapeMatrix.viewProjection * ShapeMatrix.world;
+    let modelViewProjection = GetCamera2DProjection() * ShapeMatrix.world;
     return vec4f((modelViewProjection * vec3f(position, 1)).xy, 0, 1);
 }
 

@@ -1,8 +1,18 @@
 struct CameraMatrixUniforms
 {
     world: mat4x4f,
-    projection: mat4x4f
+    projection: mat4x4f,
+    viewProjection: mat4x4f
 };
+
+@group(0) @binding(10) var<uniform> CameraMatrix: CameraMatrixUniforms;
+
+// Convert to 2D projection matrix.
+fn GetCamera2DProjection() -> mat3x3f
+{
+    let projection = CameraMatrix.projection;
+    return mat3x3f(projection[0].xyz, projection[1].xyz, projection[2].xyz);
+}
 
 // Get position from camera's world matrix.
 fn GetCameraPosition(camera: CameraMatrixUniforms) -> vec3f

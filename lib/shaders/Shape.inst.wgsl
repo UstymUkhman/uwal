@@ -1,8 +1,9 @@
+#include "Camera.wgsl";
+
 struct ShapeMatrixUniforms
 {
     world: mat3x3f,
-    worldNormal: mat3x3f,
-    viewProjection: mat3x3f
+    worldNormal: mat3x3f
 };
 
 struct ShapeVertexPosition
@@ -21,7 +22,10 @@ fn GetVertexWorldPosition(position: vec2f, world: mat3x3f) -> vec3f
 
 fn GetVertexClipSpace(position: vec2f, world: mat3x3f) -> vec4f
 {
-    let modelViewProjection = ShapeMatrix.viewProjection * world;
+    // `ShapeMatrix` may not be used, but the `Shape` class will always
+    // set it, so this is a workaround to avoid the validation error.
+    var modelViewProjection = ShapeMatrix.world;
+    modelViewProjection = GetCamera2DProjection() * world;
     return vec4f((modelViewProjection * vec3f(position, 1)).xy, 0, 1);
 }
 
