@@ -4,7 +4,7 @@
  * @description This example is developed using the version listed below.
  * Please note that this code may be simplified in the future
  * thanks to more recent library APIs.
- * @version 0.3.0
+ * @version 0.3.1
  * @license MIT
  */
 
@@ -14,11 +14,13 @@ import {
     Shape,
     Device,
     Shaders,
+    BINDINGS,
     Camera2D,
     MathUtils,
     Geometries
 } from "#/index";
 
+const Camera = new Camera2D();
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
 /** @type {ResizeObserver} */ let observer;
@@ -36,14 +38,13 @@ export async function run(canvas)
         alert(error);
     }
 
-    const Camera = new Camera2D();
     const color = new Color(0x331a4d);
-
     const DummyGeometry = new Geometries.Shape();
     const ShapePipeline = new Renderer.Pipeline();
 
     const spin = [], speed = [], direction = [], uniform = [];
     const module = ShapePipeline.CreateShaderModule(Shaders.Shape);
+    const cameraBuffer = Camera.SetRenderPipeline(ShapePipeline);
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(color));
 
     await Renderer.AddPipeline(ShapePipeline, {
@@ -57,10 +58,6 @@ export async function run(canvas)
 
     function clean()
     {
-        scene.Traverse(node =>
-            node.Destroy?.()
-        );
-
         spin.splice(0);
         speed.splice(0);
         uniform.splice(0);
@@ -99,7 +96,11 @@ export async function run(canvas)
                 const shape = new Shape(new Geometries.Shape({ segments, radius, innerRadius: inner * r }));
 
                 uniform.push(shape.CreateColorBuffer(ShapePipeline));
-                shape.SetRenderPipeline(ShapePipeline, randomColor(uniform.at(-1)));
+
+                shape.SetRenderPipeline(ShapePipeline,
+                    [cameraBuffer, randomColor(uniform.at(-1))],
+                    [BINDINGS.CAMERA_MATRIX, BINDINGS.SHAPE_COLOR]
+                );
 
                 direction.push([MathUtils.Random(-1), MathUtils.Random(-1)]);
                 shape.Rotation = MathUtils.Random(0, MathUtils.TAU);
@@ -158,6 +159,7 @@ export function destroy()
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
+    Camera.Destroy();
     Device.Destroy();
     scene.Destroy();
 }

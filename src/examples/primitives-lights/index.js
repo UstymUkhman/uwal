@@ -4,7 +4,7 @@
  * @description This example is inspired by dmnsgn's "Primitive Geometry"
  * {https://dmnsgn.github.io/primitive-geometry/} and developed using the version listed below.
  * Please note that this code may be simplified in the future thanks to more recent library APIs.
- * @version 0.3.0
+ * @version 0.3.1
  * @license MIT
  */
 
@@ -16,6 +16,7 @@ import * as UWAL from "#/index";
 /** @type {Renderer} */ let Renderer;
 /** @type {GPUTexture} */ let texture;
 /** @type {ResizeObserver} */ let observer;
+const Camera = new UWAL.PerspectiveCamera();
 /** @type {Scene} */ const scene = new UWAL.Scene();
 
 /** @param {HTMLCanvasElement} canvas */
@@ -35,44 +36,47 @@ export async function run(canvas)
 
     const { Vec2 } = UWAL.MathUtils;
     const direction = Vec2.create();
-    let pointX, pointZ, spotX, spotZ;
 
-    const wireResources = new Array(2);
     const amplitude = 2.4, frequency = 8;
     let pointLight, spotLight, lastTime = 0;
 
     const origin = UWAL.MathUtils.Vec3.create();
-    const Camera = new UWAL.PerspectiveCamera();
-
     const BasePipeline = new Renderer.Pipeline();
     const WirePipeline = new Renderer.Pipeline();
 
     const spotDirection = Vec2.create(-0.85, -1);
     const pointDirection = Vec2.create(0.85, -1);
+    let wireBindings, pointX, pointZ, spotX, spotZ;
 
     const Texture = new (await UWAL.Device.Texture(Renderer));
     const source = await Texture.CreateImageBitmap(UV);
     texture = await Texture.CopyImageToTexture(source);
 
     const baseModule = BasePipeline.CreateShaderModule([
-        UWAL.Shaders.Camera, UWAL.Shaders.Light, UWAL.Shaders.Mesh, Primitive
+        UWAL.Shaders.Light, UWAL.Shaders.Mesh, Primitive
     ]);
 
+    const cameraBuffer = Camera.SetRenderPipeline(BasePipeline);
     const Geometry = new UWAL.Geometries.Mesh("Dummy", "uint16");
     const wireModule = WirePipeline.CreateShaderModule(UWAL.Shaders.Mesh);
-    const cameraBuffer = Camera.SetRenderPipeline(BasePipeline, "uCamera");
-    const { color, buffer: colorBuffer } = WirePipeline.CreateUniformBuffer("color");
-
-    color.set(new UWAL.Color(0xffffff).rgba);
-    WirePipeline.WriteBuffer(wireResources[1] = colorBuffer, color.buffer);
 
     const { mode, buffer: modeBuffer } = BasePipeline.CreateUniformBuffer("mode");
+    const { color, buffer: colorBuffer } = WirePipeline.CreateUniformBuffer("color");
+
     const { uSpotLight, buffer: spotBuffer } = BasePipeline.CreateUniformBuffer("uSpotLight");
     const { uPointLight, buffer: pointBuffer } = BasePipeline.CreateUniformBuffer("uPointLight");
     const { uDirectionalLight, buffer: directionalBuffer } = BasePipeline.CreateUniformBuffer("uDirectionalLight");
 
-    const lightResources = [cameraBuffer, spotBuffer, pointBuffer, directionalBuffer];
+    color.set(new UWAL.Color(0xffffff).rgba);
+    WirePipeline.WriteBuffer(colorBuffer, color.buffer);
+
+    const wireResources = [void 0, colorBuffer, cameraBuffer];
+    const lightResources = [spotBuffer, pointBuffer, directionalBuffer];
     let baseResources = [modeBuffer, Texture.CreateSampler(), texture.createView()];
+
+    const baseBindings = (wireBindings = [
+        UWAL.BINDINGS.MESH_MATRIX, UWAL.BINDINGS.MESH_COLOR, UWAL.BINDINGS.CAMERA_MATRIX
+    ]).concat(0, 1, 2);
 
     await Renderer.AddPipeline(WirePipeline, {
         vertex: WirePipeline.CreateVertexState(wireModule, Geometry.GetPositionBufferLayout(WirePipeline)),
@@ -148,16 +152,17 @@ export async function run(canvas)
 
             const Geometry = new UWAL.Geometries.Mesh(void 0, "uint16");
             const Primitive = Geometry.Primitive = primitive();
+            const resources = wireResources.filter(Boolean);
 
             const mesh = new UWAL.Mesh(Geometry);
-            mesh.SetRenderPipeline(WirePipeline, colorBuffer);
+            mesh.SetRenderPipeline(WirePipeline, resources, wireBindings.slice(1));
 
             if (p < 3)
                 p !== 1 && mesh.Geometry.CreateEdgeBuffer(WirePipeline, 4);
 
             else
             {
-                mesh.SetRenderPipeline(BasePipeline, [colorBuffer].concat(baseResources.slice(-3)));
+                mesh.SetRenderPipeline(BasePipeline, resources.concat(baseResources.slice(-3)), baseBindings.slice(1));
                 Geometry.AddNormalBuffer(BasePipeline, Primitive.normals, "baseVertex");
                 Geometry.AddUVBuffer(BasePipeline, Primitive.uvs, "baseVertex");
             }
@@ -248,7 +253,6 @@ export async function run(canvas)
         updateLights(time);
         mode.set([(time | 0) % 5]);
 
-        const B = UWAL.BINDINGS.MESH_MATRIX;
         BasePipeline.WriteBuffer(modeBuffer, mode);
         Camera.Position = [-sin * 12 + 4, sin * 2 + 2, 8];
 
@@ -262,7 +266,7 @@ export async function run(canvas)
                 mesh.Pipeline = BasePipeline;
 
                 mesh.BindGroups = BasePipeline.SetBindGroups([
-                    BasePipeline.CreateBindGroup(BasePipeline.CreateBindGroupEntries(baseResources, B)),
+                    BasePipeline.CreateBindGroup(BasePipeline.CreateBindGroupEntries(baseResources, baseBindings)),
                     BasePipeline.CreateBindGroup(BasePipeline.CreateBindGroupEntries(lightResources), 1)
                 ]);
 
@@ -273,7 +277,7 @@ export async function run(canvas)
             {
                 mesh.Pipeline = WirePipeline;
                 mesh.Geometry.CreateEdgeBuffer(WirePipeline);
-                mesh.BindGroups = WirePipeline.SetBindGroupFromResources(wireResources, B);
+                mesh.BindGroups = WirePipeline.SetBindGroupFromResources(wireResources, wireBindings);
             }
         });
 
@@ -307,6 +311,7 @@ export function destroy()
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
+    Camera.Destroy();
     scene.Destroy();
     UWAL.Device.Destroy(
         undefined,

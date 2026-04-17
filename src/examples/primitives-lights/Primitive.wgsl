@@ -9,14 +9,13 @@ struct Mesh
     @location(5) uv: vec2f
 };
 
-@group(0) @binding(32) var<uniform> mode: f32;
-@group(0) @binding(33) var Sampler: sampler;
-@group(0) @binding(34) var Texture: texture_2d<f32>;
+@group(0) @binding(0) var<uniform> mode: f32;
+@group(0) @binding(1) var Sampler: sampler;
+@group(0) @binding(2) var Texture: texture_2d<f32>;
 
-@group(1) @binding(0) var<uniform> uCamera: CameraMatrixUniforms;
-@group(1) @binding(1) var<uniform> uSpotLight: LightUniforms;
-@group(1) @binding(2) var<uniform> uPointLight: LightUniforms;
-@group(1) @binding(3) var<uniform> uDirectionalLight: LightUniforms;
+@group(1) @binding(0) var<uniform> uSpotLight: LightUniforms;
+@group(1) @binding(1) var<uniform> uPointLight: LightUniforms;
+@group(1) @binding(2) var<uniform> uDirectionalLight: LightUniforms;
 
 @vertex fn baseVertex(
     @location(0) position: vec4f, @location(1) normal: vec3f, @location(2) uv: vec2f
@@ -26,7 +25,7 @@ struct Mesh
 
     return Mesh(
         GetVertexClipSpace(position),
-        GetCameraDirection(uCamera, worldPosition),
+        GetCameraDirection(CameraMatrix, worldPosition),
         GetLightDirection(worldPosition, uPointLight.position),
         GetLightDirection(worldPosition, uSpotLight.position),
         worldPosition,

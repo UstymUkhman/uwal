@@ -4,7 +4,7 @@
  * @description This example is developed using the version listed below.
  * Please note that this code may be simplified in the future
  * thanks to more recent library APIs.
- * @version 0.3.0
+ * @version 0.3.1
  * @license MIT
  */
 
@@ -18,6 +18,7 @@ import {
     Device,
     TEXTURE,
     Shaders,
+    BINDINGS,
     MathUtils,
     Geometries,
     PerspectiveCamera,
@@ -29,6 +30,8 @@ import {
 /** @type {GPUTexture} */ let texture;
 /** @type {ResizeObserver} */ let observer;
 /** @type {Scene} */ const scene = new Scene();
+const perspectiveCamera = new PerspectiveCamera();
+const orthographicCamera = new OrthographicCamera();
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
@@ -48,21 +51,15 @@ export async function run(canvas)
     const CubePipeline = new Renderer.Pipeline();
     const tempRotation = MathUtils.Vec3.create();
 
-    const perspectiveCamera = new PerspectiveCamera();
-    const orthographicCamera = new OrthographicCamera();
-
     const orthographicPosition = MathUtils.Vec3.create();
     const orthographicRotation = MathUtils.Vec3.create();
 
+    const nextPerspectiveRotation = MathUtils.Vec3.create();
+    const nextOrthographicRotation = MathUtils.Vec3.create();
+    const initialPerspectiveRotation = MathUtils.Vec3.create();
+
     const CubeGeometry = new Geometries.Mesh("Cube", "uint16");
     CubeGeometry.Primitive = Geometries.Primitives.cube();
-
-    const perspectiveCube = new Mesh(CubeGeometry, null);
-    const orthographicCube = new Mesh(CubeGeometry, null);
-
-    const initialPerspectiveRotation = MathUtils.Vec3.create();
-    const nextPerspectiveRotation  = MathUtils.Vec3.create();
-    const nextOrthographicRotation = MathUtils.Vec3.create();
 
     const Texture = new (await Device.Texture(Renderer));
     const source = await Texture.CreateImageBitmap(Dice);
@@ -77,20 +74,25 @@ export async function run(canvas)
         depthStencil: CubePipeline.CreateDepthStencilState(),
         fragment: CubePipeline.CreateFragmentState(module),
         vertex: CubePipeline.CreateVertexState(module, [
-            CubeGeometry.GetPositionBufferLayout(CubePipeline, "vertexUV"),
+            CubeGeometry.GetPositionBufferLayout(CubePipeline),
             CubePipeline.CreateVertexBufferLayout("uv", "vertexUV")
         ], "vertexUV")
     });
 
-    orthographicCube.SetRenderPipeline(CubePipeline, [
-        Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
-        texture.createView()
-    ]);
+    const perspectiveCube = new Mesh(CubeGeometry);
+    const orthographicCube = new Mesh(CubeGeometry);
 
     perspectiveCube.SetRenderPipeline(CubePipeline, [
+        perspectiveCamera.SetRenderPipeline(CubePipeline),
         Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
         texture.createView()
-    ]);
+    ], [BINDINGS.CAMERA_MATRIX, 0, 1]);
+
+    orthographicCube.SetRenderPipeline(CubePipeline, [
+        orthographicCamera.SetRenderPipeline(CubePipeline),
+        Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
+        texture.createView()
+    ], [BINDINGS.CAMERA_MATRIX, 0, 1]);
 
     CubeGeometry.AddVertexBuffer(CubePipeline, new Float32Array(
     [
@@ -233,6 +235,8 @@ export async function run(canvas)
 export function destroy()
 {
     Device.OnLost = () => void 0;
+    orthographicCamera.Destroy();
+    perspectiveCamera.Destroy();
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();

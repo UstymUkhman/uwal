@@ -14,6 +14,7 @@ import {
     Shape,
     Device,
     Shaders,
+    BINDINGS,
     Camera2D,
     MathUtils,
     Geometries
@@ -23,6 +24,7 @@ import Texture from "./Texture.wgsl";
 import Logo from "/assets/images/logo.jpg";
 
 let Storage, texture;
+const Camera = new Camera2D();
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
 /** @type {ResizeObserver} */ let observer;
@@ -40,7 +42,6 @@ export async function run(canvas)
     }
 
     const scene = new Scene();
-    const Camera = new Camera2D();
     const radius = 128, textures = 256;
     const Pipeline = new Renderer.Pipeline();
     const Geometry = new Geometries.Shape({ radius });
@@ -98,8 +99,13 @@ export async function run(canvas)
         const shape = new Shape(Geometry);
 
         shape.SetRenderPipeline(Pipeline, [
-            sampler, view, Renderer.ResolutionBuffer, Storage.buffer
-        ]);
+                Camera.SetRenderPipeline(Pipeline),
+                sampler, view,
+                Renderer.ResolutionBuffer,
+                Storage.buffer
+            ],
+            [BINDINGS.CAMERA_MATRIX, 0, 1, 2, 3]
+        );
 
         scene.Add(shape);
         shape.UpdateWorldMatrix();
@@ -166,5 +172,9 @@ export function destroy()
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
-    Device.Destroy([Storage.buffer], texture);
+    Camera.Destroy();
+    Device.Destroy(
+        Storage.buffer,
+        texture
+    );
 }
