@@ -1,8 +1,9 @@
+#include "Camera.wgsl";
+
 struct MeshMatrixUniforms
 {
     world: mat4x4f,
-    worldNormal: mat3x3f,
-    viewProjection: mat4x4f
+    worldNormal: mat3x3f
 };
 
 @group(0) @binding(30) var<uniform> MeshMatrix: MeshMatrixUniforms;
@@ -14,7 +15,7 @@ fn GetVertexWorldPosition(position: vec4f) -> vec3f
 
 fn GetVertexClipSpace(position: vec4f) -> vec4f
 {
-    let modelViewProjection = MeshMatrix.viewProjection * MeshMatrix.world;
+    let modelViewProjection = CameraMatrix.viewProjection * MeshMatrix.world;
     return modelViewProjection * position;
 }
 

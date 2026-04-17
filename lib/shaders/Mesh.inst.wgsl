@@ -1,8 +1,9 @@
+#include "Camera.wgsl";
+
 struct MeshMatrixUniforms
 {
     world: mat4x4f,
-    worldNormal: mat3x3f,
-    viewProjection: mat4x4f
+    worldNormal: mat3x3f
 };
 
 @group(0) @binding(30) var<uniform> MeshMatrix: MeshMatrixUniforms;
@@ -14,7 +15,10 @@ fn GetVertexWorldPosition(position: vec4f, world: mat4x4f) -> vec3f
 
 fn GetVertexClipSpace(position: vec4f, world: mat4x4f) -> vec4f
 {
-    let modelViewProjection = MeshMatrix.viewProjection * world;
+    // `MeshMatrix` may not be used, but the `Mesh` class will always
+    // set it, so this is a workaround to avoid the validation error.
+    var modelViewProjection = MeshMatrix.world;
+    modelViewProjection = CameraMatrix.viewProjection * world;
     return modelViewProjection * position;
 }
 
