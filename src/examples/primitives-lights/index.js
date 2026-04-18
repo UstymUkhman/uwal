@@ -79,24 +79,24 @@ export async function run(canvas)
     ]).concat(0, 1, 2);
 
     await Renderer.AddPipeline(WirePipeline, {
-        vertex: WirePipeline.CreateVertexState(wireModule, Geometry.GetPositionBufferLayout(WirePipeline)),
+        vertex: WirePipeline.CreateVertexState(wireModule, void 0, Geometry.GetPositionBufferLayout(WirePipeline)),
         primitive: WirePipeline.CreatePrimitiveState("line-list"),
         depthStencil: WirePipeline.CreateDepthStencilState(),
         multisample: WirePipeline.CreateMultisampleState(),
-        fragment: WirePipeline.CreateFragmentState(wireModule,
+        fragment: WirePipeline.CreateFragmentState(wireModule, void 0,
             WirePipeline.CreateColorTargetState(UWAL.BLEND_STATE.ALPHA_ADDITIVE)
         )
     });
 
     await Renderer.AddPipeline(BasePipeline, {
-        fragment: BasePipeline.CreateFragmentState(baseModule, void 0, "baseFragment"),
+        fragment: BasePipeline.CreateFragmentState(baseModule, "baseFragment"),
         depthStencil: BasePipeline.CreateDepthStencilState(),
         multisample: BasePipeline.CreateMultisampleState(),
-        vertex: BasePipeline.CreateVertexState(baseModule, [
+        vertex: BasePipeline.CreateVertexState(baseModule, "baseVertex", [
             Geometry.GetPositionBufferLayout(BasePipeline, "baseVertex"),
             Geometry.GetNormalBufferLayout(BasePipeline, "baseVertex"),
             Geometry.GetUVBufferLayout(BasePipeline, "baseVertex")
-        ], "baseVertex")
+        ])
     });
 
     scene.Add(grid);

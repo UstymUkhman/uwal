@@ -73,10 +73,10 @@ export async function run(canvas)
         multisample: CubePipeline.CreateMultisampleState(),
         depthStencil: CubePipeline.CreateDepthStencilState(),
         fragment: CubePipeline.CreateFragmentState(module),
-        vertex: CubePipeline.CreateVertexState(module, [
+        vertex: CubePipeline.CreateVertexState(module, "vertexUV", [
             CubeGeometry.GetPositionBufferLayout(CubePipeline),
             CubePipeline.CreateVertexBufferLayout("uv", "vertexUV")
-        ], "vertexUV")
+        ])
     });
 
     const perspectiveCube = new Mesh(CubeGeometry);

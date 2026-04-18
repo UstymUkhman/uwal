@@ -5,7 +5,7 @@
  * {@link https://codelabs.developers.google.com/your-first-webgpu-app}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.2.0
+ * @version 0.3.1
  * @license MIT
  */
 
@@ -58,7 +58,7 @@ export async function run(canvas)
 
     await Renderer.AddPipeline(RenderPipeline, { layout,
         fragment: RenderPipeline.CreateFragmentState(renderModule),
-        vertex: RenderPipeline.CreateVertexState(renderModule, vertexLayout)
+        vertex: RenderPipeline.CreateVertexState(renderModule, void 0, vertexLayout)
     });
 
     RenderPipeline.WriteBuffer(vertexBuffer, new Float32Array([

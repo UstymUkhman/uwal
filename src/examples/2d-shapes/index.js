@@ -49,7 +49,7 @@ export async function run(canvas)
 
     await Renderer.AddPipeline(ShapePipeline, {
         fragment: ShapePipeline.CreateFragmentState(module),
-        vertex: ShapePipeline.CreateVertexState(module,
+        vertex: ShapePipeline.CreateVertexState(module, void 0,
             DummyGeometry.GetPositionBufferLayout(ShapePipeline)
         )
     });
