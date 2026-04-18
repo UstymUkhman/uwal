@@ -68,7 +68,7 @@ import createVertices from "./F.js";
 
     await Renderer.AddPipeline(RenderPipeline, {
         fragment: RenderPipeline.CreateFragmentState(module),
-        vertex: RenderPipeline.CreateVertexState(module,
+        vertex: RenderPipeline.CreateVertexState(module, void 0,
             geometry.GetPositionBufferLayout(RenderPipeline)
         )
     });

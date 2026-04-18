@@ -126,11 +126,11 @@ import Cube from "./Cube.wgsl";
     await Renderer.AddPipeline(CubePipeline, {
         primitive: CubePipeline.CreatePrimitiveState(),
         depthStencil: CubePipeline.CreateDepthStencilState(),
-        fragment: CubePipeline.CreateFragmentState(module, void 0, "cubeFragment"),
-        vertex: CubePipeline.CreateVertexState(module, [
+        fragment: CubePipeline.CreateFragmentState(module, "cubeFragment"),
+        vertex: CubePipeline.CreateVertexState(module, "cubeVertex", [
             CubeGeometry.GetPositionBufferLayout(CubePipeline),
             CubePipeline.CreateVertexBufferLayout(colorAttribute, "cubeVertex")
-        ], "cubeVertex"),
+        ])
     });
 
     const { color: drawerColor, buffer: drawerBuffer } = CubePipeline.CreateUniformBuffer("color");

@@ -65,13 +65,13 @@ import createVertices from "../directional-lighting/F.js";
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline,
         {
-            fragment: FPipeline.CreateFragmentState(module, void 0, "FFragment"),
+            fragment: FPipeline.CreateFragmentState(module, "FFragment"),
             depthStencil: FPipeline.CreateDepthStencilState(),
             primitive: FPipeline.CreatePrimitiveState(),
-            vertex: FPipeline.CreateVertexState(module, [
+            vertex: FPipeline.CreateVertexState(module, "FVertex", [
                 FGeometry.GetPositionBufferLayout(FPipeline),
                 FGeometry.GetNormalBufferLayout(FPipeline)
-            ], "FVertex")
+            ])
         }),
         [Camera.SetRenderPipeline(FPipeline), colorBuffer, lightBuffer],
         [BINDINGS.CAMERA_MATRIX, BINDINGS.MESH_COLOR, 0]
