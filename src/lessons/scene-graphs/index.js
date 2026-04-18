@@ -5,12 +5,12 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-scene-graphs.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.3.0
+ * @version 0.3.1
  * @license MIT
  */
 
+import { Mesh, Scene, Color, Device, Shaders, BINDINGS, MathUtils, Geometries, PerspectiveCamera } from "#/index";
 import { addButtonLeftJustified } from "https://webgpufundamentals.org/webgpu/resources/js/gui-helpers.js";
-import { Scene, Mesh, Color, Device, Shaders, MathUtils, Geometries, PerspectiveCamera } from "#/index";
 import Cube from "./Cube.wgsl";
 
 (async function(canvas)
@@ -116,9 +116,12 @@ import Cube from "./Cube.wgsl";
     const color = new Color(0xffffff);
 
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
-    const colorAttribute = { name: "color", format: "unorm8x4" };
     const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;
     const module = CubePipeline.CreateShaderModule([Shaders.Mesh, Cube]);
+
+    const colorAttribute = { name: "color", format: "unorm8x4" };
+    const cameraBuffer = Camera.SetRenderPipeline(CubePipeline);
+    const colorBuffer = createVertexColors(colorAttribute);
 
     await Renderer.AddPipeline(CubePipeline, {
         primitive: CubePipeline.CreatePrimitiveState(),
@@ -143,7 +146,6 @@ import Cube from "./Cube.wgsl";
     cabinetColor.set(color.Set(0xbfbfbf, 0xbf).rgba);
     CubePipeline.WriteBuffer(cabinetBuffer, cabinetColor.buffer);
 
-    const colorBuffer = createVertexColors(colorAttribute);
     Array.from({ length: cabinets }).forEach((_, c) => addCabinet(scene, c));
     const nodeButtons = addNodeGUI(gui.addFolder("Nodes"), scene);
 
@@ -231,9 +233,14 @@ import Cube from "./Cube.wgsl";
     function addMesh(label, parent, transform, buffer = drawerBuffer)
     {
         const cube = new Mesh(CubeGeometry, label, parent);
-        cube.SetRenderPipeline(CubePipeline, buffer);
-        CubePipeline.AddVertexBuffers(colorBuffer);
 
+        cube.SetRenderPipeline(
+            CubePipeline,
+            [cameraBuffer, buffer],
+            [BINDINGS.CAMERA_MATRIX, BINDINGS.MESH_COLOR]
+        );
+
+        CubePipeline.AddVertexBuffers(colorBuffer);
         cube.Transform = transform;
         return cube;
     }

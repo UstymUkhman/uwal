@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-point.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.3.0
+ * @version 0.3.1
  * @license MIT
  */
 
@@ -15,6 +15,7 @@ import {
     Scene,
     Device,
     Shaders,
+    BINDINGS,
     MathUtils,
     PointLight,
     Geometries,
@@ -46,25 +47,26 @@ import createVertices from "../directional-lighting/F.js";
     const gui = new GUI();
     gui.onChange(render);
 
-    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Camera, Shaders.Mesh, FShader]);
+    const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
+    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Mesh, FShader]);
+    const settings = { rotation: MathUtils.DegreesToRadians(0.0), shininess: 30.0 };
+
     const { Light, buffer: lightBuffer } = FPipeline.CreateUniformBuffer("Light");
     const { color, buffer: colorBuffer } = FMesh.CreateColorBuffer(FPipeline);
 
-    const cameraBuffer = Camera.SetRenderPipeline(FPipeline);
-    const settings = { rotation: MathUtils.DegreesToRadians(0), shininess: 30 };
-    const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
-
-    const vertexBuffers = [
-        FPipeline.CreateVertexBufferLayout({ name: "position", format: "float32x3" }, "meshVertex"),
-        FPipeline.CreateVertexBufferLayout({ name: "normal", format: "float32x3" }, "meshVertex")
-    ];
-
-    FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline, {
-        vertex: FPipeline.CreateVertexState(module, vertexBuffers, "meshVertex"),
-        fragment: FPipeline.CreateFragmentState(module, void 0, "meshFragment"),
-        depthStencil: FPipeline.CreateDepthStencilState(),
-        primitive: FPipeline.CreatePrimitiveState()
-    }), [colorBuffer, lightBuffer, cameraBuffer]);
+    FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline,
+        {
+            fragment: FPipeline.CreateFragmentState(module, void 0, "FFragment"),
+            depthStencil: FPipeline.CreateDepthStencilState(),
+            primitive: FPipeline.CreatePrimitiveState(),
+            vertex: FPipeline.CreateVertexState(module, [
+                FGeometry.GetPositionBufferLayout(FPipeline),
+                FGeometry.GetNormalBufferLayout(FPipeline)
+            ], "FVertex")
+        }),
+        [Camera.SetRenderPipeline(FPipeline), colorBuffer, lightBuffer],
+        [BINDINGS.CAMERA_MATRIX, BINDINGS.MESH_COLOR, 0]
+    );
 
     const { positionData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);

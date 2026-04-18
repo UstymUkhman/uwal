@@ -5,7 +5,7 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-math.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.3.0
+ * @version 0.3.1
  * @license MIT
  */
 
@@ -15,6 +15,7 @@ import {
     Shape,
     Device,
     Shaders,
+    BINDINGS,
     Camera2D,
     MathUtils,
     Geometries
@@ -52,6 +53,7 @@ import createVertices from "./F.js";
 
     const { vertexData, indexData } = createVertices();
     const module = RenderPipeline.CreateShaderModule(Shaders.Shape);
+    const cameraMatrixBuffer = Camera.SetRenderPipeline(RenderPipeline);
     const geometry = new Geometries.Shape({ radius: 75, indexFormat: "uint32" });
 
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
@@ -78,12 +80,16 @@ import createVertices from "./F.js";
     const shapes = Array.from({ length: 5 }).map(() => {
         const shape = new Shape(geometry);
         const uniform = shape.CreateColorBuffer(RenderPipeline);
+
         uniform.color.set(color.Random().rgba);
-
         RenderPipeline.WriteBuffer(uniform.buffer, uniform.color);
-        shape.SetRenderPipeline(RenderPipeline, uniform.buffer);
-        shape.Origin = [50, 75];
 
+        shape.SetRenderPipeline(RenderPipeline,
+            [cameraMatrixBuffer, uniform.buffer],
+            [BINDINGS.CAMERA_MATRIX, BINDINGS.SHAPE_COLOR]
+        );
+
+        shape.Origin = [50, 75];
         return shape;
     });
 
