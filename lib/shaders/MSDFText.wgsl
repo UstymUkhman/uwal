@@ -36,11 +36,11 @@ struct MSDFTextVertexOutput
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(0) var<uniform> Camera: CameraMatrixUniforms;
-@group(0) @binding(1) var<storage> Characters: array<char>;
+@group(0) @binding(0) var<storage> Text: text;
+@group(0) @binding(1) var Sampler: sampler;
 @group(0) @binding(2) var Texture: texture_2d<f32>;
-@group(0) @binding(3) var Sampler: sampler;
-@group(0) @binding(4) var<storage> Text: text;
+@group(0) @binding(3) var<storage> Characters: array<char>;
+@group(0) @binding(10) var<uniform> Camera: CameraMatrixUniforms;
 
 @vertex fn vertex(
     @builtin(vertex_index) index: u32,
