@@ -46,6 +46,7 @@ import createVertices from "../directional-lighting/F.js";
     const scene = new Scene();
     const gui = new GUI();
     gui.onChange(render);
+    scene.Add(FMesh);
 
     const settings = {
         innerLimit: MathUtils.DegreesToRadians(15),
@@ -58,10 +59,18 @@ import createVertices from "../directional-lighting/F.js";
 
     const limitOptions = { min: 0, max: 90, minRange: 1, step: 1, converters: GUI.converters.radToDeg };
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
-    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Mesh, FShader]);
-
-    const { Light, buffer: lightBuffer } = FPipeline.CreateUniformBuffer("Light");
+    const module = FPipeline.CreateShaderModule([Shaders.Mesh, Shaders.Light, FShader]);
     const { color, buffer: colorBuffer } = FMesh.CreateColorBuffer(FPipeline);
+
+    const Light = new SpotLight([-10, 30, 100]);
+    color.set(new Color(0x33ff33).rgba);
+    const cameraTarget = [0, 35, 0];
+
+    gui.add(settings, "rotation", radToDegOptions);
+    gui.add(settings, "shininess", { min: 1, max: 250 });
+    GUI.makeMinMaxPair(gui, settings, "innerLimit", "outerLimit", limitOptions);
+    gui.add(settings, "aimOffsetX", -50, 50);
+    gui.add(settings, "aimOffsetY", -50, 50);
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline,
         {
@@ -73,44 +82,27 @@ import createVertices from "../directional-lighting/F.js";
                 FGeometry.GetNormalBufferLayout(FPipeline)
             ])
         }),
-        [Camera.SetRenderPipeline(FPipeline), colorBuffer, lightBuffer],
-        [BINDINGS.CAMERA_MATRIX, BINDINGS.MESH_COLOR, 0]
+        [Camera.SetRenderPipeline(FPipeline), colorBuffer, Light.SetRenderPipeline(FPipeline)],
+        [BINDINGS.CAMERA_MATRIX, BINDINGS.MESH_COLOR, BINDINGS.SPOT_LIGHT]
     );
 
     const { positionData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
-    color.set(new Color(0x33ff33).rgba);
-
-    gui.add(settings, "rotation", radToDegOptions);
-    gui.add(settings, "shininess", { min: 1, max: 250 });
-    GUI.makeMinMaxPair(gui, settings, "innerLimit", "outerLimit", limitOptions);
-    gui.add(settings, "aimOffsetX", -50, 50);
-    gui.add(settings, "aimOffsetY", -50, 50);
-
     FGeometry.CreatePositionBuffer(FPipeline, positionData);
+
     FPipeline.WriteBuffer(colorBuffer, color.buffer);
     FPipeline.WriteBuffer(normalBuffer, normalData);
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);
 
-    const light = new SpotLight([-10, 30, 100]);
-    Light.position.set(light.Position);
-    const cameraTarget = [0, 35, 0];
-    scene.Add(FMesh);
-
     function render()
     {
-        Light.intensity[0] = light.Intensity = settings.shininess;
+        Light.Limit = [settings.innerLimit, settings.outerLimit];
         const { aimOffsetX: x, aimOffsetY: y } = settings;
-        const { innerLimit, outerLimit } = settings;
-
-        light.Limit = [innerLimit, outerLimit];
-        Light.limit.set(light.Limit);
+        Light.Intensity = settings.shininess;
 
         // Point the spot light at the camera target (FMesh) + settings offsets:
-        Light.direction.set(light.LookAt([cameraTarget[0] + x, cameraTarget[1] + y, cameraTarget[2]]));
-
-        FPipeline.WriteBuffer(lightBuffer, Light.position.buffer);
+        Light.LookAt([cameraTarget[0] + x, cameraTarget[1] + y, cameraTarget[2]])
         FMesh.Rotation = [0, settings.rotation, 0];
         Renderer.Render(scene);
     }

@@ -46,11 +46,17 @@ import createVertices from "./F.js";
     const scene = new Scene();
     const gui = new GUI();
     gui.onChange(render);
+    scene.Add(FMesh);
 
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
-    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Mesh, FShader]);
-    const { Light, buffer: lightBuffer } = FPipeline.CreateUniformBuffer("Light");
+    const module = FPipeline.CreateShaderModule([Shaders.Mesh, Shaders.Light, FShader]);
     const { color, buffer: colorBuffer } = FMesh.CreateColorBuffer(FPipeline);
+
+    const settings = { rotation: MathUtils.DegreesToRadians(0) };
+    const Light = new DirectionalLight([-0.5, -0.7, -1]);
+
+    gui.add(settings, "rotation", radToDegOptions);
+    color.set(new Color(0x33ff33).rgba);
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline,
         {
@@ -62,29 +68,18 @@ import createVertices from "./F.js";
                 FGeometry.GetNormalBufferLayout(FPipeline)
             ])
         }),
-        [Camera.SetRenderPipeline(FPipeline), colorBuffer, lightBuffer],
-        [BINDINGS.CAMERA_MATRIX, BINDINGS.MESH_COLOR, 0]
+        [Camera.SetRenderPipeline(FPipeline), colorBuffer, Light.SetRenderPipeline(FPipeline)],
+        [BINDINGS.CAMERA_MATRIX, BINDINGS.MESH_COLOR, BINDINGS.DIRECTIONAL_LIGHT]
     );
 
     const { positionData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
-    const settings = { rotation: MathUtils.DegreesToRadians(0) };
-    const direction = MathUtils.Vec3.create(-0.5, -0.7, -1);
-    const directionalLight = new DirectionalLight(direction);
-
-    color.set(new Color(0x33ff33).rgba);
-    Light.direction.set(directionalLight.Direction);
-    Light.intensity.set([directionalLight.Intensity]);
-    FPipeline.WriteBuffer(colorBuffer, color.buffer);
-    FPipeline.WriteBuffer(lightBuffer, Light.direction.buffer);
-
     FGeometry.CreatePositionBuffer(FPipeline, positionData);
-    FPipeline.WriteBuffer(normalBuffer, normalData);
-    gui.add(settings, "rotation", radToDegOptions);
 
+    FPipeline.WriteBuffer(colorBuffer, color.buffer);
+    FPipeline.WriteBuffer(normalBuffer, normalData);
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);
-    scene.Add(FMesh);
 
     function render()
     {

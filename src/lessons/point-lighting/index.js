@@ -46,13 +46,18 @@ import createVertices from "../directional-lighting/F.js";
     const scene = new Scene();
     const gui = new GUI();
     gui.onChange(render);
+    scene.Add(FMesh);
 
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
-    const module = FPipeline.CreateShaderModule([Shaders.Light, Shaders.Mesh, FShader]);
+    const module = FPipeline.CreateShaderModule([Shaders.Mesh, Shaders.Light, FShader]);
     const settings = { rotation: MathUtils.DegreesToRadians(0.0), shininess: 30.0 };
-
-    const { Light, buffer: lightBuffer } = FPipeline.CreateUniformBuffer("Light");
     const { color, buffer: colorBuffer } = FMesh.CreateColorBuffer(FPipeline);
+
+    const Light = new PointLight([-10, 30, 100]);
+    color.set(new Color(0x33ff33).rgba);
+
+    gui.add(settings, "rotation", radToDegOptions);
+    gui.add(settings, "shininess", { min: 1, max: 250 });
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline,
         {
@@ -64,31 +69,22 @@ import createVertices from "../directional-lighting/F.js";
                 FGeometry.GetNormalBufferLayout(FPipeline)
             ])
         }),
-        [Camera.SetRenderPipeline(FPipeline), colorBuffer, lightBuffer],
-        [BINDINGS.CAMERA_MATRIX, BINDINGS.MESH_COLOR, 0]
+        [Camera.SetRenderPipeline(FPipeline), colorBuffer, Light.SetRenderPipeline(FPipeline)],
+        [BINDINGS.CAMERA_MATRIX, BINDINGS.MESH_COLOR, BINDINGS.POINT_LIGHT]
     );
 
     const { positionData, normalData, vertices } = createVertices();
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
-    color.set(new Color(0x33ff33).rgba);
-
     FGeometry.CreatePositionBuffer(FPipeline, positionData);
+
     FPipeline.WriteBuffer(colorBuffer, color.buffer);
     FPipeline.WriteBuffer(normalBuffer, normalData);
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);
 
-    gui.add(settings, "rotation", radToDegOptions);
-    gui.add(settings, "shininess", { min: 1, max: 250 });
-
-    const light = new PointLight([-10, 30, 100]);
-    Light.position.set(light.Position);
-    scene.Add(FMesh);
-
     function render()
     {
-        Light.intensity[0] = light.Intensity = settings.shininess;
-        FPipeline.WriteBuffer(lightBuffer, Light.position.buffer);
+        Light.Intensity = settings.shininess;
         FMesh.Rotation = [0, settings.rotation, 0];
         Renderer.Render(scene);
     }
