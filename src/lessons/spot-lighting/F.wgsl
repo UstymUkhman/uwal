@@ -30,15 +30,10 @@ struct VertexOutput
 @fragment fn FFragment(vertex: VertexOutput) -> @location(0) vec4f
 {
     let spotLight = GetSpotLight(
-        SpotLightInputs(
-            SpotLight.color,
-            SpotLight.intensity,
-            vertex.lightDirection,
-            vertex.cameraDirection,
-            vertex.vertexNormal,
-            SpotLight.direction,
-            SpotLight.limit
-        )
+        SpotLight,
+        vertex.lightDirection,
+        vertex.cameraDirection,
+        vertex.vertexNormal
     );
 
     return vec4f(color.rgb * spotLight.amount + spotLight.specular, color.a);

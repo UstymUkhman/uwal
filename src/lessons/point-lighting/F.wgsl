@@ -6,8 +6,6 @@ struct VertexOutput
     @location(2) vertexNormal: vec3f
 };
 
-// @group(0) @binding(0) var<uniform> Light: LightUniforms;
-
 @vertex fn FVertex(@location(0) position: vec4f, @location(1) normal: vec3f) -> VertexOutput
 {
     var output: VertexOutput;
@@ -32,13 +30,10 @@ struct VertexOutput
 @fragment fn FFragment(vertex: VertexOutput) -> @location(0) vec4f
 {
     let pointLight = GetPointLight(
-        PointLightInputs(
-            PointLight.color,
-            PointLight.intensity,
-            vertex.lightDirection,
-            vertex.cameraDirection,
-            vertex.vertexNormal
-        )
+        PointLight,
+        vertex.lightDirection,
+        vertex.cameraDirection,
+        vertex.vertexNormal
     );
 
     return vec4f(color.rgb * pointLight.amount + pointLight.specular, color.a);

@@ -13,12 +13,10 @@ struct Mesh
 @group(0) @binding(1) var Sampler: sampler;
 @group(0) @binding(2) var Texture: texture_2d<f32>;
 
-@group(1) @binding(0) var<uniform> uSpotLight: LightUniforms;
-@group(1) @binding(1) var<uniform> uPointLight: LightUniforms;
-@group(1) @binding(2) var<uniform> uDirectionalLight: LightUniforms;
-
 @vertex fn baseVertex(
-    @location(0) position: vec4f, @location(1) normal: vec3f, @location(2) uv: vec2f
+    @location(0) position: vec4f,
+    @location(1) normal: vec3f,
+    @location(2) uv: vec2f
 ) -> Mesh
 {
     let worldPosition = GetVertexWorldPosition(position);
@@ -26,8 +24,8 @@ struct Mesh
     return Mesh(
         GetVertexClipSpace(position),
         GetCameraDirection(CameraMatrix, worldPosition),
-        GetLightDirection(worldPosition, uPointLight.position),
-        GetLightDirection(worldPosition, uSpotLight.position),
+        GetLightDirection(PointLight.position, worldPosition),
+        GetLightDirection(SpotLight.position, worldPosition),
         worldPosition,
         GetVertexNormal(MeshMatrix.worldNormal, normal),
         uv
@@ -64,29 +62,23 @@ struct Mesh
         rgb = vec3f(mesh.uv, 0);
     }
 
-    var light = GetDirectionalLight(uDirectionalLight, mesh.normal);
+    var light = GetDirectionalLight(DirectionalLight, mesh.normal);
 
     let pointLight = GetPointLight(
-        PointLight(
-            mesh.normal,
-            uPointLight.intensity,
-            mesh.pointDirection,
-            mesh.cameraDirection
-        )
+        PointLight,
+        mesh.pointDirection,
+        mesh.cameraDirection,
+        mesh.normal
     );
 
     let spotLight = GetSpotLight(
-        SpotLight(
-            mesh.normal,
-            uSpotLight.intensity,
-            mesh.spotDirection,
-            mesh.cameraDirection,
-            uSpotLight.direction,
-            uSpotLight.limit
-        )
+        SpotLight,
+        mesh.spotDirection,
+        mesh.cameraDirection,
+        mesh.normal
     );
 
     let specular = pointLight.specular + spotLight.specular;
-    light += pointLight.value + spotLight.value;
+    light += pointLight.amount + spotLight.amount;
     return vec4f(rgb * light + specular, 1);
 }
