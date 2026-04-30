@@ -35,6 +35,20 @@ pnpm add uwal
 # or
 bun add uwal
 ```
+```
+
+## Weight
+
+Given that WebGPU APIs are quite verbose and the UWAL library is fairly modular, with tree shaking applied in a build step, the bundle size may vary considerably. As a guide, below are the module sizes split by common usage purposes. For example, a fragment shader animation or a path tracer may need only `Device & Shaders` modules, which will also include `Render` and `Compute` pipelines, while a particle animation can leverage the `Shape` class, that also provides instancing. On the other hand, a 3D application will most likely use the `Mesh` class, its primitives, and lights, while the `MSDFText` class can be included to print strings to a render target to apply further text manipulations.
+
+| Module                                                   | Minified | Gzipped |
+| :------------------------------------------------------- | -------: | ------: |
+| Device & Shaders                                         | 315.55kb | 68.97kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ 2D Shapes                      | 322.79kb | 71.17kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ 3D Meshes                      | 324.19kb | 71.56kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ Lights | 326.06kb | 71.99kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ MSDF Text                      | 326.75kb | 72.66kb |
+| Total                                                    | 339.98kb | 75.35kb |
 
 ## Diagram
 
@@ -153,6 +167,9 @@ flowchart TD
   - [Directional Lighting](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#directional-lighting)
   - [Point Lighting](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#point-lighting)
   - [Spot Lighting](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#spot-lighting)
+- Techniques
+  - 3D
+    - [Environment maps](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#environment-maps)
 
 ## Acknowledgements
 
