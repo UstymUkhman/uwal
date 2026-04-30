@@ -28,6 +28,7 @@ from "./types/cameras";
 
 export
 {
+    AmbientLight,
     DirectionalLight,
     PointLight,
     SpotLight
