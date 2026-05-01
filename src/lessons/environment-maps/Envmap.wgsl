@@ -7,12 +7,9 @@ struct VertexOutput
 @group(0) @binding(0) var Sampler: sampler;
 @group(0) @binding(1) var CubeTexture: texture_cube<f32>;
 
-@vertex fn cubeVertex(@location(0) position: vec4f) -> VertexOutput
+@fragment fn fragment(mesh: MeshVertexNormal) -> @location(0) vec4f
 {
-    return VertexOutput(normalize(position.xyz), GetVertexClipSpace(position));
-}
-
-@fragment fn fragment(@location(0) normal: vec3f) -> @location(0) vec4f
-{
-    return textureSample(CubeTexture, Sampler, normalize(normal));
+    var direction = GetCameraDirection(CameraMatrix, mesh.worldPosition);
+    direction = reflect(normalize(-direction), normalize(mesh.normal));
+    return textureSample(CubeTexture, Sampler, direction * vec3f(1, 1, -1));
 }

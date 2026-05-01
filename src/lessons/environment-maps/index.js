@@ -16,7 +16,6 @@ import {
     Device,
     Shaders,
     BINDINGS,
-    MathUtils,
     Geometries,
     PerspectiveCamera
 } from "#/index";
@@ -55,9 +54,10 @@ import Market from "/assets/images/leadenhall";
             fragment: Pipeline.CreateFragmentState(module),
             depthStencil: Pipeline.CreateDepthStencilState(),
             primitive: Pipeline.CreatePrimitiveState(),
-            vertex: Pipeline.CreateVertexState(module, "cubeVertex",
-                Geometry.GetPositionBufferLayout(Pipeline)
-            )
+            vertex: Pipeline.CreateVertexState(module, "vertexNormal", [
+                Geometry.GetPositionBufferLayout(Pipeline),
+                Geometry.GetNormalBufferLayout(Pipeline),
+            ])
         }), [
             Texture.CreateSampler({ filter: "linear" }),
             texture.createView({ dimension: "cube" }),
@@ -66,15 +66,20 @@ import Market from "/assets/images/leadenhall";
         [0, 1, BINDINGS.CAMERA_MATRIX]
     );
 
-    Cube.Transform = [void 0, [
-        MathUtils.DegreesToRadians(20),
-        MathUtils.DegreesToRadians(25),
-        MathUtils.DegreesToRadians(0)
-    ], 2];
+    Geometry.AddNormalBuffer(Pipeline, Geometry.Primitive.normals);
+    const rotation = [0, 0, 0];
+    Cube.Scaling = 2;
 
-    function render()
+    function render(time)
     {
+        time *= 0.001;
+
+        rotation[0] = time * -0.1;
+        rotation[1] = time * -0.2;
+        Cube.Rotation = rotation;
+
         Renderer.Render(scene);
+        requestAnimationFrame(render);
     }
 
     const observer = new ResizeObserver(entries =>
@@ -84,13 +89,13 @@ import Market from "/assets/images/leadenhall";
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
-            Camera.Position = [0, 1, 5];
+            Camera.Position = [0, 0, 4];
             Camera.LookAt([0, 0, 0]);
             scene.AddMainCamera(Camera);
             Camera.UpdateWorldMatrix(true);
         }
 
-        render();
+        requestAnimationFrame(render);
     });
 
     observer.observe(document.body);
