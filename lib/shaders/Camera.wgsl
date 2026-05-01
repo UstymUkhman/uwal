@@ -32,7 +32,7 @@ fn GetCameraRotation(camera: CameraMatrixUniforms) -> mat3x3f
 }
 
 // Compute the vector of the vertex world position to the camera position.
-fn GetCameraDirection(Camera: CameraMatrixUniforms, vertexWorldPosition: vec3f) -> vec3f
+fn GetCameraDirection(Camera: CameraMatrixUniforms, worldPosition: vec3f) -> vec3f
 {
-    return GetCameraPosition(Camera) - vertexWorldPosition;
+    return GetCameraPosition(Camera) - worldPosition;
 }

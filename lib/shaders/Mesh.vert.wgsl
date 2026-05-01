@@ -15,8 +15,7 @@ fn GetVertexWorldPosition(position: vec4f) -> vec3f
 
 fn GetVertexClipSpace(position: vec4f) -> vec4f
 {
-    let modelViewProjection = CameraMatrix.viewProjection * MeshMatrix.world;
-    return modelViewProjection * position;
+    return CameraMatrix.viewProjection * MeshMatrix.world * position;
 }
 
 struct MeshVertexPosition
