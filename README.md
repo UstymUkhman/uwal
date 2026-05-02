@@ -35,7 +35,6 @@ pnpm add uwal
 # or
 bun add uwal
 ```
-```
 
 ## Weight
 
