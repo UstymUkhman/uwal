@@ -169,6 +169,7 @@ flowchart TD
 - Techniques
   - 3D
     - [Environment maps](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#environment-maps)
+    - [SkyBox](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#skybox)
 
 ## Acknowledgements
 

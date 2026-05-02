@@ -47,3 +47,4 @@
 | [Spot Lighting](https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-spot.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#spot-lighting) | [Code](./spot-lighting/index.js) |
 | _Techniques 3D_ |
 | [Environment maps](https://webgpufundamentals.org/webgpu/lessons/webgpu-environment-maps.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#environment-maps) | [Code](./environment-maps/index.js) |
+| [SkyBox](https://webgpufundamentals.org/webgpu/lessons/webgpu-skybox.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#skybox) | [Code](./skybox/index.js) |

@@ -11,17 +11,17 @@
 
 import {
     Mesh,
-    Color,
     Scene,
     Device,
     Shaders,
-    MathUtils,
+    BINDINGS,
     Geometries,
     PerspectiveCamera
 } from "#/index";
 
 import SkyBox from "./SkyBox.wgsl";
 import Market from "/assets/images/leadenhall";
+import Envmap from "../environment-maps/Envmap.wgsl";
 
 (async function(canvas)
 {
@@ -36,59 +36,80 @@ import Market from "/assets/images/leadenhall";
         alert(error);
     }
 
-    const Geometry = new Geometries.Mesh();
-    const Pipeline = new Renderer.Pipeline();
-    Geometry.Primitive = Geometries.Primitives.cube();
-
-    const Camera = new PerspectiveCamera();
-    const Sky = new Mesh(Geometry);
     const scene = new Scene();
-    scene.Add(Sky);
-
+    const Camera = new PerspectiveCamera();
+    const CubeGeometry = new Geometries.Mesh();
+    const CubePipeline = new Renderer.Pipeline();
+    const SkyboxPipeline = new Renderer.Pipeline();
     const Texture = new (await Device.Texture(Renderer));
-    const texture = await Texture.CreateCubeTexture(Market);
-    const module = Pipeline.CreateShaderModule([Shaders.Fullscreen, SkyBox]);
+
+    const sampler = Texture.CreateSampler({ filter: "linear" });
+    const cubeModule = CubePipeline.CreateShaderModule([Shaders.MeshVertex, Envmap]);
+    const skyboxModule = SkyboxPipeline.CreateShaderModule([Shaders.Fullscreen, SkyBox]);
+    const view = (await Texture.CreateCubeTexture(Market)).createView({ dimension: "cube" });
 
     let { inverseViewProjection, buffer: inverseViewProjectionBuffer } =
-        Pipeline.CreateUniformBuffer("inverseViewProjection");
+        SkyboxPipeline.CreateUniformBuffer("inverseViewProjection");
 
-    await Renderer.AddPipeline(Pipeline, {
-        depthStencil: Pipeline.CreateDepthStencilState(void 0, void 0, "less-equal"),
-        fragment: Pipeline.CreateFragmentState(module),
-        primitive: Pipeline.CreatePrimitiveState(),
-        vertex: Pipeline.CreateVertexState(module)
+    CubeGeometry.Primitive = Geometries.Primitives.cube();
+    const Cube = new Mesh(CubeGeometry);
+    scene.Add(Cube);
+
+    Cube.SetRenderPipeline(await Renderer.AddPipeline(CubePipeline,
+        {
+            fragment: CubePipeline.CreateFragmentState(cubeModule),
+            depthStencil: CubePipeline.CreateDepthStencilState(),
+            primitive: CubePipeline.CreatePrimitiveState(),
+            vertex: CubePipeline.CreateVertexState(cubeModule, "vertexNormal", [
+                CubeGeometry.GetPositionBufferLayout(CubePipeline),
+                CubeGeometry.GetNormalBufferLayout(CubePipeline),
+            ])
+        }), [sampler, view, Camera.SetRenderPipeline(CubePipeline)],
+        [0, 1, BINDINGS.CAMERA_MATRIX]
+    );
+
+    await Renderer.AddPipeline(SkyboxPipeline, {
+        depthStencil: SkyboxPipeline.CreateDepthStencilState(void 0, void 0, "less-equal"),
+        fragment: SkyboxPipeline.CreateFragmentState(skyboxModule),
+        vertex: SkyboxPipeline.CreateVertexState(skyboxModule)
     });
 
-    Pipeline.SetBindGroupFromResources([
-        Texture.CreateSampler({ filter: "linear" }),
-        texture.createView({ dimension: "cube" }),
-        inverseViewProjectionBuffer
-    ]);
-
-    Pipeline.SetDrawParams(3);
+    SkyboxPipeline.SetBindGroupFromResources([sampler, view, inverseViewProjectionBuffer]);
+    CubeGeometry.AddNormalBuffer(CubePipeline, CubeGeometry.Primitive.normals);
+    SkyboxPipeline.SetDrawParams(3);
 
     const position = [0, 0, 0];
+    const rotation = [0, 0, 0];
     const origin = [0, 0, 0];
+    Cube.Scaling = 2;
 
     function render(time)
     {
-        time *= 0.001;
+        time *= 0.0001;
 
         // Move the camera in circle from origin, looking at the origin:
-        position[0] = Math.cos(time * 0.1);
-        position[2] = Math.sin(time * 0.1);
+        position[0] = Math.cos(time) * 5;
+        position[2] = Math.sin(time) * 5;
+
+        rotation[0] = time * -1;
+        rotation[1] = time * -2;
 
         Camera.Position = position;
+        Cube.Rotation = rotation;
         Camera.LookAt(origin);
 
         // Camera's `ViewProjectionMatrix` is updated by the `LookAt` method, but its `WorldMatrix` is not.
         // In this case it's not important to get the initial direction correct because it's rotating anyway.
         // For a better precision, call `UpdateViewProjectionMatrix()` before inverting `ViewProjectionMatrix`.
         inverseViewProjection = Camera.GetInverseViewProjectionMatrix(origin, inverseViewProjection);
+        SkyboxPipeline.WriteBuffer(inverseViewProjectionBuffer, inverseViewProjection);
 
-        Pipeline.WriteBuffer(inverseViewProjectionBuffer, inverseViewProjection);
+        CubePipeline.Active = false;
+        Renderer.Render(false);
 
-        Renderer.Render();
+        CubePipeline.Active = true;
+        Renderer.Render(scene);
+
         requestAnimationFrame(render);
     }
 
@@ -100,6 +121,8 @@ import Market from "/assets/images/leadenhall";
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
             scene.AddMainCamera(Camera);
+            Camera.Position = [0, 0, 4];
+            Camera.LookAt(origin);
         }
 
         requestAnimationFrame(render);

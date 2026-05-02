@@ -11,7 +11,6 @@
 
 import {
     Mesh,
-    Color,
     Scene,
     Device,
     Shaders,
@@ -89,10 +88,9 @@ import Market from "/assets/images/leadenhall";
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
+            scene.AddMainCamera(Camera);
             Camera.Position = [0, 0, 4];
             Camera.LookAt([0, 0, 0]);
-            scene.AddMainCamera(Camera);
-            Camera.UpdateWorldMatrix(true);
         }
 
         requestAnimationFrame(render);
