@@ -104,11 +104,11 @@ import Envmap from "../environment-maps/Envmap.wgsl";
         inverseViewProjection = Camera.GetInverseViewProjectionMatrix(origin, inverseViewProjection);
         SkyboxPipeline.WriteBuffer(inverseViewProjectionBuffer, inverseViewProjection);
 
-        CubePipeline.Active = false;
-        Renderer.Render(false);
-
         CubePipeline.Active = true;
-        Renderer.Render(scene);
+        Renderer.Render(scene, false);
+
+        CubePipeline.Active = false;
+        Renderer.Render();
 
         requestAnimationFrame(render);
     }
