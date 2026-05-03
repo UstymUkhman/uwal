@@ -9,7 +9,7 @@ struct VertexOutput
 
 @fragment fn fragment(mesh: MeshVertexNormal) -> @location(0) vec4f
 {
-    var direction = GetCameraDirection(CameraMatrix, mesh.worldPosition);
+    var direction = GetCameraDirection(mesh.worldPosition);
     direction = reflect(normalize(-direction), normalize(mesh.normal));
     return textureSample(CubeTexture, Sampler, direction * vec3f(1, 1, -1));
 }

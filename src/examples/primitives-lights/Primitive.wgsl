@@ -23,17 +23,18 @@ struct Mesh
 
     return Mesh(
         GetVertexClipSpace(position),
-        GetCameraDirection(CameraMatrix, worldPosition),
+        GetCameraDirection(worldPosition),
         GetLightDirection(PointLight.position, worldPosition),
         GetLightDirection(SpotLight.position, worldPosition),
         worldPosition,
-        GetVertexNormal(MeshMatrix.worldNormal, normal),
+        GetVertexNormal(normal),
         uv
     );
 }
 
 @fragment fn baseFragment(mesh: Mesh) -> @location(0) vec4f
 {
+    var normal = mesh.normal;
     var rgb = color.rgb;
 
     // Texture:
@@ -51,9 +52,11 @@ struct Mesh
     // Flat Shaded:
     if (mode == 2)
     {
-        let fdx = vec3f(dpdx(mesh.worldPosition.x), dpdx(mesh.worldPosition.y), dpdx(mesh.worldPosition.z));
-        let fdy = vec3f(dpdy(mesh.worldPosition.x), dpdy(mesh.worldPosition.y), dpdy(mesh.worldPosition.z));
-        rgb = normalize(cross(fdx, fdy)) * 0.5 + 0.5;
+        let fdx = dpdx(mesh.worldPosition);
+        let fdy = dpdy(mesh.worldPosition);
+
+        normal = normalize(cross(fdx, fdy));
+        rgb = normal;
     }
 
     // UV:
@@ -62,23 +65,11 @@ struct Mesh
         rgb = vec3f(mesh.uv, 0);
     }
 
-    var light = GetDirectionalLight(DirectionalLight, mesh.normal);
-
-    let pointLight = GetPointLight(
-        PointLight,
-        mesh.pointDirection,
-        mesh.cameraDirection,
-        mesh.normal
-    );
-
-    let spotLight = GetSpotLight(
-        SpotLight,
-        mesh.spotDirection,
-        mesh.cameraDirection,
-        mesh.normal
-    );
+    var diffuse = GetDirectionalLight(normal);
+    let pointLight = GetPointLight(mesh.pointDirection, mesh.cameraDirection, normal);
+    let spotLight = GetSpotLight(mesh.spotDirection, mesh.cameraDirection, normal);
 
     let specular = pointLight.specular + spotLight.specular;
-    light += pointLight.amount + spotLight.amount;
-    return vec4f(rgb * light + specular, 1);
+    diffuse += pointLight.diffuse + spotLight.diffuse;
+    return vec4f(rgb * diffuse + specular, 1);
 }

@@ -16,25 +16,19 @@ struct VertexOutput
     let worldPosition = GetVertexWorldPosition(position);
 
     // Compute the vector of the vertex to the camera position:
-    output.cameraDirection = GetCameraDirection(CameraMatrix, worldPosition);
+    output.cameraDirection = GetCameraDirection(worldPosition);
 
     // Compute the vector of the vertex to the light position:
     output.lightDirection = GetLightDirection(PointLight.position, worldPosition);
 
     // Orient the normals and pass them to the fragment shader:
-    output.vertexNormal = GetVertexNormal(MeshMatrix.worldNormal, normal);
+    output.vertexNormal = GetVertexNormal(normal);
 
     return output;
 }
 
 @fragment fn FFragment(vertex: VertexOutput) -> @location(0) vec4f
 {
-    let pointLight = GetPointLight(
-        PointLight,
-        vertex.lightDirection,
-        vertex.cameraDirection,
-        vertex.vertexNormal
-    );
-
-    return vec4f(color.rgb * pointLight.amount + pointLight.specular, color.a);
+    let pointLight = GetPointLight(vertex.lightDirection, vertex.cameraDirection, vertex.vertexNormal);
+    return vec4f(color.rgb * pointLight.diffuse + pointLight.specular, color.a);
 }
