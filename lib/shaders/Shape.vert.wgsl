@@ -25,6 +25,12 @@ fn GetVertexClipSpace(position: vec2f) -> vec4f
     return vec4f((modelViewProjection * vec3f(position, 1)).xy, 0, 1);
 }
 
+// Orient vertex normals before passing them to the fragment shader.
+fn GetVertexNormal() -> vec3f
+{
+    return ShapeMatrix.worldNormal * vec3f(0, 0, 1);
+}
+
 @vertex fn vertex(@location(0) position: vec2f) -> ShapeVertexPosition
 {
     return ShapeVertexPosition(

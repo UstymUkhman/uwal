@@ -10,7 +10,7 @@ struct MeshMatrixUniforms
 
 fn GetVertexWorldPosition(position: vec4f, world: mat4x4f) -> vec3f
 {
-    return (position * world).xyz;
+    return (world * position).xyz;
 }
 
 fn GetVertexClipSpace(position: vec4f, world: mat4x4f) -> vec4f
@@ -20,6 +20,12 @@ fn GetVertexClipSpace(position: vec4f, world: mat4x4f) -> vec4f
     var modelViewProjection = MeshMatrix.world;
     modelViewProjection = CameraMatrix.viewProjection * world;
     return modelViewProjection * position;
+}
+
+// Orient vertex normals before passing them to the fragment shader.
+fn GetVertexNormal(normal: vec3f) -> vec3f
+{
+    return MeshMatrix.worldNormal * normal;
 }
 
 struct MeshVertexPosition

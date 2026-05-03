@@ -18,6 +18,12 @@ fn GetVertexClipSpace(position: vec4f) -> vec4f
     return CameraMatrix.viewProjection * MeshMatrix.world * position;
 }
 
+// Orient vertex normals before passing them to the fragment shader.
+fn GetVertexNormal(normal: vec3f) -> vec3f
+{
+    return MeshMatrix.worldNormal * normal;
+}
+
 struct MeshVertexPosition
 {
     @builtin(position) position: vec4f,

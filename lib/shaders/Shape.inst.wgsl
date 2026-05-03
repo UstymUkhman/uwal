@@ -17,7 +17,7 @@ struct ShapeVertexPosition
 
 fn GetVertexWorldPosition(position: vec2f, world: mat3x3f) -> vec3f
 {
-    return vec3f(position, 0) * world;
+    return world * vec3f(position, 0);
 }
 
 fn GetVertexClipSpace(position: vec2f, world: mat3x3f) -> vec4f
@@ -27,6 +27,12 @@ fn GetVertexClipSpace(position: vec2f, world: mat3x3f) -> vec4f
     var modelViewProjection = ShapeMatrix.world;
     modelViewProjection = GetCamera2DProjection() * world;
     return vec4f((modelViewProjection * vec3f(position, 1)).xy, 0, 1);
+}
+
+// Orient vertex normals before passing them to the fragment shader.
+fn GetVertexNormal() -> vec3f
+{
+    return ShapeMatrix.worldNormal * vec3f(0, 0, 1);
 }
 
 @vertex fn vertex(

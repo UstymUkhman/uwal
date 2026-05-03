@@ -29,8 +29,8 @@ struct SpotLightUniforms
 
 struct Light
 {
-    amount: vec3f,
-    specular: f32
+    diffuse: vec3f,
+    specular: vec3f
 };
 
 @group(0) @binding(40) var<uniform> AmbientLight: AmbientLightUniforms;
@@ -38,29 +38,22 @@ struct Light
 @group(0) @binding(42) var<uniform> PointLight: PointLightUniforms;
 @group(0) @binding(43) var<uniform> SpotLight: SpotLightUniforms;
 
-// Since `normal` is interpolated, we need to normalize it to a unit vector and then compute
-// the light by taking the dot product of the normal to the light's reverse direction.
-fn GetDirectionalLight(light: DirectionalLightUniforms, normal: vec3f) -> vec3f
-{
-    return light.color * dot(normalize(normal), -light.direction) * light.intensity;
-}
-
 // Compute the vector of the vertex world position to the light position.
 fn GetLightDirection(lightPosition: vec3f, vertexWorldPosition: vec3f) -> vec3f
 {
     return lightPosition - vertexWorldPosition;
 }
 
-// Orient vertex normals before passing them to the fragment shader.
-// For 2D shapes, `vec3f(0, 0, 1)` has to be used as `vertex` value.
-fn GetVertexNormal(world: mat3x3f, vertex: vec3f) -> vec3f
+// Since vertex normals are interpolated, normalize them to a unit vector and then compute
+// the light by taking the dot product of the normal to the light's reverse direction.
+fn GetDirectionalLight(normal: vec3f) -> vec3f
 {
-    return world * vertex;
+    return DirectionalLight.color * dot(normalize(normal), -DirectionalLight.direction) * DirectionalLight.intensity;
 }
 
-fn GetAmbientLight(light: AmbientLightUniforms) -> vec3f
+fn GetAmbientLight() -> vec3f
 {
-    return light.color * light.intensity;
+    return AmbientLight.color * AmbientLight.intensity;
 }
 
 fn GetLight(
@@ -72,6 +65,8 @@ fn GetLight(
     amount: f32
 ) -> Light
 {
+    let colorAmount = color * amount;
+
     // Vertex normals are interpolated,
     // normalize them to a unit vector.
     let normal = normalize(vertexNormal);
@@ -81,48 +76,24 @@ fn GetLight(
     let direction = normalize(lightDirection);
 
     // Calculate the amount of light reflected into the camera.
-    var specular = dot(normal, normalize(camera + direction));
+    var specular = dot(normalize(camera + direction), normal);
 
-    // Avoid negative specular values without a conditional statement.
-    specular = pow(max(0, specular), intensity) * amount;
+    // Avoid negative specular values.
+    specular = pow(max(specular, 0), intensity);
 
-    return Light(dot(normal, direction) * color * amount, specular);
+    return Light(dot(normal, direction) * colorAmount, specular * colorAmount);
 }
 
-fn GetPointLight(
-    light: PointLightUniforms,
-    lightDirection: vec3f,
-    cameraDirection: vec3f,
-    vertexNormal: vec3f
-) -> Light
+fn GetPointLight(lightDirection: vec3f, cameraDirection: vec3f, vertexNormal: vec3f) -> Light
 {
-    return GetLight(
-        cameraDirection,
-        lightDirection,
-        vertexNormal,
-        light.intensity,
-        light.color,
-        1
-    );
+    return GetLight(cameraDirection, lightDirection, vertexNormal, PointLight.intensity, PointLight.color, 1);
 }
 
-fn GetSpotLight(
-    light: SpotLightUniforms,
-    lightDirection: vec3f,
-    cameraDirection: vec3f,
-    vertexNormal: vec3f
-) -> Light
+fn GetSpotLight(lightDirection: vec3f, cameraDirection: vec3f, vertexNormal: vec3f) -> Light
 {
     // Lerp between light limits to avoid dividing by zero.
-    let direction = dot(normalize(lightDirection), -light.direction);
-    let inside = smoothstep(light.limit.y, light.limit.x, direction);
+    let direction = dot(normalize(lightDirection), -SpotLight.direction);
+    let inside = smoothstep(SpotLight.limit.y, SpotLight.limit.x, direction);
 
-    return GetLight(
-        cameraDirection,
-        lightDirection,
-        vertexNormal,
-        light.intensity,
-        light.color,
-        inside
-    );
+    return GetLight(cameraDirection, lightDirection, vertexNormal, SpotLight.intensity, SpotLight.color, inside);
 }

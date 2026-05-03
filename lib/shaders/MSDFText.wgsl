@@ -40,7 +40,6 @@ struct MSDFTextVertexOutput
 @group(0) @binding(1) var Sampler: sampler;
 @group(0) @binding(2) var Texture: texture_2d<f32>;
 @group(0) @binding(3) var<storage> Characters: array<char>;
-@group(0) @binding(10) var<uniform> Camera: CameraMatrixUniforms;
 
 @vertex fn vertex(
     @builtin(vertex_index) index: u32,
@@ -56,7 +55,7 @@ struct MSDFTextVertexOutput
     output.textureCoord = vertexPosition * vec2f(1, -1);
 
     let characterPosition = (vertexPosition * character.size + textElement.xy + character.offset) * Text.scale;
-    output.position = Camera.projection * Camera.world * Text.translation * vec4f(characterPosition, 0, 1);
+    output.position = CameraMatrix.projection * CameraMatrix.world * Text.translation * vec4f(characterPosition, 0, 1);
 
     output.textureCoord *= character.extent;
     output.textureCoord += character.coords;
