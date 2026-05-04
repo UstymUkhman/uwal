@@ -9,7 +9,7 @@ struct VertexOutput
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(0) var<uniform> resolution: vec3f;
+@group(0) @binding(0) var<uniform> resolution: vec4f;
 @group(0) @binding(1) var Sampler: sampler;
 @group(0) @binding(2) var<uniform> size: vec2f;
 @group(0) @binding(3) var Texture: texture_external;
@@ -21,7 +21,7 @@ struct VertexOutput
     var coord = GetFullQuadCoord(index);
 
     let scale = vec2f(min(resolution.x / size.x, max)) * size / resolution.xy;
-    let position = coord * scale * resolution.z - vec2f(0, scale.y);
+    let position = coord * scale * resolution.w - vec2f(0, scale.y);
     output.position = vec4f(position, 0, 1);
 
     coord = (coord + 1.0) * 0.5;
