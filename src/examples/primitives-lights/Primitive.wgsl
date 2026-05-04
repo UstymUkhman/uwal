@@ -65,11 +65,12 @@ struct Mesh
         rgb = vec3f(mesh.uv, 0);
     }
 
-    var diffuse = GetDirectionalLight(normal);
-    let pointLight = GetPointLight(mesh.pointDirection, mesh.cameraDirection, normal);
-    let spotLight = GetSpotLight(mesh.spotDirection, mesh.cameraDirection, normal);
+    let pointLight = GetPointLight(PointLight, mesh.pointDirection, mesh.cameraDirection, normal);
+    let spotLight = GetSpotLight(SpotLight, mesh.spotDirection, mesh.cameraDirection, normal);
 
+    var diffuse = GetDirectionalLight(DirectionalLight, normal);
     let specular = pointLight.specular + spotLight.specular;
+
     diffuse += pointLight.diffuse + spotLight.diffuse;
     return vec4f(rgb * diffuse + specular, 1);
 }

@@ -6,6 +6,6 @@ struct VertexOutput
 
 @fragment fn FFragment(@location(1) normal: vec3f) -> @location(0) vec4f
 {
-    let light = GetDirectionalLight(normal);
+    let light = GetDirectionalLight(DirectionalLight, normal);
     return vec4f(color.rgb * light, color.a);
 }

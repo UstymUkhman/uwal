@@ -29,6 +29,12 @@ struct VertexOutput
 
 @fragment fn FFragment(vertex: VertexOutput) -> @location(0) vec4f
 {
-    let pointLight = GetPointLight(vertex.lightDirection, vertex.cameraDirection, vertex.vertexNormal);
+    let pointLight = GetPointLight(
+        PointLight,
+        vertex.lightDirection,
+        vertex.cameraDirection,
+        vertex.vertexNormal
+    );
+
     return vec4f(color.rgb * pointLight.diffuse + pointLight.specular, color.a);
 }
