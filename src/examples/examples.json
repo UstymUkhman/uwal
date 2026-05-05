@@ -34,5 +34,9 @@
     {
         "name": "Primitives / Lights",
         "slug": "primitives-lights"
+    },
+    {
+        "name": "Curtains",
+        "slug": "curtains"
     }
 ]

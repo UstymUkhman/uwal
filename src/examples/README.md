@@ -11,6 +11,7 @@
 | [MSDF Text](https://ustymukhman.github.io/uwal/dist/examples/examples.html#msdf-text) | [Code](./msdf-text/index.js) |
 | [Compute Texture](https://ustymukhman.github.io/uwal/dist/examples/examples.html#compute-texture) | [Code](./compute-texture/index.js) |
 | [Primitives / Lights](https://ustymukhman.github.io/uwal/dist/examples/examples.html#primitives-lights) | [Code](./primitives-lights/index.js) |
+| [Curtains](https://ustymukhman.github.io/uwal/dist/examples/examples.html#curtains) | [Code](./curtains/index.js) |
 | **Demo** |
 | [Basic Program](https://ustymukhman.github.io/uwal/dist/examples/examples.html#basic-program) | [Code](https://github.com/UstymUkhman/uwal-basic-program) |
 | [Ripple Effect](https://ustymukhman.github.io/uwal/dist/examples/examples.html#ripple-effect) | [Code](https://github.com/UstymUkhman/uwal-ripple-effect) |
