@@ -1,5 +1,6 @@
 struct Curtains
 {
+    mouse: vec2f,
     deltaTime: vec2f,
     planeRatio: f32
 };
@@ -11,8 +12,6 @@ struct Plane
     @location(1) vertexPosition: vec4f,
     @location(2) textureCoords: vec2f
 };
-
-const mouse = vec2f(-1f);
 
 const LAVENDER = vec3f(0.9, 0.9, 0.98);
 const LAVENDER_BLUSH = vec3f(1, 0.94, 0.96);
@@ -35,23 +34,22 @@ fn getNormal(o: vec3f, p: vec3f) -> vec3f
 {
     var vertex = position;
     let ratio = vertex.y - 0.5;
-
     let time = curtains.deltaTime.y;
     let delta = curtains.deltaTime.x;
 
     var attenuation = vec2f(
-        (2 - abs(mouse.x - vertex.x)) / 2,
-        -mouse.y / 2 + 0.5
+        (2 - abs(curtains.mouse.x - vertex.x)) / 2,
+        curtains.mouse.y / -2 + 0.5
     );
 
-    if (mouse.y <= -1)
+    if (curtains.mouse.y <= -1)
     {
-        attenuation.y += (mouse.y + 1) * 1.5;
+        attenuation.y += (curtains.mouse.y + 1) * 1.5;
     }
 
     attenuation.y = clamp(attenuation.y, 0, 1);
 
-    let dist = distance(vec2f(mouse.x, 0), vec2f(vertex.x, 0));
+    let dist = distance(vec2f(curtains.mouse.x, 0), vec2f(vertex.x, 0));
     let wave = cos((1 / (cos(dist) - 2) - time * 0.0015) * 35);
     let strength = ratio * wave * delta * attenuation.x * attenuation.y;
 
