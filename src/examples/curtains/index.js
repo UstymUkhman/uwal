@@ -70,10 +70,10 @@ export async function run(canvas)
         { mipmaps: false }
     );
 
-    // canvas.removeEventListener("mousemove", onMove);
-    // canvas.removeEventListener("touchmove", onMove);
-    // canvas.addEventListener("mousemove", onMove);
-    // canvas.addEventListener("touchmove", onMove);
+    canvas.removeEventListener("mousemove", onMove);
+    canvas.removeEventListener("touchmove", onMove);
+    canvas.addEventListener("mousemove", onMove);
+    canvas.addEventListener("touchmove", onMove);
 
     const mousePosition = MathUtils.Vec2.create();
     const lastPosition = MathUtils.Vec2.create();
@@ -103,7 +103,7 @@ export async function run(canvas)
         }));
 
         TextPipeline.DestroyPassEncoder = !!(Text.CameraMatrixBuffer = cameraBuffer);
-        const [x, y] = Plane.Scaling = [scaleX + 0.38 /* 0.36 */, 0.9, 1];
+        const [x, y] = Plane.Scaling = [scaleX + 0.36, 0.9, 1];
         curtains.planeRatio.set([x / y]);
 
         Text.SetTranslation(
@@ -152,7 +152,7 @@ export async function run(canvas)
         x = mousePosition[0] - lastPosition[0];
         y = mousePosition[1] - lastPosition[1];
 
-        const delta = Math.min(Math.hypot(x, y) / 10, 4);
+        const delta = Math.min(Math.hypot(x, y), 4);
         if (maxDelta <= delta) maxDelta = delta;
     }
 
@@ -170,7 +170,7 @@ export async function run(canvas)
         Pipeline.Active = true;
         Renderer.Render(scene);
 
-        // requestAnimationFrame(render);
+        requestAnimationFrame(render);
     }
 
     observer = new ResizeObserver(entries =>

@@ -55,8 +55,8 @@ fn getNormal(o: vec3f, p: vec3f) -> vec3f
     let wave = cos((1 / (cos(dist) - 2) - time * 0.0015) * 35);
     let strength = ratio * wave * delta * attenuation.x * attenuation.y;
 
-    vertex.x += strength * abs(ratio) * sign(vertex.x) / 160;
-    vertex.z += strength / 30;
+    vertex.x += strength * abs(ratio) * sign(vertex.x) * 0.01;
+    vertex.z += strength * 0.1;
 
     var plane: Plane;
     var textCoords = (vertex.xy + 1) * 0.5;
