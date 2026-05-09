@@ -23,7 +23,8 @@ import {
 
 import Curtains from "./Curtains.wgsl";
 import Logo from "/assets/images/logo.png";
-import Roboto from "/assets/fonts/Roboto-Regular.json?url";
+import FontImage from "/assets/fonts/Roboto-Regular.png";
+import FontURL from "/assets/fonts/Roboto-Regular.json?url";
 
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
@@ -78,7 +79,7 @@ export async function run(canvas)
     const mousePosition = MathUtils.Vec2.create();
     const lastPosition = MathUtils.Vec2.create();
 
-    await Text.LoadFont(Roboto);
+    await Text.LoadFont(FontURL);
     scene.AddMainCamera(Camera);
     curtainsBuffer = buffer;
     scene.Add(Plane);

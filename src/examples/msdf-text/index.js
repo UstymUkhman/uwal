@@ -17,6 +17,7 @@ import {
 } from "#/index";
 
 import Font from "/assets/fonts/Matrix-Code-NFI.json";
+import FontImage from "/assets/fonts/Matrix-Code-NFI.png";
 import FontURL from "/assets/fonts/Matrix-Code-NFI.json?url";
 
 /** @type {MSDFText} */ const Characters = new MSDFText();
