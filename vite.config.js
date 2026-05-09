@@ -62,8 +62,9 @@ export default({ mode }) =>
                 },
                 output:
                 {
-                    assetFileNames: ({ name }) => name === "Matrix-Code-NFI.png" &&
-                        "assets/[name].[ext]" || "assets/[name]-[hash].[ext]"
+                    assetFileNames: ({ name }) =>
+                        ["Matrix-Code-NFI.png", "Roboto-Regular.png"].includes(name) &&
+                            "assets/[name].[ext]" || "assets/[name]-[hash].[ext]"
                 }
             }
         };
