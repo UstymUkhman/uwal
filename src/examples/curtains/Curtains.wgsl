@@ -92,13 +92,13 @@ fn getNormal(o: vec3f, p: vec3f) -> vec3f
 
     if (uv.x < 0 || uv.x > 1 || uv.y < 0 || uv.y > 1)
     {
-        color.rgb = background;
+        color = vec4f(background, 1);
     }
 
     // Text Texture:
     coords = plane.textCoords * 3 - 1;
     let text = textureSample(Text, Sampler, coords);
-    color.rgb = mix(color.rgb, text.rgb, text.a);
+    color = vec4f(mix(color.rgb, text.rgb, text.a), 1);
 
     // Lighting:
     let intensity = 0.35;
