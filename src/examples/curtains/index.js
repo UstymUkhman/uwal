@@ -36,6 +36,8 @@ import FontURL from "/assets/fonts/Roboto-Regular.json?url";
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
+    await Device.SetRequiredFeatures("bgra8unorm-storage");
+
     try
     {
         Renderer = new (await Device.Renderer(canvas, "Curtains"));
@@ -83,6 +85,28 @@ export async function run(canvas)
     scene.AddMainCamera(Camera);
     curtainsBuffer = buffer;
     scene.Add(Plane);
+
+    function onMove()
+    {
+        MathUtils.Vec2.copy(mousePosition, lastPosition);
+
+        let x = event.touches?.[0].clientX ?? event.offsetX;
+        let y = event.touches?.[0].clientY ?? event.offsetY;
+
+        mousePosition[0] = MathUtils.Lerp(mousePosition[0], x, 0.3);
+        mousePosition[1] = MathUtils.Lerp(mousePosition[1], y, 0.3);
+
+        x = mousePosition[0] / canvas.offsetWidth * 2 - 1;
+        y = mousePosition[1] / canvas.offsetHeight * -2 + 1;
+
+        curtains.mouse.set([x, y]);
+
+        x = mousePosition[0] - lastPosition[0];
+        y = mousePosition[1] - lastPosition[1];
+
+        const delta = Math.min(Math.hypot(x, y), 4);
+        if (maxDelta <= delta) maxDelta = delta;
+    }
 
     function clear()
     {
@@ -135,28 +159,6 @@ export async function run(canvas)
         raf = requestAnimationFrame(render);
     }
 
-    function onMove()
-    {
-        MathUtils.Vec2.copy(mousePosition, lastPosition);
-
-        let x = event.touches?.[0].clientX ?? event.offsetX;
-        let y = event.touches?.[0].clientY ?? event.offsetY;
-
-        mousePosition[0] = MathUtils.Lerp(mousePosition[0], x, 0.3);
-        mousePosition[1] = MathUtils.Lerp(mousePosition[1], y, 0.3);
-
-        x = mousePosition[0] / canvas.offsetWidth * 2 - 1;
-        y = mousePosition[1] / canvas.offsetHeight * -2 + 1;
-
-        curtains.mouse.set([x, y]);
-
-        x = mousePosition[0] - lastPosition[0];
-        y = mousePosition[1] - lastPosition[1];
-
-        const delta = Math.min(Math.hypot(x, y), 4);
-        if (maxDelta <= delta) maxDelta = delta;
-    }
-
     function render()
     {
         delta += (maxDelta - delta) * 0.02;
@@ -171,7 +173,7 @@ export async function run(canvas)
         Pipeline.Active = true;
         Renderer.Render(scene);
 
-        requestAnimationFrame(render);
+        raf = requestAnimationFrame(render);
     }
 
     observer = new ResizeObserver(entries =>
