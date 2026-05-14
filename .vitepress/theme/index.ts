@@ -1,10 +1,11 @@
 /// <reference types="vite/client" />
 
 // https://vitepress.dev/guide/custom-theme
-import "./style.css";
-import { h } from "vue";
-import type { Theme } from "vitepress";
 import DefaultTheme from "vitepress/theme";
+import type { Theme } from "vitepress";
+import { h } from "vue";
+import "./style.css";
+import "./main.css";
 
 export default {
   extends: DefaultTheme,

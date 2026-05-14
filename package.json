@@ -70,7 +70,7 @@
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
-    "build:serve": "bun x simple-server -d dist",
+    "build:preview": "bun x simple-server -d dist",
     "build:lessons": "bun run build --mode lessons",
     "build:examples": "bun run build --mode examples",
     "build:types": "bun run tsc -p ./lib && tsc-alias",

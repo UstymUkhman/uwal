@@ -4,8 +4,8 @@ layout: home
 
 hero:
   name: "UWAL"
-  text: "🎨 Unopinionated WebGPU Abstraction Library 📚"
-  tagline: My great project tagline
+  text: Unopinionated WebGPU Abstraction Library
+  tagline: Less boilerplate, more freedom
   actions:
     - theme: brand
       text: Markdown Examples
@@ -13,6 +13,9 @@ hero:
     - theme: alt
       text: API Examples
       link: /api-examples
+  image:
+    src: logo.svg
+    alt: UWAL
 
 features:
   - title: Feature A

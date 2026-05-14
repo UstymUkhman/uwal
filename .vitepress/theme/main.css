@@ -1,0 +1,5 @@
+@media (min-width: 640px) {
+  h1.heading {
+    row-gap: 8px;
+  }
+}
