@@ -1,13 +1,15 @@
-*.sw?
-*.sln
+.lock-wscript
+.DS_Store
+*.njsproj
+*.local
+*.ntvs*
+*.seed
+*.log*
+*.log
 *.pid
 *.suo
-*.log
-*.log*
-*.seed
-*.ntvs*
-*.local
-*.njsproj
+*.sln
+*.sw?
 
 tmp
 logs
@@ -15,6 +17,5 @@ pids
 build
 types
 .idea
-.DS_Store
 node_modules
-.lock-wscript
+docs/.vitepress/cache

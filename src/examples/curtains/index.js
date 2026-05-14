@@ -119,7 +119,7 @@ export async function run(canvas)
     {
         const [width] = Renderer.BaseCanvasSize;
         const size = (width - 360) / 1268;
-        const scaleX = size * 1.12;
+        const scaleX = size * 1.14;
         const textY = size * 1.25;
         const textZ = size * 4.6;
 
