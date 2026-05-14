@@ -18,4 +18,4 @@ build
 types
 .idea
 node_modules
-docs/.vitepress/cache
+.vitepress/cache
