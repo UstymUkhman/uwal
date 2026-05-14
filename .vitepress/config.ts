@@ -5,11 +5,11 @@ export default defineConfig({
   title: "UWAL",
   description: "🎨 Unopinionated WebGPU Abstraction Library 📚",
   srcDir: ".vitepress",
+  base: "/uwal/docs/",
   outDir: "./docs",
-  base: "/uwal/",
 
   head: [
-    ["link", { rel: "icon", type: "image/svg+xml", href: "uwal/assets/favicon.svg" }]
+    ["link", { rel: "icon", type: "image/svg+xml", href: "../assets/favicon.svg" }]
   ],
 
   themeConfig: {
@@ -30,7 +30,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: "github", link: "https://github.com/vuejs/vitepress" }
+      { icon: "github", link: "https://github.com/UstymUkhman/uwal/" }
     ]
   }
 });
