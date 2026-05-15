@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "UWAL"
+  name: UWAL
   text: Unopinionated WebGPU Abstraction Library
   tagline: Less boilerplate, more freedom
   actions:
@@ -13,8 +13,11 @@ hero:
     - theme: alt
       text: API Examples
       link: /api-examples
+    - theme: alt
+      text: GitHub
+      link: https://github.com/UstymUkhman/uwal/
   image:
-    src: logo.svg
+    src: ../assets/favicon.svg
     alt: UWAL
 
 features:
@@ -25,4 +28,3 @@ features:
   - title: Feature C
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ---
-

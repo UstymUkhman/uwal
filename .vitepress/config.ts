@@ -9,15 +9,15 @@ export default defineConfig({
   outDir: "./docs",
 
   head: [
-    ["link", { rel: "icon", type: "image/svg+xml", href: "logo.svg" }]
+    ["link", { rel: "icon", type: "image/svg+xml", href: "../assets/favicon.svg" }]
   ],
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
-    logo: "logo.svg",
+    logo: "../assets/favicon.svg",
     nav: [
       { text: "Home", link: "/" },
-      { text: "Examples", link: "/markdown-examples" }
+      { text: "Examples", link: "https://ustymukhman.github.io/uwal/dist/examples/examples.html" }
     ],
 
     sidebar: [
