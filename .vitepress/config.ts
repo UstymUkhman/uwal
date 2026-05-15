@@ -17,7 +17,13 @@ export default defineConfig({
     logo: "../assets/favicon.svg",
     nav: [
       { text: "Home", link: "/" },
-      { text: "Examples", link: "https://ustymukhman.github.io/uwal/dist/examples/examples.html" }
+      { text: "Examples", link: "https://ustymukhman.github.io/uwal/dist/examples/examples.html" },
+      { text: "Wiki", link: "https://github.com/UstymUkhman/uwal/wiki" },
+      { text: "NPM", link: "https://www.npmjs.com/package/uwal" }
+    ],
+
+    socialLinks: [
+      { icon: "github", link: "https://github.com/UstymUkhman/uwal/" }
     ],
 
     sidebar: [
@@ -30,8 +36,9 @@ export default defineConfig({
       }
     ],
 
-    socialLinks: [
-      { icon: "github", link: "https://github.com/UstymUkhman/uwal/" }
-    ]
+    footer: {
+      message: "Released under the MIT License.",
+      copyright: "Copyright © 2024-present Ustym Ukhman"
+    }
   }
 });

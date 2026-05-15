@@ -1,5 +1,40 @@
-@media (min-width: 640px) {
-  h1.heading {
-    row-gap: 8px;
+h1.heading {
+  span.name {
+    font-size: 64px;
+    line-height: 80px;
+
+    @media (min-width: 640px) {
+      line-height: 112px;
+      font-size: 96px;
+    }
+
+    @media (min-width: 960px) {
+      line-height: 128px;
+      font-size: 112px;
+    }
   }
+
+  span.text {
+    font-size: 30px;
+    line-height: 38px;
+
+    @media (min-width: 640px) {
+      line-height: 56px;
+      font-size: 48px;
+    }
+
+    @media (min-width: 960px) {
+      line-height: 60px;
+      font-size: 52px;
+    }
+  }
+}
+
+svg.typescript-logo {
+  height: 30px;
+  width: 30px;
+}
+
+p.details {
+  text-wrap: balance;
 }

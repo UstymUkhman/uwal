@@ -1,5 +1,5 @@
 <p align="center">
-  <a title="UWAL" href="https://ustymukhman.github.io/uwal/" target="_blank" rel="noopener noreferrer">
+  <a title="UWAL" href="https://ustymukhman.github.io/uwal/docs/" rel="noopener noreferrer" target="_blank">
     <img alt="UWAL" src="assets/favicon.svg" width="256" height="256" />
   </a>
 </p>
@@ -7,14 +7,36 @@
 <h1 align="center">UWAL</h1>
 
 <p align="center">
-  <img alt="GitHub deployments" src="https://img.shields.io/github/deployments/UstymUkhman/uwal/github-pages?style=flat-square" />
-  <img alt="NPM bundle size" src="https://img.shields.io/bundlejs/size/uwal?style=flat-square" />
-  <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/UstymUkhman/uwal?color=orange&style=flat-square" />
-  <img alt="GitHub License" src="https://img.shields.io/github/license/UstymUkhman/uwal?color=lightgrey&style=flat-square" />
+  <img alt="GitHub deployments" src="https://img.shields.io/github/deployments/UstymUkhman/uwal/github-pages?style=for-the-badge" />
+  <img alt="NPM bundle size" src="https://img.shields.io/bundlejs/size/uwal?style=for-the-badge" />
+  <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/UstymUkhman/uwal?color=yellow&style=for-the-badge" />
+  <img alt="GitHub License" src="https://img.shields.io/github/license/UstymUkhman/uwal?color=lightgrey&style=for-the-badge" />
 </p>
 
 <p align="center">
   <i>The goal of UWAL is to remove as much boilerplate as possible when working with the WebGPU APIs, while still providing a flexible interface with reasonable defaults for all configuration options.</i>
+</p>
+
+<p align="center">
+  <a title="Fundamentals" href="https://github.com/UstymUkhman/uwal/tree/main/src/lessons#uwal--webgpu-fundamentals" rel="noopener noreferrer" target="_blank">
+    Fundamentals
+  </a>
+  &emsp;
+  <a title="Examples" href="https://ustymukhman.github.io/uwal/dist/examples/examples.html" rel="noopener noreferrer" target="_blank">
+    Examples
+  </a>
+  &emsp;
+  <a title="Docs" href="https://ustymukhman.github.io/uwal/docs/" rel="noopener noreferrer" target="_blank">
+    Docs
+  </a>
+  &emsp;
+  <a title="Wiki" href="https://github.com/UstymUkhman/uwal/wiki" rel="noopener noreferrer" target="_blank">
+    Wiki
+  </a>
+  &emsp;
+  <a title="NPM" href="https://www.npmjs.com/package/uwal" rel="noopener noreferrer" target="_blank">
+    NPM
+  </a>
 </p>
 
 ## Introduction
