@@ -18,25 +18,13 @@
 </p>
 
 <p align="center">
-  <a title="Fundamentals" href="https://github.com/UstymUkhman/uwal/tree/main/src/lessons#uwal--webgpu-fundamentals" rel="noopener noreferrer" target="_blank">
-    Fundamentals
-  </a>
+  <a href="https://ustymukhman.github.io/uwal/dist/examples/examples.html">Examples</a>
   &emsp;
-  <a title="Examples" href="https://ustymukhman.github.io/uwal/dist/examples/examples.html" rel="noopener noreferrer" target="_blank">
-    Examples
-  </a>
+  <a href="https://ustymukhman.github.io/uwal/docs/">Docs</a>
   &emsp;
-  <a title="Docs" href="https://ustymukhman.github.io/uwal/docs/" rel="noopener noreferrer" target="_blank">
-    Docs
-  </a>
+  <a href="https://github.com/UstymUkhman/uwal/wiki">Wiki</a>
   &emsp;
-  <a title="Wiki" href="https://github.com/UstymUkhman/uwal/wiki" rel="noopener noreferrer" target="_blank">
-    Wiki
-  </a>
-  &emsp;
-  <a title="NPM" href="https://www.npmjs.com/package/uwal" rel="noopener noreferrer" target="_blank">
-    NPM
-  </a>
+  <a href="https://www.npmjs.com/package/uwal">NPM</a>
 </p>
 
 ## Introduction
@@ -64,12 +52,12 @@ Given that WebGPU APIs are quite verbose and the UWAL library is fairly modular,
 
 | Module                                                   | Minified | Gzipped |
 | :------------------------------------------------------- | -------: | ------: |
-| Device & Shaders                                         | 315.55kb | 68.97kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ 2D Shapes                      | 322.79kb | 71.17kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ 3D Meshes                      | 324.19kb | 71.56kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ Lights | 326.06kb | 71.99kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ MSDF Text                      | 326.75kb | 72.66kb |
-| Total                                                    | 339.98kb | 75.35kb |
+| Device & Shaders                                         | 315.47kb | 69.03kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ 2D Shapes                      | 322.71kb | 71.22kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ 3D Meshes                      | 324.21kb | 71.63kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ Lights | 326.23kb | 72.09kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ MSDF Text                      | 327.00kb | 72.83kb |
+| Total                                                    | 340.24kb | 75.50kb |
 
 ## Diagram
 
@@ -121,6 +109,7 @@ flowchart TD
   SHP  --> APP
   SHP  --> SCN
   MESH --> SCN
+  MESH --> APP
   CAM  --> APP
   CAM  --> SCN
   RP   --> APP
@@ -144,7 +133,7 @@ flowchart TD
 | WebGPU Smallpt | Pong Game |
 | [![WebGPU Smallpt](https://github.com/UstymUkhman/uwal-webgpu-smallpt/blob/main/public/preview.jpg)](https://ustymukhman.github.io/uwal/dist/examples/examples.html#webgpu-smallpt) | [![Pong Game](https://github.com/UstymUkhman/uwal-pong-game/blob/main/public/preview.jpg)](https://ustymukhman.github.io/uwal/dist/examples/examples.html#pong-game) |
 
-## Lessons
+## Fundamentals
 
 - Basics
   - [Fundamentals](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#fundamentals)

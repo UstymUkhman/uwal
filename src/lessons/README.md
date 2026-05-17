@@ -1,4 +1,4 @@
-# UWAL | WebGPU Fundamentals
+# WebGPU Fundamentals
 
 | Lesson | Live | Source |
 |:- |:- |:- |
