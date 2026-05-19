@@ -159,7 +159,7 @@ flowchart TD
   - [Blend Settings](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#blend-settings)
   - [Bind Group Layouts](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#bind-group-layouts)
   - [Timing Performance](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#timing-performance)
-  - Compatibility Mode _(TBI)_
+  - [Compatibility Mode](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#compatibility-mode)
 - 3D Math
   - [Translation](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#translation)
   - [Rotation](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#rotation)
