@@ -10,7 +10,7 @@ struct ShapeVertexPosition
 {
     @builtin(position) position: vec4f,
     @location(0) worldPosition: vec3f,
-    @location(1) @interpolate(flat) instance: u32
+    @location(1) @interpolate(flat, either) instance: u32
 };
 
 @group(0) @binding(20) var<uniform> ShapeMatrix: ShapeMatrixUniforms;
@@ -61,7 +61,7 @@ struct ShapeVertexNormal
     @builtin(position) position: vec4f,
     @location(0) worldPosition: vec3f,
     @location(1) normal: vec3f,
-    @location(2) @interpolate(flat) instance: u32
+    @location(2) @interpolate(flat, either) instance: u32
 };
 
 @vertex fn vertexNormal(
@@ -92,7 +92,7 @@ struct ShapeVertexUV
     @builtin(position) position: vec4f,
     @location(0) worldPosition: vec3f,
     @location(1) uv: vec2f,
-    @location(2) @interpolate(flat) instance: u32
+    @location(2) @interpolate(flat, either) instance: u32
 };
 
 @vertex fn vertexUV(
@@ -124,7 +124,7 @@ struct ShapeVertexNormalUV
     @location(0) worldPosition: vec3f,
     @location(1) normal: vec3f,
     @location(2) uv: vec2f,
-    @location(3) @interpolate(flat) instance: u32
+    @location(3) @interpolate(flat, either) instance: u32
 };
 
 @vertex fn vertexNormalUV(

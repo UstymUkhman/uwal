@@ -5,7 +5,7 @@
 
 @fragment fn fragment(
     @builtin(position) position: vec4f,
-    @location(1) @interpolate(flat) instance: u32
+    @location(1) @interpolate(flat, either) instance: u32
 ) -> @location(0) vec4f
 {
     if (visible[instance] == 0) { discard; }
