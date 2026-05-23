@@ -85,13 +85,13 @@ export async function run(canvas)
     perspectiveCube.SetRenderPipeline(CubePipeline, [
         perspectiveCamera.SetRenderPipeline(CubePipeline),
         Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
-        texture.createView()
+        texture
     ], [BINDINGS.CAMERA_MATRIX, 0, 1]);
 
     orthographicCube.SetRenderPipeline(CubePipeline, [
         orthographicCamera.SetRenderPipeline(CubePipeline),
         Texture.CreateSampler({ filter: TEXTURE.FILTER.LINEAR }),
-        texture.createView()
+        texture
     ], [BINDINGS.CAMERA_MATRIX, 0, 1]);
 
     CubeGeometry.AddVertexBuffer(CubePipeline, new Float32Array(

@@ -64,7 +64,7 @@ export async function run(canvas)
     WirePipeline.WriteBuffer(colorBuffer, color.buffer);
     const Geometry = new UWAL.Geometries.Mesh("Dummy", "uint16");
 
-    let baseResources = [modeBuffer, Texture.CreateSampler(), texture.createView()];
+    let baseResources = [modeBuffer, Texture.CreateSampler(), texture];
     const wireResources = [void 0, colorBuffer, Camera.SetRenderPipeline(BasePipeline)];
 
     const baseBindings = (wireBindings = [

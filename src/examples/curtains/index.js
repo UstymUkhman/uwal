@@ -123,12 +123,13 @@ export async function run(canvas)
         const textY = size * 1.25;
         const textZ = size * 4.6;
 
-        TextPipeline.SetTextureView(textTexture = Texture.CreateStorageTexture({
+        TextPipeline.TextureView = textTexture = Texture.CreateStorageTexture({
             usage: GPUTextureUsage.RENDER_ATTACHMENT
-        }));
+        });
 
         TextPipeline.DestroyPassEncoder = !!(Text.CameraMatrixBuffer = cameraBuffer);
         const [x, y] = Plane.Scaling = [scaleX + 0.36, 0.9, 1];
+        TextPipeline.UseTextureView = true;
         curtains.planeRatio.set([x / y]);
 
         Text.SetTranslation(
@@ -150,8 +151,7 @@ export async function run(canvas)
                 cameraBuffer,
                 Texture.CreateSampler({ filter: "linear" }),
                 TextPipeline.TextureView,
-                logo.createView(),
-                buffer
+                logo, buffer
             ],
             [BINDINGS.CAMERA_MATRIX, 0]
         );
