@@ -11,6 +11,7 @@
 
 import { Mesh, Scene, Color, Device, Shaders, BINDINGS, MathUtils, Geometries, PerspectiveCamera } from "#/index";
 import { addButtonLeftJustified } from "https://webgpufundamentals.org/webgpu/resources/js/gui-helpers.js";
+import TransformHelper from "./TransformHelper";
 import Cube from "./Cube.wgsl";
 
 (async function(canvas)
@@ -43,6 +44,10 @@ import Cube from "./Cube.wgsl";
         converters: GUI.converters.radToDeg
     };
 
+    const selected = '➡️';
+    const unselected = '\u3000';
+    const prefixRE = new RegExp(`^(?:${unselected}|${selected})`);
+
     const [width, height, depth] = [0, 1, 2];
     const alwaysShow = new Set([0, 1, 2]);
     const drawerSize = [40, 30, 50];
@@ -54,7 +59,6 @@ import Cube from "./Cube.wgsl";
 
     let requestId, then;
     const cabinets = 5;
-    let currentNode;
     let time = 0;
 
     const settings =
@@ -62,37 +66,31 @@ import Cube from "./Cube.wgsl";
         cameraRotation: MathUtils.DegreesToRadians(-45),
         animate: false,
         showMeshNodes: false,
-        showAllTransforms: false,
-        position: MathUtils.Vec3.create(),
-        rotation: MathUtils.Vec3.create(),
-        scale: MathUtils.Vec3.set(1, 1, 1)
+        showAllTransforms: false
     };
 
     const scene = new Scene();
     const gui = new GUI().onChange(requestRender);
+    const transformHelper = new TransformHelper();
 
     gui.add(settings, "cameraRotation", cameraRadToDegOptions).onChange(updateCameraRotation);
     gui.add(settings, "animate").onChange(v => transformFolder.enable(!v));
     gui.add(settings, "showMeshNodes").onChange(showMeshNodes);
     gui.add(settings, "showAllTransforms").onChange(showTransforms);
-
     const transformFolder = gui.addFolder("Orientation");
-    transformFolder.onChange(() => (currentNode.Transform =
-        [settings.position, settings.rotation, settings.scale]
-    ));
 
     const transformControls = [
-        transformFolder.add(settings.position, "0", -200, 200, 1).name("Position X"),
-        transformFolder.add(settings.position, "1", -200, 200, 1).name("Position Y"),
-        transformFolder.add(settings.position, "2", -200, 200, 1).name("Position Z"),
+        transformFolder.add(transformHelper, "PositionX", -200, 200, 1),
+        transformFolder.add(transformHelper, "PositionY", -200, 200, 1),
+        transformFolder.add(transformHelper, "PositionZ", -200, 200, 1),
 
-        transformFolder.add(settings.rotation, "0", radToDegOptions).name("Rotation X"),
-        transformFolder.add(settings.rotation, "1", radToDegOptions).name("Rotation Y"),
-        transformFolder.add(settings.rotation, "2", radToDegOptions).name("Rotation Z"),
+        transformFolder.add(transformHelper, "RotationX", radToDegOptions),
+        transformFolder.add(transformHelper, "RotationY", radToDegOptions),
+        transformFolder.add(transformHelper, "RotationZ", radToDegOptions),
 
-        transformFolder.add(settings.scale, "0", 0.1, 100).name("Scale X"),
-        transformFolder.add(settings.scale, "1", 0.1, 100).name("Scale Y"),
-        transformFolder.add(settings.scale, "2", 0.1, 100).name("Scale Z")
+        transformFolder.add(transformHelper, "ScaleX", 0.1, 100),
+        transformFolder.add(transformHelper, "ScaleY", 0.1, 100),
+        transformFolder.add(transformHelper, "ScaleZ", 0.1, 100)
     ];
 
     const handlePosition = [0,
@@ -160,7 +158,7 @@ import Cube from "./Cube.wgsl";
         if (node.Label !== "Scene")
         {
             const label = `${empty ? "" : `${prefix}\u00a0+-`}${node.Label}`;
-            nodes.push(addButtonLeftJustified(gui, label, () => setCurrentNode(node)));
+            nodes.push({ node, button: addButtonLeftJustified(gui, label, () => setCurrentNode(node)) });
         }
 
         prefix = empty ? "" : `${prefix}${last ? "\u00a0\u00a0\u00a0" : "\u00a0|\u00a0"}`;
@@ -177,15 +175,6 @@ import Cube from "./Cube.wgsl";
         Camera.Transform = [[cameraOffsetX, 20, 0], [0, rotation, 0]];
         Camera.Position = [0, 0, 300];
         Camera.UpdateViewProjectionMatrix();
-    }
-
-    function updateCurrentNodeGUI()
-    {
-        const { Position, Rotation, Scaling } = currentNode;
-        settings.position.set(Position);
-        settings.rotation.set(Rotation);
-        settings.scale.set(Scaling);
-        transformFolder.updateDisplay();
     }
 
     function createVertexColors(attribute)
@@ -211,9 +200,16 @@ import Cube from "./Cube.wgsl";
 
     function setCurrentNode(node)
     {
-        currentNode = node;
+        transformHelper.Node = node;
         transformFolder.name(`Orientation: ${node.Label}`);
-        updateCurrentNodeGUI();
+        transformFolder.updateDisplay();
+
+        // Mark selected node:
+        for (const button of nodeButtons)
+        {
+            const name = button.button.getName().replace(prefixRE, '');
+            button.button.name(`${button.node === node ? selected : unselected}${name}`);
+        }
     }
 
     function showTransforms(show)
@@ -225,9 +221,9 @@ import Cube from "./Cube.wgsl";
 
     function showMeshNodes(show)
     {
-        for (const child of nodeButtons)
-            if (child.domElement.textContent.includes("mesh"))
-                child.show(show);
+        for (const { node, button } of nodeButtons)
+            if (node.Label.includes("mesh"))
+                button.show(show);
     }
 
     function addMesh(label, parent, transform, buffer = drawerBuffer)
@@ -310,7 +306,6 @@ import Cube from "./Cube.wgsl";
         if (!settings.animate) return;
 
         animate();
-        updateCurrentNodeGUI();
         requestRender();
     }
 
