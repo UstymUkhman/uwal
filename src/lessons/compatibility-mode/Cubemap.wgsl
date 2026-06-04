@@ -1,7 +1,18 @@
-@group(0) @binding(0) var Sampler: sampler;
-@group(0) @binding(1) var Texture: texture_2d<f32>;
-
-@fragment fn fragment(cube: MeshVertexUV) -> @location(0) vec4f
+struct VertexOutput
 {
-    return textureSample(Texture, Sampler, cube.uv);
+    @builtin(position) position: vec4f,
+    @location(0) normal: vec3f
+};
+
+@group(0) @binding(0) var Sampler: sampler;
+@group(0) @binding(1) var CubeTexture: texture_cube<f32>;
+
+@vertex fn cubeVertex(@location(0) position: vec4f) -> VertexOutput
+{
+    return VertexOutput(GetVertexClipSpace(position), normalize(position.xyz));
+}
+
+@fragment fn fragment(cube: VertexOutput) -> @location(0) vec4f
+{
+    return textureSample(CubeTexture, Sampler, cube.normal);
 }
