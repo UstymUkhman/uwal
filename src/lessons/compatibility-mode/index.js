@@ -74,8 +74,7 @@ import Cubemap from './Cubemap.wgsl';
     Cube.Transform = [void 0, settings.rotation, 2];
 
     const Texture = new (await Device.Texture(Renderer));
-    const texture = await createTextureFromSources(
-    [
+    const texture = await createTextureFromSources([
         { faceColor: "#F00", textColor: "#0FF", text: "+X" },
         { faceColor: "#FF0", textColor: "#00F", text: "-X" },
         { faceColor: "#0F0", textColor: "#F0F", text: "+Y" },
@@ -148,7 +147,8 @@ import Cubemap from './Cubemap.wgsl';
             textureBindingViewDimension: "cube"
         });
 
-        for (let [s, source] of sources.entries()) {
+        for (let [s, source] of sources.entries())
+        {
             await Texture.CopyImageToTexture(source,
             {
                 mipmaps: s === sources.length - 1,
