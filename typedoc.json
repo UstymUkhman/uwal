@@ -1,0 +1,18 @@
+{
+    "name": "UWAL",
+    "readme": "none",
+    "router": "module",
+    "out": "./.vitepress",
+    "cleanOutputDir": false,
+    "entryFileName": "Modules",
+    "jsDocCompatibility": true,
+    "plugin": [
+        "typedoc-plugin-markdown",
+        "typedoc-vitepress-theme"
+    ],
+    "entryPoints": [
+        "lib/Device.js",
+        "lib/Errors.js",
+        "lib/Scene.js"
+    ]
+}

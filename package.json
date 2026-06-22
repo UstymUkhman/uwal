@@ -39,12 +39,9 @@
     }
   },
   "directories": {
-    "assets": "assets",
-    "build": "build",
-    "dist": "dist",
-    "lib": "lib",
-    "src": "src",
-    "types": "types"
+    "example": "src",
+    "doc": "docs",
+    "lib": "lib"
   },
   "files": [
     "package.json",
@@ -67,6 +64,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
+    "docs:create": "typedoc",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
@@ -74,22 +72,25 @@
     "build:lessons": "bun run build --mode lessons",
     "build:examples": "bun run build --mode examples",
     "build:types": "bun run tsc -p ./lib && tsc-alias",
-    "build:pages": "bun build:lessons && bun build:examples",
-    "build:lib": "bun run build:types && bun run build --mode lib"
+    "build:lib": "bun run build:types && bun run build --mode lib",
+    "build:pages": "bun run build:lessons && bun run build:examples"
   },
   "devDependencies": {
     "@rollup/plugin-terser": "^1.0.0",
     "@webgpu/types": "^0.1.70",
-    "oxc-minify": "^0.130.0",
+    "oxc-minify": "^0.137.0",
     "primitive-geometry": "^2.11.0",
     "tsc-alias": "^1.8.17",
+    "typedoc": "^0.28.19",
+    "typedoc-plugin-markdown": "^4.12.0",
+    "typedoc-vitepress-theme": "^1.1.3",
     "typescript": "^6.0.3",
-    "vite": "^8.0.12",
+    "vite": "^8.0.16",
     "vite-plugin-glsl": "^1.6.0",
     "vitepress": "^1.6.4",
-    "vue": "^3.5.34",
+    "vue": "^3.5.38",
     "wgpu-matrix": "^3.4.2",
-    "wgsl_reflect": "^1.2.3"
+    "wgsl_reflect": "^1.4.0"
   },
   "engines": {
     "node": ">= 20.15.0",
