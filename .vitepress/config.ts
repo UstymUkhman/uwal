@@ -1,4 +1,5 @@
 import { defineConfig } from "vitepress";
+import Sidebar from "./typedoc-sidebar.json";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -16,7 +17,6 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     logo: "../assets/favicon.svg",
     nav: [
-      { text: "Home", link: "/" },
       { text: "Examples", link: "https://ustymukhman.github.io/uwal/dist/examples/examples.html" },
       { text: "Wiki", link: "https://github.com/UstymUkhman/uwal/wiki" },
       { text: "NPM", link: "https://www.npmjs.com/package/uwal" }
@@ -27,13 +27,14 @@ export default defineConfig({
     ],
 
     sidebar: [
+      { text: "Overview", link: "/Overview" },
       {
-        text: "Examples",
-        items: [
-          { text: "Markdown Examples", link: "/markdown-examples" },
-          { text: "Runtime API Examples", link: "/api-examples" }
-        ]
-      }
+        text: "Modules",
+        link: "/Modules",
+        items: Sidebar.map((item) => ({
+          ...item, link: item.link.replace(".vitepress/", ""),
+        })),
+      },
     ],
 
     footer: {

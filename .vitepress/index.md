@@ -1,21 +1,17 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
   name: UWAL
   text: Unopinionated WebGPU Abstraction Library
   tagline: Less boilerplate, more freedom
-  actions:
-    # - theme: brand
-    #   text: Markdown Examples
-    #   link: /markdown-examples
-    # - theme: alt
-    #   text: API Examples
-    #   link: /api-examples
-    - theme: alt
-      text: GitHub
-      link: https://github.com/UstymUkhman/uwal/
+  # actions:
+  #   - theme: brand
+  #     text: Overview
+  #     link: /Overview
+  #   - theme: alt
+  #     text: Modules
+  #     link: /Modules
   image:
     src: ../assets/favicon.svg
     alt: UWAL

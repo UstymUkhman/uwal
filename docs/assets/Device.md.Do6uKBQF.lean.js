@@ -1,0 +1,1 @@
+import{_ as a,o as r,c as t,a1 as o}from"./chunks/framework.DZlt2Jni.js";const p=JSON.parse('{"title":"Device","description":"","frontmatter":{},"headers":[],"relativePath":"Device.md","filePath":"Device.md"}'),i={name:"Device.md"};function d(c,e,n,s,l,h){return r(),t("div",null,[...e[0]||(e[0]=[o("",187)])])}const b=a(i,[["render",d]]);export{p as __pageData,b as default};

@@ -1,0 +1,1 @@
+import{_ as a,o as r,c as t,a1 as o}from"./chunks/framework.DZlt2Jni.js";const b=JSON.parse('{"title":"Scene","description":"","frontmatter":{},"headers":[],"relativePath":"Scene.md","filePath":"Scene.md"}'),n={name:"Scene.md"};function d(c,e,i,s,l,h){return r(),t("div",null,[...e[0]||(e[0]=[o("",101)])])}const p=a(n,[["render",d]]);export{b as __pageData,p as default};
