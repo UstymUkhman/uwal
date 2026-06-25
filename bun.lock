@@ -17,7 +17,6 @@
         "vite": "latest",
         "vite-plugin-glsl": "latest",
         "vitepress": "latest",
-        "vue": "latest",
         "wgpu-matrix": "latest",
         "wgsl_reflect": "latest",
       },

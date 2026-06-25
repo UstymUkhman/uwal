@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <i>The goal of UWAL is to remove as much boilerplate as possible when working with the WebGPU APIs, while still providing a flexible interface with reasonable defaults for all configuration options.</i>
+  <i>The goal of UWAL is to remove as much boilerplate as possible when working with the WebGPU APIs, while still providing a flexible interface with reasonable defaults for most use cases.</i>
 </p>
 
 <p align="center">

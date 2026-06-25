@@ -6,11 +6,20 @@
     "cleanOutputDir": false,
     "entryFileName": "Modules",
     "jsDocCompatibility": true,
-    "plugin": [
+
+    "plugin":
+    [
         "typedoc-plugin-markdown",
         "typedoc-vitepress-theme"
     ],
-    "entryPoints": [
+
+    "validation":
+    {
+        "notExported": false
+    },
+
+    "entryPoints":
+    [
         "lib/Device.js",
         "lib/Errors.js",
         "lib/Scene.js"

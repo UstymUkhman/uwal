@@ -64,7 +64,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "docs:create": "typedoc",
+    "docs:update": "typedoc",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
@@ -88,7 +88,6 @@
     "vite": "^8.0.16",
     "vite-plugin-glsl": "^1.6.0",
     "vitepress": "^1.6.4",
-    "vue": "^3.5.38",
     "wgpu-matrix": "^3.4.2",
     "wgsl_reflect": "^1.4.0"
   },
