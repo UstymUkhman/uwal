@@ -1,1 +1,0 @@
-import{_ as o,o as r,c as a,a1 as t}from"./chunks/framework.DZlt2Jni.js";const l=JSON.parse('{"title":"Errors","description":"","frontmatter":{},"headers":[],"relativePath":"Errors.md","filePath":"Errors.md"}'),d={name:"Errors.md"};function c(u,e,s,q,_,n){return r(),a("div",null,[...e[0]||(e[0]=[t("",55)])])}const i=o(d,[["render",c]]);export{l as __pageData,i as default};

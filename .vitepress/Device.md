@@ -4,9 +4,9 @@
 
 ## Classes
 
-### default
+### Device
 
-Defined in: [Device.js:19](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L19)
+Defined in: [Device.js:19](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L19)
 
 #### Classdesc
 
@@ -19,11 +19,11 @@ GPUTextures GPUQuerySets and the current [GPUDevice](#gpudevice).
 
 ##### Constructor
 
-> **new default**(): [`default`](#default)
+> **new Device**(): [`Device`](#device)
 
 ###### Returns
 
-[`default`](#default)
+[`Device`](#device)
 
 #### Properties
 
@@ -31,7 +31,7 @@ GPUTextures GPUQuerySets and the current [GPUDevice](#gpudevice).
 
 > `static` **OnLost**: ((`detail`) => `unknown`) \| `undefined`
 
-Defined in: [Device.js:35](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L35)
+Defined in: [Device.js:35](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L35)
 
 ###### Description
 
@@ -46,7 +46,7 @@ When present, prevents an internal `ERROR.DEVICE_LOST` from being thrown.
 
 > **get** `static` **Adapter**(): `Promise`\<`GPUAdapter` \| `null`\>
 
-Defined in: [Device.js:297](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L297)
+Defined in: [Device.js:297](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L297)
 
 ###### Description
 
@@ -62,7 +62,7 @@ Get cached GPUAdapter or require it from the GPU if not present.
 
 > **set** `static` **AdapterOptions**(`options`): `void`
 
-Defined in: [Device.js:219](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L219)
+Defined in: [Device.js:219](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L219)
 
 ###### Description
 
@@ -88,7 +88,7 @@ Set adapter options when requiring a GPUAdapter.
 
 > **set** `static` **DefaultQueue**(`descriptor`): `void`
 
-Defined in: [Device.js:266](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L266)
+Defined in: [Device.js:266](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L266)
 
 ###### Description
 
@@ -110,7 +110,7 @@ Set a descriptor for the default GPUQueue.
 
 > **set** `static` **DescriptorLabel**(`label`): `void`
 
-Defined in: [Device.js:275](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L275)
+Defined in: [Device.js:275](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L275)
 
 ###### Description
 
@@ -132,7 +132,7 @@ Set default label when requesting a [GPUDevice](#gpudevice).
 
 > **get** `static` **GPUDevice**(): `Promise`\<`void` \| `GPUDevice`\>
 
-Defined in: [Device.js:291](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L291)
+Defined in: [Device.js:291](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L291)
 
 ###### Description
 
@@ -148,7 +148,7 @@ Get cached [GPUDevice](#gpudevice) or require it from GPUAdapter if not present.
 
 > **get** `static` **PreferredCanvasFormat**(): `GPUTextureFormat`
 
-Defined in: [Device.js:284](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L284)
+Defined in: [Device.js:284](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L284)
 
 ###### Description
 
@@ -166,7 +166,7 @@ Get an optimal GPUTextureFormat for the current system.
 
 > **set** `static` **RequiredLimits**(`requiredLimits`): `void`
 
-Defined in: [Device.js:257](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L257)
+Defined in: [Device.js:257](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L257)
 
 ###### Description
 
@@ -194,7 +194,7 @@ Must be set **before** calling `UWAL.Renderer`, `UWAL.Computation`, `UWAL.Textur
 
 > **get** `static` **VERSION**(): `string`
 
-Defined in: [Device.js:303](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L303)
+Defined in: [Device.js:303](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L303)
 
 ###### Description
 
@@ -210,7 +210,7 @@ Current version of the library.
 
 > `static` **Computation**(`name?`): `Promise`\<`ComputeStage` & () => `ComputeStage`\>
 
-Defined in: [Device.js:144](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L144)
+Defined in: [Device.js:144](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L144)
 
 ###### Parameters
 
@@ -230,7 +230,7 @@ Create a new ComputeStage to perform GPU computations.
 
 > `static` **CreateQuerySet**(`type`, `count`, `label?`): `Promise`\<`GPUQuerySet` \| `undefined`\>
 
-Defined in: [Device.js:109](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L109)
+Defined in: [Device.js:109](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L109)
 
 ###### Parameters
 
@@ -262,7 +262,7 @@ Class `GPUTiming` which uses a `"timestamp"` query set.
 
 > `static` **Destroy**(`buffers?`, `textures?`, `querySets?`): `void`
 
-Defined in: [Device.js:190](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L190)
+Defined in: [Device.js:190](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L190)
 
 ###### Parameters
 
@@ -292,7 +292,7 @@ and optionally destroy GPUBuffer, GPUTexture and GPUQuerySet resources.
 
 > `static` **Renderer**(`canvas`, `name?`, `options?`): `Promise`\<`RenderStage` & () => `RenderStage`\>
 
-Defined in: [Device.js:120](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L120)
+Defined in: [Device.js:120](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L120)
 
 ###### Parameters
 
@@ -320,7 +320,7 @@ Create a new RenderStage for the specified `canvas` element.
 
 > `static` **SetRequiredFeatures**(`features`): `Promise`\<`Set`\<`GPUFeatureName`\>\>
 
-Defined in: [Device.js:231](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L231)
+Defined in: [Device.js:231](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L231)
 
 ###### Parameters
 
@@ -346,7 +346,7 @@ Must be set **before** calling `UWAL.Renderer`, `UWAL.Computation`, `UWAL.Textur
 
 > `static` **Texture**(`renderer?`): `Promise`\<`Texture` & () => `Texture`\>
 
-Defined in: [Device.js:166](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L166)
+Defined in: [Device.js:166](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L166)
 
 ###### Parameters
 
@@ -368,7 +368,7 @@ Initialize a [Texture](#texture) class to create GPUTexture and GPUSampler resou
 
 > **CanvasConfiguration** = `Omit`\<`GPUCanvasConfiguration`, `"device"`\>
 
-Defined in: [Device.js:2](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L2)
+Defined in: [Device.js:2](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L2)
 
 #### Type Parameters
 
@@ -378,6 +378,6 @@ Defined in: [Device.js:2](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826a
 
 > **ConfigurationOptions** = `Pick`\<`Partial`\<[`CanvasConfiguration`](#canvasconfiguration)\>, `"format"`\> & `Omit`\<[`CanvasConfiguration`](#canvasconfiguration), `"format"`\>
 
-Defined in: [Device.js:3](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Device.js#L3)
+Defined in: [Device.js:3](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L3)
 
 #### Type Parameters

@@ -5,13 +5,13 @@ hero:
   name: UWAL
   text: Unopinionated WebGPU Abstraction Library
   tagline: Less boilerplate, more freedom
-  # actions:
-  #   - theme: brand
-  #     text: Overview
-  #     link: /Overview
-  #   - theme: alt
-  #     text: Modules
-  #     link: /Modules
+  actions:
+    - theme: brand
+      text: Get Started
+      link: /Introduction
+    # - theme: alt
+    #   text: Modules
+    #   link: /Modules
   image:
     src: ../assets/favicon.svg
     alt: UWAL
@@ -22,7 +22,7 @@ features:
     details: Import and use only the components you actually need to optimize your bundle size.
   - icon: ✨
     title: Batteries Included
-    details: Packed with all the basic features you expect, like a scene graph; cameras; lights and more.
+    details: Packed with all the basic features you expect, like scene graphs, cameras, lights, and more.
   - icon: 🏗️
     title: Minimal Abstractions
     details: Built directly on top of WebGPU, it's perfect for writing your own pipelines and shaders.

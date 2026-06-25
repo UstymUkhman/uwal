@@ -4,9 +4,9 @@
 
 ## Classes
 
-### default
+### Scene
 
-Defined in: [Scene.js:15](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L15)
+Defined in: [Scene.js:15](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L15)
 
 #### Classdesc
 
@@ -17,9 +17,9 @@ Meshes, Shapes, Nodes, and lights within the rendering pipeline.
 
 ##### Constructor
 
-> **new default**(`label?`): [`default`](#default)
+> **new Scene**(`label?`): [`Scene`](#scene)
 
-Defined in: [Scene.js:44](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L44)
+Defined in: [Scene.js:44](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L44)
 
 ###### Parameters
 
@@ -29,7 +29,7 @@ Defined in: [Scene.js:44](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826a
 
 ###### Returns
 
-[`default`](#default)
+[`Scene`](#scene)
 
 #### Properties
 
@@ -37,7 +37,7 @@ Defined in: [Scene.js:44](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826a
 
 > **Children**: `SceneNode`[] = `[]`
 
-Defined in: [Scene.js:33](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L33)
+Defined in: [Scene.js:33](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L33)
 
 ###### Description
 
@@ -47,7 +47,7 @@ Scene graph elements.
 
 > **Label**: `string`
 
-Defined in: [Scene.js:27](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L27)
+Defined in: [Scene.js:27](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L27)
 
 ###### Description
 
@@ -57,7 +57,7 @@ Name of the scene.
 
 > **MainCamera**: [`Camera`](#camera) \| `undefined`
 
-Defined in: [Scene.js:39](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L39)
+Defined in: [Scene.js:39](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L39)
 
 ###### Description
 
@@ -71,7 +71,7 @@ Camera to render the scene.
 
 > **get** **WorldMatrix**(): `Float32Array`\<`ArrayBufferLike`\>
 
-Defined in: [Scene.js:118](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L118)
+Defined in: [Scene.js:118](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L118)
 
 ###### Description
 
@@ -88,7 +88,7 @@ this getter is called internally when updating camera's view projection matrix.
 
 > **Add**(`children`): `void`
 
-Defined in: [Scene.js:53](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L53)
+Defined in: [Scene.js:53](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L53)
 
 ###### Parameters
 
@@ -108,7 +108,7 @@ Add any Mesh, Shape or Node element(s) to the scene graph.
 
 > **AddMainCamera**(`camera`): `void`
 
-Defined in: [Scene.js:75](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L75)
+Defined in: [Scene.js:75](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L75)
 
 ###### Parameters
 
@@ -129,7 +129,7 @@ from its perspective. To switch to a different camera, simply assign it to the `
 
 > **Destroy**(): `void`
 
-Defined in: [Scene.js:103](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L103)
+Defined in: [Scene.js:103](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L103)
 
 ###### Returns
 
@@ -144,7 +144,7 @@ Remove all scene graph elements and reset the `MainCamera` member.
 
 > **Remove**(`children`): `void`
 
-Defined in: [Scene.js:64](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L64)
+Defined in: [Scene.js:64](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L64)
 
 ###### Parameters
 
@@ -165,7 +165,7 @@ Only unlinking is performed, `Destroy` method on removed element(s) is not calle
 
 > **Traverse**(`callback`): `void`
 
-Defined in: [Scene.js:93](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L93)
+Defined in: [Scene.js:93](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L93)
 
 ###### Parameters
 
@@ -185,7 +185,7 @@ Iterate through all descendants by calling `SceneNode.Traverse` on every element
 
 > **UpdateWorldMatrix**(): `void`
 
-Defined in: [Scene.js:84](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L84)
+Defined in: [Scene.js:84](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L84)
 
 ###### Returns
 
@@ -202,6 +202,6 @@ Its use is discouraged since this method is called internally on every render.
 
 > **Camera** = `Camera2D` \| `PerspectiveCamera` \| `OrthographicCamera`
 
-Defined in: [Scene.js:3](https://github.com/UstymUkhman/uwal/blob/d9dd02f3c826af5171e210cefdea9e94b86088c2/lib/Scene.js#L3)
+Defined in: [Scene.js:3](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Scene.js#L3)
 
 #### Type Parameters
