@@ -8,7 +8,7 @@ export { default as Computation } from "./types/stages/ComputeStage";
 export { ComputePipeline } from "./types/pipelines/ComputePipeline";
 export { RenderPipeline } from "./types/pipelines/RenderPipeline";
 export { default as Renderer } from "./types/stages/RenderStage";
-export { Node, Mesh, Shape } from "./types/primitives";
+export { Node, Node2D, Mesh, Shape } from "./types/primitives";
 export * as TEXTURE from "./types/textures/Constants";
 export { Color, MathUtils } from "./types/utils";
 export * as Geometries from "./types/geometries";
@@ -28,8 +28,8 @@ from "./types/cameras";
 
 export
 {
-    AmbientLight,
     DirectionalLight,
+    AmbientLight,
     PointLight,
     SpotLight
 }
