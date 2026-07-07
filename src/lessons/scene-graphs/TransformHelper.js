@@ -4,10 +4,7 @@ export default class NodeHelper
 {
     #Node = new Node();
 
-    set Node(node)
-    {
-        this.#Node = node;
-    }
+    set Node(node) { this.#Node = node; }
 
     set PositionX(x) { this.#Node.Position[0] = x; }
     get PositionX() { return this.#Node.Position[0]; }

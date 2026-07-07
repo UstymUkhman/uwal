@@ -80,16 +80,14 @@ export async function run(canvas)
     async function createTexture()
     {
         Storage = Pipeline.CreateStorageBuffer("visible", textures);
-
         const Texture = new (await Device.Texture());
-        const sampler = Texture.CreateSampler();
 
         texture = await Texture.CopyImageToTexture(
             await Texture.CreateImageBitmap(Logo),
             { mipmaps: false }
         );
 
-        return sampler;
+        return Texture.CreateSampler();
     }
 
     function createShape(sampler)
