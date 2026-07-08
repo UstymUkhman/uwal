@@ -5,7 +5,7 @@
  * home page {@link https://www.curtainsjs.com/}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
