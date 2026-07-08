@@ -8,8 +8,8 @@
  * @license MIT
  */
 
+import { Device, Shaders, TextureUtils } from "#/index";
 import ComputeShader from "./Compute.wgsl";
-import { Device, Shaders } from "#/index";
 import RenderShader from "./Render.wgsl";
 
 /** @type {number} */ let raf;
@@ -34,7 +34,7 @@ export async function run(canvas)
         alert(error);
     }
 
-    const Texture = new (await Device.Texture(Renderer)), WORKGROUP_DIMENSION = 8;
+    const Texture = new (await TextureUtils(Renderer)), WORKGROUP_DIMENSION = 8;
 
     canvas.removeEventListener("mouseenter", onOver);
     canvas.removeEventListener("touchstart", onOver);

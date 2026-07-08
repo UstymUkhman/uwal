@@ -18,6 +18,7 @@ import {
     MSDFText,
     MathUtils,
     Geometries,
+    TextureUtils,
     PerspectiveCamera
 } from "#/index";
 
@@ -66,7 +67,7 @@ export async function run(canvas)
     });
 
     const cameraBuffer = Camera.SetRenderPipeline(Pipeline);
-    const Texture = new (await Device.Texture(Renderer));
+    const Texture = new (await TextureUtils(Renderer));
 
     const logo = await Texture.CopyImageToTexture(
         await Texture.CreateImageBitmap(Logo),

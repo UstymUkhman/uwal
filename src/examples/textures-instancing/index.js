@@ -17,7 +17,8 @@ import {
     BINDINGS,
     Camera2D,
     MathUtils,
-    Geometries
+    Geometries,
+    TextureUtils
 } from "#/index";
 
 import Texture from "./Texture.wgsl";
@@ -80,7 +81,7 @@ export async function run(canvas)
     async function createTexture()
     {
         Storage = Pipeline.CreateStorageBuffer("visible", textures);
-        const Texture = new (await Device.Texture());
+        const Texture = new (await TextureUtils());
 
         texture = await Texture.CopyImageToTexture(
             await Texture.CreateImageBitmap(Logo),

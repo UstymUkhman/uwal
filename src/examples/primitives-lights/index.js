@@ -48,7 +48,7 @@ export async function run(canvas)
     const pointDirection = Vec2.create(0.85, -1);
     let wireBindings, pointX, pointZ, spotX, spotZ;
 
-    const Texture = new (await UWAL.Device.Texture(Renderer));
+    const Texture = new (await UWAL.TextureUtils(Renderer));
     const source = await Texture.CreateImageBitmap(UV);
     texture = await Texture.CopyImageToTexture(source);
 

@@ -8,8 +8,8 @@
  * @license MIT
  */
 
+import { Device, Shaders, TextureUtils } from "#/index";
 import Video from "/assets/videos/matrix.mp4";
-import { Device, Shaders } from "#/index";
 import SinCity from "./SinCity.wgsl";
 
 /** @type {number} */ let raf;
@@ -30,12 +30,12 @@ export async function run(canvas)
         alert(error);
     }
 
+    const Texture = new (await TextureUtils());
+    const videoSampler = Texture.CreateSampler();
+
     const VideoPipeline = await Renderer.CreatePipeline([
         Shaders.Fullscreen, SinCity
     ]);
-
-    const Texture = new (await Device.Texture());
-    const videoSampler = Texture.CreateSampler();
 
     video.playsinline = video.loop = true;
     video.controls = video.muted = true;

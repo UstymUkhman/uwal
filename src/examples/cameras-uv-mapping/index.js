@@ -21,6 +21,7 @@ import {
     BINDINGS,
     MathUtils,
     Geometries,
+    TextureUtils,
     PerspectiveCamera,
     OrthographicCamera
 } from "#/index";
@@ -61,7 +62,7 @@ export async function run(canvas)
     const CubeGeometry = new Geometries.Mesh("Cube", "uint16");
     CubeGeometry.Primitive = Geometries.Primitives.cube();
 
-    const Texture = new (await Device.Texture(Renderer));
+    const Texture = new (await TextureUtils(Renderer));
     const source = await Texture.CreateImageBitmap(Dice);
     texture = await Texture.CopyImageToTexture(source);
 
