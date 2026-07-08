@@ -17,6 +17,7 @@ import {
     BINDINGS,
     MathUtils,
     Geometries,
+    TextureUtils,
     PerspectiveCamera
 } from "#/index";
 
@@ -71,9 +72,10 @@ import Cubemap from './Cubemap.wgsl';
 
     const module = CubePipeline.CreateShaderModule([Shaders.MeshVertex, Cubemap]);
     CubeGeometry.Primitive = Geometries.Primitives.cube();
+
+    const Texture = new (await TextureUtils(Renderer));
     Cube.Transform = [void 0, settings.rotation, 2];
 
-    const Texture = new (await Device.Texture(Renderer));
     const texture = await createTextureFromSources([
         { faceColor: "#F00", textColor: "#0FF", text: "+X" },
         { faceColor: "#FF0", textColor: "#00F", text: "-X" },

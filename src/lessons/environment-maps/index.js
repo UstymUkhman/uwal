@@ -16,6 +16,7 @@ import {
     Shaders,
     BINDINGS,
     Geometries,
+    TextureUtils,
     PerspectiveCamera
 } from "#/index";
 
@@ -45,7 +46,7 @@ import Market from "/assets/images/leadenhall";
     scene.Add(Cube);
 
     const module = Pipeline.CreateShaderModule([Shaders.MeshVertex, Envmap]);
-    const Texture = new (await Device.Texture(Renderer));
+    const Texture = new (await TextureUtils(Renderer));
     const texture = await Texture.CreateCubeTexture(Market);
 
     Cube.SetRenderPipeline(await Renderer.AddPipeline(Pipeline,

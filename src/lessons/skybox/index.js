@@ -16,6 +16,7 @@ import {
     Shaders,
     BINDINGS,
     Geometries,
+    TextureUtils,
     PerspectiveCamera
 } from "#/index";
 
@@ -41,7 +42,7 @@ import Envmap from "../environment-maps/Envmap.wgsl";
     const CubeGeometry = new Geometries.Mesh();
     const CubePipeline = new Renderer.Pipeline();
     const SkyboxPipeline = new Renderer.Pipeline();
-    const Texture = new (await Device.Texture(Renderer));
+    const Texture = new (await TextureUtils(Renderer));
 
     const sampler = Texture.CreateSampler({ filter: "linear" });
     const cubeModule = CubePipeline.CreateShaderModule([Shaders.MeshVertex, Envmap]);
