@@ -4,7 +4,7 @@
  * @description This example is developed using the version listed below.
  * Please note that this code may be simplified in the future
  * thanks to more recent library APIs.
- * @version 0.2.1
+ * @version 0.5.0
  * @license MIT
  */
 
@@ -51,7 +51,7 @@ export async function run(canvas)
         Renderer.CreateDepthStencilAttachment()
     );
 
-    const Pipeline = await Characters.SetRenderPipeline(Renderer);
+    const Pipeline = await Characters.CreateRenderPipeline(Renderer);
     Characters.CameraMatrixBuffer = Camera.SetRenderPipeline(Pipeline);
 
     // alpha & scale (4) + color (4) + transform (16) + x & y (2):

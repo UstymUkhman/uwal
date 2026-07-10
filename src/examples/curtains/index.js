@@ -62,7 +62,7 @@ export async function run(canvas)
     const { curtains, buffer } = Pipeline.CreateUniformBuffer("curtains");
     Geometry.Primitive = Geometries.Primitives.plane({ nx: 50, ny: 37 });
 
-    const TextPipeline = await Text.SetRenderPipeline(Renderer, {
+    const TextPipeline = await Text.CreateRenderPipeline(Renderer, {
         multisample: Pipeline.CreateMultisampleState()
     });
 
