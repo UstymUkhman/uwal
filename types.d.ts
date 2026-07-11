@@ -3,12 +3,12 @@
 /// <reference types="@webgpu/types" />
 /// <reference types="vite-plugin-glsl/ext" />
 
+export { ComputePipelineInstance as ComputePipeline } from "./types/pipelines/ComputePipeline";
+export { RenderPipelineInstance as RenderPipeline } from "./types/pipelines/RenderPipeline";
 export { BINDINGS, USAGE, BLEND_STATE } from "./types/pipelines/Constants";
-export { ComputePipeline } from "./types/pipelines/ComputePipeline";
-export { RenderPipeline } from "./types/pipelines/RenderPipeline";
+export { default as TextureUtils, TEXTURE } from "./types/textures";
 export { Node, Node2D, Mesh, Shape } from "./types/primitives";
-export { default as TextureUtils, TEXTURE } from "./textures";
-export { Renderer, Computation } from "./stages";
+export { Renderer, Computation } from "./types/stages";
 export { Color, MathUtils } from "./types/utils";
 export * as Geometries from "./types/geometries";
 export { ERROR_CAUSE } from "./types/Errors";
