@@ -24,7 +24,7 @@ export async function run(canvas)
 {
     try
     {
-        Renderer = new (await UWAL.Device.Renderer(canvas, "Game Of Life Renderer"));
+        Renderer = new (await UWAL.Renderer(canvas, "Game Of Life Renderer"));
         Computation = new (await UWAL.Computation("Game Of Life Computation"));
     }
     catch (error)

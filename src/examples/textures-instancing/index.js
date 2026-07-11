@@ -8,49 +8,38 @@
  * @license MIT
  */
 
-import {
-    Scene,
-    Color,
-    Shape,
-    Device,
-    Shaders,
-    BINDINGS,
-    Camera2D,
-    MathUtils,
-    Geometries,
-    TextureUtils
-} from "#/index";
-
+import * as UWAL from "#/index";
 import Texture from "./Texture.wgsl";
 import Logo from "/assets/images/logo.jpg";
 
-let Storage, texture;
-const Camera = new Camera2D();
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
 /** @type {ResizeObserver} */ let observer;
+
+const Camera = new UWAL.Camera2D();
+let Storage, texture;
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Textures / Instancing"));
+        Renderer = new (await UWAL.Renderer(canvas, "Textures / Instancing"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const scene = new Scene();
+    const scene = new UWAL.Scene();
     const radius = 128, textures = 256;
     const Pipeline = new Renderer.Pipeline();
-    const Geometry = new Geometries.Shape({ radius });
+    const Geometry = new UWAL.Geometries.Shape({ radius });
 
     let spawnTimeout, textureIndex, lastTexture = textures - 1;
     let textureUpdate = 512, lastRender = performance.now() - textureUpdate;
-    const module = Pipeline.CreateShaderModule([Shaders.ShapeVertexInstance, Texture]);
-    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new Color(0x19334c)));
+    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new UWAL.Color(0x19334c)));
+    const module = Pipeline.CreateShaderModule([UWAL.Shaders.ShapeVertexInstance, Texture]);
 
     await Renderer.AddPipeline(Pipeline, {
         fragment: Pipeline.CreateFragmentState(module),
@@ -81,7 +70,7 @@ export async function run(canvas)
     async function createTexture()
     {
         Storage = Pipeline.CreateStorageBuffer("visible", textures);
-        const Texture = new (await TextureUtils());
+        const Texture = new (await UWAL.TextureUtils());
 
         texture = await Texture.CopyImageToTexture(
             await Texture.CreateImageBitmap(Logo),
@@ -93,7 +82,7 @@ export async function run(canvas)
 
     function createShape(sampler)
     {
-        const shape = new Shape(Geometry);
+        const shape = new UWAL.Shape(Geometry);
 
         shape.SetRenderPipeline(Pipeline, [
                 Camera.SetRenderPipeline(Pipeline),
@@ -101,7 +90,7 @@ export async function run(canvas)
                 Renderer.ResolutionBuffer,
                 Storage.buffer
             ],
-            [BINDINGS.CAMERA_MATRIX, 0, 1, 2, 3]
+            [UWAL.BINDINGS.CAMERA_MATRIX, 0, 1, 2, 3]
         );
 
         scene.Add(shape);
@@ -113,18 +102,18 @@ export async function run(canvas)
 
     function setTranslationData(shape)
     {
-        const matrix = MathUtils.Mat3.copy(shape.WorldMatrix);
-        const translation = MathUtils.Vec2.create();
+        const matrix = UWAL.MathUtils.Mat3.copy(shape.WorldMatrix);
+        const translation = UWAL.MathUtils.Vec2.create();
         const [x, y] = Renderer.CanvasSize;
 
         for (let t = textures; t--; )
         {
-            translation.set([MathUtils.Random(0, x), MathUtils.Random(0, y)]);
-            MathUtils.Mat3.translate(matrix, translation, matrix);
-            MathUtils.Mat3.rotate(matrix, MathUtils.Random(0, MathUtils.HPI), matrix);
+            translation.set([UWAL.MathUtils.Random(0, x), UWAL.MathUtils.Random(0, y)]);
+            UWAL.MathUtils.Mat3.translate(matrix, translation, matrix);
+            UWAL.MathUtils.Mat3.rotate(matrix, UWAL.MathUtils.Random(0, UWAL.MathUtils.HPI), matrix);
 
             shape.SetInstanceMatrix(matrix, t, false);
-            MathUtils.Mat3.copy(shape.WorldMatrix, matrix);
+            UWAL.MathUtils.Mat3.copy(shape.WorldMatrix, matrix);
         }
 
         shape.UpdateInstanceBuffer();
@@ -136,7 +125,7 @@ export async function run(canvas)
         if (time - lastRender < textureUpdate) return;
 
         textureUpdate
-            ? Storage.visible.fill(0) && (textureIndex = MathUtils.RandomInt(0, lastTexture))
+            ? Storage.visible.fill(0) && (textureIndex = UWAL.MathUtils.RandomInt(0, lastTexture))
             : ++textureIndex === lastTexture && cancelAnimationFrame(raf);
 
         lastRender = time;
@@ -165,12 +154,12 @@ export async function run(canvas)
 
 export function destroy()
 {
-    Device.OnLost = () => void 0;
+    UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
     Camera.Destroy();
-    Device.Destroy(
+    UWAL.Device.Destroy(
         Storage.buffer,
         texture
     );

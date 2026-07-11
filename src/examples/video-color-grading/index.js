@@ -8,9 +8,9 @@
  * @license MIT
  */
 
-import { Device, Shaders, TextureUtils } from "#/index";
 import Video from "/assets/videos/matrix.mp4";
 import SinCity from "./SinCity.wgsl";
+import * as UWAL from "#/index";
 
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
@@ -23,19 +23,19 @@ export async function run(canvas)
 {
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Video Color Grading"));
+        Renderer = new (await UWAL.Renderer(canvas, "Video Color Grading"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const Texture = new (await TextureUtils());
-    const videoSampler = Texture.CreateSampler();
-
     const VideoPipeline = await Renderer.CreatePipeline([
-        Shaders.Fullscreen, SinCity
+        UWAL.Shaders.Fullscreen, SinCity
     ]);
+
+    const Texture = new (await UWAL.TextureUtils());
+    const videoSampler = Texture.CreateSampler();
 
     video.playsinline = video.loop = true;
     video.controls = video.muted = true;
@@ -165,10 +165,10 @@ export async function run(canvas)
 
 export function destroy()
 {
-    Device.OnLost = () => void 0;
+    UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
     video.remove();
-    Device.Destroy(sizeBuffer);
+    UWAL.Device.Destroy(sizeBuffer);
 }

@@ -27,7 +27,7 @@ export async function run(canvas)
     try
     {
         Computation = new (await UWAL.Computation("Compute Texture"));
-        Renderer = new (await UWAL.Device.Renderer(canvas, "Compute Texture"));
+        Renderer = new (await UWAL.Renderer(canvas, "Compute Texture"));
     }
     catch (error)
     {

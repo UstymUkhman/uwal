@@ -9,19 +9,7 @@
  * @license MIT
  */
 
-import {
-    Mesh,
-    Scene,
-    Device,
-    Shaders,
-    BINDINGS,
-    MSDFText,
-    MathUtils,
-    Geometries,
-    TextureUtils,
-    PerspectiveCamera
-} from "#/index";
-
+import * as UWAL from "#/index";
 import Curtains from "./Curtains.wgsl";
 import Logo from "/assets/images/logo.png";
 import FontImage from "/assets/fonts/Roboto-Regular.png";
@@ -37,37 +25,40 @@ import FontURL from "/assets/fonts/Roboto-Regular.json?url";
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
-    await Device.SetRequiredFeatures("bgra8unorm-storage");
+    await UWAL.Device.SetRequiredFeatures("bgra8unorm-storage");
 
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Curtains"));
+        Renderer = new (await UWAL.Renderer(canvas, "Curtains"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const Pipeline = new Renderer.Pipeline();
-    const Camera = new PerspectiveCamera(35);
+    const Camera = new UWAL.PerspectiveCamera(35);
+    const Geometry = new UWAL.Geometries.Mesh();
 
-    const Geometry = new Geometries.Mesh();
+    const Pipeline = new Renderer.Pipeline();
     let maxDelta = 4, delta = 0, time = 0;
 
-    const scene = new Scene("Curtains");
-    const Plane = new Mesh(Geometry);
-    const Text = new MSDFText();
+    const scene = new UWAL.Scene("Curtains");
+    const Plane = new UWAL.Mesh(Geometry);
+    const Text = new UWAL.MSDFText();
 
-    const module = Pipeline.CreateShaderModule([Shaders.MeshVertex, Curtains]);
+    const module = Pipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Curtains]);
     const { curtains, buffer } = Pipeline.CreateUniformBuffer("curtains");
-    Geometry.Primitive = Geometries.Primitives.plane({ nx: 50, ny: 37 });
+    Geometry.Primitive = UWAL.Geometries.Primitives.plane({ nx: 50, ny: 37 });
 
     const TextPipeline = await Text.CreateRenderPipeline(Renderer, {
         multisample: Pipeline.CreateMultisampleState()
     });
 
     const cameraBuffer = Camera.SetRenderPipeline(Pipeline);
-    const Texture = new (await TextureUtils(Renderer));
+    const Texture = new (await UWAL.TextureUtils(Renderer));
+
+    const mousePosition = UWAL.MathUtils.Vec2.create();
+    const lastPosition = UWAL.MathUtils.Vec2.create();
 
     const logo = await Texture.CopyImageToTexture(
         await Texture.CreateImageBitmap(Logo),
@@ -79,9 +70,6 @@ export async function run(canvas)
     canvas.addEventListener("mousemove", onMove);
     canvas.addEventListener("touchmove", onMove);
 
-    const mousePosition = MathUtils.Vec2.create();
-    const lastPosition = MathUtils.Vec2.create();
-
     await Text.LoadFont(FontURL);
     scene.AddMainCamera(Camera);
     curtainsBuffer = buffer;
@@ -89,13 +77,13 @@ export async function run(canvas)
 
     function onMove()
     {
-        MathUtils.Vec2.copy(mousePosition, lastPosition);
+        UWAL.MathUtils.Vec2.copy(mousePosition, lastPosition);
 
         let x = event.touches?.[0].clientX ?? event.offsetX;
         let y = event.touches?.[0].clientY ?? event.offsetY;
 
-        mousePosition[0] = MathUtils.Lerp(mousePosition[0], x, 0.3);
-        mousePosition[1] = MathUtils.Lerp(mousePosition[1], y, 0.3);
+        mousePosition[0] = UWAL.MathUtils.Lerp(mousePosition[0], x, 0.3);
+        mousePosition[1] = UWAL.MathUtils.Lerp(mousePosition[1], y, 0.3);
 
         x = mousePosition[0] / canvas.offsetWidth * 2 - 1;
         y = mousePosition[1] / canvas.offsetHeight * -2 + 1;
@@ -134,7 +122,7 @@ export async function run(canvas)
         curtains.planeRatio.set([x / y]);
 
         Text.SetTranslation(
-            MathUtils.Mat4.translation([0, textY - 2, textZ - 9]),
+            UWAL.MathUtils.Mat4.translation([0, textY - 2, textZ - 9]),
             textBuffer = Text.Write("Unopinionated WebGPU Abstraction Library", 0, 0.0025, true)
         );
 
@@ -154,7 +142,7 @@ export async function run(canvas)
                 TextPipeline.TextureView,
                 logo, buffer
             ],
-            [BINDINGS.CAMERA_MATRIX, 0]
+            [UWAL.BINDINGS.CAMERA_MATRIX, 0]
         );
 
         raf = requestAnimationFrame(render);
@@ -198,11 +186,11 @@ export async function run(canvas)
 
 export function destroy()
 {
-    Device.OnLost = () => void 0;
+    UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
-    Device.Destroy([
+    UWAL.Device.Destroy([
         curtainsBuffer,
         textBuffer
     ], textTexture);

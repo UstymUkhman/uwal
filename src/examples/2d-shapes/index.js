@@ -4,46 +4,37 @@
  * @description This example is developed using the version listed below.
  * Please note that this code may be simplified in the future
  * thanks to more recent library APIs.
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
-import {
-    Color,
-    Scene,
-    Shape,
-    Device,
-    Shaders,
-    BINDINGS,
-    Camera2D,
-    MathUtils,
-    Geometries
-} from "#/index";
+import * as UWAL from "#/index";
 
-const Camera = new Camera2D();
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
 /** @type {ResizeObserver} */ let observer;
-/** @type {Scene} */ const scene = new Scene();
+
+const Camera = new UWAL.Camera2D();
+const scene = new UWAL.Scene();
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
 {
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "2D Shapes"));
+        Renderer = new (await UWAL.Renderer(canvas, "2D Shapes"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const color = new Color(0x331a4d);
-    const DummyGeometry = new Geometries.Shape();
+    const color = new UWAL.Color(0x331a4d);
     const ShapePipeline = new Renderer.Pipeline();
+    const DummyGeometry = new UWAL.Geometries.Shape();
 
     const spin = [], speed = [], direction = [], uniform = [];
-    const module = ShapePipeline.CreateShaderModule(Shaders.Shape);
+    const module = ShapePipeline.CreateShaderModule(UWAL.Shaders.Shape);
     const cameraBuffer = Camera.SetRenderPipeline(ShapePipeline);
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(color));
 
@@ -74,7 +65,7 @@ export async function run(canvas)
 
     function randomColor(uniform)
     {
-        color.rgb = [MathUtils.Random(0.3), MathUtils.Random(0.2), MathUtils.Random(0.4)];
+        color.rgb = [UWAL.MathUtils.Random(0.3), UWAL.MathUtils.Random(0.2), UWAL.MathUtils.Random(0.4)];
         uniform.color.set(color.rgba);
 
         ShapePipeline.WriteBuffer(uniform.buffer, uniform.color);
@@ -91,27 +82,27 @@ export async function run(canvas)
 
             for (let r = 0; r < 2; r++)
             {
-                const radius = MathUtils.Random(50, 100);
-                const inner = MathUtils.Random(0.75, 0.95) * radius;
-                const shape = new Shape(new Geometries.Shape({ segments, radius, innerRadius: inner * r }));
+                const radius = UWAL.MathUtils.Random(50, 100);
+                const inner = UWAL.MathUtils.Random(0.75, 0.95) * radius;
+                const shape = new UWAL.Shape(new UWAL.Geometries.Shape({ segments, radius, innerRadius: inner * r }));
 
                 uniform.push(shape.CreateColorBuffer(ShapePipeline));
 
                 shape.SetRenderPipeline(ShapePipeline,
                     [cameraBuffer, randomColor(uniform.at(-1))],
-                    [BINDINGS.CAMERA_MATRIX, BINDINGS.SHAPE_COLOR]
+                    [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.SHAPE_COLOR]
                 );
 
-                direction.push([MathUtils.Random(-1), MathUtils.Random(-1)]);
-                shape.Rotation = MathUtils.Random(0, MathUtils.TAU);
+                direction.push([UWAL.MathUtils.Random(-1), UWAL.MathUtils.Random(-1)]);
+                shape.Rotation = UWAL.MathUtils.Random(0, UWAL.MathUtils.TAU);
 
                 shape.Position = [
-                    MathUtils.Random(radius,  width - radius),
-                    MathUtils.Random(radius, height - radius)
+                    UWAL.MathUtils.Random(radius,  width - radius),
+                    UWAL.MathUtils.Random(radius, height - radius)
                 ];
 
-                speed.push(MathUtils.Random(1, 10));
-                spin.push(MathUtils.Random(0, 0.1));
+                speed.push(UWAL.MathUtils.Random(1, 10));
+                spin.push(UWAL.MathUtils.Random(0, 0.1));
 
                 scene.Add(shape);
             }
@@ -155,11 +146,11 @@ export async function run(canvas)
 
 export function destroy()
 {
-    Device.OnLost = () => void 0;
+    UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
     Camera.Destroy();
-    Device.Destroy();
     scene.Destroy();
+    UWAL.Device.Destroy();
 }

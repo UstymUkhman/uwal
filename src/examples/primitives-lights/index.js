@@ -24,7 +24,7 @@ export async function run(canvas)
 {
     try
     {
-        Renderer = new (await UWAL.Device.Renderer(canvas, "Primitives / Lights"));
+        Renderer = new (await UWAL.Renderer(canvas, "Primitives / Lights"));
     }
     catch (error)
     {

@@ -5,11 +5,11 @@
  * {@link https://oframe.github.io/ogl/examples/?src=triangle-screen-shader.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.2.0
+ * @version 0.5.0
  * @license MIT
  */
 
-import { Device, Shaders, Color } from "#/index";
+import * as UWAL from "#/index";
 import Screen from "./Screen.wgsl";
 
 /** @type {number} */ let raf;
@@ -22,18 +22,18 @@ export async function run(canvas)
 {
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Screen Shader"));
+        Renderer = new (await UWAL.Renderer(canvas, "Screen Shader"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const RenderPipeline = await Renderer.CreatePipeline([Shaders.Fullscreen, Screen]);
+    const RenderPipeline = await Renderer.CreatePipeline([UWAL.Shaders.Fullscreen, Screen]);
     const { screen, buffer } = RenderPipeline.CreateUniformBuffer("screen");
 
     RenderPipeline.SetBindGroupFromResources(buffer);
-    screen.color.set(new Color(0x005a9c).rgb);
+    screen.color.set(new UWAL.Color(0x005a9c).rgb);
     RenderPipeline.SetDrawParams(6);
     screenBuffer = buffer;
 
@@ -66,9 +66,9 @@ export async function run(canvas)
 
 export function destroy()
 {
-    Device.OnLost = () => void 0;
+    UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
-    Device.Destroy(screenBuffer);
+    UWAL.Device.Destroy(screenBuffer);
 }
