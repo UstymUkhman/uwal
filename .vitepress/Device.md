@@ -1,72 +1,44 @@
 [UWAL](Modules.md) / Device
 
-# Device
-
 ## Classes
+
+<a id="device"></a>
 
 ### Device
 
-Defined in: [Device.js:19](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L19)
-
-#### Classdesc
-
-Middleware for `WebGPU` APIs. Used to create [Renderer](#renderer) and [Computation](#computation) stages,
-[Texture](#texture) helpers and GPUQuerySets. It can require a GPUAdapter and a [GPUDevice](#gpudevice)
-with specified features and limits and destroy resources like GPUBuffers,
-GPUTextures GPUQuerySets and the current [GPUDevice](#gpudevice).
-
-#### Constructors
-
-##### Constructor
-
-> **new Device**(): [`Device`](#device)
-
-###### Returns
-
-[`Device`](#device)
+Static class used to request and manage your [GPUAdapter](https://www.w3.org/TR/webgpu/#gpuadapter) and
+[GPUDevice](https://www.w3.org/TR/webgpu/#gpudevice|GPUDevice) with specified features and limits when provided.
+It can cleanup resources like [GPUBuffer](https://www.w3.org/TR/webgpu/#gpubuffer)s,
+[GPUTexture](https://www.w3.org/TR/webgpu/#gputexture)s and [GPUQuerySet](https://www.w3.org/TR/webgpu/#gpuqueryset)s
+when no longer required and destroy the current `GPUDevice`.
 
 #### Properties
 
+<a id="onlost"></a>
+
 ##### OnLost
 
-> `static` **OnLost**: ((`detail`) => `unknown`) \| `undefined`
+```ts
+static OnLost: ((detail) => unknown) | undefined;
+```
 
-Defined in: [Device.js:35](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L35)
-
-###### Description
-
-Callback with a GPUDeviceLostInfo argument to call when a [GPUDevice](#gpudevice) is lost.
-When present, prevents an internal `ERROR.DEVICE_LOST` from being thrown.
+Callback with a [GPUDeviceLostInfo](https://www.w3.org/TR/webgpu/#gpudevicelostinfo) argument to call when a
+`GPUDevice` is lost. When present, prevents an [`ERROR.DEVICE_LOST`](./Errors.md#errorcause) from being thrown.
 
 #### Accessors
 
-##### Adapter
-
-###### Get Signature
-
-> **get** `static` **Adapter**(): `Promise`\<`GPUAdapter` \| `null`\>
-
-Defined in: [Device.js:297](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L297)
-
-###### Description
-
-Get cached GPUAdapter or require it from the GPU if not present.
-
-###### Returns
-
-`Promise`\<`GPUAdapter` \| `null`\>
+<a id="adapteroptions"></a>
 
 ##### AdapterOptions
 
 ###### Set Signature
 
-> **set** `static` **AdapterOptions**(`options`): `void`
+```ts
+set static AdapterOptions(options): void;
+```
 
-Defined in: [Device.js:219](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L219)
-
-###### Description
-
-Set adapter options when requiring a GPUAdapter.
+Set optional [RequestAdapterOptions](./Device.md#requestadapteroptions) when requesting a `GPUAdapter`.
+Must be called **before** requesting a `GPUDevice`.
 
 ###### See
 
@@ -74,310 +46,244 @@ Set adapter options when requiring a GPUAdapter.
 
 ###### Parameters
 
-###### options
-
-`GPURequestAdapterOptions`
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `options` | [`RequestAdapterOptions`](#requestadapteroptions) | Standard `GPURequestAdapterOptions` with an optional `forceCompatibility` flag to enable [compatibility mode](https://www.w3.org/TR/webgpu/#limit-compatibility-mode-default) even when the target device supports core |
 
 ###### Returns
 
 `void`
+
+<a id="defaultqueue"></a>
 
 ##### DefaultQueue
 
 ###### Set Signature
 
-> **set** `static` **DefaultQueue**(`descriptor`): `void`
+```ts
+set static DefaultQueue(descriptor): void;
+```
 
-Defined in: [Device.js:266](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L266)
-
-###### Description
-
-Set a descriptor for the default GPUQueue.
+Set the descriptor for the default [GPUQueue](https://www.w3.org/TR/webgpu/#gpuqueue).
 
 ###### Parameters
 
-###### descriptor
-
-`GPUQueueDescriptor` \| `undefined`
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `descriptor` | `GPUQueueDescriptor` \| `undefined` | Default queue descriptor object |
 
 ###### Returns
 
 `void`
+
+<a id="descriptorlabel"></a>
 
 ##### DescriptorLabel
 
 ###### Set Signature
 
-> **set** `static` **DescriptorLabel**(`label`): `void`
+```ts
+set static DescriptorLabel(label): void;
+```
 
-Defined in: [Device.js:275](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L275)
-
-###### Description
-
-Set default label when requesting a [GPUDevice](#gpudevice).
+Set the [descriptor label](https://www.w3.org/TR/webgpu/#gpudevicedescriptor) for the `GPUDevice`.
 
 ###### Parameters
 
-###### label
-
-`string` \| `undefined`
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `label` | `string` \| `undefined` | Device descriptor label |
 
 ###### Returns
 
 `void`
 
-##### GPUDevice
-
-###### Get Signature
-
-> **get** `static` **GPUDevice**(): `Promise`\<`void` \| `GPUDevice`\>
-
-Defined in: [Device.js:291](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L291)
-
-###### Description
-
-Get cached [GPUDevice](#gpudevice) or require it from GPUAdapter if not present.
-
-###### Returns
-
-`Promise`\<`void` \| `GPUDevice`\>
+<a id="preferredcanvasformat"></a>
 
 ##### PreferredCanvasFormat
 
 ###### Get Signature
 
-> **get** `static` **PreferredCanvasFormat**(): `GPUTextureFormat`
+```ts
+get static PreferredCanvasFormat(): GPUTextureFormat;
+```
 
-Defined in: [Device.js:284](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L284)
+Get an optimal [GPUTextureFormat](https://www.w3.org/TR/webgpu/#enumdef-gputextureformat) for the current system.
 
-###### Description
+###### See
 
-Get an optimal GPUTextureFormat for the current system.
+[https://www.w3.org/TR/webgpu/#dom-gpu-getpreferredcanvasformat](https://www.w3.org/TR/webgpu/#dom-gpu-getpreferredcanvasformat)
 
 ###### Returns
 
 `GPUTextureFormat`
 
-`"rgba8unorm"` or `"bgra8unorm"`.
+Only possible formats are `"rgba8unorm"` and `"bgra8unorm"`.
+
+<a id="requiredlimits"></a>
 
 ##### RequiredLimits
 
 ###### Set Signature
 
-> **set** `static` **RequiredLimits**(`requiredLimits`): `void`
+```ts
+set static RequiredLimits(requiredLimits): void;
+```
 
-Defined in: [Device.js:257](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L257)
-
-###### Description
-
-Set device limits when requiring a [GPUDevice](#gpudevice).
-The request will fail if the GPUAdapter cannot provide these limits.
-Must be set **before** calling `UWAL.Renderer`, `UWAL.Computation`, `UWAL.Texture` or `UWAL.CreateQuerySet`.
-
-###### See
-
-[https://www.w3.org/TR/webgpu/#limits](https://www.w3.org/TR/webgpu/#limits)
+Set optional device [limits](https://www.w3.org/TR/webgpu/#limits) when requesting a `GPUDevice`.
+The request will fail if the `GPUAdapter` cannot provide them.
+Must be called **before** [`Renderer`](./Renderer.md), [`Computation`](./Computation.md),
+[`TextureUtils`](./TextureUtils.md) and [`CreateQuerySet`](./Device.md#createqueryset).
 
 ###### Parameters
 
-###### requiredLimits
-
-`Record`\<`string`, `number`\> \| `undefined`
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `requiredLimits` | `Record`\<`string`, `number`\> \| `undefined` | List of limits to request from the adapter |
 
 ###### Returns
 
 `void`
+
+<a id="version"></a>
 
 ##### VERSION
 
 ###### Get Signature
 
-> **get** `static` **VERSION**(): `string`
-
-Defined in: [Device.js:303](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L303)
-
-###### Description
-
-Current version of the library.
+```ts
+get static VERSION(): string;
+```
 
 ###### Returns
 
 `string`
+
+The current version of the library.
 
 #### Methods
 
-##### Computation()
-
-> `static` **Computation**(`name?`): `Promise`\<`ComputeStage` & () => `ComputeStage`\>
-
-Defined in: [Device.js:144](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L144)
-
-###### Parameters
-
-###### name?
-
-`string` = `""`
-
-###### Returns
-
-`Promise`\<`ComputeStage` & () => `ComputeStage`\>
-
-###### Description
-
-Create a new ComputeStage to perform GPU computations.
+<a id="createqueryset"></a>
 
 ##### CreateQuerySet()
 
-> `static` **CreateQuerySet**(`type`, `count`, `label?`): `Promise`\<`GPUQuerySet` \| `undefined`\>
+```ts
+static CreateQuerySet(
+   type, 
+   count, 
+label?): Promise<GPUQuerySet | undefined>;
+```
 
-Defined in: [Device.js:109](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L109)
+Create and cache a new [GPUQuerySet](https://www.w3.org/TR/webgpu/#gpuqueryset).
 
 ###### Parameters
 
-###### type
-
-`GPUQueryType`
-
-###### count
-
-`number`
-
-###### label?
-
-`string`
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `type` | `GPUQueryType` | The type of queries managed by the `GPUQuerySet` |
+| `count` | `number` | The number of queries managed by the `GPUQuerySet` |
+| `label?` | `string` | `GPUQuerySet` label, defaults to [DescriptorLabel](./Device.md#descriptorlabel) when not provided |
 
 ###### Returns
 
 `Promise`\<`GPUQuerySet` \| `undefined`\>
 
-###### Description
-
-Create and cache a new GPUQuerySet.
-
 ###### See
 
-Class `GPUTiming` which uses a `"timestamp"` query set.
+[GPUTiming](https://github.com/UstymUkhman/uwal/blob/main/lib/utils/GPUTiming.js) which uses a `"timestamp"` query set.
+
+<a id="destroy"></a>
 
 ##### Destroy()
 
-> `static` **Destroy**(`buffers?`, `textures?`, `querySets?`): `void`
+```ts
+static Destroy(
+   buffers?, 
+   textures?, 
+   querySets?): void;
+```
 
-Defined in: [Device.js:190](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L190)
+Remove initialized `GPUAdapter` and `GPUDevice` instances, reset internal
+[RequestAdapterOptions](./Device.md#requestadapteroptions)
+and [GPUDeviceDescriptor](https://www.w3.org/TR/webgpu/#gpudevicedescriptor) objects,
+and optionally destroy `GPUBuffer`, `GPUTexture` and `GPUQuerySet` resources if passed as arguments.
 
 ###### Parameters
 
-###### buffers?
-
-`GPUBuffer` \| `GPUBuffer`[]
-
-###### textures?
-
-`GPUTexture` \| `GPUTexture`[]
-
-###### querySets?
-
-`GPUQuerySet` \| `GPUQuerySet`[]
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `buffers?` | `GPUBuffer` \| `GPUBuffer`[] | Optional buffers to destroy |
+| `textures?` | `GPUTexture` \| `GPUTexture`[] | Optional textures to destroy |
+| `querySets?` | `GPUQuerySet` \| `GPUQuerySet`[] | Optional query sets to destroy |
 
 ###### Returns
 
 `void`
 
-###### Description
-
-Delete initialized GPUAdapter and [GPUDevice](#gpudevice),
-reset GPURequestAdapterOptions and GPUDeviceDescriptor,
-and optionally destroy GPUBuffer, GPUTexture and GPUQuerySet resources.
-
-##### Renderer()
-
-> `static` **Renderer**(`canvas`, `name?`, `options?`): `Promise`\<`RenderStage` & () => `RenderStage`\>
-
-Defined in: [Device.js:120](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L120)
-
-###### Parameters
-
-###### canvas
-
-`HTMLCanvasElement`
-
-###### name?
-
-`string` = `""`
-
-###### options?
-
-[`ConfigurationOptions`](#configurationoptions) = `{}`
-
-###### Returns
-
-`Promise`\<`RenderStage` & () => `RenderStage`\>
-
-###### Description
-
-Create a new RenderStage for the specified `canvas` element.
+<a id="setrequiredfeatures"></a>
 
 ##### SetRequiredFeatures()
 
-> `static` **SetRequiredFeatures**(`features`): `Promise`\<`Set`\<`GPUFeatureName`\>\>
+```ts
+static SetRequiredFeatures(features): Promise<Set<GPUFeatureName>>;
+```
 
-Defined in: [Device.js:231](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L231)
+Set optional [features](https://www.w3.org/TR/webgpu/#features) when requesting a `GPUDevice`.
+The request will fail if the `GPUAdapter` cannot provide them.
+Must be called **before** [`Renderer`](./Renderer.md), [`Computation`](./Computation.md),
+[`TextureUtils`](./TextureUtils.md) and [`CreateQuerySet`](./Device.md#createqueryset).
 
 ###### Parameters
 
-###### features
-
-`GPUFeatureName` \| `GPUFeatureName`[]
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `features` | `GPUFeatureName` \| `GPUFeatureName`[] | List of fearures to request from the adapter |
 
 ###### Returns
 
 `Promise`\<`Set`\<`GPUFeatureName`\>\>
 
-###### Description
-
-Set device features when requiring a [GPUDevice](#gpudevice).
-The request will fail if the GPUAdapter cannot provide these features.
-Must be set **before** calling `UWAL.Renderer`, `UWAL.Computation`, `UWAL.Texture` or `UWAL.CreateQuerySet`.
-
-###### See
-
-[https://www.w3.org/TR/webgpu/#features](https://www.w3.org/TR/webgpu/#features)
-
-##### Texture()
-
-> `static` **Texture**(`renderer?`): `Promise`\<`Texture` & () => `Texture`\>
-
-Defined in: [Device.js:166](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L166)
-
-###### Parameters
-
-###### renderer?
-
-`RenderStage`
-
-###### Returns
-
-`Promise`\<`Texture` & () => `Texture`\>
-
-###### Description
-
-Initialize a [Texture](#texture) class to create GPUTexture and GPUSampler resources.
-
 ## Type Aliases
+
+<a id="canvasconfiguration"></a>
 
 ### CanvasConfiguration
 
-> **CanvasConfiguration** = `Omit`\<`GPUCanvasConfiguration`, `"device"`\>
-
-Defined in: [Device.js:2](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L2)
+```ts
+type CanvasConfiguration = Omit<GPUCanvasConfiguration, "device">;
+```
 
 #### Type Parameters
+
+| Type Parameter |
+| ------ |
 
 ***
 
+<a id="configurationoptions"></a>
+
 ### ConfigurationOptions
 
-> **ConfigurationOptions** = `Pick`\<`Partial`\<[`CanvasConfiguration`](#canvasconfiguration)\>, `"format"`\> & `Omit`\<[`CanvasConfiguration`](#canvasconfiguration), `"format"`\>
-
-Defined in: [Device.js:3](https://github.com/UstymUkhman/uwal/blob/c74f949ffa8fd4f123b63a31d468555d87bceace/lib/Device.js#L3)
+```ts
+type ConfigurationOptions = Pick<Partial<CanvasConfiguration>, "format"> & Omit<CanvasConfiguration, "format">;
+```
 
 #### Type Parameters
+
+| Type Parameter |
+| ------ |
+
+***
+
+<a id="requestadapteroptions"></a>
+
+### RequestAdapterOptions
+
+```ts
+type RequestAdapterOptions = GPURequestAdapterOptions & Record<"forceCompatibility", boolean | void>;
+```
+
+#### Type Parameters
+
+| Type Parameter |
+| ------ |

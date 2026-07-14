@@ -3,9 +3,14 @@
     "readme": "none",
     "router": "module",
     "out": "./.vitepress",
+    "useCodeBlocks": true,
+    "hidePageTitle": true,
+    "useHTMLAnchors": true,
+    "disableSources": true,
     "cleanOutputDir": false,
     "entryFileName": "Modules",
     "jsDocCompatibility": true,
+    "parametersFormat": "table",
 
     "plugin":
     [

@@ -9,9 +9,9 @@ hero:
     - theme: brand
       text: Get Started
       link: /Introduction
-    # - theme: alt
-    #   text: Modules
-    #   link: /Modules
+    - theme: alt
+      text: Modules
+      link: /Modules
   image:
     src: ../assets/favicon.svg
     alt: UWAL

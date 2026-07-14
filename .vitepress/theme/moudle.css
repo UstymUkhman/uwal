@@ -1,0 +1,17 @@
+html {
+  scrollbar-gutter: stable;
+}
+
+h6 {
+  line-height: 21px;
+  font-size: 14px;
+}
+
+/* Setters and getters signatures: */
+h6[id^="set-signature"],
+h6[id^="get-signature"],
+/* Type Parameters headings and empty tables: */
+table:not(:has(> tbody)),
+h4[id^="type-parameters"]:has(+ table > thead:only-child) {
+  display: none !important;
+}

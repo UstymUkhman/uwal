@@ -1,5 +1,3 @@
-# UWAL
-
 ## Modules
 
 - [Device](Device.md)
