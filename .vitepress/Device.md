@@ -1,5 +1,50 @@
 [UWAL](Modules.md) / Device
 
+## Type Aliases
+
+<a id="configurationoptions"></a>
+
+### ConfigurationOptions
+
+```ts
+type ConfigurationOptions = Pick<Partial<CanvasConfiguration>, "format"> & Omit<CanvasConfiguration, "format">;
+```
+
+#### Type Parameters
+
+| Type Parameter |
+| ------ |
+
+***
+
+<a id="requestadapteroptions"></a>
+
+### RequestAdapterOptions
+
+```ts
+type RequestAdapterOptions = GPURequestAdapterOptions & Record<"forceCompatibility", boolean | void>;
+```
+
+#### Type Parameters
+
+| Type Parameter |
+| ------ |
+
+***
+
+<a id="canvasconfiguration"></a>
+
+### CanvasConfiguration
+
+```ts
+type CanvasConfiguration = Omit<GPUCanvasConfiguration, "device">;
+```
+
+#### Type Parameters
+
+| Type Parameter |
+| ------ |
+
 ## Classes
 
 <a id="device"></a>
@@ -24,142 +69,6 @@ static OnLost: ((detail) => unknown) | undefined;
 
 Callback with a [GPUDeviceLostInfo](https://www.w3.org/TR/webgpu/#gpudevicelostinfo) argument to call when a
 `GPUDevice` is lost. When present, prevents an [`ERROR.DEVICE_LOST`](./Errors.md#errorcause) from being thrown.
-
-#### Accessors
-
-<a id="adapteroptions"></a>
-
-##### AdapterOptions
-
-###### Set Signature
-
-```ts
-set static AdapterOptions(options): void;
-```
-
-Set optional [RequestAdapterOptions](./Device.md#requestadapteroptions) when requesting a `GPUAdapter`.
-Must be called **before** requesting a `GPUDevice`.
-
-###### See
-
-[https://www.w3.org/TR/webgpu/#adapter-selection](https://www.w3.org/TR/webgpu/#adapter-selection)
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `options` | [`RequestAdapterOptions`](#requestadapteroptions) | Standard `GPURequestAdapterOptions` with an optional `forceCompatibility` flag to enable [compatibility mode](https://www.w3.org/TR/webgpu/#limit-compatibility-mode-default) even when the target device supports core |
-
-###### Returns
-
-`void`
-
-<a id="defaultqueue"></a>
-
-##### DefaultQueue
-
-###### Set Signature
-
-```ts
-set static DefaultQueue(descriptor): void;
-```
-
-Set the descriptor for the default [GPUQueue](https://www.w3.org/TR/webgpu/#gpuqueue).
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `descriptor` | `GPUQueueDescriptor` \| `undefined` | Default queue descriptor object |
-
-###### Returns
-
-`void`
-
-<a id="descriptorlabel"></a>
-
-##### DescriptorLabel
-
-###### Set Signature
-
-```ts
-set static DescriptorLabel(label): void;
-```
-
-Set the [descriptor label](https://www.w3.org/TR/webgpu/#gpudevicedescriptor) for the `GPUDevice`.
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `label` | `string` \| `undefined` | Device descriptor label |
-
-###### Returns
-
-`void`
-
-<a id="preferredcanvasformat"></a>
-
-##### PreferredCanvasFormat
-
-###### Get Signature
-
-```ts
-get static PreferredCanvasFormat(): GPUTextureFormat;
-```
-
-Get an optimal [GPUTextureFormat](https://www.w3.org/TR/webgpu/#enumdef-gputextureformat) for the current system.
-
-###### See
-
-[https://www.w3.org/TR/webgpu/#dom-gpu-getpreferredcanvasformat](https://www.w3.org/TR/webgpu/#dom-gpu-getpreferredcanvasformat)
-
-###### Returns
-
-`GPUTextureFormat`
-
-Only possible formats are `"rgba8unorm"` and `"bgra8unorm"`.
-
-<a id="requiredlimits"></a>
-
-##### RequiredLimits
-
-###### Set Signature
-
-```ts
-set static RequiredLimits(requiredLimits): void;
-```
-
-Set optional device [limits](https://www.w3.org/TR/webgpu/#limits) when requesting a `GPUDevice`.
-The request will fail if the `GPUAdapter` cannot provide them.
-Must be called **before** [`Renderer`](./Renderer.md), [`Computation`](./Computation.md),
-[`TextureUtils`](./TextureUtils.md) and [`CreateQuerySet`](./Device.md#createqueryset).
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `requiredLimits` | `Record`\<`string`, `number`\> \| `undefined` | List of limits to request from the adapter |
-
-###### Returns
-
-`void`
-
-<a id="version"></a>
-
-##### VERSION
-
-###### Get Signature
-
-```ts
-get static VERSION(): string;
-```
-
-###### Returns
-
-`string`
-
-The current version of the library.
 
 #### Methods
 
@@ -243,47 +152,138 @@ Must be called **before** [`Renderer`](./Renderer.md), [`Computation`](./Computa
 
 `Promise`\<`Set`\<`GPUFeatureName`\>\>
 
-## Type Aliases
+#### Accessors
 
-<a id="canvasconfiguration"></a>
+<a id="adapteroptions"></a>
 
-### CanvasConfiguration
+##### AdapterOptions
 
-```ts
-type CanvasConfiguration = Omit<GPUCanvasConfiguration, "device">;
-```
-
-#### Type Parameters
-
-| Type Parameter |
-| ------ |
-
-***
-
-<a id="configurationoptions"></a>
-
-### ConfigurationOptions
+###### Set Signature
 
 ```ts
-type ConfigurationOptions = Pick<Partial<CanvasConfiguration>, "format"> & Omit<CanvasConfiguration, "format">;
+set static AdapterOptions(options): void;
 ```
 
-#### Type Parameters
+Set optional [RequestAdapterOptions](./Device.md#requestadapteroptions) when requesting a `GPUAdapter`.
+Must be called **before** requesting a `GPUDevice`.
 
-| Type Parameter |
-| ------ |
+###### See
 
-***
+[https://www.w3.org/TR/webgpu/#adapter-selection](https://www.w3.org/TR/webgpu/#adapter-selection)
 
-<a id="requestadapteroptions"></a>
+###### Parameters
 
-### RequestAdapterOptions
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `options` | [`RequestAdapterOptions`](#requestadapteroptions) | Standard `GPURequestAdapterOptions` with an optional `forceCompatibility` flag to enable [compatibility mode](https://www.w3.org/TR/webgpu/#limit-compatibility-mode-default) even when the target device supports core |
+
+###### Returns
+
+`void`
+
+<a id="requiredlimits"></a>
+
+##### RequiredLimits
+
+###### Set Signature
 
 ```ts
-type RequestAdapterOptions = GPURequestAdapterOptions & Record<"forceCompatibility", boolean | void>;
+set static RequiredLimits(requiredLimits): void;
 ```
 
-#### Type Parameters
+Set optional device [limits](https://www.w3.org/TR/webgpu/#limits) when requesting a `GPUDevice`.
+The request will fail if the `GPUAdapter` cannot provide them.
+Must be called **before** [`Renderer`](./Renderer.md), [`Computation`](./Computation.md),
+[`TextureUtils`](./TextureUtils.md) and [`CreateQuerySet`](./Device.md#createqueryset).
 
-| Type Parameter |
-| ------ |
+###### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `requiredLimits` | `Record`\<`string`, `number`\> \| `undefined` | List of limits to request from the adapter |
+
+###### Returns
+
+`void`
+
+<a id="defaultqueue"></a>
+
+##### DefaultQueue
+
+###### Set Signature
+
+```ts
+set static DefaultQueue(descriptor): void;
+```
+
+Set the descriptor for the default [GPUQueue](https://www.w3.org/TR/webgpu/#gpuqueue).
+
+###### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `descriptor` | `GPUQueueDescriptor` \| `undefined` | Default queue descriptor object |
+
+###### Returns
+
+`void`
+
+<a id="descriptorlabel"></a>
+
+##### DescriptorLabel
+
+###### Set Signature
+
+```ts
+set static DescriptorLabel(label): void;
+```
+
+Set the [descriptor label](https://www.w3.org/TR/webgpu/#gpudevicedescriptor) for the `GPUDevice`.
+
+###### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `label` | `string` \| `undefined` | Device descriptor label |
+
+###### Returns
+
+`void`
+
+<a id="preferredcanvasformat"></a>
+
+##### PreferredCanvasFormat
+
+###### Get Signature
+
+```ts
+get static PreferredCanvasFormat(): GPUTextureFormat;
+```
+
+Get an optimal [GPUTextureFormat](https://www.w3.org/TR/webgpu/#enumdef-gputextureformat) for the current system.
+
+###### See
+
+[https://www.w3.org/TR/webgpu/#dom-gpu-getpreferredcanvasformat](https://www.w3.org/TR/webgpu/#dom-gpu-getpreferredcanvasformat)
+
+###### Returns
+
+`GPUTextureFormat`
+
+Only possible formats are `"rgba8unorm"` and `"bgra8unorm"`.
+
+<a id="version"></a>
+
+##### VERSION
+
+###### Get Signature
+
+```ts
+get static VERSION(): string;
+```
+
+###### Returns
+
+`string`
+
+The current version of the library.
