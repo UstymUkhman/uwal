@@ -28,5 +28,23 @@
         "lib/Device.js",
         "lib/Errors.js",
         "lib/Scene.js"
+    ],
+
+    "groupOrder": [
+        "Type Aliases",
+        "Interfaces",
+        "Classes",
+        "Properties",
+        "Constructors",
+        "Methods",
+        "Functions",
+        "Variables",
+        "*"
+    ],
+
+    "sort": [
+        "static-first",
+        "visibility",
+        "source-order"
     ]
 }

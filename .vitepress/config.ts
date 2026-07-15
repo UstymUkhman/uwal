@@ -5,6 +5,7 @@ import Sidebar from "./typedoc-sidebar.json";
 export default defineConfig({
   title: "UWAL",
   description: "Unopinionated WebGPU Abstraction Library",
+  // ignoreDeadLinks: true,
   srcDir: ".vitepress",
   base: "/uwal/docs/",
   outDir: "./docs",
