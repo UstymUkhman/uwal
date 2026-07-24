@@ -5,7 +5,7 @@ description: Unopinionated WebGPU Abstraction Library
 
 # What is UWAL?
 
-UWAL (pronounced `/ˈjuvaʊl/`), stands for "**Unopinionated WebGPU Abstraction Library**" and it's a JavaScript tool to
+UWAL (pronounced `/ˈjuvaʊl/`) stands for "**Unopinionated WebGPU Abstraction Library**" and it's a JavaScript tool to
 enhance your web pages with stunning effects built on top of the WebGPU APIs.
 
 ### WebGPU

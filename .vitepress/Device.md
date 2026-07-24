@@ -52,7 +52,7 @@ type CanvasConfiguration = Omit<GPUCanvasConfiguration, "device">;
 ### Device
 
 Static class used to request and manage your [GPUAdapter](https://www.w3.org/TR/webgpu/#gpuadapter) and
-[GPUDevice](https://www.w3.org/TR/webgpu/#gpudevice|GPUDevice) with specified features and limits when provided.
+[GPUDevice](https://www.w3.org/TR/webgpu/#gpudevice) with specified features and limits when provided.
 It can cleanup resources like [GPUBuffer](https://www.w3.org/TR/webgpu/#gpubuffer)s,
 [GPUTexture](https://www.w3.org/TR/webgpu/#gputexture)s and [GPUQuerySet](https://www.w3.org/TR/webgpu/#gpuqueryset)s
 when no longer required and destroy the current `GPUDevice`.
@@ -99,7 +99,7 @@ Create and cache a new [GPUQuerySet](https://www.w3.org/TR/webgpu/#gpuqueryset).
 
 ###### See
 
-[GPUTiming](https://github.com/UstymUkhman/uwal/blob/main/lib/utils/GPUTiming.js) which uses a `"timestamp"` query set.
+[GPUTiming](./GPUTiming) which uses a `"timestamp"` query set.
 
 <a id="destroy"></a>
 
@@ -270,7 +270,7 @@ Get an optimal [GPUTextureFormat](https://www.w3.org/TR/webgpu/#enumdef-gputextu
 
 `GPUTextureFormat`
 
-Only possible formats are `"rgba8unorm"` and `"bgra8unorm"`.
+The only possible formats are `"rgba8unorm"` and `"bgra8unorm"`.
 
 <a id="version"></a>
 

@@ -222,9 +222,9 @@ Remove all [children](./Scene.md#children) and reset the [`MainCamera`](./Scene.
 get WorldMatrix(): Float32Array<ArrayBufferLike>;
 ```
 
-Get the world matrix of the scene. Its use is discouraged since this
-getter is called internally when updating camera's view projection matrix.
-
 ###### Returns
 
 `Float32Array`\<`ArrayBufferLike`\>
+
+The world matrix of the scene. Its use is discouraged since this
+getter is called internally when updating camera's view projection matrix.
