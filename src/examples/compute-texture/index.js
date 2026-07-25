@@ -4,13 +4,13 @@
  * @description This example is inspired by WebGPU Lab's "2D Light"
  * {@link https://s-macke.github.io/WebGPU-Lab/#} and developed using the version listed below.
  * Please note that this code may be simplified in the future thanks to more recent library APIs.
- * @version 0.2.3
+ * @version 0.5.0
  * @license MIT
  */
 
 import ComputeShader from "./Compute.wgsl";
-import { Device, Shaders } from "#/index";
 import RenderShader from "./Render.wgsl";
+import * as UWAL from "#/index";
 
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
@@ -26,15 +26,15 @@ export async function run(canvas)
 {
     try
     {
-        Computation = new (await Device.Computation("Compute Texture"));
-        Renderer = new (await Device.Renderer(canvas, "Compute Texture"));
+        Computation = new (await UWAL.Computation("Compute Texture"));
+        Renderer = new (await UWAL.Renderer(canvas, "Compute Texture"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const Texture = new (await Device.Texture(Renderer)), WORKGROUP_DIMENSION = 8;
+    const Texture = new (await UWAL.TextureUtils(Renderer)), WORKGROUP_DIMENSION = 8;
 
     canvas.removeEventListener("mouseenter", onOver);
     canvas.removeEventListener("touchstart", onOver);
@@ -72,7 +72,7 @@ export async function run(canvas)
 
     async function createRenderPipeline()
     {
-        RenderPipeline = await Renderer.CreatePipeline([Shaders.Fullscreen, RenderShader]);
+        RenderPipeline = await Renderer.CreatePipeline([UWAL.Shaders.Fullscreen, RenderShader]);
         RenderPipeline.SetBindGroupFromResources([Texture.CreateSampler(), storageTexture]);
         RenderPipeline.SetDrawParams(3);
     }
@@ -148,12 +148,12 @@ export function destroy()
 {
     ComputePipeline = ComputePipeline?.Destroy();
     RenderPipeline = RenderPipeline?.Destroy();
-    Device.OnLost = () => void 0;
+    UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Computation.Destroy();
     Renderer.Destroy();
-    Device.Destroy(
+    UWAL.Device.Destroy(
         UniformsBuffer.buffer,
         storageTexture
     );

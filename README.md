@@ -52,12 +52,13 @@ Given that WebGPU APIs are quite verbose and the UWAL library is fairly modular,
 
 | Module                                                   | Minified | Gzipped |
 | :------------------------------------------------------- | -------: | ------: |
-| Device & Shaders                                         | 329.63kb | 72.50kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ 2D Shapes                      | 336.88kb | 74.69kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ 3D Meshes                      | 338.38kb | 75.10kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ Lights | 340.39kb | 75.55kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ MSDF Text                      | 341.15kb | 76.27kb |
-| Total                                                    | 354.39kb | 78.94kb |
+| Device & Shaders                                         | 327.75kb | 72.36kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ TextureUtils                   | 327.90kb | 72.43kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ 2D Shapes                      | 334.96kb | 74.54kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ 3D Meshes                      | 336.41kb | 74.93kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ Lights | 338.42kb | 75.39kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ MSDF Text                      | 339.36kb | 75.96kb |
+| Total                                                    | 354.44kb | 79.14kb |
 
 ## Diagram
 

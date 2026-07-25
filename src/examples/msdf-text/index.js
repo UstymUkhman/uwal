@@ -4,23 +4,16 @@
  * @description This example is developed using the version listed below.
  * Please note that this code may be simplified in the future
  * thanks to more recent library APIs.
- * @version 0.2.1
+ * @version 0.5.0
  * @license MIT
  */
 
-import {
-    Color,
-    Device,
-    MSDFText,
-    MathUtils,
-    PerspectiveCamera
-} from "#/index";
-
+import * as UWAL from "#/index";
 import Font from "/assets/fonts/Matrix-Code-NFI.json";
 import FontImage from "/assets/fonts/Matrix-Code-NFI.png";
 import FontURL from "/assets/fonts/Matrix-Code-NFI.json?url";
 
-/** @type {MSDFText} */ const Characters = new MSDFText();
+/** @type {MSDFText} */ const Characters = new UWAL.MSDFText();
 /** @type {GPUBuffer[]} */ const buffers = [];
 /** @type {ResizeObserver} */ let observer;
 /** @type {Renderer} */ let Renderer;
@@ -31,7 +24,7 @@ export async function run(canvas)
 {
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "MSDF Text"));
+        Renderer = new (await UWAL.Renderer(canvas, "MSDF Text"));
     }
     catch (error)
     {
@@ -39,19 +32,19 @@ export async function run(canvas)
     }
 
     const data = new Float32Array(5);
-    const dark = new Color(0x2e3440);
-    const light = new Color(0x88c0d0);
+    const dark = new UWAL.Color(0x2e3440);
+    const light = new UWAL.Color(0x88c0d0);
 
     const position = { x: -1.0, y: -1.0 };
     let rows = 0, columns = 0, delays = [];
-    const Camera = new PerspectiveCamera();
+    const Camera = new UWAL.PerspectiveCamera();
 
     Renderer.CreatePassDescriptor(
         Renderer.CreateColorAttachment(dark),
         Renderer.CreateDepthStencilAttachment()
     );
 
-    const Pipeline = await Characters.SetRenderPipeline(Renderer);
+    const Pipeline = await Characters.CreateRenderPipeline(Renderer);
     Characters.CameraMatrixBuffer = Camera.SetRenderPipeline(Pipeline);
 
     // alpha & scale (4) + color (4) + transform (16) + x & y (2):
@@ -115,10 +108,10 @@ export async function run(canvas)
         for (let i = 0, l = rows * columns; i < l; ++i)
         {
             const c = i % columns, r = i / columns | 0;
-            delays.push(MathUtils.RandomInt(1, 240));
+            delays.push(UWAL.MathUtils.RandomInt(1, 240));
 
-            buffers.push(Characters.Write(String.fromCharCode(ids[MathUtils.RandomInt(0, 90)]), dark));
-            Characters.SetTranslation(MathUtils.Mat4.translation([-x + c * 0.25, 4.65 - r * 0.4, -8]), buffers[i]);
+            buffers.push(Characters.Write(String.fromCharCode(ids[UWAL.MathUtils.RandomInt(0, 90)]), dark));
+            Characters.SetTranslation(UWAL.MathUtils.Mat4.translation([-x + c * 0.25, 4.65 - r * 0.4, -8]), buffers[i]);
         }
     }
 
@@ -168,8 +161,8 @@ export async function run(canvas)
 
             if (!--delays[d])
             {
-                data[0] = MathUtils.RandomInt(0, 90);
-                delays[d] = MathUtils.RandomInt(minDelay, maxDelay);
+                data[0] = UWAL.MathUtils.RandomInt(0, 90);
+                delays[d] = UWAL.MathUtils.RandomInt(minDelay, maxDelay);
                 Pipeline.WriteBuffer(buffers[d], data, bufferOffset, 0, 1);
             }
 
@@ -196,10 +189,10 @@ export async function run(canvas)
 
 export function destroy()
 {
-    Device.OnLost = () => void 0;
+    UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Characters.Destroy();
     Renderer.Destroy();
-    Device.Destroy(buffers);
+    UWAL.Device.Destroy(buffers);
 }

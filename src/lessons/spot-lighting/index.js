@@ -5,24 +5,12 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-lighting-spot.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
-import {
-    Mesh,
-    Color,
-    Scene,
-    Device,
-    Shaders,
-    BINDINGS,
-    MathUtils,
-    SpotLight,
-    Geometries,
-    PerspectiveCamera
-} from "#/index";
-
 import FShader from "./F.wgsl";
+import * as UWAL from "#/index";
 import createVertices from "../directional-lighting/F.js";
 
 (async function(canvas)
@@ -31,27 +19,27 @@ import createVertices from "../directional-lighting/F.js";
 
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Spot Lighting"));
+        Renderer = new (await UWAL.Renderer(canvas, "Spot Lighting"));
     }
     catch (error)
     {
         alert(error);
     }
 
+    const FGeometry = new UWAL.Geometries.Mesh();
+    const Camera = new UWAL.PerspectiveCamera();
     const FPipeline = new Renderer.Pipeline();
-    const FGeometry = new Geometries.Mesh();
-    const Camera = new PerspectiveCamera();
-    const FMesh = new Mesh(FGeometry);
+    const FMesh = new UWAL.Mesh(FGeometry);
 
-    const scene = new Scene();
+    const scene = new UWAL.Scene();
     const gui = new GUI();
     gui.onChange(render);
     scene.Add(FMesh);
 
     const settings = {
-        innerLimit: MathUtils.DegreesToRadians(15),
-        outerLimit: MathUtils.DegreesToRadians(25),
-        rotation: MathUtils.DegreesToRadians(0),
+        innerLimit: UWAL.MathUtils.DegreesToRadians(15),
+        outerLimit: UWAL.MathUtils.DegreesToRadians(25),
+        rotation: UWAL.MathUtils.DegreesToRadians(0),
         aimOffsetX: -10,
         aimOffsetY: 10,
         shininess: 30
@@ -59,11 +47,11 @@ import createVertices from "../directional-lighting/F.js";
 
     const limitOptions = { min: 0, max: 90, minRange: 1, step: 1, converters: GUI.converters.radToDeg };
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
-    const module = FPipeline.CreateShaderModule([Shaders.Mesh, Shaders.Light, FShader]);
+    const module = FPipeline.CreateShaderModule([UWAL.Shaders.Mesh, UWAL.Shaders.Light, FShader]);
     const { color, buffer: colorBuffer } = FMesh.CreateColorBuffer(FPipeline);
 
-    const Light = new SpotLight([-10, 30, 100]);
-    color.set(new Color(0x33ff33).rgba);
+    const Light = new UWAL.SpotLight([-10, 30, 100]);
+    color.set(new UWAL.Color(0x33ff33).rgba);
     const cameraTarget = [0, 35, 0];
 
     gui.add(settings, "rotation", radToDegOptions);
@@ -83,7 +71,7 @@ import createVertices from "../directional-lighting/F.js";
             ])
         }),
         [Camera.SetRenderPipeline(FPipeline), colorBuffer, Light.SetRenderPipeline(FPipeline)],
-        [BINDINGS.CAMERA_MATRIX, BINDINGS.MESH_COLOR, BINDINGS.SPOT_LIGHT]
+        [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.MESH_COLOR, UWAL.BINDINGS.SPOT_LIGHT]
     );
 
     const { positionData, normalData, vertices } = createVertices();

@@ -1,10 +1,11 @@
 import { defineConfig } from "vitepress";
-// import Sidebar from "./typedoc-sidebar.json";
+import Sidebar from "./typedoc-sidebar.json";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "UWAL",
   description: "Unopinionated WebGPU Abstraction Library",
+  // ignoreDeadLinks: true,
   srcDir: ".vitepress",
   base: "/uwal/docs/",
   outDir: "./docs",
@@ -28,13 +29,14 @@ export default defineConfig({
 
     sidebar: [
       { text: "Introduction", link: "/Introduction" },
-      /* {
+      { text: "Installation", link: "/Installation" },
+      {
         text: "Modules",
         link: "/Modules",
         items: Sidebar.map((item) => ({
           ...item, link: item.link.replace(".vitepress/", ""),
-        })),
-      } */
+        }))
+      }
     ],
 
     footer: {

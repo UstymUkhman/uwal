@@ -5,23 +5,12 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-matrix-math.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
-import {
-    Color,
-    Scene,
-    Shape,
-    Device,
-    Shaders,
-    BINDINGS,
-    Camera2D,
-    MathUtils,
-    Geometries
-} from "#/index";
-
 import createVertices from "./F.js";
+import * as UWAL from "#/index";
 
 (async function(canvas)
 {
@@ -39,25 +28,25 @@ import createVertices from "./F.js";
 
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Matrix Math", { alphaMode: "premultiplied" }));
+        Renderer = new (await UWAL.Renderer(canvas, "Matrix Math", { alphaMode: "premultiplied" }));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const scene = new Scene();
-    const Camera = new Camera2D();
+    const scene = new UWAL.Scene();
+    const Camera = new UWAL.Camera2D();
     const gui = new GUI().onChange(render);
     const RenderPipeline = new Renderer.Pipeline();
 
     const { vertexData, indexData } = createVertices();
-    const module = RenderPipeline.CreateShaderModule(Shaders.Shape);
+    const module = RenderPipeline.CreateShaderModule(UWAL.Shaders.Shape);
     const cameraMatrixBuffer = Camera.SetRenderPipeline(RenderPipeline);
-    const geometry = new Geometries.Shape({ radius: 75, indexFormat: "uint32" });
 
+    const geometry = new UWAL.Geometries.Shape({ radius: 75, indexFormat: "uint32" });
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
-    const settings = { translation: [150, 100], rotation: MathUtils.DegreesToRadians(30), scale: [1, 1], objects: 1 };
+    const settings = { translation: [150, 100], rotation: UWAL.MathUtils.DegreesToRadians(30), scale: [1, 1], objects: 1 };
 
     gui.add(settings.translation, "0", 0, 1000).name("translation.x");
     gui.add(settings.translation, "1", 0, 1000).name("translation.y");
@@ -73,12 +62,13 @@ import createVertices from "./F.js";
         )
     });
 
-    const color = new Color();
+    const color = new UWAL.Color();
     geometry.IndexData = indexData;
     geometry.VertexData = vertexData;
 
-    const shapes = Array.from({ length: 5 }).map(() => {
-        const shape = new Shape(geometry);
+    const shapes = Array.from({ length: 5 }).map(() =>
+    {
+        const shape = new UWAL.Shape(geometry);
         const uniform = shape.CreateColorBuffer(RenderPipeline);
 
         uniform.color.set(color.Random().rgba);
@@ -86,7 +76,7 @@ import createVertices from "./F.js";
 
         shape.SetRenderPipeline(RenderPipeline,
             [cameraMatrixBuffer, uniform.buffer],
-            [BINDINGS.CAMERA_MATRIX, BINDINGS.SHAPE_COLOR]
+            [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.SHAPE_COLOR]
         );
 
         shape.Origin = [50, 75];

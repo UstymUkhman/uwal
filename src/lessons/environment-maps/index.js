@@ -5,22 +5,13 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-environment-maps.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
-import {
-    Mesh,
-    Scene,
-    Device,
-    Shaders,
-    BINDINGS,
-    Geometries,
-    PerspectiveCamera
-} from "#/index";
-
-import Envmap from "./Envmap.wgsl";
 import Market from "/assets/images/leadenhall";
+import Envmap from "./Envmap.wgsl";
+import * as UWAL from "#/index";
 
 (async function(canvas)
 {
@@ -28,24 +19,24 @@ import Market from "/assets/images/leadenhall";
 
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Environment Maps"));
+        Renderer = new (await UWAL.Renderer(canvas, "Environment Maps"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const Geometry = new Geometries.Mesh();
     const Pipeline = new Renderer.Pipeline();
-    Geometry.Primitive = Geometries.Primitives.cube();
+    const Geometry = new UWAL.Geometries.Mesh();
+    Geometry.Primitive = UWAL.Geometries.Primitives.cube();
 
-    const Camera = new PerspectiveCamera();
-    const Cube = new Mesh(Geometry);
-    const scene = new Scene();
+    const Camera = new UWAL.PerspectiveCamera();
+    const Cube = new UWAL.Mesh(Geometry);
+    const scene = new UWAL.Scene();
     scene.Add(Cube);
 
-    const module = Pipeline.CreateShaderModule([Shaders.MeshVertex, Envmap]);
-    const Texture = new (await Device.Texture(Renderer));
+    const module = Pipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Envmap]);
+    const Texture = new (await UWAL.TextureUtils(Renderer));
     const texture = await Texture.CreateCubeTexture(Market);
 
     Cube.SetRenderPipeline(await Renderer.AddPipeline(Pipeline,
@@ -62,7 +53,7 @@ import Market from "/assets/images/leadenhall";
             texture.createView({ dimension: "cube" }),
             Camera.SetRenderPipeline(Pipeline)
         ],
-        [0, 1, BINDINGS.CAMERA_MATRIX]
+        [0, 1, UWAL.BINDINGS.CAMERA_MATRIX]
     );
 
     Geometry.AddNormalBuffer(Pipeline, Geometry.Primitive.normals);

@@ -4,13 +4,13 @@
  * @description This example is developed using the version listed below.
  * Please note that this code may be simplified in the future
  * thanks to more recent library APIs.
- * @version 0.2.0
+ * @version 0.5.0
  * @license MIT
  */
 
 import Video from "/assets/videos/matrix.mp4";
-import { Device, Shaders } from "#/index";
 import SinCity from "./SinCity.wgsl";
+import * as UWAL from "#/index";
 
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
@@ -23,7 +23,7 @@ export async function run(canvas)
 {
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Video Color Grading"));
+        Renderer = new (await UWAL.Renderer(canvas, "Video Color Grading"));
     }
     catch (error)
     {
@@ -31,10 +31,10 @@ export async function run(canvas)
     }
 
     const VideoPipeline = await Renderer.CreatePipeline([
-        Shaders.Fullscreen, SinCity
+        UWAL.Shaders.Fullscreen, SinCity
     ]);
 
-    const Texture = new (await Device.Texture());
+    const Texture = new (await UWAL.TextureUtils());
     const videoSampler = Texture.CreateSampler();
 
     video.playsinline = video.loop = true;
@@ -165,10 +165,10 @@ export async function run(canvas)
 
 export function destroy()
 {
-    Device.OnLost = () => void 0;
+    UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
     video.remove();
-    Device.Destroy(sizeBuffer);
+    UWAL.Device.Destroy(sizeBuffer);
 }

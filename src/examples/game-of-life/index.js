@@ -5,13 +5,13 @@
  * {@link https://codelabs.developers.google.com/your-first-webgpu-app}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
-import { Device, Color } from "#/index";
 import Compute from "./Compute.wgsl";
 import Render from "./Render.wgsl";
+import * as UWAL from "#/index";
 
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
@@ -24,8 +24,8 @@ export async function run(canvas)
 {
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Game Of Life Renderer"));
-        Computation = new (await Device.Computation("Game Of Life Computation"));
+        Renderer = new (await UWAL.Renderer(canvas, "Game Of Life Renderer"));
+        Computation = new (await UWAL.Computation("Game Of Life Computation"));
     }
     catch (error)
     {
@@ -39,7 +39,7 @@ export async function run(canvas)
     let step = 0, lastRender = performance.now() - RENDER_LOOP_INTERVAL;
     const computeVertex = GPUShaderStage.COMPUTE | GPUShaderStage.VERTEX;
 
-    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new Color(0x000066)));
+    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new UWAL.Color(0x000066)));
 
     const layout = ComputePipeline.CreatePipelineLayout(ComputePipeline.CreateBindGroupLayout([
         Computation.CreateBufferBindingLayout("uniform", false, 0, computeVertex | GPUShaderStage.FRAGMENT),
@@ -168,10 +168,10 @@ export async function run(canvas)
 
 export function destroy()
 {
-    Device.OnLost = () => void 0;
+    UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     Computation.Destroy();
     observer.disconnect();
     Renderer.Destroy();
-    Device.Destroy(buffers);
+    UWAL.Device.Destroy(buffers);
 }

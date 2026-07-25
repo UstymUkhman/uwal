@@ -5,13 +5,13 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-scene-graphs.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
-import { Mesh, Scene, Color, Device, Shaders, BINDINGS, MathUtils, Geometries, PerspectiveCamera } from "#/index";
 import { addButtonLeftJustified } from "https://webgpufundamentals.org/webgpu/resources/js/gui-helpers.js";
 import TransformHelper from "./TransformHelper";
+import * as UWAL from "#/index";
 import Cube from "./Cube.wgsl";
 
 (async function(canvas)
@@ -21,7 +21,7 @@ import Cube from "./Cube.wgsl";
 
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Scene Graphs"));
+        Renderer = new (await UWAL.Renderer(canvas, "Scene Graphs"));
     }
     catch (error)
     {
@@ -63,13 +63,13 @@ import Cube from "./Cube.wgsl";
 
     const settings =
     {
-        cameraRotation: MathUtils.DegreesToRadians(-45),
+        cameraRotation: UWAL.MathUtils.DegreesToRadians(-45),
         animate: false,
         showMeshNodes: false,
         showAllTransforms: false
     };
 
-    const scene = new Scene();
+    const scene = new UWAL.Scene();
     const gui = new GUI().onChange(requestRender);
     const transformHelper = new TransformHelper();
 
@@ -107,15 +107,15 @@ import Cube from "./Cube.wgsl";
         drawerSize[depth] + 4,
     ];
 
-    const CubeGeometry = new Geometries.Mesh("Cube", "uint16");
-    CubeGeometry.Primitive = Geometries.Primitives.cube();
+    const CubeGeometry = new UWAL.Geometries.Mesh("Cube", "uint16");
+    CubeGeometry.Primitive = UWAL.Geometries.Primitives.cube();
     const CubePipeline = new Renderer.Pipeline();
-    const Camera = new PerspectiveCamera();
-    const color = new Color(0xffffff);
+    const Camera = new UWAL.PerspectiveCamera();
+    const color = new UWAL.Color(0xffffff);
 
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
     const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;
-    const module = CubePipeline.CreateShaderModule([Shaders.Mesh, Cube]);
+    const module = CubePipeline.CreateShaderModule([UWAL.Shaders.Mesh, Cube]);
 
     const colorAttribute = { name: "color", format: "unorm8x4" };
     const cameraBuffer = Camera.SetRenderPipeline(CubePipeline);
@@ -226,14 +226,14 @@ import Cube from "./Cube.wgsl";
                 button.show(show);
     }
 
-    function addMesh(label, parent, transform, buffer = drawerBuffer)
+    function addMesh(label, parent, transform, buffer)
     {
-        const cube = new Mesh(CubeGeometry, label, parent);
+        const cube = new UWAL.Mesh(CubeGeometry, label, parent);
 
         cube.SetRenderPipeline(
             CubePipeline,
             [cameraBuffer, buffer],
-            [BINDINGS.CAMERA_MATRIX, BINDINGS.MESH_COLOR]
+            [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.MESH_COLOR]
         );
 
         CubePipeline.AddVertexBuffers(colorBuffer);
@@ -247,9 +247,8 @@ import Cube from "./Cube.wgsl";
         const middle = cabinetSize[height] / 2 -
             drawerSize[height] / 2 - 5;
 
-        const drawer = addMesh(label, parent, [
-            [0, drawerSpacing * index - middle, 3]
-        ]);
+        const drawer = new UWAL.Node(label, parent);
+        drawer.Position = [0, drawerSpacing * index - middle, 3];
 
         animatedNodes.push(drawer);
 
@@ -266,9 +265,8 @@ import Cube from "./Cube.wgsl";
     {
         const label = `cabinet${index}`;
 
-        const cabinet = addMesh(label, parent, [
-            [index * cabinetSpacing, 0, 0]
-        ]);
+        const cabinet = new UWAL.Node(label, parent);
+        cabinet.Position = [index * cabinetSpacing, 0, 0];
 
         addMesh(`${label}-mesh`, cabinet, [
             void 0, void 0, cabinetSize
@@ -286,7 +284,7 @@ import Cube from "./Cube.wgsl";
     function animate()
     {
         animatedNodes.forEach((node, n) => node.Position[2] =
-            MathUtils.Lerp(3, drawerSize[2] * 0.8, Math.sin(time + n) * 0.5 + 0.5)
+            UWAL.MathUtils.Lerp(3, drawerSize[2] * 0.8, Math.sin(time + n) * 0.5 + 0.5)
         );
     }
 

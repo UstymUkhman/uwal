@@ -5,44 +5,34 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-compatibility-mode.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
-import {
-    Mesh,
-    Scene,
-    Device,
-    Shaders,
-    BINDINGS,
-    MathUtils,
-    Geometries,
-    PerspectiveCamera
-} from "#/index";
-
 import Cubemap from './Cubemap.wgsl';
+import * as UWAL from "#/index";
 
 (async function(canvas)
 {
     /** @type {Renderer} */ let Renderer;
 
-    Device.AdapterOptions = { featureLevel: "compatibility", forceCompatibility: true };
+    UWAL.Device.AdapterOptions = { featureLevel: "compatibility", forceCompatibility: true };
 
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "Compatibility Mode"));
+        Renderer = new (await UWAL.Renderer(canvas, "Compatibility Mode"));
     }
     catch (error)
     {
         alert(error);
     }
 
+    const CubeGeometry = new UWAL.Geometries.Mesh();
     const CubePipeline = new Renderer.Pipeline();
-    const CubeGeometry = new Geometries.Mesh();
-    const Camera = new PerspectiveCamera();
-    const Cube = new Mesh(CubeGeometry);
+    const Camera = new UWAL.PerspectiveCamera();
+    const Cube = new UWAL.Mesh(CubeGeometry);
 
-    const scene = new Scene();
+    const scene = new UWAL.Scene();
     const gui = new GUI();
     gui.onChange(render);
     scene.Add(Cube);
@@ -59,9 +49,9 @@ import Cubemap from './Cubemap.wgsl';
     {
         rotation:
         [
-            MathUtils.DegreesToRadians(20),
-            MathUtils.DegreesToRadians(25),
-            MathUtils.DegreesToRadians(0)
+            UWAL.MathUtils.DegreesToRadians(20),
+            UWAL.MathUtils.DegreesToRadians(25),
+            UWAL.MathUtils.DegreesToRadians(0)
         ]
     };
 
@@ -69,11 +59,11 @@ import Cubemap from './Cubemap.wgsl';
     gui.add(settings.rotation, "1", radToDeg).name("rotation.y");
     gui.add(settings.rotation, "2", radToDeg).name("rotation.z");
 
-    const module = CubePipeline.CreateShaderModule([Shaders.MeshVertex, Cubemap]);
-    CubeGeometry.Primitive = Geometries.Primitives.cube();
+    const module = CubePipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Cubemap]);
+    CubeGeometry.Primitive = UWAL.Geometries.Primitives.cube();
+    const Texture = new (await UWAL.TextureUtils(Renderer));
     Cube.Transform = [void 0, settings.rotation, 2];
 
-    const Texture = new (await Device.Texture(Renderer));
     const texture = await createTextureFromSources([
         { faceColor: "#F00", textColor: "#0FF", text: "+X" },
         { faceColor: "#FF0", textColor: "#00F", text: "-X" },
@@ -96,7 +86,7 @@ import Cubemap from './Cubemap.wgsl';
             Texture.CreateSampler({ filter: "linear" }),
             texture.createView({ dimension: "cube" }),
             Camera.SetRenderPipeline(CubePipeline)
-        ], [0, 1, BINDINGS.CAMERA_MATRIX]
+        ], [0, 1, UWAL.BINDINGS.CAMERA_MATRIX]
     );
 
     CubeGeometry.AddUVBuffer(CubePipeline, CubeGeometry.Primitive.normals);

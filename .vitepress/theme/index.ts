@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 export { default } from "vitepress/theme";
 
+import "./moudle.css";
 import "./style.css";
-import "./main.css";
+import "./home.css";

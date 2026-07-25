@@ -5,7 +5,7 @@ description: Unopinionated WebGPU Abstraction Library
 
 # What is UWAL?
 
-UWAL (pronounced `/ˈjuvaʊl/`), stands for "**Unopinionated WebGPU Abstraction Library**" and it's a JavaScript tool to
+UWAL (pronounced `/ˈjuvaʊl/`) stands for "**Unopinionated WebGPU Abstraction Library**" and it's a JavaScript tool to
 enhance your web pages with stunning effects built on top of the WebGPU APIs.
 
 ### WebGPU
@@ -35,8 +35,8 @@ cases gracefully for users whose browsers do not support modern graphics APIs.
 Compared to older graphics libraries on the web like `three.js`, `Babylon.js` and `PlayCanvas`, UWAL is much more
 low-level and comes with many fewer features, so for a smoother developer experience and stable, production-ready
 applications, it's recommended to stick to these options. You can think of UWAL as a spiritual successor to the [ogl](https://github.com/oframe/ogl)
-library: a much lighter and simple tool that keeps you bundle size small while still providing all the necessary tooling
-to manage pipelines, bind groups and shaders; which can be just what you need sometimes.
+library: a much lighter and simple package that keeps you bundle size small while still providing all the necessary
+tooling to manage pipelines, bind groups and shaders; which may be just what you need sometimes.
 
 ## Getting Started
 

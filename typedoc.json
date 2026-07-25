@@ -3,9 +3,14 @@
     "readme": "none",
     "router": "module",
     "out": "./.vitepress",
+    "useCodeBlocks": true,
+    "hidePageTitle": true,
+    "useHTMLAnchors": true,
+    "disableSources": true,
     "cleanOutputDir": false,
     "entryFileName": "Modules",
     "jsDocCompatibility": true,
+    "parametersFormat": "table",
 
     "plugin":
     [
@@ -13,15 +18,35 @@
         "typedoc-vitepress-theme"
     ],
 
+    "entryPoints":
+    [
+        "lib/Device.js",
+        "lib/Scene.js",
+        "lib/Errors.js",
+        "lib/utils/Color.js",
+        "lib/utils/Math.js"
+    ],
+
     "validation":
     {
         "notExported": false
     },
 
-    "entryPoints":
-    [
-        "lib/Device.js",
-        "lib/Errors.js",
-        "lib/Scene.js"
+    "groupOrder": [
+        "Type Aliases",
+        "Interfaces",
+        "Classes",
+        "Properties",
+        "Constructors",
+        "Methods",
+        "Variables",
+        "Functions",
+        "*"
+    ],
+
+    "sort": [
+        "static-first",
+        "visibility",
+        "source-order"
     ]
 }

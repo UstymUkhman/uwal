@@ -5,23 +5,14 @@
  * {@link https://webgpufundamentals.org/webgpu/lessons/webgpu-skybox.html}&nbsp;
  * and developed using the version listed below. Please note that this code
  * may be simplified in the future thanks to more recent library APIs.
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
-import {
-    Mesh,
-    Scene,
-    Device,
-    Shaders,
-    BINDINGS,
-    Geometries,
-    PerspectiveCamera
-} from "#/index";
-
-import SkyBox from "./SkyBox.wgsl";
-import Market from "/assets/images/leadenhall";
 import Envmap from "../environment-maps/Envmap.wgsl";
+import Market from "/assets/images/leadenhall";
+import SkyBox from "./SkyBox.wgsl";
+import * as UWAL from "#/index";
 
 (async function(canvas)
 {
@@ -29,30 +20,31 @@ import Envmap from "../environment-maps/Envmap.wgsl";
 
     try
     {
-        Renderer = new (await Device.Renderer(canvas, "SkyBox"));
+        Renderer = new (await UWAL.Renderer(canvas, "SkyBox"));
     }
     catch (error)
     {
         alert(error);
     }
 
-    const scene = new Scene();
-    const Camera = new PerspectiveCamera();
-    const CubeGeometry = new Geometries.Mesh();
+    const Camera = new UWAL.PerspectiveCamera();
     const CubePipeline = new Renderer.Pipeline();
     const SkyboxPipeline = new Renderer.Pipeline();
-    const Texture = new (await Device.Texture(Renderer));
+    const CubeGeometry = new UWAL.Geometries.Mesh();
 
+    const Texture = new (await UWAL.TextureUtils(Renderer));
     const sampler = Texture.CreateSampler({ filter: "linear" });
-    const cubeModule = CubePipeline.CreateShaderModule([Shaders.MeshVertex, Envmap]);
-    const skyboxModule = SkyboxPipeline.CreateShaderModule([Shaders.Fullscreen, SkyBox]);
+
+    const cubeModule = CubePipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Envmap]);
+    const skyboxModule = SkyboxPipeline.CreateShaderModule([UWAL.Shaders.Fullscreen, SkyBox]);
     const view = (await Texture.CreateCubeTexture(Market)).createView({ dimension: "cube" });
 
     let { inverseViewProjection, buffer: inverseViewProjectionBuffer } =
         SkyboxPipeline.CreateUniformBuffer("inverseViewProjection");
 
-    CubeGeometry.Primitive = Geometries.Primitives.cube();
-    const Cube = new Mesh(CubeGeometry);
+    CubeGeometry.Primitive = UWAL.Geometries.Primitives.cube();
+    const Cube = new UWAL.Mesh(CubeGeometry);
+    const scene = new UWAL.Scene();
     scene.Add(Cube);
 
     Cube.SetRenderPipeline(await Renderer.AddPipeline(CubePipeline,
@@ -64,8 +56,9 @@ import Envmap from "../environment-maps/Envmap.wgsl";
                 CubeGeometry.GetPositionBufferLayout(CubePipeline),
                 CubeGeometry.GetNormalBufferLayout(CubePipeline),
             ])
-        }), [sampler, view, Camera.SetRenderPipeline(CubePipeline)],
-        [0, 1, BINDINGS.CAMERA_MATRIX]
+        }),
+        [sampler, view, Camera.SetRenderPipeline(CubePipeline)],
+        [0, 1, UWAL.BINDINGS.CAMERA_MATRIX]
     );
 
     await Renderer.AddPipeline(SkyboxPipeline, {

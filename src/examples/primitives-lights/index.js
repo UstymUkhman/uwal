@@ -4,7 +4,7 @@
  * @description This example is inspired by dmnsgn's "Primitive Geometry"
  * {https://dmnsgn.github.io/primitive-geometry/} and developed using the version listed below.
  * Please note that this code may be simplified in the future thanks to more recent library APIs.
- * @version 0.4.0
+ * @version 0.5.0
  * @license MIT
  */
 
@@ -24,7 +24,7 @@ export async function run(canvas)
 {
     try
     {
-        Renderer = new (await UWAL.Device.Renderer(canvas, "Primitives / Lights"));
+        Renderer = new (await UWAL.Renderer(canvas, "Primitives / Lights"));
     }
     catch (error)
     {
@@ -48,7 +48,7 @@ export async function run(canvas)
     const pointDirection = Vec2.create(0.85, -1);
     let wireBindings, pointX, pointZ, spotX, spotZ;
 
-    const Texture = new (await UWAL.Device.Texture(Renderer));
+    const Texture = new (await UWAL.TextureUtils(Renderer));
     const source = await Texture.CreateImageBitmap(UV);
     texture = await Texture.CopyImageToTexture(source);
 
