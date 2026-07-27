@@ -23,6 +23,7 @@
         "lib/Device.js",
         "lib/Scene.js",
         "lib/Errors.js",
+        "lib/text/MSDFText.js",
         "lib/utils/Color.js",
         "lib/utils/Math.js"
     ],

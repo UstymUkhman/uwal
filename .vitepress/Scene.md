@@ -122,7 +122,7 @@ Remove(children): void;
 ```
 
 Remove any `Mesh`, `Shape` or `SceneNode` element(s) from the scene graph.
-Only unlinking is performed, `Destroy` method on removed element(s) is not called.
+Only unlinking is performed; the `Destroy` method on removed element(s) is not called.
 
 ###### Parameters
 
