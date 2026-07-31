@@ -27,13 +27,20 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
-    const Camera = new UWAL.PerspectiveCamera();
-    const CubePipeline = new Renderer.Pipeline();
-    const SkyboxPipeline = new Renderer.Pipeline();
     const CubeGeometry = new UWAL.Geometries.Mesh();
+    const SkyboxPipeline = new Renderer.Pipeline();
+    const CubePipeline = new Renderer.Pipeline();
+    const Camera = new UWAL.PerspectiveCamera();
+    const Cube = new UWAL.Mesh(CubeGeometry);
+
+    CubeGeometry.SetPrimitive("cube");
+    const scene = new UWAL.Scene();
+    Cube.Scaling = 2;
+    scene.Add(Cube);
 
     const Texture = new (await UWAL.TextureUtils(Renderer));
     const sampler = Texture.CreateSampler({ filter: "linear" });
+    const position = [0, 0, 0], rotation = [0, 0, 0], origin = [0, 0, 0];
 
     const cubeModule = CubePipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Envmap]);
     const skyboxModule = SkyboxPipeline.CreateShaderModule([UWAL.Shaders.Fullscreen, SkyBox]);
@@ -41,11 +48,6 @@ import * as UWAL from "#/index";
 
     let { inverseViewProjection, buffer: inverseViewProjectionBuffer } =
         SkyboxPipeline.CreateUniformBuffer("inverseViewProjection");
-
-    CubeGeometry.Primitive = UWAL.Geometries.Primitives.cube();
-    const Cube = new UWAL.Mesh(CubeGeometry);
-    const scene = new UWAL.Scene();
-    scene.Add(Cube);
 
     Cube.SetRenderPipeline(await Renderer.AddPipeline(CubePipeline,
         {
@@ -68,13 +70,7 @@ import * as UWAL from "#/index";
     });
 
     SkyboxPipeline.SetBindGroupFromResources([sampler, view, inverseViewProjectionBuffer]);
-    CubeGeometry.AddNormalBuffer(CubePipeline, CubeGeometry.Primitive.normals);
     SkyboxPipeline.SetDrawParams(3);
-
-    const position = [0, 0, 0];
-    const rotation = [0, 0, 0];
-    const origin = [0, 0, 0];
-    Cube.Scaling = 2;
 
     function render(time)
     {

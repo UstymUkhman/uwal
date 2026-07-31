@@ -26,13 +26,15 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
-    const Pipeline = new Renderer.Pipeline();
-    const Geometry = new UWAL.Geometries.Mesh();
-    Geometry.Primitive = UWAL.Geometries.Primitives.cube();
-
     const Camera = new UWAL.PerspectiveCamera();
+    const Geometry = new UWAL.Geometries.Mesh();
+    const Pipeline = new Renderer.Pipeline();
     const Cube = new UWAL.Mesh(Geometry);
     const scene = new UWAL.Scene();
+
+    Geometry.SetPrimitive("cube");
+    const rotation = [0, 0, 0];
+    Cube.Scaling = 2;
     scene.Add(Cube);
 
     const module = Pipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Envmap]);
@@ -41,9 +43,9 @@ import * as UWAL from "#/index";
 
     Cube.SetRenderPipeline(await Renderer.AddPipeline(Pipeline,
         {
+            primitive: Pipeline.CreatePrimitiveState(),
             fragment: Pipeline.CreateFragmentState(module),
             depthStencil: Pipeline.CreateDepthStencilState(),
-            primitive: Pipeline.CreatePrimitiveState(),
             vertex: Pipeline.CreateVertexState(module, "vertexNormal", [
                 Geometry.GetPositionBufferLayout(Pipeline),
                 Geometry.GetNormalBufferLayout(Pipeline),
@@ -55,10 +57,6 @@ import * as UWAL from "#/index";
         ],
         [0, 1, UWAL.BINDINGS.CAMERA_MATRIX]
     );
-
-    Geometry.AddNormalBuffer(Pipeline, Geometry.Primitive.normals);
-    const rotation = [0, 0, 0];
-    Cube.Scaling = 2;
 
     function render(time)
     {

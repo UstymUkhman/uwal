@@ -60,9 +60,9 @@ import * as UWAL from "#/index";
     gui.add(settings.rotation, "2", radToDeg).name("rotation.z");
 
     const module = CubePipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Cubemap]);
-    CubeGeometry.Primitive = UWAL.Geometries.Primitives.cube();
     const Texture = new (await UWAL.TextureUtils(Renderer));
     Cube.Transform = [void 0, settings.rotation, 2];
+    CubeGeometry.SetPrimitive("cube");
 
     const texture = await createTextureFromSources([
         { faceColor: "#F00", textColor: "#0FF", text: "+X" },
@@ -88,8 +88,6 @@ import * as UWAL from "#/index";
             Camera.SetRenderPipeline(CubePipeline)
         ], [0, 1, UWAL.BINDINGS.CAMERA_MATRIX]
     );
-
-    CubeGeometry.AddUVBuffer(CubePipeline, CubeGeometry.Primitive.normals);
 
     /**
      * @typedef {Object} FaceOptions
