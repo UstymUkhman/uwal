@@ -6,8 +6,8 @@
 export { ComputePipelineInstance as ComputePipeline } from "./types/pipelines/ComputePipeline";
 export { RenderPipelineInstance as RenderPipeline } from "./types/pipelines/RenderPipeline";
 export { BINDINGS, USAGE, BLEND_STATE } from "./types/pipelines/Constants";
-export { default as TextureUtils, TEXTURE } from "./types/textures";
 export { Node, Node2D, Mesh, Shape } from "./types/primitives";
+export { TextureUtils, TEXTURE } from "./types/textures";
 export { Renderer, Computation } from "./types/stages";
 export { Color, MathUtils } from "./types/utils";
 export * as Geometries from "./types/geometries";

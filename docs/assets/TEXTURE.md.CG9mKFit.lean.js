@@ -1,0 +1,1 @@
+import{_ as a,o as i,c as t,a0 as e}from"./chunks/framework.C0DMgDrp.js";const E=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"TEXTURE.md","filePath":"TEXTURE.md"}'),h={name:"TEXTURE.md"};function l(n,s,p,k,r,d){return i(),t("div",null,[...s[0]||(s[0]=[e("",47)])])}const g=a(h,[["render",l]]);export{E as __pageData,g as default};

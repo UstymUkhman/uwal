@@ -23,6 +23,10 @@
         "lib/Device.js",
         "lib/Scene.js",
         "lib/Errors.js",
+        "lib/textures/index.js",
+        "lib/textures/Texture.js",
+        "lib/textures/Constants.js",
+        "lib/text/MSDFText.js",
         "lib/utils/Color.js",
         "lib/utils/Math.js"
     ],

@@ -1,0 +1,1 @@
+import{_ as t,o as a,c as s,a0 as i}from"./chunks/framework.C0DMgDrp.js";const k=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"MSDFText.md","filePath":"MSDFText.md"}'),r={name:"MSDFText.md"};function d(n,e,h,o,l,p){return a(),s("div",null,[...e[0]||(e[0]=[i("",113)])])}const u=t(r,[["render",d]]);export{k as __pageData,u as default};

@@ -80,7 +80,7 @@ import * as UWAL from "#/index";
     {
         time *= 0.0001;
 
-        // Move the camera in circle from origin, looking at the origin:
+        // Move the camera in circle from the origin, looking at the origin:
         position[0] = Math.cos(time) * 5;
         position[2] = Math.sin(time) * 5;
 

@@ -2,6 +2,14 @@ html {
   scrollbar-gutter: stable;
 }
 
+.vp-doc h4 {
+  margin-top: 28px;
+}
+
+.vp-doc h5 {
+  margin-top: 24px;
+}
+
 h6 {
   line-height: 21px;
   font-size: 14px;

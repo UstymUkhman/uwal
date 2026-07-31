@@ -1,0 +1,1 @@
+import{_ as l,o as t,c as a,a0 as r}from"./chunks/framework.C0DMgDrp.js";const _=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"Modules.md","filePath":"Modules.md"}'),i={name:"Modules.md"};function o(s,e,h,d,m,n){return t(),a("div",null,[...e[0]||(e[0]=[r("",2)])])}const c=l(i,[["render",o]]);export{_ as __pageData,c as default};
