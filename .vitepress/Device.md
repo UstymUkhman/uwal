@@ -270,7 +270,7 @@ Get an optimal [GPUTextureFormat](https://www.w3.org/TR/webgpu/#enumdef-gputextu
 
 `GPUTextureFormat`
 
-The only possible formats are `"rgba8unorm"` and `"bgra8unorm"`.
+The only possible values are `"rgba8unorm"` and `"bgra8unorm"`.
 
 <a id="version"></a>
 
