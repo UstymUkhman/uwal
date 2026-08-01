@@ -33,7 +33,7 @@ import * as UWAL from "#/index";
     const Camera = new UWAL.PerspectiveCamera();
     const Cube = new UWAL.Mesh(CubeGeometry);
 
-    CubeGeometry.SetPrimitive("cube");
+    CubeGeometry.Primitive = "cube";
     const scene = new UWAL.Scene();
     Cube.Scaling = 2;
     scene.Add(Cube);

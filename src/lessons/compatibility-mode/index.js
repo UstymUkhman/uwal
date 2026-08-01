@@ -62,7 +62,7 @@ import * as UWAL from "#/index";
     const module = CubePipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Cubemap]);
     const Texture = new (await UWAL.TextureUtils(Renderer));
     Cube.Transform = [void 0, settings.rotation, 2];
-    CubeGeometry.SetPrimitive("cube");
+    CubeGeometry.Primitive = "cube";
 
     const texture = await createTextureFromSources([
         { faceColor: "#F00", textColor: "#0FF", text: "+X" },

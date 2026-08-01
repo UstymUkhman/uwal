@@ -32,7 +32,7 @@ import * as UWAL from "#/index";
     const Cube = new UWAL.Mesh(Geometry);
     const scene = new UWAL.Scene();
 
-    Geometry.SetPrimitive("cube");
+    Geometry.Primitive = "cube";
     const rotation = [0, 0, 0];
     Cube.Scaling = 2;
     scene.Add(Cube);
