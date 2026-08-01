@@ -47,8 +47,6 @@ export async function run(canvas)
     const initialPerspectiveRotation = UWAL.MathUtils.Vec3.create();
 
     const CubeGeometry = new UWAL.Geometries.Mesh("Cube", "uint16");
-    CubeGeometry.Primitive = UWAL.Geometries.Primitives.cube();
-
     const Texture = new (await UWAL.TextureUtils(Renderer));
     const source = await Texture.CreateImageBitmap(Dice);
     texture = await Texture.CopyImageToTexture(source);
@@ -67,30 +65,31 @@ export async function run(canvas)
         ])
     });
 
+    CubeGeometry.Primitive = "cube";
+
     const perspectiveCube = new UWAL.Mesh(CubeGeometry);
     const orthographicCube = new UWAL.Mesh(CubeGeometry);
 
     perspectiveCube.SetRenderPipeline(CubePipeline, [
         perspectiveCamera.SetRenderPipeline(CubePipeline),
-        Texture.CreateSampler({ filter: UWAL.TEXTURE.FILTER.LINEAR }),
+        Texture.CreateSampler({ filter: "linear" }),
         texture
     ], [UWAL.BINDINGS.CAMERA_MATRIX, 0, 1]);
 
     orthographicCube.SetRenderPipeline(CubePipeline, [
         orthographicCamera.SetRenderPipeline(CubePipeline),
-        Texture.CreateSampler({ filter: UWAL.TEXTURE.FILTER.LINEAR }),
+        Texture.CreateSampler({ filter: "linear" }),
         texture
     ], [UWAL.BINDINGS.CAMERA_MATRIX, 0, 1]);
 
-    CubeGeometry.AddVertexBuffer(CubePipeline, new Float32Array(
-    [
+    CubeGeometry.AddUVBuffer(CubePipeline, new Float32Array([
         0.5 , 0.5, 0.75, 0.5, 0.5 , 1  , 0.75, 1  , // Top
         0.25, 0.5, 0.5 , 0.5, 0.25, 1  , 0.5 , 1  , // Bottom
         0   , 0  , 0   , 0.5, 0.25, 0  , 0.25, 0.5, // Front
         0.5 , 0  , 0.5 , 0.5, 0.75, 0  , 0.75, 0.5, // Back
         0   , 0.5, 0.25, 0.5, 0   , 1  , 0.25, 1  , // Left
         0.25, 0  , 0.5 , 0  , 0.25, 0.5, 0.5 , 0.5  // Right
-    ]), "uv", "vertexUV");
+    ]));
 
     scene.Add([perspectiveCamera, orthographicCamera]);
     scene.Add([perspectiveCube, orthographicCube]);

@@ -99,41 +99,18 @@ export async function run(canvas)
     function createMeshes(gridSize, halfSize, offset, g = 0)
     {
         const primitives = [
-            UWAL.Geometries.Primitives.box,
-            () => UWAL.Geometries.Primitives.circle({ closed: true }),
-            () => UWAL.Geometries.Primitives.plane({ nx: 10, quads: true }),
-            UWAL.Geometries.Primitives.quad,
-            null,
-            UWAL.Geometries.Primitives.plane,
-            UWAL.Geometries.Primitives.roundedRectangle,
-            UWAL.Geometries.Primitives.stadium,
-            null,
-            UWAL.Geometries.Primitives.ellipse,
-            UWAL.Geometries.Primitives.disc,
-            UWAL.Geometries.Primitives.superellipse,
-            UWAL.Geometries.Primitives.squircle,
-            UWAL.Geometries.Primitives.annulus,
-            UWAL.Geometries.Primitives.reuleux,
-            null,
-            UWAL.Geometries.Primitives.cube,
-            UWAL.Geometries.Primitives.roundedCube,
-            null,
-            UWAL.Geometries.Primitives.sphere,
-            UWAL.Geometries.Primitives.icosphere,
-            UWAL.Geometries.Primitives.ellipsoid,
-            null,
-            UWAL.Geometries.Primitives.cylinder,
-            UWAL.Geometries.Primitives.cone,
-            UWAL.Geometries.Primitives.capsule,
-            UWAL.Geometries.Primitives.torus,
-            null,
-            UWAL.Geometries.Primitives.tetrahedron,
-            UWAL.Geometries.Primitives.icosahedron
+            "box", "circle", "plane", "quad", null,
+            "plane", "roundedRectangle", "stadium", null,
+            "ellipse", "disc", "superellipse", "squircle", "annulus", "reuleux", null,
+            "cube", "roundedCube", null,
+            "sphere", "icosphere", "ellipsoid", null,
+            "cylinder", "cone", "capsule", "torus", null,
+            "tetrahedron", "icosahedron"
         ];
 
-        primitives.forEach((primitive, p) =>
+        primitives.forEach((name, n) =>
         {
-            if (!primitive)
+            if (!name)
             {
                 if (g % gridSize)
                     g += gridSize - (g % gridSize);
@@ -142,20 +119,18 @@ export async function run(canvas)
             }
 
             const Geometry = new UWAL.Geometries.Mesh(void 0, "uint16");
-            const Primitive = Geometry.Primitive = primitive();
-            const resources = wireResources.filter(Boolean);
-
             const mesh = new UWAL.Mesh(Geometry);
-            mesh.SetRenderPipeline(WirePipeline, resources, wireBindings.slice(1));
 
-            if (p < 3)
-                p !== 1 && mesh.Geometry.CreateEdgeBuffer(WirePipeline, 4);
-
+            if (n < 3)
+            {
+                Geometry.Primitive = { name, args: n < 2 ? { closed: true } : { nx: 10, quads: true } };
+                mesh.SetRenderPipeline(WirePipeline, wireResources.filter(Boolean), wireBindings.slice(1));
+                n !== 1 && mesh.Geometry.CreateEdgeBuffer(WirePipeline, Geometry.Primitive?.cells, 4);
+            }
             else
             {
+                Geometry.Primitive = { name, vertexEntry: "baseVertex", normals: true, uvs: true };
                 mesh.SetRenderPipeline(BasePipeline, baseResources.filter(Boolean), baseBindings.slice(1));
-                Geometry.AddNormalBuffer(BasePipeline, Primitive.normals, "baseVertex");
-                Geometry.AddUVBuffer(BasePipeline, Primitive.uvs, "baseVertex");
             }
 
             mesh.Position = [
@@ -244,19 +219,20 @@ export async function run(canvas)
         grid.Traverse(mesh =>
         {
             if (m++ < 4) return;
+            const { cells } = mesh.Geometry.Primitive;
             baseResources[0] = wireResources[0] = mesh.MatrixBuffer;
 
             if (!mode[0])
             {
                 mesh.Pipeline = BasePipeline;
-                mesh.Geometry.CreateIndexBuffer(BasePipeline, mesh.Geometry.Primitive.cells);
+                mesh.Geometry.CreateIndexBuffer(BasePipeline, cells);
                 mesh.BindGroups = BasePipeline.SetBindGroupFromResources(baseResources, baseBindings);
             }
 
             if (mode[0] === 4)
             {
                 mesh.Pipeline = WirePipeline;
-                mesh.Geometry.CreateEdgeBuffer(WirePipeline);
+                mesh.Geometry.CreateEdgeBuffer(WirePipeline, cells);
                 mesh.BindGroups = WirePipeline.SetBindGroupFromResources(wireResources, wireBindings);
             }
         });
