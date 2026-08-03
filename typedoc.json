@@ -15,7 +15,8 @@
     "plugin":
     [
         "typedoc-plugin-markdown",
-        "typedoc-vitepress-theme"
+        "typedoc-vitepress-theme",
+        "typedoc-plugin-no-inherit"
     ],
 
     "entryPoints":
@@ -23,6 +24,7 @@
         "lib/Device.js",
         "lib/Scene.js",
         "lib/Errors.js",
+        "lib/cameras/Camera2D.js",
         "lib/textures/index.js",
         "lib/textures/Texture.js",
         "lib/textures/Constants.js",

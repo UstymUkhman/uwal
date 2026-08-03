@@ -7,7 +7,10 @@
 ### Camera
 
 ```ts
-type Camera = Camera2D | PerspectiveCamera | OrthographicCamera;
+type Camera = 
+  | Camera2D
+  | PerspectiveCamera
+  | OrthographicCamera;
 ```
 
 #### Type Parameters
