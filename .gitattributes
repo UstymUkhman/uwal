@@ -1,2 +1,4 @@
 .vitepress/* linguist-documentation
+build/* linguist-documentation
+dist/* linguist-documentation
 docs/* linguist-documentation
