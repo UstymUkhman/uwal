@@ -22,13 +22,16 @@
     "entryPoints":
     [
         "lib/Device.js",
-        "lib/Scene.js",
         "lib/Errors.js",
+        "lib/Scene.js",
         "lib/cameras/Camera2D.js",
-        "lib/textures/index.js",
-        "lib/textures/Texture.js",
-        "lib/textures/Constants.js",
+        "lib/cameras/Camera3D.js",
+        "lib/cameras/OrthographicCamera.js",
+        "lib/cameras/PerspectiveCamera.js",
         "lib/text/MSDFText.js",
+        "lib/textures/Constants.js",
+        "lib/textures/Texture.js",
+        "lib/textures/index.js",
         "lib/utils/Color.js",
         "lib/utils/Math.js"
     ],
