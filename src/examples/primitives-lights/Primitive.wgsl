@@ -55,7 +55,10 @@ struct Mesh
         let fdx = dpdx(mesh.worldPosition);
         let fdy = dpdy(mesh.worldPosition);
 
-        normal = normalize(cross(fdx, fdy));
+        // Calculate the face normal:
+        normal = normalize(cross(fdy, fdx));
+
+        // Use it instead of a solid color:
         rgb = normal;
     }
 
@@ -67,10 +70,11 @@ struct Mesh
 
     let pointLight = GetPointLight(PointLight, mesh.pointDirection, mesh.cameraDirection, normal);
     let spotLight = GetSpotLight(SpotLight, mesh.spotDirection, mesh.cameraDirection, normal);
+    let directionalLight = GetDirectionalLight(DirectionalLight, normal);
 
-    var diffuse = GetDirectionalLight(DirectionalLight, normal);
+    var diffuse = GetAmbientLight();
     let specular = pointLight.specular + spotLight.specular;
 
-    diffuse += pointLight.diffuse + spotLight.diffuse;
+    diffuse += directionalLight + pointLight.diffuse + spotLight.diffuse;
     return vec4f(rgb * diffuse + specular, 1);
 }

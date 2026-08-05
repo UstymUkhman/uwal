@@ -63,13 +63,8 @@ export async function run(canvas)
     color.set(new UWAL.Color(0xffffff).rgba);
     WirePipeline.WriteBuffer(colorBuffer, color.buffer);
     const Geometry = new UWAL.Geometries.Mesh("Dummy", "uint16");
-
     let baseResources = [modeBuffer, Texture.CreateSampler(), texture];
     const wireResources = [void 0, colorBuffer, Camera.SetRenderPipeline(BasePipeline)];
-
-    const baseBindings = (wireBindings = [
-        UWAL.BINDINGS.MESH_MATRIX, UWAL.BINDINGS.MESH_COLOR, UWAL.BINDINGS.CAMERA_MATRIX
-    ]).concat(UWAL.BINDINGS.DIRECTIONAL_LIGHT, UWAL.BINDINGS.POINT_LIGHT, UWAL.BINDINGS.SPOT_LIGHT, 0, 1, 2);
 
     await Renderer.AddPipeline(WirePipeline, {
         vertex: WirePipeline.CreateVertexState(wireModule, void 0, Geometry.GetPositionBufferLayout(WirePipeline)),
@@ -95,6 +90,18 @@ export async function run(canvas)
     scene.Add(grid);
     scene.AddMainCamera(Camera);
     Camera.Position = [-8, 4, 8];
+
+    const baseBindings = (wireBindings = [
+        UWAL.BINDINGS.MESH_MATRIX,
+        UWAL.BINDINGS.MESH_COLOR,
+        UWAL.BINDINGS.CAMERA_MATRIX
+    ]).concat(
+        UWAL.BINDINGS.AMBIENT_LIGHT,
+        UWAL.BINDINGS.DIRECTIONAL_LIGHT,
+        UWAL.BINDINGS.POINT_LIGHT,
+        UWAL.BINDINGS.SPOT_LIGHT,
+        0, 1, 2
+    );
 
     function createMeshes(gridSize, halfSize, offset, g = 0)
     {
@@ -175,18 +182,21 @@ export async function run(canvas)
         const DirectionalLight = new UWAL.DirectionalLight([0, -1, -1]);
         PointLight = new UWAL.PointLight([pointX = -x, 1, pointZ = 0]);
         SpotLight = new UWAL.SpotLight([spotX = x, 1, spotZ = 0]);
-
-        const rad15 = UWAL.MathUtils.DegreesToRadians(15);
-        const rad30 = UWAL.MathUtils.DegreesToRadians(30);
+        const AmbientLight = new UWAL.AmbientLight();
 
         SpotLight.LookAt([-1, -0.5, -1]);
-        SpotLight.Limit = [rad15, rad30];
+        SpotLight.Limit = [
+            UWAL.MathUtils.DegreesToRadians(15),
+            UWAL.MathUtils.DegreesToRadians(30)
+        ];
 
         DirectionalLight.Intensity = 0.2;
+        AmbientLight.Intensity = 0.1;
         PointLight.Intensity = 0x400;
         SpotLight.Intensity = 0x800;
 
         baseResources = wireResources.concat(
+            AmbientLight.SetRenderPipeline(BasePipeline),
             DirectionalLight.SetRenderPipeline(BasePipeline),
             PointLight.SetRenderPipeline(BasePipeline),
             SpotLight.SetRenderPipeline(BasePipeline),
