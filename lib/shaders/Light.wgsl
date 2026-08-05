@@ -77,12 +77,12 @@ fn GetLight(
     let direction = normalize(lightDirection);
 
     // Calculate the amount of light reflected into the camera.
-    var specular = dot(normalize(camera + direction), normal);
+    let specular = dot(normalize(camera + direction), normal);
 
-    // Avoid negative specular values.
-    specular = pow(max(specular, 0), intensity);
-
-    return Light(dot(normal, direction) * colorAmount, specular * colorAmount);
+    return Light(
+        max(dot(normal, direction), 0) * colorAmount,
+        pow(max(specular, 0), intensity) * colorAmount
+    );
 }
 
 fn GetPointLight(
