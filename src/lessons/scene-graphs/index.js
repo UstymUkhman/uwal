@@ -108,10 +108,10 @@ import Cube from "./Cube.wgsl";
     ];
 
     const CubeGeometry = new UWAL.Geometries.Mesh("Cube", "uint16");
-    CubeGeometry.Primitive = UWAL.Geometries.Primitives.cube();
     const CubePipeline = new Renderer.Pipeline();
     const Camera = new UWAL.PerspectiveCamera();
     const color = new UWAL.Color(0xffffff);
+    CubeGeometry.Primitive = "cube";
 
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
     const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;

@@ -48,7 +48,7 @@ export async function run(canvas)
 
     const module = Pipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Curtains]);
     const { curtains, buffer } = Pipeline.CreateUniformBuffer("curtains");
-    Geometry.Primitive = UWAL.Geometries.Primitives.plane({ nx: 50, ny: 37 });
+    Geometry.Primitive = { name: "plane", args: { nx: 50, ny: 37 } };
 
     const TextPipeline = await Text.CreateRenderPipeline(Renderer, {
         multisample: Pipeline.CreateMultisampleState()
