@@ -1,0 +1,1 @@
+import{_ as a,o as t,c as s,a0 as i}from"./chunks/framework.C0DMgDrp.js";const k=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"Device.md","filePath":"Device.md"}'),r={name:"Device.md"};function h(n,e,d,o,l,p){return t(),s("div",null,[...e[0]||(e[0]=[i("",111)])])}const u=a(r,[["render",h]]);export{k as __pageData,u as default};

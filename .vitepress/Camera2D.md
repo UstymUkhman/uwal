@@ -6,7 +6,7 @@
 
 ### Camera2D
 
-Camera manager class for scenes using only 2D nodes and shapes.
+Camera manager class for scenes using 2D nodes and shapes.
 
 #### Extends
 
@@ -22,7 +22,7 @@ Camera manager class for scenes using only 2D nodes and shapes.
 CullTest: 0 | 1 | 2 = 2;
 ```
 
-Defaults to axis-aligned bounding box
+Defaults to axis-aligned bounding box.
 
 #### Constructors
 
@@ -38,8 +38,8 @@ new Camera2D(rendererWidth?, height?): Camera2D;
 
 | Parameter | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| `rendererWidth?` | `number` \| `RenderStage` | `innerWidth` | `Renderer` instance or the width of the viewport |
-| `height?` | `number` | `innerHeight` | The height of the viewport, optional when called with `Renderer` instance |
+| `rendererWidth?` | `number` \| `RenderStage` | `innerWidth` | Width of the viewport or a `Renderer` instance. |
+| `height?` | `number` | `innerHeight` | Height of the viewport, optional when called with a `Renderer` instance. |
 
 ###### Returns
 
@@ -61,7 +61,7 @@ Node2D.constructor
 UpdateProjectionMatrix(): void;
 ```
 
-Update the camera's projection matrix and write the result into the corresponding uniform buffer if present.
+Compute the projection matrix and write the result into the corresponding uniform buffer if present.
 
 ###### Returns
 
@@ -75,13 +75,13 @@ Update the camera's projection matrix and write the result into the correspondin
 SetRenderPipeline(Pipeline): GPUBuffer;
 ```
 
-Create an internal uniform buffer for this camera's projection matrix.
+Create and update an internal uniform buffer of this camera's projection matrix.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `Pipeline` | `RenderPipelineInstance` | Pipeline using this camera's projection matrix |
+| `Pipeline` | `RenderPipelineInstance` | Pipeline that uses this camera's projection. |
 
 ###### Returns
 
@@ -96,13 +96,13 @@ Contains(Shape): boolean;
 ```
 
 Check if a shape is contained in the camera's viewport when cull testing is performed.
-Its use is discouraged since this method is called internally on every render.
+This method is called internally on every render when cull testing is enabled.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `Shape` | `Shape` | 2D shape to test for culling |
+| `Shape` | `Shape` | 2D shape to test for culling. |
 
 ###### Returns
 
@@ -156,7 +156,7 @@ set Size(size): void;
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `size` | `number`[] \| `Float32Array`\<`ArrayBufferLike`\> | Viewport width and height |
+| `size` | `number`[] \| `Float32Array`\<`ArrayBufferLike`\> | Camera's viewport width and height. |
 
 ###### Returns
 
@@ -176,7 +176,7 @@ get Position(): Float32Array<ArrayBufferLike>;
 
 `Float32Array`\<`ArrayBufferLike`\>
 
-Camera position in 2D space.
+Camera's position in 2D space.
 
 ###### Set Signature
 
@@ -188,7 +188,7 @@ set Position(position): void;
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `position` | `Float32Array`\<`ArrayBufferLike`\> | Camera position in 2D space |
+| `position` | `Float32Array`\<`ArrayBufferLike`\> | Camera's position in 2D space. |
 
 ###### Returns
 
@@ -214,7 +214,7 @@ set PositionZ(z): void;
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `z` | `number` | Position on the Z-axis used in light calculations |
+| `z` | `number` | Camera's position on the Z-axis used in light calculations. |
 
 ###### Returns
 
@@ -234,4 +234,4 @@ get Position3D(): Float32Array<ArrayBufferLike>;
 
 `Float32Array`\<`ArrayBufferLike`\>
 
-Camera position in 3D space.
+Camera's position in 3D space.

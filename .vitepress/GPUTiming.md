@@ -6,10 +6,10 @@
 
 ### GPUTiming
 
-Utility class levering the `"timestamp-query"` feature when available to monitor GPU timings.
-Feel free to consult [WebGPU Timing Performance](https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html) lesson
-for its usefulness and common pitfalls, and this [example](https://github.com/UstymUkhman/uwal-webgpu-fundamentals/blob/main/src/timing-performance/index.js)
-for the basic usage.
+Utility class levering the `"timestamp-query"` feature when available to monitor GPU performance.
+Check the *WebGPU Timing Performance* [lesson](https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html)
+and this [example](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#timing-performance)
+for its usefulness, common pitfalls, and the basic usage.
 
 #### Constructors
 
@@ -25,7 +25,7 @@ new GPUTiming(stage): GPUTiming;
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `stage` | `RenderStage` \| `ComputeStage` | `Computation` or `Renderer` instance used for monitoring |
+| `stage` | `RenderStage` \| `ComputeStage` | `Computation` or `Renderer` instance used for monitoring. |
 
 ###### Returns
 
@@ -45,14 +45,14 @@ new GPUTiming(stage): GPUTiming;
 ResolveAndSubmit(): Promise<number>;
 ```
 
-Copy timestamp results to a `GPUBuffer` and measure the duration between the current and the previous pass.<br />
-*NOTE*: Must be called after `Computation.Compute` or `Renderer.Render` (with the `submit` flag set to `false`).
+Copy timestamp results into a `GPUBuffer` and measure the duration between the current and the previous pass.
+Must be called after `Computation.Compute` or `Renderer.Render` (with the `submit` flag set to `false`).
 
 ###### Returns
 
 `Promise`\<`number`\>
 
-GPU duration of the current pass; `NaN` if the measurement failed for configuration reasons.
+GPU duration of the current pass. `NaN` if the measurement failed for configuration reasons.
 
 <a id="destroy"></a>
 
@@ -62,7 +62,7 @@ GPU duration of the current pass; `NaN` if the measurement failed for configurat
 Destroy(): void;
 ```
 
-Destroy the query set, `GPUBuffer`s and reset internal state.
+Destroy the query set and internal buffers.
 
 ###### Returns
 
@@ -88,7 +88,7 @@ get QuerySet(): Promise<GPUQuerySet | undefined>;
 
 `Promise`\<`GPUQuerySet` \| `undefined`\>
 
-A query set to use in `Computation|Renderer.CreateTimestampWrites` method.
+A query set to use in the [CreateTimestampWrites](./BaseStage#createtimestampwrites) method.
 
 <a id="enabled"></a>
 
@@ -104,4 +104,4 @@ get Enabled(): boolean;
 
 `boolean`
 
-`true` if `"timestamp-query"` feature is available after initialization, `false` otherwise.
+Whether the `"timestamp-query"` feature is available after initialization.

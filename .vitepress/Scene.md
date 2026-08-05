@@ -2,15 +2,12 @@
 
 ## Type Aliases
 
-<a id="camera"></a>
+<a id="scenenode"></a>
 
-### Camera
+### SceneNode
 
 ```ts
-type Camera = 
-  | Camera2D
-  | PerspectiveCamera
-  | OrthographicCamera;
+type SceneNode = Node2D | Node;
 ```
 
 #### Type Parameters
@@ -20,12 +17,15 @@ type Camera =
 
 ***
 
-<a id="scenenode"></a>
+<a id="camera"></a>
 
-### SceneNode
+### Camera
 
 ```ts
-type SceneNode = Node | Node2D;
+type Camera = 
+  | Camera2D
+  | OrthographicCamera
+  | PerspectiveCamera;
 ```
 
 #### Type Parameters
@@ -39,8 +39,8 @@ type SceneNode = Node | Node2D;
 
 ### Scene
 
-Content manager for the `canvas` element. Used to add, search, update
-and remove Nodes, 2D Shapes, and 3D Meshes within the rendering pipeline.
+Content manager for objects rendered onto the `canvas` element.
+Used to add, search, update, and remove nodes, 2D shapes, and 3D meshes within the rendering pipeline.
 
 #### Properties
 
@@ -72,7 +72,7 @@ List of all elements in the scene graph.
 MainCamera: Camera | undefined;
 ```
 
-Camera from whose point of view the scene will be rendered.
+Camera from the point of view of which the scene will be rendered.
 
 #### Constructors
 
@@ -88,7 +88,7 @@ new Scene(label?): Scene;
 
 | Parameter | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| `label?` | `string` | `"Scene"` | Name of the scene |
+| `label?` | `string` | `"Scene"` | Name of the scene. |
 
 ###### Returns
 
@@ -110,7 +110,7 @@ Add any `Mesh`, `Shape` or `SceneNode` element(s) to the scene graph.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `children` | [`SceneNode`](#scenenode) \| [`SceneNode`](#scenenode)[] | List of elements to add |
+| `children` | [`SceneNode`](#scenenode) \| [`SceneNode`](#scenenode)[] | Element(s) to add. |
 
 ###### Returns
 
@@ -125,13 +125,13 @@ Remove(children): void;
 ```
 
 Remove any `Mesh`, `Shape` or `SceneNode` element(s) from the scene graph.
-Only unlinking is performed; the `Destroy` method on removed element(s) is not called.
+Only unlinking is performed, the `Destroy` method on removed element(s) is not called.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `children` | [`SceneNode`](#scenenode) \| [`SceneNode`](#scenenode)[] | List of elements to remove |
+| `children` | [`SceneNode`](#scenenode) \| [`SceneNode`](#scenenode)[] | Element(s) to remove. |
 
 ###### Returns
 
@@ -145,14 +145,14 @@ Only unlinking is performed; the `Destroy` method on removed element(s) is not c
 AddMainCamera(camera): void;
 ```
 
-Add a [`Camera`](./Scene.md#camera) as a child of the scene and assign it to the [`MainCamera`](./Scene.md#maincamera) property.
+Add a [`Camera`](#camera) as a child of the scene and assign it to the [`MainCamera`](#maincamera) property.
 To switch to a different camera, simply assign it to the `MainCamera` member.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `camera` | [`Camera`](#camera) | Camera to use |
+| `camera` | [`Camera`](#camera) | Camera to use. |
 
 ###### Returns
 
@@ -185,14 +185,14 @@ Its use is discouraged since this method is called internally on every render.
 Traverse(callback): void;
 ```
 
-Perform the `callback` function on every element of the scene graph.<br />
-*NOTE*: The scene itself will be **excluded** from the iteration.
+Perform the `callback` function on every element of the scene graph.
+The scene itself will be **excluded** from the iteration.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `callback` | (`node`) => `unknown` | Function to call with the reference of the child element |
+| `callback` | (`node`) => `unknown` | Function to call with the child element. |
 
 ###### Returns
 
@@ -206,8 +206,8 @@ Perform the `callback` function on every element of the scene graph.<br />
 Destroy(): void;
 ```
 
-Call the `Destroy` method on every element of the scene graph when available.
-Remove all [children](./Scene.md#children) and reset the [`MainCamera`](./Scene.md#maincamera) member.
+Call the `Destroy` method on every element of the scene graph if available.
+Remove all [children](#children) and reset the `MainCamera` member.
 
 ###### Returns
 
@@ -230,4 +230,4 @@ get WorldMatrix(): Float32Array<ArrayBufferLike>;
 `Float32Array`\<`ArrayBufferLike`\>
 
 The world matrix of the scene. Its use is discouraged since this
-getter is called internally when updating camera's view projection matrix.
+getter is called internally when updating the camera's view projection matrix.

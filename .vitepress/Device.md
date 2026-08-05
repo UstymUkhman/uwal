@@ -51,11 +51,11 @@ type CanvasConfiguration = Omit<GPUCanvasConfiguration, "device">;
 
 ### Device
 
-Static class used to request and manage your [GPUAdapter](https://www.w3.org/TR/webgpu/#gpuadapter) and
-[GPUDevice](https://www.w3.org/TR/webgpu/#gpudevice) with specified features and limits when provided.
-It can cleanup resources like [GPUBuffer](https://www.w3.org/TR/webgpu/#gpubuffer)s,
-[GPUTexture](https://www.w3.org/TR/webgpu/#gputexture)s and [GPUQuerySet](https://www.w3.org/TR/webgpu/#gpuqueryset)s
-when no longer required and destroy the current `GPUDevice`.
+Static class for requesting and managing the [GPUAdapter](https://www.w3.org/TR/webgpu/#gpuadapter) and the
+[GPUDevice](https://www.w3.org/TR/webgpu/#gpudevice) instances with specified features and limits when provided.
+It can clean up [GPUBuffer](https://www.w3.org/TR/webgpu/#gpubuffer),
+[GPUTexture](https://www.w3.org/TR/webgpu/#gputexture), and [GPUQuerySet](https://www.w3.org/TR/webgpu/#gpuqueryset)
+resources when no longer required and destroy the current `GPUDevice`.
 
 #### Properties
 
@@ -68,7 +68,7 @@ static OnLost: ((detail) => unknown) | undefined;
 ```
 
 Callback with a [GPUDeviceLostInfo](https://www.w3.org/TR/webgpu/#gpudevicelostinfo) argument to call when a
-`GPUDevice` is lost. When present, prevents an [`ERROR.DEVICE_LOST`](./Errors.md#errorcause) from being thrown.
+`GPUDevice` is lost. When present, prevents an [`ERROR.DEVICE_LOST`](./Errors#errorcause) from being thrown.
 
 #### Methods
 
@@ -83,15 +83,15 @@ static CreateQuerySet(
 label?): Promise<GPUQuerySet | undefined>;
 ```
 
-Create and cache a new [GPUQuerySet](https://www.w3.org/TR/webgpu/#gpuqueryset).
+Create and cache a new `GPUQuerySet`.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `type` | `GPUQueryType` | The type of queries managed by the `GPUQuerySet` |
-| `count` | `number` | The number of queries managed by the `GPUQuerySet` |
-| `label?` | `string` | `GPUQuerySet` label, defaults to [DescriptorLabel](./Device.md#descriptorlabel) when not provided |
+| `type` | `GPUQueryType` | The type of queries managed by the `GPUQuerySet`. |
+| `count` | `number` | The number of queries managed by the `GPUQuerySet`. |
+| `label?` | `string` | `GPUQuerySet` label. Defaults to [DescriptorLabel](#descriptorlabel) when not provided. |
 
 ###### Returns
 
@@ -112,18 +112,16 @@ static Destroy(
    querySets?): void;
 ```
 
-Remove initialized `GPUAdapter` and `GPUDevice` instances, reset internal
-[RequestAdapterOptions](./Device.md#requestadapteroptions)
-and [GPUDeviceDescriptor](https://www.w3.org/TR/webgpu/#gpudevicedescriptor) objects,
-and optionally destroy `GPUBuffer`, `GPUTexture` and `GPUQuerySet` resources if passed as arguments.
+Remove initialized `GPUAdapter` and `GPUDevice` instances, reset internal state, and
+destroy `GPUBuffer`, `GPUTexture`, and `GPUQuerySet` resources if passed as arguments.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `buffers?` | `GPUBuffer` \| `GPUBuffer`[] | Optional buffers to destroy |
-| `textures?` | `GPUTexture` \| `GPUTexture`[] | Optional textures to destroy |
-| `querySets?` | `GPUQuerySet` \| `GPUQuerySet`[] | Optional query sets to destroy |
+| `buffers?` | `GPUBuffer` \| `GPUBuffer`[] | Optional buffers to destroy. |
+| `textures?` | `GPUTexture` \| `GPUTexture`[] | Optional textures to destroy. |
+| `querySets?` | `GPUQuerySet` \| `GPUQuerySet`[] | Optional query sets to destroy. |
 
 ###### Returns
 
@@ -139,14 +137,14 @@ static SetRequiredFeatures(features): Promise<Set<GPUFeatureName>>;
 
 Set optional [features](https://www.w3.org/TR/webgpu/#features) when requesting a `GPUDevice`.
 The request will fail if the `GPUAdapter` cannot provide them.
-Must be called **before** [`Renderer`](./Renderer.md), [`Computation`](./Computation.md),
-[`TextureUtils`](./TextureUtils.md) and [`CreateQuerySet`](./Device.md#createqueryset).
+Must be called **before** initializing the [Renderer](./Renderer), [Computation](./Computation),
+or [TextureUtils](./TextureUtils) or the [CreateQuerySet](#createqueryset) method call.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `features` | `GPUFeatureName` \| `GPUFeatureName`[] | List of fearures to request from the adapter |
+| `features` | `GPUFeatureName` \| `GPUFeatureName`[] | List of fearures to request from the adapter. |
 
 ###### Returns
 
@@ -164,7 +162,7 @@ Must be called **before** [`Renderer`](./Renderer.md), [`Computation`](./Computa
 set static AdapterOptions(options): void;
 ```
 
-Set optional [RequestAdapterOptions](./Device.md#requestadapteroptions) when requesting a `GPUAdapter`.
+Set optional [RequestAdapterOptions](#requestadapteroptions) when requesting a `GPUAdapter`.
 Must be called **before** requesting a `GPUDevice`.
 
 ###### See
@@ -175,7 +173,7 @@ Must be called **before** requesting a `GPUDevice`.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `options` | [`RequestAdapterOptions`](#requestadapteroptions) | Standard `GPURequestAdapterOptions` with an optional `forceCompatibility` flag to enable [compatibility mode](https://www.w3.org/TR/webgpu/#limit-compatibility-mode-default) even when the target device supports core |
+| `options` | [`RequestAdapterOptions`](#requestadapteroptions) | Standard `GPURequestAdapterOptions` with an optional `forceCompatibility` flag to enable [compatibility mode](https://www.w3.org/TR/webgpu/#limit-compatibility-mode-default) even when the target device supports core. |
 
 ###### Returns
 
@@ -193,14 +191,14 @@ set static RequiredLimits(requiredLimits): void;
 
 Set optional device [limits](https://www.w3.org/TR/webgpu/#limits) when requesting a `GPUDevice`.
 The request will fail if the `GPUAdapter` cannot provide them.
-Must be called **before** [`Renderer`](./Renderer.md), [`Computation`](./Computation.md),
-[`TextureUtils`](./TextureUtils.md) and [`CreateQuerySet`](./Device.md#createqueryset).
+Must be called **before** initializing the [Renderer](./Renderer), [Computation](./Computation),
+or [TextureUtils](./TextureUtils) or the [CreateQuerySet](#createqueryset) method call.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `requiredLimits` | `Record`\<`string`, `number`\> \| `undefined` | List of limits to request from the adapter |
+| `requiredLimits` | `Record`\<`string`, `number`\> \| `undefined` | List of limits to request from the adapter. |
 
 ###### Returns
 
@@ -222,7 +220,7 @@ Set the descriptor for the default [GPUQueue](https://www.w3.org/TR/webgpu/#gpuq
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `descriptor` | `GPUQueueDescriptor` \| `undefined` | Default queue descriptor object |
+| `descriptor` | `GPUQueueDescriptor` \| `undefined` | Default queue descriptor object. |
 
 ###### Returns
 
@@ -244,7 +242,7 @@ Set the [descriptor label](https://www.w3.org/TR/webgpu/#gpudevicedescriptor) fo
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `label` | `string` \| `undefined` | Device descriptor label |
+| `label` | `string` \| `undefined` | Device descriptor label. |
 
 ###### Returns
 
@@ -260,7 +258,7 @@ Set the [descriptor label](https://www.w3.org/TR/webgpu/#gpudevicedescriptor) fo
 get static PreferredCanvasFormat(): GPUTextureFormat;
 ```
 
-Get an optimal [GPUTextureFormat](https://www.w3.org/TR/webgpu/#enumdef-gputextureformat) for the current system.
+Get the optimal [GPUTextureFormat](https://www.w3.org/TR/webgpu/#enumdef-gputextureformat) for the current system.
 
 ###### See
 
