@@ -81,7 +81,7 @@ Create and update an internal uniform buffer of this camera's projection matrix.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `Pipeline` | `RenderPipelineInstance` | Pipeline that uses this camera's projection. |
+| `Pipeline` | `RenderPipelineInstance` | Pipeline using this camera's projection. |
 
 ###### Returns
 

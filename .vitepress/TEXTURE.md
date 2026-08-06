@@ -17,36 +17,6 @@ type Usage = Readonly<Record<"RENDER" | "STORAGE", GPUTextureUsageFlags>>;
 
 ***
 
-<a id="address"></a>
-
-### Address
-
-```ts
-type Address = Readonly<Record<"CLAMP" | "REPEAT" | "MIRROR", GPUAddressMode>>;
-```
-
-#### Type Parameters
-
-| Type Parameter |
-| ------ |
-
-***
-
-<a id="filter"></a>
-
-### Filter
-
-```ts
-type Filter = Readonly<Record<"NEAREST" | "LINEAR", GPUFilterMode>>;
-```
-
-#### Type Parameters
-
-| Type Parameter |
-| ------ |
-
-***
-
 <a id="compare"></a>
 
 ### Compare
@@ -129,3 +99,19 @@ const COMPARE: Readonly<Record<Compare, GPUCompareFunction>>;
 ```
 
 Aliases for the `GPUCompareFunction` enum.
+
+## References
+
+<a id="address"></a>
+
+### Address
+
+Renames and re-exports [Addresses](Texture-1.md#addresses)
+
+***
+
+<a id="filter"></a>
+
+### Filter
+
+Renames and re-exports [Filters](Texture-1.md#filters)

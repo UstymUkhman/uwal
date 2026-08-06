@@ -1,0 +1,1 @@
+import{_ as e,o as t,c as s,a0 as i}from"./chunks/framework.C0DMgDrp.js";const u=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"Color.md","filePath":"Color.md"}'),r={name:"Color.md"};function h(n,a,o,d,l,p){return t(),s("div",null,[...a[0]||(a[0]=[i("",142)])])}const k=e(r,[["render",h]]);export{u as __pageData,k as default};

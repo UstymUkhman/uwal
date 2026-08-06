@@ -28,7 +28,7 @@ new MSDFText(label?): MSDFText;
 
 | Parameter | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| `label?` | `string` | `"MSDFText"` | Name of the text |
+| `label?` | `string` | `"MSDFText"` | Text name |
 
 ###### Returns
 

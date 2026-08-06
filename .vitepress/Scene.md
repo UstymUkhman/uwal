@@ -52,7 +52,7 @@ Used to add, search, update, and remove nodes, 2D shapes, and 3D meshes within t
 Label: string;
 ```
 
-Name of the scene.
+Scene name.
 
 <a id="children"></a>
 
@@ -88,7 +88,7 @@ new Scene(label?): Scene;
 
 | Parameter | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| `label?` | `string` | `"Scene"` | Name of the scene. |
+| `label?` | `string` | `"Scene"` | Scene name. |
 
 ###### Returns
 

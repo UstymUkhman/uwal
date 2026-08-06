@@ -1,5 +1,4 @@
 import { defineConfig } from "vitepress";
-import Sidebar from "./typedoc-sidebar.json";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -33,9 +32,78 @@ export default defineConfig({
       {
         text: "Modules",
         link: "/Modules",
-        items: Sidebar.map((item) => ({
-          ...item, link: item.link.replace(".vitepress/", ""),
-        }))
+        items:
+        [
+          { text: "Device", link: "/Device.md" },
+          { text: "Scene", link: "/Scene.md" },
+          { text: "Color", link: "/Color.md" },
+          {
+            text: "Cameras",
+            collapsed: true,
+            items:
+            [{
+              text: "Camera2D",
+              link: "/Camera2D.md"
+            },
+            {
+              text: "Camera3D",
+              link: "/Camera3D.md"
+            },
+            {
+              text: "OrthographicCamera",
+              link: "/OrthographicCamera.md"
+            },
+            {
+              text: "PerspectiveCamera",
+              link: "/PerspectiveCamera.md"
+            }]
+          },
+          {
+            text: "Lights",
+            collapsed: true,
+            items:
+            [{
+              text: "Light",
+              link: "/Light.md"
+            },
+            {
+              text: "AmbientLight",
+              link: "/AmbientLight.md"
+            },
+            {
+              text: "DirectionalLight",
+              link: "/DirectionalLight.md"
+            },
+            {
+              text: "PointLight",
+              link: "/PointLight.md"
+            },
+            {
+              text: "SpotLight",
+              link: "/SpotLight.md"
+            }]
+          },
+          {
+            text: "Textures",
+            collapsed: true,
+            items:
+            [{
+              text: "TextureUtils",
+              link: "/TextureUtils.md"
+            },
+            {
+              text: "Texture",
+              link: "/Texture-1.md"
+            },
+            {
+              text: "TEXTURE",
+              link: "/TEXTURE.md"
+            }]
+          },
+          { text: "MSDFText", link: "/MSDFText.md" },
+          { text: "MathUtils", link: "/MathUtils.md" },
+          { text: "Errors", link: "/Errors.md" }
+        ]
       }
     ],
 

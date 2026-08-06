@@ -2,6 +2,36 @@
 
 ## Type Aliases
 
+<a id="addresses"></a>
+
+### Addresses
+
+```ts
+type Addresses = Readonly<Record<"CLAMP" | "REPEAT" | "MIRROR", GPUAddressMode>>;
+```
+
+#### Type Parameters
+
+| Type Parameter |
+| ------ |
+
+***
+
+<a id="filters"></a>
+
+### Filters
+
+```ts
+type Filters = Readonly<Record<"NEAREST" | "LINEAR", GPUFilterMode>>;
+```
+
+#### Type Parameters
+
+| Type Parameter |
+| ------ |
+
+***
+
 <a id="optionalgpuextent3dstrict"></a>
 
 ### OptionalGPUExtent3DStrict
@@ -682,19 +712,3 @@ set Renderer(renderer): void;
 ###### Returns
 
 `void`
-
-## References
-
-<a id="addresses"></a>
-
-### Addresses
-
-Renames and re-exports [Address](TEXTURE.md#address)
-
-***
-
-<a id="filters"></a>
-
-### Filters
-
-Renames and re-exports [Filter](TEXTURE.md#filter)

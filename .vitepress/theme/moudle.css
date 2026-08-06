@@ -2,24 +2,63 @@ html {
   scrollbar-gutter: stable;
 }
 
-.vp-doc h4 {
-  margin-top: 28px;
-}
+.vp-doc {
+  h1 {
+    font-size: 32px;
 
-.vp-doc h5 {
-  margin-top: 24px;
-}
+    @media (min-width: 768px) {
+      line-height: 45px;
+      font-size: 36px;
+    }
+  }
 
-h6 {
-  line-height: 21px;
-  font-size: 14px;
-}
+  h2 {
+    line-height: 35px;
+    font-size: 28px;
+  }
 
-/* Setters and getters signatures: */
-h6[id^="set-signature"],
-h6[id^="get-signature"],
-/* Type Parameters headings and empty tables: */
-table:not(:has(> tbody)),
-h4[id^="type-parameters"]:has(+ table > thead:only-child) {
-  display: none !important;
+  h3 {
+    line-height: 32px;
+    margin-top: 36px;
+    font-size: 24px;
+  }
+
+  h4 {
+    line-height: 28px;
+    margin-top: 32px;
+    font-size: 20px;
+  }
+
+  h5 {
+    border-top-color: var(--vp-c-divider);
+    border-top-style: solid;
+    border-top-width: 1px;
+
+    padding-top: 28px;
+    line-height: 24px;
+    margin-top: 28px;
+    font-size: 18px;
+
+    a.header-anchor {
+      top: 28px;
+    }
+  }
+
+  h6 {
+    line-height: 24px;
+    font-size: 16px;
+  }
+
+  h4 + p + h5 {
+    border-top: none;
+  }
+
+  /* Setters and getters signatures: */
+  h6[id^="set-signature"],
+  h6[id^="get-signature"],
+  /* Type Parameters headings and empty tables: */
+  table:not(:has(> tbody)),
+  h4[id^="type-parameters"]:has(+ table > thead:only-child) {
+    display: none !important;
+  }
 }

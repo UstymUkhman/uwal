@@ -1,0 +1,1 @@
+import{_ as e,o as a,c as i,a0 as s}from"./chunks/framework.C0DMgDrp.js";const k=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"SpotLight.md","filePath":"SpotLight.md"}'),r={name:"SpotLight.md"};function o(n,t,h,d,l,p){return a(),i("div",null,[...t[0]||(t[0]=[s("",52)])])}const u=e(r,[["render",o]]);export{k as __pageData,u as default};

@@ -6,7 +6,7 @@
 
 ### `abstract` Camera3D
 
-Base class for the [orthographic](./OrthographicCamera) and the [perspective](./PerspectiveCamera) camera.
+Base class for [orthographic](./OrthographicCamera) and [perspective](./PerspectiveCamera) cameras.
 
 #### Extends
 
@@ -58,7 +58,7 @@ new Camera3D(
 | ------ | ------ | ------ | ------ |
 | `near?` | `number` | `1` | Distance to the near plane. |
 | `far?` | `number` | `1e3` | Distance to the far plane. |
-| `label?` | `string` | `undefined` | Name of the camera. |
+| `label?` | `string` | `undefined` | Camera name. |
 
 ###### Returns
 
@@ -169,13 +169,13 @@ Optionally, reset the translation component of the matrix before inverting it.
 LookAt(target, up?): void;
 ```
 
-Rotate the camera to look at the specified point in 3D space.
+Rotate the camera to point at the specified point in 3D space.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `target` | `Float32Array`\<`ArrayBufferLike`\> | `Vec3` point to look at. |
+| `target` | `Float32Array`\<`ArrayBufferLike`\> | Point in 3D space to look at. |
 | `up?` | `Float32Array`\<`ArrayBufferLike`\> | Camera's *up* vector. Defaults to `[0, 1, 0]`. |
 
 ###### Returns
@@ -196,7 +196,7 @@ Create and update an internal uniform buffer of this camera's world, projection,
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `Pipeline` | `RenderPipelineInstance` | Pipeline that uses this camera's projection. |
+| `Pipeline` | `RenderPipelineInstance` | Pipeline using this camera's projection. |
 
 ###### Returns
 

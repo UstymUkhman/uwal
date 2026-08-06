@@ -1,0 +1,1 @@
+import{_ as e,o as t,c as i,a0 as s}from"./chunks/framework.C0DMgDrp.js";const k=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"Camera3D.md","filePath":"Camera3D.md"}'),r={name:"Camera3D.md"};function n(h,a,d,o,l,p){return t(),i("div",null,[...a[0]||(a[0]=[s("",135)])])}const u=e(r,[["render",n]]);export{k as __pageData,u as default};
