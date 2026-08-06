@@ -22,26 +22,37 @@
     "entryPoints":
     [
         "lib/Device.js",
-        "lib/Errors.js",
         "lib/Scene.js",
+        "lib/utils/Color.js",
         "lib/cameras/Camera2D.js",
         "lib/cameras/Camera3D.js",
         "lib/cameras/OrthographicCamera.js",
         "lib/cameras/PerspectiveCamera.js",
-        "lib/text/MSDFText.js",
-        "lib/textures/Constants.js",
-        "lib/textures/Texture.js",
+        "lib/lights/Light.js",
+        "lib/lights/Ambient.js",
+        "lib/lights/Directional.js",
+        "lib/lights/Point.js",
+        "lib/lights/Spot.js",
         "lib/textures/index.js",
-        "lib/utils/Color.js",
-        "lib/utils/Math.js"
+        "lib/textures/Texture.js",
+        "lib/textures/Constants.js",
+        "lib/text/MSDFText.js",
+        "lib/utils/Math.js",
+        "lib/Errors.js"
     ],
+
+    "sidebar":
+    {
+        "autoConfiguration": false
+    },
 
     "validation":
     {
         "notExported": false
     },
 
-    "groupOrder": [
+    "groupOrder":
+    [
         "Type Aliases",
         "Interfaces",
         "Classes",
@@ -53,7 +64,8 @@
         "*"
     ],
 
-    "sort": [
+    "sort":
+    [
         "static-first",
         "visibility",
         "source-order"
