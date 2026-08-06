@@ -52,14 +52,8 @@ struct Mesh
     // Flat Shaded:
     if (mode == 2)
     {
-        let fdx = dpdx(mesh.worldPosition);
-        let fdy = dpdy(mesh.worldPosition);
-
-        // Calculate the face normal:
-        normal = normalize(cross(fdy, fdx));
-
-        // Use it instead of a solid color:
-        rgb = normal;
+        normal = GetFlatFaceNormal(mesh.worldPosition);
+        rgb = normal; // Use it instead of a solid color.
     }
 
     // UV:
