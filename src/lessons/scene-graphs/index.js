@@ -141,7 +141,7 @@ import Cube from "./Cube.wgsl";
     handleColor.set(color.Set(0x7f7f7f).rgba);
     CubePipeline.WriteBuffer(handleBuffer, handleColor.buffer);
 
-    cabinetColor.set(color.Set(0xbfbfbf, 0xbf).rgba);
+    cabinetColor.set(color.Set(0xbfbfbf, 0.75).rgba);
     CubePipeline.WriteBuffer(cabinetBuffer, cabinetColor.buffer);
 
     Array.from({ length: cabinets }).forEach((_, c) => addCabinet(scene, c));

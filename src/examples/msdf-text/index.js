@@ -93,7 +93,7 @@ export async function run(canvas)
         rows = Math.ceil(height / 40);
         columns = Math.ceil(charWidth);
 
-        dark.Set(0x5e81ac, 0x40);
+        dark.Set(0x5e81ac, 0.25);
         let x = charWidth / 8;
 
         if (height <= 880)
