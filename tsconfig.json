@@ -7,7 +7,6 @@
         "forceConsistentCasingInFileNames": true,
         "allowSyntheticDefaultImports": true,
         "typeRoots": ["node_modules/@types"],
-
         "paths": { "#/*": ["./lib/*"] },
         "moduleResolution": "bundler",
         "verbatimModuleSyntax": true,
@@ -35,6 +34,7 @@
         "outDir": "types",
         "checkJs": false,
         "allowJs": true,
+        "rootDir": "./",
         "strict": true
     }
 }

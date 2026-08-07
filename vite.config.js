@@ -1,4 +1,4 @@
-import { name, version } from "./package.json";
+import { name, version } from "./package.json" with { type: "json" };
 import terser from "@rollup/plugin-terser";
 import { minifySync } from "oxc-minify";
 import { defineConfig } from "vite";
