@@ -34,6 +34,7 @@ export async function run(canvas)
     let PointLight, SpotLight, lastTime = 0;
     const { Vec2, Vec3 } = UWAL.MathUtils;
     const frequency = 8, amplitude = 2.4;
+    let pointX, pointZ, spotX, spotZ;
     const startTime = Date.now();
 
     const grid = new UWAL.Node();
@@ -41,39 +42,24 @@ export async function run(canvas)
     const position = Vec3.create();
     const direction = Vec2.create();
 
-    const BasePipeline = new Renderer.Pipeline();
-    const WirePipeline = new Renderer.Pipeline();
-
     const spotDirection = Vec2.create(-0.85, -1);
     const pointDirection = Vec2.create(0.85, -1);
-    let wireBindings, pointX, pointZ, spotX, spotZ;
+    const BasePipeline = new Renderer.Pipeline();
+    const WireMaterial = new UWAL.WireframeMaterial(Renderer);
 
     const Texture = new (await UWAL.TextureUtils(Renderer));
     const source = await Texture.CreateImageBitmap(UV);
     texture = await Texture.CopyImageToTexture(source);
 
-    const baseModule = BasePipeline.CreateShaderModule([
-        UWAL.Shaders.Light, UWAL.Shaders.Mesh, Primitive
-    ]);
-
-    const wireModule = WirePipeline.CreateShaderModule(UWAL.Shaders.Mesh);
+    const baseModule = BasePipeline.CreateShaderModule([UWAL.Shaders.Light, UWAL.Shaders.Mesh, Primitive]);
     const { mode, buffer: modeBuffer } = BasePipeline.CreateUniformBuffer("mode");
-    const { color, buffer: colorBuffer } = WirePipeline.CreateUniformBuffer("color");
-
-    color.set(new UWAL.Color(0xffffff).rgba);
-    WirePipeline.WriteBuffer(colorBuffer, color.buffer);
-    const Geometry = new UWAL.Geometries.Mesh("Dummy", "uint16");
     let baseResources = [modeBuffer, Texture.CreateSampler(), texture];
-    const wireResources = [void 0, colorBuffer, Camera.SetRenderPipeline(BasePipeline)];
+    const Geometry = new UWAL.Geometries.Mesh("Dummy", "uint16");
 
-    await Renderer.AddPipeline(WirePipeline, {
-        vertex: WirePipeline.CreateVertexState(wireModule, void 0, Geometry.GetPositionBufferLayout(WirePipeline)),
-        primitive: WirePipeline.CreatePrimitiveState("line-list"),
-        depthStencil: WirePipeline.CreateDepthStencilState(),
-        multisample: WirePipeline.CreateMultisampleState(),
-        fragment: WirePipeline.CreateFragmentState(wireModule, void 0,
-            WirePipeline.CreateColorTargetState(UWAL.BLEND_STATE.ALPHA_ADDITIVE)
-        )
+    WireMaterial.CameraMatrixBuffer = Camera.SetRenderPipeline(BasePipeline);
+    WireMaterial.Color = new UWAL.Color(0xffffff);
+    await WireMaterial.CreatePipeline({
+        vertex: { buffers: [Geometry.GetPositionBufferLayout(WireMaterial.Pipeline)] }
     });
 
     await Renderer.AddPipeline(BasePipeline, {
@@ -91,11 +77,7 @@ export async function run(canvas)
     scene.AddMainCamera(Camera);
     Camera.Position = [-8, 4, 8];
 
-    const baseBindings = (wireBindings = [
-        UWAL.BINDINGS.MESH_MATRIX,
-        UWAL.BINDINGS.MESH_COLOR,
-        UWAL.BINDINGS.CAMERA_MATRIX
-    ]).concat(
+    const baseBindings = WireMaterial.Bindings.concat(
         UWAL.BINDINGS.AMBIENT_LIGHT,
         UWAL.BINDINGS.DIRECTIONAL_LIGHT,
         UWAL.BINDINGS.POINT_LIGHT,
@@ -105,7 +87,9 @@ export async function run(canvas)
 
     function createMeshes(gridSize, halfSize, offset, g = 0)
     {
-        const primitives = [
+        const { Pipeline, Resources, Bindings } = WireMaterial;
+
+        [
             "box", "circle", "plane", "quad", null,
             "plane", "roundedRectangle", "stadium", null,
             "ellipse", "disc", "superellipse", "squircle", "annulus", "reuleux", null,
@@ -113,41 +97,40 @@ export async function run(canvas)
             "sphere", "icosphere", "ellipsoid", null,
             "cylinder", "cone", "capsule", "torus", null,
             "tetrahedron", "icosahedron"
-        ];
-
-        primitives.forEach((name, n) =>
-        {
-            if (!name)
+        ]
+            .forEach((name, n) =>
             {
-                if (g % gridSize)
-                    g += gridSize - (g % gridSize);
+                if (!name)
+                {
+                    if (g % gridSize)
+                        g += gridSize - (g % gridSize);
 
-                return;
-            }
+                    return;
+                }
 
-            const Geometry = new UWAL.Geometries.Mesh(void 0, "uint16");
-            const mesh = new UWAL.Mesh(Geometry);
+                const Geometry = new UWAL.Geometries.Mesh(void 0, "uint16");
+                const mesh = new UWAL.Mesh(Geometry);
 
-            if (n < 3)
-            {
-                Geometry.Primitive = { name, args: n < 2 ? { closed: true } : { nx: 10, quads: true } };
-                mesh.SetRenderPipeline(WirePipeline, wireResources.filter(Boolean), wireBindings.slice(1));
-                n !== 1 && mesh.Geometry.CreateEdgeBuffer(WirePipeline, Geometry.Primitive?.cells, 4);
-            }
-            else
-            {
-                Geometry.Primitive = { name, vertexEntry: "baseVertex", normals: true, uvs: true };
-                mesh.SetRenderPipeline(BasePipeline, baseResources.filter(Boolean), baseBindings.slice(1));
-            }
+                if (n < 3)
+                {
+                    Geometry.Primitive = { name, args: n < 2 ? { closed: true } : { nx: 10, quads: true } };
+                    mesh.SetRenderPipeline(Pipeline, Resources.filter(Boolean), Bindings.slice(1));
+                    n !== 1 && mesh.Geometry.CreateEdgeBuffer(Pipeline, Geometry.Primitive?.cells, 4);
+                }
+                else
+                {
+                    Geometry.Primitive = { name, vertexEntry: "baseVertex", normals: true, uvs: true };
+                    mesh.SetRenderPipeline(BasePipeline, baseResources.filter(Boolean), baseBindings.slice(1));
+                }
 
-            mesh.Position = [
-                (g % gridSize) * offset - halfSize * offset,
-                0,
-                ~~(g++ / gridSize) * offset,
-            ];
+                mesh.Position = [
+                    (g % gridSize) * offset - halfSize * offset,
+                    0,
+                    ~~(g++ / gridSize) * offset,
+                ];
 
-            grid.Add(mesh);
-        });
+                grid.Add(mesh);
+            });
 
         grid.Position[2] = grid.Children.at(-1).Position[2] / -2;
     }
@@ -195,7 +178,7 @@ export async function run(canvas)
         PointLight.Intensity = 0x400;
         SpotLight.Intensity = 0x800;
 
-        baseResources = wireResources.concat(
+        baseResources = WireMaterial.Resources.concat(
             AmbientLight.SetRenderPipeline(BasePipeline),
             DirectionalLight.SetRenderPipeline(BasePipeline),
             PointLight.SetRenderPipeline(BasePipeline),
@@ -225,12 +208,13 @@ export async function run(canvas)
 
         BasePipeline.WriteBuffer(modeBuffer, mode);
         Camera.Position = [-sin * 12 + 4, sin * 2 + 2, 8];
+        const { Pipeline, Resources, Bindings } = WireMaterial;
 
         grid.Traverse(mesh =>
         {
             if (m++ < 4) return;
             const { cells } = mesh.Geometry.Primitive;
-            baseResources[0] = wireResources[0] = mesh.MatrixBuffer;
+            WireMaterial.MeshMatrixBuffer = baseResources[0] = mesh.MatrixBuffer;
 
             if (!mode[0])
             {
@@ -241,9 +225,9 @@ export async function run(canvas)
 
             if (mode[0] === 4)
             {
-                mesh.Pipeline = WirePipeline;
-                mesh.Geometry.CreateEdgeBuffer(WirePipeline, cells);
-                mesh.BindGroups = WirePipeline.SetBindGroupFromResources(wireResources, wireBindings);
+                mesh.Pipeline = Pipeline;
+                mesh.Geometry.CreateEdgeBuffer(Pipeline, cells);
+                mesh.BindGroups = Pipeline.SetBindGroupFromResources(Resources, Bindings);
             }
         });
 
