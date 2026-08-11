@@ -1,6 +1,6 @@
 {
     "include": ["lib/**/*", "src/**/*", "types.d.ts"],
-    "exclude": ["build", "dist", "node_modules"],
+    "exclude": ["build", "dist", "lib/reflect", "node_modules"],
 
     "compilerOptions":
     {

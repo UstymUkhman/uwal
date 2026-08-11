@@ -1,6 +1,6 @@
 {
     "include": ["lib/**/*.js", "src/**/*.js"],
-    "exclude": ["build", "dist", "node_modules"],
+    "exclude": ["build", "dist", "lib/reflect", "node_modules"],
 
     "compilerOptions":
     {

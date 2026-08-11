@@ -1,0 +1,6 @@
+[submodule "lib/reflect"]
+	path = lib/reflect
+	url = git@github.com:UstymUkhman/wgsl-reflect.git
+	branch = main
+[submodule "./lib/reflect"]
+	branch = main
