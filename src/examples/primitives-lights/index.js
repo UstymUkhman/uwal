@@ -58,7 +58,7 @@ export async function run(canvas)
 
     WireMaterial.CameraMatrixBuffer = Camera.SetRenderPipeline(BasePipeline);
     WireMaterial.Color = new UWAL.Color(0xffffff);
-    await WireMaterial.CreatePipeline({
+    await WireMaterial.AddPipeline({
         vertex: { buffers: [Geometry.GetPositionBufferLayout(WireMaterial.Pipeline)] }
     });
 
