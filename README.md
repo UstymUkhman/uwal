@@ -52,48 +52,54 @@ Given that WebGPU APIs are quite verbose and the UWAL library is fairly modular,
 
 | Module                                                   | Minified | Gzipped |
 | :------------------------------------------------------- | -------: | ------: |
-| Device & Shaders                                         | 327.75kb | 72.36kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ TextureUtils                   | 327.90kb | 72.43kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ 2D Shapes                      | 334.96kb | 74.54kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ 3D Meshes                      | 336.41kb | 74.93kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ Lights | 338.42kb | 75.39kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ MSDF Text                      | 339.36kb | 75.96kb |
-| Total                                                    | 354.44kb | 79.14kb |
+| Device & Shaders                                         | 261.31kb | 55.56kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ 2D Shapes                      | 268.42kb | 58.12kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ 3D Meshes                      | 269.93kb | 58.51kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ Lights | 273.23kb | 59.45kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ MSDF Text                      | 281.66kb | 62.19kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ TextureUtils                   | 327.94kb | 72.51kb |
+| Total                                                    | 355.90kb | 79.70kb |
 
 ## Diagram
 
 ```mermaid
 flowchart TD
   GPU[WebGPU APIs]
-  DEV[Device]
-  APP[Your Appliation]
-
-  BP[Base Pipeline]
+  P[Pipeline]
   CP[Compute Pipeline]
   RP[Render Pipeline]
-  BS[Base Stage]
-  COMP[Computation]
-  RNDR[Renderer]
-  TEX[Texture]
+  S[Stage]
+  C[Computation]
+  R[Renderer]
+  MAT[Materials]
+  APP[Your Appliation]
+  DEV[Device]
 
   GPU  --> DEV
-  DEV  --> BS
-  DEV  --> TEX
-  BS   --> COMP
-  BS   --> RNDR
-  COMP --> CP
-  COMP --> APP
-  BP   --> CP
-  BP   --> RP
+  DEV  --> APP
+  GPU  --> P
+  GPU  --> S
+  P    --> CP
+  P    --> RP
+  CP   --> C
+  S    --> C
+  S    --> R
+  RP   --> R
+  RP   --> MAT
   CP   --> APP
+  C    --> APP
+  R    --> APP
+  MAT  --> APP
   RP   --> APP
-  RNDR --> RP
-  RNDR --> APP
+
+  Lights   --> APP
+  Color    --> APP
+  MSDFText --> APP
 
   ND2[Node2D]
   GEO[Geometries]
   ND[Node]
-  CAM[Camera]
+  CAM[Cameras]
   SHP[Shape]
   MESH[Mesh]
   SCN[Scene]
@@ -102,27 +108,22 @@ flowchart TD
   ND2  --> SHP
   ND2  --> CAM
   GEO  --> SHP
-  GEO  --> APP
   GEO  --> MESH
   ND   --> CAM
   ND   --> MESH
-  ND   --> APP
   SHP  --> APP
   SHP  --> SCN
-  MESH --> SCN
-  MESH --> APP
   CAM  --> APP
   CAM  --> SCN
-  RP   --> APP
-  TEX  --> APP
+  MESH --> SCN
   SCN  --> APP
+  MESH --> APP
+  ND   --> APP
 
-  TXT[MSDFText]    --> APP
-  LGHT[Lights]     --> APP
-  COL[Color]       --> APP
-  SHDS[Shaders]    --> APP
-  MATH[MathUtils]  --> APP
-  CONST[Constants] --> APP
+  TextureUtils --> APP
+  MathUtils    --> APP
+  Shaders      --> APP
+  Constants    --> APP
 ```
 
 ## Examples
