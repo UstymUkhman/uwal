@@ -30,19 +30,15 @@ export async function run(canvas)
     }
 
     const color = new UWAL.Color(0x331a4d);
-    const ShapePipeline = new Renderer.Pipeline();
     const DummyGeometry = new UWAL.Geometries.Shape();
-
     const spin = [], speed = [], direction = [], uniform = [];
-    const module = ShapePipeline.CreateShaderModule(UWAL.Shaders.Shape);
-    const cameraBuffer = Camera.SetRenderPipeline(ShapePipeline);
+
+    const FlatMaterial = new UWAL.FlatMaterial(Renderer, void 0, UWAL.Shaders.Shape);
+    const cameraBuffer = Camera.SetRenderPipeline(FlatMaterial.Pipeline);
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(color));
 
-    await Renderer.AddPipeline(ShapePipeline, {
-        fragment: ShapePipeline.CreateFragmentState(module),
-        vertex: ShapePipeline.CreateVertexState(module, void 0,
-            DummyGeometry.GetPositionBufferLayout(ShapePipeline)
-        )
+    await FlatMaterial.AddPipeline({
+        vertex: { buffers: [DummyGeometry.GetPositionBufferLayout(FlatMaterial.Pipeline)] }
     });
 
     DummyGeometry.Destroy();
@@ -68,7 +64,7 @@ export async function run(canvas)
         color.rgb = [UWAL.MathUtils.Random(0.3), UWAL.MathUtils.Random(0.2), UWAL.MathUtils.Random(0.4)];
         uniform.color.set(color.rgba);
 
-        ShapePipeline.WriteBuffer(uniform.buffer, uniform.color);
+        FlatMaterial.Pipeline.WriteBuffer(uniform.buffer, uniform.color);
         return uniform.buffer;
     }
 
@@ -86,9 +82,9 @@ export async function run(canvas)
                 const inner = UWAL.MathUtils.Random(0.75, 0.95) * radius;
                 const shape = new UWAL.Shape(new UWAL.Geometries.Shape({ segments, radius, innerRadius: inner * r }));
 
-                uniform.push(shape.CreateColorBuffer(ShapePipeline));
+                uniform.push(shape.CreateColorBuffer(FlatMaterial.Pipeline));
 
-                shape.SetRenderPipeline(ShapePipeline,
+                shape.SetRenderPipeline(FlatMaterial.Pipeline,
                     [cameraBuffer, randomColor(uniform.at(-1))],
                     [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.SHAPE_COLOR]
                 );

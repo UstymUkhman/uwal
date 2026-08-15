@@ -35,46 +35,36 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
-    const scene = new UWAL.Scene();
     const Camera = new UWAL.Camera2D();
     const gui = new GUI().onChange(render);
-    const RenderPipeline = new Renderer.Pipeline();
-
     const { vertexData, indexData } = createVertices();
-    const module = RenderPipeline.CreateShaderModule(UWAL.Shaders.Shape);
-    const cameraMatrixBuffer = Camera.SetRenderPipeline(RenderPipeline);
+    const FlatMaterial = new UWAL.FlatMaterial(Renderer, void 0, UWAL.Shaders.Shape);
+    const { Pipeline } = FlatMaterial, scene = new UWAL.Scene(), color = new UWAL.Color();
 
+    const cameraMatrixBuffer = Camera.SetRenderPipeline(Pipeline);
     const geometry = new UWAL.Geometries.Shape({ radius: 75, indexFormat: "uint32" });
-    const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
-    const settings = { translation: [150, 100], rotation: UWAL.MathUtils.DegreesToRadians(30), scale: [1, 1], objects: 1 };
+    const settings = { translation: [150, 100], rotation: 0.5236, scale: [1, 1], objects: 1 };
+    await FlatMaterial.AddPipeline({ vertex: { buffers: [geometry.GetPositionBufferLayout(Pipeline)] } });
 
     gui.add(settings.translation, "0", 0, 1000).name("translation.x");
     gui.add(settings.translation, "1", 0, 1000).name("translation.y");
-    gui.add(settings, "rotation", radToDegOptions);
+    gui.add(settings, "rotation", { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg });
     gui.add(settings.scale, "0", -5, 5).name("scale.x");
     gui.add(settings.scale, "1", -5, 5).name("scale.y");
     gui.add(settings, "objects", 1, 5, 1).name("objects");
 
-    await Renderer.AddPipeline(RenderPipeline, {
-        fragment: RenderPipeline.CreateFragmentState(module),
-        vertex: RenderPipeline.CreateVertexState(module, void 0,
-            geometry.GetPositionBufferLayout(RenderPipeline)
-        )
-    });
-
-    const color = new UWAL.Color();
-    geometry.IndexData = indexData;
     geometry.VertexData = vertexData;
+    geometry.IndexData = indexData;
 
     const shapes = Array.from({ length: 5 }).map(() =>
     {
         const shape = new UWAL.Shape(geometry);
-        const uniform = shape.CreateColorBuffer(RenderPipeline);
+        const uniform = shape.CreateColorBuffer(Pipeline);
 
         uniform.color.set(color.Random().rgba);
-        RenderPipeline.WriteBuffer(uniform.buffer, uniform.color);
+        Pipeline.WriteBuffer(uniform.buffer, uniform.color);
 
-        shape.SetRenderPipeline(RenderPipeline,
+        shape.SetRenderPipeline(Pipeline,
             [cameraMatrixBuffer, uniform.buffer],
             [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.SHAPE_COLOR]
         );
