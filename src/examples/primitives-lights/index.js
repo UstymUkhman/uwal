@@ -34,7 +34,6 @@ export async function run(canvas)
     let PointLight, SpotLight, lastTime = 0;
     const { Vec2, Vec3 } = UWAL.MathUtils;
     const frequency = 8, amplitude = 2.4;
-    let pointX, pointZ, spotX, spotZ;
     const startTime = Date.now();
 
     const grid = new UWAL.Node();
@@ -44,7 +43,9 @@ export async function run(canvas)
 
     const spotDirection = Vec2.create(-0.85, -1);
     const pointDirection = Vec2.create(0.85, -1);
+
     const BasePipeline = new Renderer.Pipeline();
+    let wireBindings, pointX, pointZ, spotX, spotZ;
     const WireMaterial = new UWAL.WireframeMaterial(Renderer);
 
     const Texture = new (await UWAL.TextureUtils(Renderer));
@@ -53,19 +54,22 @@ export async function run(canvas)
 
     const baseModule = BasePipeline.CreateShaderModule([UWAL.Shaders.Light, UWAL.Shaders.Mesh, Primitive]);
     const { mode, buffer: modeBuffer } = BasePipeline.CreateUniformBuffer("mode");
-    let baseResources = [modeBuffer, Texture.CreateSampler(), texture];
     const Geometry = new UWAL.Geometries.Mesh("Dummy", "uint16");
 
-    WireMaterial.CameraMatrixBuffer = Camera.SetRenderPipeline(BasePipeline);
-    WireMaterial.Color = new UWAL.Color(0xffffff);
     await WireMaterial.AddPipeline({
+        multisample: WireMaterial.Pipeline.CreateMultisampleState(),
         vertex: { buffers: [Geometry.GetPositionBufferLayout(WireMaterial.Pipeline)] }
     });
 
+    const wireResources = [void 0, WireMaterial.ColorBuffer, Camera.SetRenderPipeline(BasePipeline)];
+    let baseResources = [modeBuffer, Texture.CreateSampler(), texture];
+    WireMaterial.Color = new UWAL.Color(0xffffff);
+
     await Renderer.AddPipeline(BasePipeline, {
-        fragment: BasePipeline.CreateFragmentState(baseModule, "baseFragment"),
-        depthStencil: BasePipeline.CreateDepthStencilState(),
+        primitive: BasePipeline.CreatePrimitiveState(),
         multisample: BasePipeline.CreateMultisampleState(),
+        depthStencil: BasePipeline.CreateDepthStencilState(),
+        fragment: BasePipeline.CreateFragmentState(baseModule, "baseFragment"),
         vertex: BasePipeline.CreateVertexState(baseModule, "baseVertex", [
             Geometry.GetPositionBufferLayout(BasePipeline, "baseVertex"),
             Geometry.GetNormalBufferLayout(BasePipeline, "baseVertex"),
@@ -77,7 +81,11 @@ export async function run(canvas)
     scene.AddMainCamera(Camera);
     Camera.Position = [-8, 4, 8];
 
-    const baseBindings = WireMaterial.Bindings.concat(
+    const baseBindings = (wireBindings = [
+        UWAL.BINDINGS.MESH_MATRIX,
+        UWAL.BINDINGS.MESH_COLOR,
+        UWAL.BINDINGS.CAMERA_MATRIX
+    ]).concat(
         UWAL.BINDINGS.AMBIENT_LIGHT,
         UWAL.BINDINGS.DIRECTIONAL_LIGHT,
         UWAL.BINDINGS.POINT_LIGHT,
@@ -87,8 +95,6 @@ export async function run(canvas)
 
     function createMeshes(gridSize, halfSize, offset, g = 0)
     {
-        const { Pipeline, Resources, Bindings } = WireMaterial;
-
         [
             "box", "circle", "plane", "quad", null,
             "plane", "roundedRectangle", "stadium", null,
@@ -114,8 +120,8 @@ export async function run(canvas)
                 if (n < 3)
                 {
                     Geometry.Primitive = { name, args: n < 2 ? { closed: true } : { nx: 10, quads: true } };
-                    mesh.SetRenderPipeline(Pipeline, Resources.filter(Boolean), Bindings.slice(1));
-                    n !== 1 && mesh.Geometry.CreateEdgeBuffer(Pipeline, Geometry.Primitive?.cells, 4);
+                    mesh.SetRenderPipeline(WireMaterial.Pipeline, wireResources.filter(Boolean), wireBindings.slice(1));
+                    n !== 1 && mesh.Geometry.CreateEdgeBuffer(WireMaterial.Pipeline, Geometry.Primitive?.cells, 4);
                 }
                 else
                 {
@@ -178,7 +184,7 @@ export async function run(canvas)
         PointLight.Intensity = 0x400;
         SpotLight.Intensity = 0x800;
 
-        baseResources = WireMaterial.Resources.concat(
+        baseResources = wireResources.concat(
             AmbientLight.SetRenderPipeline(BasePipeline),
             DirectionalLight.SetRenderPipeline(BasePipeline),
             PointLight.SetRenderPipeline(BasePipeline),
@@ -205,16 +211,14 @@ export async function run(canvas)
         let m = 0;
         updateLights(time);
         mode.set([(time | 0) % 5]);
-
         BasePipeline.WriteBuffer(modeBuffer, mode);
         Camera.Position = [-sin * 12 + 4, sin * 2 + 2, 8];
-        const { Pipeline, Resources, Bindings } = WireMaterial;
 
         grid.Traverse(mesh =>
         {
             if (m++ < 4) return;
             const { cells } = mesh.Geometry.Primitive;
-            WireMaterial.MeshMatrixBuffer = baseResources[0] = mesh.MatrixBuffer;
+            baseResources[0] = wireResources[0] = mesh.MatrixBuffer;
 
             if (!mode[0])
             {
@@ -225,9 +229,9 @@ export async function run(canvas)
 
             if (mode[0] === 4)
             {
-                mesh.Pipeline = Pipeline;
-                mesh.Geometry.CreateEdgeBuffer(Pipeline, cells);
-                mesh.BindGroups = Pipeline.SetBindGroupFromResources(Resources, Bindings);
+                mesh.Pipeline = WireMaterial.Pipeline;
+                mesh.Geometry.CreateEdgeBuffer(WireMaterial.Pipeline, cells);
+                mesh.BindGroups = WireMaterial.Pipeline.SetBindGroupFromResources(wireResources, wireBindings);
             }
         });
 
