@@ -162,44 +162,6 @@ set Size(size): void;
 
 `void`
 
-<a id="position"></a>
-
-##### Position
-
-###### Get Signature
-
-```ts
-get Position(): Float32Array<ArrayBufferLike>;
-```
-
-###### Returns
-
-`Float32Array`\<`ArrayBufferLike`\>
-
-Camera's position in 2D space.
-
-###### Set Signature
-
-```ts
-set Position(position): void;
-```
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `position` | `Float32Array`\<`ArrayBufferLike`\> | Camera's position in 2D space. |
-
-###### Returns
-
-`void`
-
-###### Overrides
-
-```ts
-Node2D.Position
-```
-
 <a id="positionz"></a>
 
 ##### PositionZ

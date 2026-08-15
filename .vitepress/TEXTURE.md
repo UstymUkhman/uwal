@@ -17,6 +17,36 @@ type Usage = Readonly<Record<"RENDER" | "STORAGE", GPUTextureUsageFlags>>;
 
 ***
 
+<a id="address"></a>
+
+### Address
+
+```ts
+type Address = Readonly<Record<"CLAMP" | "REPEAT" | "MIRROR", GPUAddressMode>>;
+```
+
+#### Type Parameters
+
+| Type Parameter |
+| ------ |
+
+***
+
+<a id="filter"></a>
+
+### Filter
+
+```ts
+type Filter = Readonly<Record<"NEAREST" | "LINEAR", GPUFilterMode>>;
+```
+
+#### Type Parameters
+
+| Type Parameter |
+| ------ |
+
+***
+
 <a id="compare"></a>
 
 ### Compare
@@ -62,7 +92,9 @@ Some utility bitmasks of the `GPUTextureUsage` flags.
 const ASPECT: Readonly<Record<"ALL" | "STENCIL" | "DEPTH", GPUTextureAspect>>;
 ```
 
-Aliases for the `GPUTextureAspect` enum.
+#### Alias
+
+[GPUTextureAspect](https://www.w3.org/TR/webgpu/#enumdef-gputextureaspect)
 
 ***
 
@@ -74,7 +106,9 @@ Aliases for the `GPUTextureAspect` enum.
 const ADDRESS: Readonly<Record<"CLAMP" | "REPEAT" | "MIRROR", GPUAddressMode>>;
 ```
 
-Aliases for the `GPUAddressMode` enum.
+#### Alias
+
+[GPUAddressMode](https://www.w3.org/TR/webgpu/#enumdef-gpuaddressmode)
 
 ***
 
@@ -86,7 +120,9 @@ Aliases for the `GPUAddressMode` enum.
 const FILTER: Readonly<Record<"NEAREST" | "LINEAR", GPUFilterMode>>;
 ```
 
-Aliases for the `GPUFilterMode` enum.
+#### Alias
+
+[GPUFilterMode](https://www.w3.org/TR/webgpu/#enumdef-gpufiltermode)
 
 ***
 
@@ -98,20 +134,6 @@ Aliases for the `GPUFilterMode` enum.
 const COMPARE: Readonly<Record<Compare, GPUCompareFunction>>;
 ```
 
-Aliases for the `GPUCompareFunction` enum.
+#### Alias
 
-## References
-
-<a id="address"></a>
-
-### Address
-
-Renames and re-exports [Addresses](Texture-1.md#addresses)
-
-***
-
-<a id="filter"></a>
-
-### Filter
-
-Renames and re-exports [Filters](Texture-1.md#filters)
+[GPUCompareFunction](https://www.w3.org/TR/webgpu/#enumdef-gpucomparefunction)

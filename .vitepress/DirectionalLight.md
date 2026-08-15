@@ -2,9 +2,9 @@
 
 ## Classes
 
-<a id="directional"></a>
+<a id="directionallight"></a>
 
-### Directional
+### DirectionalLight
 
 A light used to radiate in a specific direction. It is positioned infinitely far away, and its rays are parallel.
 
@@ -23,10 +23,10 @@ A light used to radiate in a specific direction. It is positioned infinitely far
 ##### Constructor
 
 ```ts
-new Directional(
+new DirectionalLight(
    direction?, 
    color?, 
-   label?): Directional;
+   label?): DirectionalLight;
 ```
 
 ###### Parameters
@@ -35,11 +35,11 @@ new Directional(
 | ------ | ------ | ------ | ------ |
 | `direction?` | `Float32Array`\<`ArrayBufferLike`\> | `undefined` | Light direction. Defaults to `[0, -1, 0]`. |
 | `color?` | [`ColorParam`](Color.md#colorparam) | `undefined` | Light color. Defaults to white. |
-| `label?` | `string` | `"Directional"` | Light name. |
+| `label?` | `string` | `"DirectionalLight"` | Light label. |
 
 ###### Returns
 
-[`Directional`](#directional)
+[`DirectionalLight`](#directionallight)
 
 ###### Overrides
 

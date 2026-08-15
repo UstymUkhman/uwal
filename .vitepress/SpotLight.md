@@ -2,9 +2,9 @@
 
 ## Classes
 
-<a id="spot"></a>
+<a id="spotlight"></a>
 
-### Spot
+### SpotLight
 
 A light used to radiate from one point in one direction, along a cone increasing in size further away from the light.
 
@@ -14,7 +14,7 @@ A light used to radiate from one point in one direction, along a cone increasing
 
 #### Extends
 
-- [`Point`](PointLight.md#point)
+- [`PointLight`](PointLight.md#pointlight)
 
 #### Constructors
 
@@ -23,10 +23,10 @@ A light used to radiate from one point in one direction, along a cone increasing
 ##### Constructor
 
 ```ts
-new Spot(
+new SpotLight(
    position?, 
    color?, 
-   label?): Spot;
+   label?): SpotLight;
 ```
 
 ###### Parameters
@@ -35,15 +35,15 @@ new Spot(
 | ------ | ------ | ------ | ------ |
 | `position?` | `Float32Array`\<`ArrayBufferLike`\> | `undefined` | Light position. |
 | `color?` | [`ColorParam`](Color.md#colorparam) | `undefined` | Light color. Defaults to white. |
-| `label?` | `string` | `"Spot"` | Light name. |
+| `label?` | `string` | `"SpotLight"` | Light label. |
 
 ###### Returns
 
-[`Spot`](#spot)
+[`SpotLight`](#spotlight)
 
 ###### Overrides
 
-[`Point`](PointLight.md#point).[`constructor`](PointLight.md#constructor)
+[`PointLight`](PointLight.md#pointlight).[`constructor`](PointLight.md#constructor)
 
 #### Methods
 
@@ -90,7 +90,7 @@ Create and update an internal uniform buffer of this light's color, intensity, p
 
 ###### Overrides
 
-[`Point`](PointLight.md#point).[`SetRenderPipeline`](PointLight.md#setrenderpipeline)
+[`PointLight`](PointLight.md#pointlight).[`SetRenderPipeline`](PointLight.md#setrenderpipeline)
 
 #### Accessors
 

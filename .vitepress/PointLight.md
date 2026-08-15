@@ -2,9 +2,9 @@
 
 ## Classes
 
-<a id="point"></a>
+<a id="pointlight"></a>
 
-### Point
+### PointLight
 
 A light used to radiate from one point in all directions.
 
@@ -18,7 +18,7 @@ A light used to radiate from one point in all directions.
 
 #### Extended by
 
-- [`Spot`](SpotLight.md#spot)
+- [`SpotLight`](SpotLight.md#spotlight)
 
 #### Constructors
 
@@ -27,10 +27,10 @@ A light used to radiate from one point in all directions.
 ##### Constructor
 
 ```ts
-new Point(
+new PointLight(
    position?, 
    color?, 
-   label?): Point;
+   label?): PointLight;
 ```
 
 ###### Parameters
@@ -39,11 +39,11 @@ new Point(
 | ------ | ------ | ------ | ------ |
 | `position?` | `Float32Array`\<`ArrayBufferLike`\> | `undefined` | Light position. |
 | `color?` | [`ColorParam`](Color.md#colorparam) | `undefined` | Light color. Defaults to white. |
-| `label?` | `string` | `"Point"` | Light name. |
+| `label?` | `string` | `"PointLight"` | Light label. |
 
 ###### Returns
 
-[`Point`](#point)
+[`PointLight`](#pointlight)
 
 ###### Overrides
 

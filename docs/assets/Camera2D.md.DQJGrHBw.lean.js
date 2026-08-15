@@ -1,0 +1,1 @@
+import{_ as e,o as t,c as s,a0 as i}from"./chunks/framework.BWm26kJ8.js";const u=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"Camera2D.md","filePath":"Camera2D.md"}'),r={name:"Camera2D.md"};function n(h,a,d,o,l,p){return t(),s("div",null,[...a[0]||(a[0]=[i("",83)])])}const k=e(r,[["render",n]]);export{u as __pageData,k as default};

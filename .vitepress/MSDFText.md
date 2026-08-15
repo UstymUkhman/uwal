@@ -51,7 +51,7 @@ Create an internal pipeline to render text.
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `Renderer` | `RenderStage` | `Renderer` instance to create the pipeline |
-| `descriptor?` | `BasePipelineDescriptor` & `RenderPipelineState` & `Record`\<`"renderBundleDescriptor"`, `RenderBundleDescriptor` \| `undefined`\> & `Record`\<`"colorTargets"`, `GPUColorTargetState` \| `GPUColorTargetState`[] \| `undefined`\> | Additional pipeline settings |
+| `descriptor?` | `PipelineDescriptor` & `RenderPipelineState` & `Record`\<`"renderBundleDescriptor"`, `RenderBundleDescriptor` \| `undefined`\> & `Record`\<`"colorTargets"`, `GPUColorTargetState` \| `GPUColorTargetState`[] \| `undefined`\> | Additional pipeline settings |
 
 ###### Returns
 

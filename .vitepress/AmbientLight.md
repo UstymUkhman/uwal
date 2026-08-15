@@ -2,9 +2,9 @@
 
 ## Classes
 
-<a id="ambient"></a>
+<a id="ambientlight"></a>
 
-### Ambient
+### AmbientLight
 
 A light used to equally illuminate all meshes in the scene.
 There should be only one source; it cannot cast shadows and does not have a direction.
@@ -24,7 +24,7 @@ There should be only one source; it cannot cast shadows and does not have a dire
 ##### Constructor
 
 ```ts
-new Ambient(color?, label?): Ambient;
+new AmbientLight(color?, label?): AmbientLight;
 ```
 
 ###### Parameters
@@ -32,11 +32,11 @@ new Ambient(color?, label?): Ambient;
 | Parameter | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
 | `color?` | [`ColorParam`](Color.md#colorparam) | `undefined` | Light color. Defaults to white. |
-| `label?` | `string` | `"Ambient"` | Light name. |
+| `label?` | `string` | `"AmbientLight"` | Light label. |
 
 ###### Returns
 
-[`Ambient`](#ambient)
+[`AmbientLight`](#ambientlight)
 
 ###### Overrides
 

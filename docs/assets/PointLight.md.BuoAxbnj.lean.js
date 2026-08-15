@@ -1,0 +1,1 @@
+import{_ as e,o as a,c as i,a0 as s}from"./chunks/framework.BWm26kJ8.js";const u=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"PointLight.md","filePath":"PointLight.md"}'),r={name:"PointLight.md"};function h(n,t,o,d,l,p){return a(),i("div",null,[...t[0]||(t[0]=[s("",46)])])}const k=e(r,[["render",h]]);export{u as __pageData,k as default};

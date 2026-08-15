@@ -11,9 +11,9 @@ Base class for [ambient](./AmbientLight), [directional](./DirectionalLight),
 
 #### Extended by
 
-- [`Ambient`](AmbientLight.md#ambient)
-- [`Directional`](DirectionalLight.md#directional)
-- [`Point`](PointLight.md#point)
+- [`AmbientLight`](AmbientLight.md#ambientlight)
+- [`DirectionalLight`](DirectionalLight.md#directionallight)
+- [`PointLight`](PointLight.md#pointlight)
 
 #### Properties
 
@@ -42,7 +42,7 @@ new Light(color?, label?): Light;
 | Parameter | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
 | `color?` | [`ColorParam`](Color.md#colorparam) | `undefined` | Light color. Defaults to white. |
-| `label?` | `string` | `"Light"` | Light name. |
+| `label?` | `string` | `"Light"` | Light label. |
 
 ###### Returns
 

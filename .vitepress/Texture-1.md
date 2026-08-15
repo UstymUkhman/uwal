@@ -2,36 +2,6 @@
 
 ## Type Aliases
 
-<a id="addresses"></a>
-
-### Addresses
-
-```ts
-type Addresses = Readonly<Record<"CLAMP" | "REPEAT" | "MIRROR", GPUAddressMode>>;
-```
-
-#### Type Parameters
-
-| Type Parameter |
-| ------ |
-
-***
-
-<a id="filters"></a>
-
-### Filters
-
-```ts
-type Filters = Readonly<Record<"NEAREST" | "LINEAR", GPUFilterMode>>;
-```
-
-#### Type Parameters
-
-| Type Parameter |
-| ------ |
-
-***
-
 <a id="optionalgpuextent3dstrict"></a>
 
 ### OptionalGPUExtent3DStrict
@@ -332,7 +302,7 @@ Create a new texture from the `descriptor` object.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `descriptor` | `Pick`\<`Partial`\<`GPUTextureDescriptor`\>, `"usage"` \| `"format"`\> & `Omit`\<`GPUTextureDescriptor`, `"usage"` \| `"format"`\> | `format` and `usage` are optional and default to [Device.PreferredCanvasFormat](./Device#preferredcanvasformat) and [USAGE.RENDER](./TEXTURE#usage-1), respectively |
+| `descriptor` | `Pick`\<`Partial`\<`GPUTextureDescriptor`\>, `"format"` \| `"usage"`\> & `Omit`\<`GPUTextureDescriptor`, `"format"` \| `"usage"`\> | `format` and `usage` are optional and default to [Device.PreferredCanvasFormat](./Device#preferredcanvasformat) and [USAGE.RENDER](./TEXTURE#usage-1), respectively |
 
 ###### Returns
 
@@ -381,7 +351,7 @@ Create a new storage texture.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `descriptor` | `Pick`\<`Partial`\<`GPUTextureDescriptor`\>, `"usage"` \| `"size"` \| `"format"`\> & `Omit`\<`GPUTextureDescriptor`, `"usage"` \| `"size"` \| `"format"`\> | `format`, `usage` and `size` are optional and default to [PreferredStorageFormat](#preferredstorageformat), [USAGE.STORAGE](./TEXTURE#usage-1), and canvas size, respectively |
+| `descriptor` | `Pick`\<`Partial`\<`GPUTextureDescriptor`\>, `"format"` \| `"usage"` \| `"size"`\> & `Omit`\<`GPUTextureDescriptor`, `"format"` \| `"usage"` \| `"size"`\> | `format`, `usage` and `size` are optional and default to [PreferredStorageFormat](#preferredstorageformat), [USAGE.STORAGE](./TEXTURE#usage-1), and canvas size, respectively |
 
 ###### Returns
 
