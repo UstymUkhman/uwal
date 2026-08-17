@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import Cubemap from './Cubemap.wgsl';
+import Cubemap from "./Cubemap.wgsl";
 import * as UWAL from "#/index";
 
 (async function(canvas)

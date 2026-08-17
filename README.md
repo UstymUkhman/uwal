@@ -156,7 +156,7 @@ flowchart TD
     - [Cubemaps](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#cubemaps)
     - [Storage Textures](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#storage-textures)
     - [Multisampling](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#multisampling)
-  - Immediates _TBI_
+  - [Immediates](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#immediates)
   - [Constants](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#shader-constants)
   - Miscellaneous Shader Input _TBI_
   - [Transparency and Blending](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#transparency)

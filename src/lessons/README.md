@@ -22,7 +22,7 @@
 | [Storage Textures](https://webgpufundamentals.org/webgpu/lessons/webgpu-storage-textures.html) | [Preview](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#storage-textures) | [Code](https://github.com/UstymUkhman/uwal-webgpu-fundamentals/blob/main/src/storage-textures/index.js) |
 | [Multisampling](https://webgpufundamentals.org/webgpu/lessons/webgpu-multisampling.html) | [Preview](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#multisampling) | [Code](https://github.com/UstymUkhman/uwal-webgpu-fundamentals/blob/main/src/multisampling/index.js) |
 |   |   |   |
-| [Immediates](https://webgpufundamentals.org/webgpu/lessons/webgpu-immediates.html) | Preview | Code |
+| [Immediates](https://webgpufundamentals.org/webgpu/lessons/webgpu-immediates.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#immediates) | [Code](./immediates/index.js) |
 | [Constants](https://webgpufundamentals.org/webgpu/lessons/webgpu-constants.html) | [Preview](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#shader-constants) | [Code](https://github.com/UstymUkhman/uwal-webgpu-fundamentals/blob/main/src/shader-constants/index.js) |
 | [Miscellaneous Shader Input](https://webgpufundamentals.org/webgpu/lessons/webgpu-miscellaneous-input.html) | Preview | Code |
 | [Transparency and Blending](https://webgpufundamentals.org/webgpu/lessons/webgpu-transparency.html) | [Preview](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#transparency) | [Code](https://github.com/UstymUkhman/uwal-webgpu-fundamentals/blob/main/src/transparency/index.js) |

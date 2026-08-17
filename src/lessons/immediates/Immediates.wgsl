@@ -1,23 +1,24 @@
 struct Immediates
 {
-    color: vec4f,
-    offset: vec2f
+    model: u32,
+    material: u32
 };
 
 var<immediate> immediates: Immediates;
 
-@vertex fn vertex(@builtin(vertex_index) index: u32) -> @builtin(position) vec4f
-{
-    let position = array(
-        vec2f( 0.0,  0.5), // Top Center
-        vec2f(-0.5, -0.5), // Bottom Left
-        vec2f( 0.5, -0.5)  // Bottom Right
-    );
+@group(0) @binding(0) var<storage, read> models: array<mat4x4f>;
+@group(0) @binding(1) var<storage, read> materials: array<vec4f>;
 
-    return vec4f(position[index] + immediates.offset, 0, 1);
+@vertex fn immediatesVertex(@location(0) position: vec4f) -> @builtin(position) vec4f
+{
+    // `ShapeMatrix` is not used, but the `Shape` class will always
+    // set it, so this is a workaround to avoid the validation error.
+    let _shape_world = ShapeMatrix.world;
+
+    return CameraMatrix.viewProjection * models[immediates.model] * position;
 }
 
 @fragment fn fragment() -> @location(0) vec4f
 {
-    return immediates.color;
+    return materials[immediates.material];
 }
