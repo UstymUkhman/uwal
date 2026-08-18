@@ -70,16 +70,16 @@ export async function run(canvas)
     const perspectiveCube = new UWAL.Mesh(CubeGeometry);
     const orthographicCube = new UWAL.Mesh(CubeGeometry);
 
+    const sampler = Texture.CreateSampler({ filter: "linear" });
+
     perspectiveCube.SetRenderPipeline(CubePipeline, [
         perspectiveCamera.SetRenderPipeline(CubePipeline),
-        Texture.CreateSampler({ filter: "linear" }),
-        texture
+        sampler, texture
     ], [UWAL.BINDINGS.CAMERA_MATRIX, 0, 1]);
 
     orthographicCube.SetRenderPipeline(CubePipeline, [
         orthographicCamera.SetRenderPipeline(CubePipeline),
-        Texture.CreateSampler({ filter: "linear" }),
-        texture
+        sampler, texture
     ], [UWAL.BINDINGS.CAMERA_MATRIX, 0, 1]);
 
     CubeGeometry.AddUVBuffer(CubePipeline, new Float32Array([
