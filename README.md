@@ -158,7 +158,7 @@ flowchart TD
     - [Multisampling](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#multisampling)
   - [Immediates](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#immediates)
   - [Constants](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#shader-constants)
-  - Miscellaneous Shader Input _TBI_
+  - [Miscellaneous Shader Input](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#shader-input)
   - [Transparency and Blending](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#transparency)
   - [Blend Settings](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#blend-settings)
   - [Bind Group Layouts](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#bind-group-layouts)

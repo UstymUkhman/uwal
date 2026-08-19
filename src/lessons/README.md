@@ -24,7 +24,7 @@
 |   |   |   |
 | [Immediates](https://webgpufundamentals.org/webgpu/lessons/webgpu-immediates.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#immediates) | [Code](./immediates/index.js) |
 | [Constants](https://webgpufundamentals.org/webgpu/lessons/webgpu-constants.html) | [Preview](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#shader-constants) | [Code](https://github.com/UstymUkhman/uwal-webgpu-fundamentals/blob/main/src/shader-constants/index.js) |
-| [Miscellaneous Shader Input](https://webgpufundamentals.org/webgpu/lessons/webgpu-miscellaneous-input.html) | Preview | Code |
+| [Miscellaneous Shader Input](https://webgpufundamentals.org/webgpu/lessons/webgpu-miscellaneous-input.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#shader-input) | [Code](./shader-input/index.js) |
 | [Transparency and Blending](https://webgpufundamentals.org/webgpu/lessons/webgpu-transparency.html) | [Preview](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#transparency) | [Code](https://github.com/UstymUkhman/uwal-webgpu-fundamentals/blob/main/src/transparency/index.js) |
 | [Blend Settings](https://webgpufundamentals.org/webgpu/lessons/webgpu-transparency.html#blend-settings) | [Preview](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#blend-settings) | [Code](https://github.com/UstymUkhman/uwal-webgpu-fundamentals/blob/main/src/blend-settings/index.js) |
 | [Bind Group Layouts](https://webgpufundamentals.org/webgpu/lessons/webgpu-bind-group-layouts.html) | [Preview](https://ustymukhman.github.io/uwal-webgpu-fundamentals/dist/#bind-group-layouts) | [Code](https://github.com/UstymUkhman/uwal-webgpu-fundamentals/blob/main/src/bind-group-layouts/index.js) |
