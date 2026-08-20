@@ -61,7 +61,9 @@ export async function run(canvas)
 
     function randomColor(uniform)
     {
-        color.rgb = [UWAL.MathUtils.Random(0.3), UWAL.MathUtils.Random(0.2), UWAL.MathUtils.Random(0.4)];
+        const rnd = UWAL.MathUtils.Random;
+
+        color.rgb = [rnd(0.3, 1), rnd(0.2, 1), rnd(0.4, 1)];
         uniform.color.set(color.rgba);
 
         FlatMaterial.Pipeline.WriteBuffer(uniform.buffer, uniform.color);

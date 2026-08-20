@@ -108,9 +108,9 @@ export async function run(canvas)
 
         for (let t = textures; t--; )
         {
-            translation.set([UWAL.MathUtils.Random(0, x), UWAL.MathUtils.Random(0, y)]);
+            translation.set([UWAL.MathUtils.Random(x), UWAL.MathUtils.Random(y)]);
             UWAL.MathUtils.Mat3.translate(matrix, translation, matrix);
-            UWAL.MathUtils.Mat3.rotate(matrix, UWAL.MathUtils.Random(0, UWAL.MathUtils.HPI), matrix);
+            UWAL.MathUtils.Mat3.rotate(matrix, UWAL.MathUtils.Random(UWAL.MathUtils.HPI), matrix);
 
             shape.SetInstanceMatrix(matrix, t, false);
             UWAL.MathUtils.Mat3.copy(shape.WorldMatrix, matrix);
