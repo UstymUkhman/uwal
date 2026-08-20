@@ -10,7 +10,6 @@
 
 import Dice from "/assets/images/dice.jpg";
 import * as UWAL from "#/index";
-import Cube from "./Cube.wgsl";
 
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
@@ -34,55 +33,53 @@ export async function run(canvas)
     }
 
     let orthoRotation, nextOrthoY;
+    const { Vec3 } = UWAL.MathUtils;
+    const tempRotation = Vec3.create();
     let dropTimeout, dropTime = Infinity;
 
-    const CubePipeline = new Renderer.Pipeline();
-    const tempRotation = UWAL.MathUtils.Vec3.create();
+    const orthographicPosition = Vec3.create();
+    const orthographicRotation = Vec3.create();
 
-    const orthographicPosition = UWAL.MathUtils.Vec3.create();
-    const orthographicRotation = UWAL.MathUtils.Vec3.create();
+    const nextPerspectiveRotation = Vec3.create();
+    const nextOrthographicRotation = Vec3.create();
+    const initialPerspectiveRotation = Vec3.create();
 
-    const nextPerspectiveRotation = UWAL.MathUtils.Vec3.create();
-    const nextOrthographicRotation = UWAL.MathUtils.Vec3.create();
-    const initialPerspectiveRotation = UWAL.MathUtils.Vec3.create();
-
-    const CubeGeometry = new UWAL.Geometries.Mesh("Cube", "uint16");
     const Texture = new (await UWAL.TextureUtils(Renderer));
-    const source = await Texture.CreateImageBitmap(Dice);
-    texture = await Texture.CopyImageToTexture(source);
+    const sampler = Texture.CreateSampler({ filter: "linear" });
 
-    const module = CubePipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Cube]);
+    const CubeGeometry = new UWAL.Geometries.Mesh("cube", "uint16");
+    const FlatMaterial = new UWAL.FlatMaterial(Renderer, { colorMap: true });
+
+    texture = await Texture.CopyImageToTexture(await Texture.CreateImageBitmap(Dice));
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new UWAL.Color(0x194c33)));
-
-    await Renderer.AddPipeline(CubePipeline, {
-        primitive: CubePipeline.CreatePrimitiveState(),
-        multisample: CubePipeline.CreateMultisampleState(),
-        depthStencil: CubePipeline.CreateDepthStencilState(),
-        fragment: CubePipeline.CreateFragmentState(module),
-        vertex: CubePipeline.CreateVertexState(module, "vertexUV", [
-            CubeGeometry.GetPositionBufferLayout(CubePipeline),
-            CubePipeline.CreateVertexBufferLayout("uv", "vertexUV")
-        ])
-    });
-
-    CubeGeometry.Primitive = "cube";
 
     const perspectiveCube = new UWAL.Mesh(CubeGeometry);
     const orthographicCube = new UWAL.Mesh(CubeGeometry);
 
-    const sampler = Texture.CreateSampler({ filter: "linear" });
+    await FlatMaterial.AddPipeline({
+        primitive: FlatMaterial.Pipeline.CreatePrimitiveState(),
+        multisample: FlatMaterial.Pipeline.CreateMultisampleState(),
+        depthStencil: FlatMaterial.Pipeline.CreateDepthStencilState(),
+        vertex: { buffers: [
+            CubeGeometry.GetPositionBufferLayout(FlatMaterial.Pipeline),
+            FlatMaterial.Pipeline.CreateVertexBufferLayout("uv", "vertexUV")
+        ]}
+    });
 
-    perspectiveCube.SetRenderPipeline(CubePipeline, [
-        perspectiveCamera.SetRenderPipeline(CubePipeline),
-        sampler, texture
-    ], [UWAL.BINDINGS.CAMERA_MATRIX, 0, 1]);
+    const { CAMERA_MATRIX, COLOR, COLOR_MAP, MAP_SAMPLER } = UWAL.BINDINGS;
+    const bindings = [CAMERA_MATRIX, COLOR, COLOR_MAP, MAP_SAMPLER];
 
-    orthographicCube.SetRenderPipeline(CubePipeline, [
-        orthographicCamera.SetRenderPipeline(CubePipeline),
-        sampler, texture
-    ], [UWAL.BINDINGS.CAMERA_MATRIX, 0, 1]);
+    perspectiveCube.SetRenderPipeline(FlatMaterial.Pipeline, [
+        perspectiveCamera.SetRenderPipeline(FlatMaterial.Pipeline),
+        FlatMaterial.ColorBuffer, texture, sampler
+    ], bindings);
 
-    CubeGeometry.AddUVBuffer(CubePipeline, new Float32Array([
+    orthographicCube.SetRenderPipeline(FlatMaterial.Pipeline, [
+        orthographicCamera.SetRenderPipeline(FlatMaterial.Pipeline),
+        FlatMaterial.ColorBuffer, texture, sampler
+    ], bindings);
+
+    CubeGeometry.AddUVBuffer(FlatMaterial.Pipeline, new Float32Array([
         0.5 , 0.5, 0.75, 0.5, 0.5 , 1  , 0.75, 1  , // Top
         0.25, 0.5, 0.5 , 0.5, 0.25, 1  , 0.5 , 1  , // Bottom
         0   , 0  , 0   , 0.5, 0.25, 0  , 0.25, 0.5, // Front
@@ -140,8 +137,8 @@ export async function run(canvas)
 
             if (smoothTime === 1)
             {
-                UWAL.MathUtils.Vec3.copy(nextPerspectiveRotation, initialPerspectiveRotation);
-                UWAL.MathUtils.Vec3.copy(nextOrthographicRotation, orthographicRotation);
+                Vec3.copy(nextPerspectiveRotation, initialPerspectiveRotation);
+                Vec3.copy(nextOrthographicRotation, orthographicRotation);
                 dropTime = Infinity;
                 drop();
             }
@@ -209,8 +206,8 @@ export async function run(canvas)
             orthographicCube.Scaling = [os * s, os * s, os * s];
 
             Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
-            UWAL.MathUtils.Vec3.set(0.2, orthoRotation, 0, orthographicRotation);
-            UWAL.MathUtils.Vec3.set(width - (nw * 250 + 100), oy, 0, orthographicPosition);
+            Vec3.set(0.2, orthoRotation, 0, orthographicRotation);
+            Vec3.set(width - (nw * 250 + 100), oy, 0, orthographicPosition);
         }
 
         clean(); drop(); raf = requestAnimationFrame(render);
