@@ -9,8 +9,8 @@
  * @license MIT
  */
 
+import Instance from "./Instance.wgsl";
 import * as UWAL from "#/index";
-import CRT from "./CRT.wgsl";
 
 (async function(canvas)
 {
@@ -25,15 +25,26 @@ import CRT from "./CRT.wgsl";
         alert(error);
     }
 
-    const INSTANCES = 10_000;
+    let lastTime = 0;
+    const INSTANCES = 200;
     const Scene = new UWAL.Scene();
+
     const Color = new UWAL.Color(0x4c4c4c);
     const Pipeline = new Renderer.Pipeline();
     const Camera = new UWAL.Camera2D(Renderer);
 
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(Color));
-    const module = Pipeline.CreateShaderModule([UWAL.Shaders.ShapeVertexInstance, CRT]);
+    const module = Pipeline.CreateShaderModule([UWAL.Shaders.ShapeVertexInstance, Instance]);
     const Geometry = new UWAL.Geometries.Shape({ segments: 24, radius: 0.5, innerRadius: 0.25 });
+
+    const addScalar = (v, s, dst = UWAL.MathUtils.Vec2.create()) => UWAL.MathUtils.Vec2.add(v, [s, s], dst);
+    const subScalar = (v, s, dst = UWAL.MathUtils.Vec2.create()) => UWAL.MathUtils.Vec2.sub(v, [s, s], dst);
+
+    const euclideanModulo = (a, b, dst = UWAL.MathUtils.Vec2.create()) => UWAL.MathUtils.Vec2.set(
+        UWAL.MathUtils.EuclideanModulo(a[0], b[0]),
+        UWAL.MathUtils.EuclideanModulo(a[1], b[1]),
+        dst
+    );
 
     await Renderer.AddPipeline(Pipeline, {
         fragment: Pipeline.CreateFragmentState(module),
@@ -43,15 +54,13 @@ import CRT from "./CRT.wgsl";
         ])
     });
 
+    const colorsBuffer = Pipeline.SetBufferData(Pipeline.CreateUniformBuffer("colors"), [0.1, 1]);
     const { color, buffer: colorBuffer } = Pipeline.CreateStorageBuffer("color", INSTANCES * 4);
-    const { colors, buffer: colorsBuffer } = Pipeline.CreateUniformBuffer("colors");
     const cameraBuffer = Camera.SetRenderPipeline(Pipeline);
 
     const Shape = new UWAL.Shape(Geometry);
     Scene.AddMainCamera(Camera);
     Scene.Add(Shape);
-
-    colors.set([0.1, 1]);
 
     Shape.SetRenderPipeline(
         Pipeline,
@@ -61,42 +70,70 @@ import CRT from "./CRT.wgsl";
 
     Shape.AddInstanceBuffer(INSTANCES, "vertexShape");
     const translation = UWAL.MathUtils.Vec2.create();
+    const velocity = new Float16Array(INSTANCES * 2);
     const matrix = UWAL.MathUtils.Mat3.identity();
 
     function initializeObjects()
     {
+        const { Mat3, Random } = UWAL.MathUtils;
         const [width, height] = Renderer.CanvasSize;
 
         for (let i = INSTANCES; i--; )
         {
             let s = Math.min(width, height) * 0.1 | 0;
             s = UWAL.MathUtils.RandomInt(s, s * 2.5);
+            const x = Random(0.2), y = Random(0.2);
 
-            UWAL.MathUtils.Mat3.scaling([s, s], matrix);
+            translation.set([Random(width), Random(height)]);
+            Mat3.translate(matrix, translation, matrix);
+            Mat3.scale(matrix, [s, s], matrix);
+
             Shape.SetInstanceMatrix(matrix, i, false);
+            velocity.set([x - 0.1, y - 0.1], i * 2);
             color.set(Color.Random().RGBA, i * 4);
+            Mat3.copy(Shape.WorldMatrix, matrix);
         }
 
-        Pipeline.WriteBuffer(colorsBuffer, colors);
         Pipeline.WriteBuffer(colorBuffer, color);
     }
 
-    function updateTransformMatrix()
+    function updateTransformMatrix(delta)
     {
-        const [width, height] = Renderer.CanvasSize;
-        const { Mat3, Random } = UWAL.MathUtils;
+        const { Mat3, Vec2 } = UWAL.MathUtils;
+        const speed = Vec2.create(), size = Vec2.create();
 
         for (let i = INSTANCES; i--; )
         {
             const [scale] = Shape.GetInstanceMatrix(i, matrix);
-            const x = width / scale, y = height / scale;
+            const offset = scale / 2, v = i * 2;
 
-            translation.set([Random(0, x), Random(0, y)]);
-            Mat3.translate(matrix, translation, matrix);
+            Vec2.copy(velocity.slice(v, v + 2), speed);
+            Vec2.copy(Renderer.CanvasSize, size);
+
+            Vec2.scale(speed, delta, speed);
+            addScalar(speed, offset, speed);
+
+            Mat3.getTranslation(matrix, translation);
+            Vec2.add(translation, speed, translation);
+
+            addScalar(size, scale, size);
+            euclideanModulo(translation, size, translation);
+            subScalar(translation, offset, translation);
+
+            Mat3.setTranslation(matrix, translation, matrix);
             Shape.SetInstanceMatrix(matrix, i, false);
         }
 
         Shape.UpdateInstanceBuffer();
+    }
+
+    function render(time)
+    {
+        const delta = time - lastTime;
+        requestAnimationFrame(render);
+        updateTransformMatrix(delta);
+        Renderer.Render(Scene);
+        lastTime = time;
     }
 
     const observer = new ResizeObserver(entries =>
@@ -109,8 +146,7 @@ import CRT from "./CRT.wgsl";
         }
 
         initializeObjects();
-        updateTransformMatrix();
-        Renderer.Render(Scene);
+        requestAnimationFrame(render);
     });
 
     observer.observe(document.body);
