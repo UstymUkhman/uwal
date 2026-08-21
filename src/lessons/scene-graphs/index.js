@@ -107,11 +107,10 @@ import Cube from "./Cube.wgsl";
         drawerSize[depth] + 4,
     ];
 
-    const CubeGeometry = new UWAL.Geometries.Mesh("Cube", "uint16");
+    const CubeGeometry = new UWAL.Geometries.Mesh("cube", "uint16");
     const CubePipeline = new Renderer.Pipeline();
     const Camera = new UWAL.PerspectiveCamera();
     const color = new UWAL.Color(0xffffff);
-    CubeGeometry.Primitive = "cube";
 
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
     const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;
@@ -121,7 +120,8 @@ import Cube from "./Cube.wgsl";
     const cameraBuffer = Camera.SetRenderPipeline(CubePipeline);
     const colorBuffer = createVertexColors(colorAttribute);
 
-    await Renderer.AddPipeline(CubePipeline, {
+    await Renderer.AddPipeline(CubePipeline,
+    {
         primitive: CubePipeline.CreatePrimitiveState(),
         depthStencil: CubePipeline.CreateDepthStencilState(),
         fragment: CubePipeline.CreateFragmentState(module, "cubeFragment"),

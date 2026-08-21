@@ -26,16 +26,15 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
+    const Geometry = new UWAL.Geometries.Mesh("cube");
     const Camera = new UWAL.PerspectiveCamera();
-    const Geometry = new UWAL.Geometries.Mesh();
     const Pipeline = new Renderer.Pipeline();
     const Cube = new UWAL.Mesh(Geometry);
-    const scene = new UWAL.Scene();
+    const Scene = new UWAL.Scene();
 
-    Geometry.Primitive = "cube";
     const rotation = [0, 0, 0];
     Cube.Scaling = 2;
-    scene.Add(Cube);
+    Scene.Add(Cube);
 
     const module = Pipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Envmap]);
     const Texture = new (await UWAL.TextureUtils(Renderer));
@@ -66,7 +65,7 @@ import * as UWAL from "#/index";
         rotation[1] = time * -0.2;
         Cube.Rotation = rotation;
 
-        Renderer.Render(scene);
+        Renderer.Render(Scene);
         requestAnimationFrame(render);
     }
 
@@ -77,7 +76,7 @@ import * as UWAL from "#/index";
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
-            scene.AddMainCamera(Camera);
+            Scene.AddMainCamera(Camera);
             Camera.Position = [0, 0, 4];
             Camera.LookAt([0, 0, 0]);
         }

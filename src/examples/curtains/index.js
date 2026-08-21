@@ -36,8 +36,8 @@ export async function run(canvas)
         alert(error);
     }
 
+    const Geometry = new UWAL.Geometries.Mesh({ name: "plane", args: { nx: 50, ny: 37 } });
     const Camera = new UWAL.PerspectiveCamera(35);
-    const Geometry = new UWAL.Geometries.Mesh();
 
     const Pipeline = new Renderer.Pipeline();
     let maxDelta = 4, delta = 0, time = 0;
@@ -48,7 +48,6 @@ export async function run(canvas)
 
     const module = Pipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Curtains]);
     const { curtains, buffer } = Pipeline.CreateUniformBuffer("curtains");
-    Geometry.Primitive = { name: "plane", args: { nx: 50, ny: 37 } };
 
     const TextPipeline = await Text.CreateRenderPipeline(Renderer, {
         multisample: Pipeline.CreateMultisampleState()

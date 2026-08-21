@@ -41,27 +41,25 @@ export async function run(canvas)
     const position = Vec3.create();
     const direction = Vec2.create();
 
+    const Geometry = new UWAL.Geometries.Mesh();
+    const BasePipeline = new Renderer.Pipeline();
     const spotDirection = Vec2.create(-0.85, -1);
     const pointDirection = Vec2.create(0.85, -1);
 
-    const BasePipeline = new Renderer.Pipeline();
     let wireBindings, pointX, pointZ, spotX, spotZ;
-    const WireMaterial = new UWAL.WireframeMaterial(Renderer);
-
     const Texture = new (await UWAL.TextureUtils(Renderer));
-    const source = await Texture.CreateImageBitmap(UV);
-    texture = await Texture.CopyImageToTexture(source);
-
-    const baseModule = BasePipeline.CreateShaderModule([UWAL.Shaders.Light, UWAL.Shaders.Mesh, Primitive]);
-    const { mode, buffer: modeBuffer } = BasePipeline.CreateUniformBuffer("mode");
-    const Geometry = new UWAL.Geometries.Mesh("Dummy", "uint16");
+    const WireMaterial = new UWAL.WireframeMaterial(Renderer);
 
     await WireMaterial.AddPipeline({
         multisample: WireMaterial.Pipeline.CreateMultisampleState(),
         vertex: { buffers: [Geometry.GetPositionBufferLayout(WireMaterial.Pipeline)] }
     });
 
+    const baseModule = BasePipeline.CreateShaderModule([UWAL.Shaders.Light, UWAL.Shaders.Mesh, Primitive]);
     const wireResources = [void 0, WireMaterial.ColorBuffer, Camera.SetRenderPipeline(BasePipeline)];
+
+    texture = await Texture.CopyImageToTexture(await Texture.CreateImageBitmap(UV));
+    const { mode, buffer: modeBuffer } = BasePipeline.CreateUniformBuffer("mode");
     let baseResources = [modeBuffer, Texture.CreateSampler(), texture];
     WireMaterial.Color = new UWAL.Color(0xffffff);
 
@@ -83,7 +81,7 @@ export async function run(canvas)
 
     const baseBindings = (wireBindings = [
         UWAL.BINDINGS.MESH_MATRIX,
-        UWAL.BINDINGS.MESH_COLOR,
+        UWAL.BINDINGS.COLOR,
         UWAL.BINDINGS.CAMERA_MATRIX
     ]).concat(
         UWAL.BINDINGS.AMBIENT_LIGHT,
@@ -114,18 +112,20 @@ export async function run(canvas)
                     return;
                 }
 
-                const Geometry = new UWAL.Geometries.Mesh(void 0, "uint16");
+                const Primitive = n > 2
+                    ? { name, vertexEntry: "baseVertex", normals: true, uvs: true }
+                    : { name, args: n === 2 ? { nx: 10, quads: true } : { closed: true } };
+
+                const Geometry = new UWAL.Geometries.Mesh(Primitive, "uint16");
                 const mesh = new UWAL.Mesh(Geometry);
 
                 if (n < 3)
                 {
-                    Geometry.Primitive = { name, args: n < 2 ? { closed: true } : { nx: 10, quads: true } };
                     mesh.SetRenderPipeline(WireMaterial.Pipeline, wireResources.filter(Boolean), wireBindings.slice(1));
                     n !== 1 && mesh.Geometry.CreateEdgeBuffer(WireMaterial.Pipeline, Geometry.Primitive?.cells, 4);
                 }
                 else
                 {
-                    Geometry.Primitive = { name, vertexEntry: "baseVertex", normals: true, uvs: true };
                     mesh.SetRenderPipeline(BasePipeline, baseResources.filter(Boolean), baseBindings.slice(1));
                 }
 

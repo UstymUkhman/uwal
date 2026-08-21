@@ -27,15 +27,15 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
-    const CubeGeometry = new UWAL.Geometries.Mesh();
+    const CubeGeometry = new UWAL.Geometries.Mesh("cube");
     const CubePipeline = new Renderer.Pipeline();
     const Camera = new UWAL.PerspectiveCamera();
     const Cube = new UWAL.Mesh(CubeGeometry);
+    const Scene = new UWAL.Scene();
 
-    const scene = new UWAL.Scene();
     const gui = new GUI();
     gui.onChange(render);
-    scene.Add(Cube);
+    Scene.Add(Cube);
 
     const radToDeg =
     {
@@ -62,7 +62,6 @@ import * as UWAL from "#/index";
     const module = CubePipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Cubemap]);
     const Texture = new (await UWAL.TextureUtils(Renderer));
     Cube.Transform = [void 0, settings.rotation, 2];
-    CubeGeometry.Primitive = "cube";
 
     const texture = await createTextureFromSources([
         { faceColor: "#F00", textColor: "#0FF", text: "+X" },
@@ -129,16 +128,14 @@ import * as UWAL from "#/index";
     /** @param {HTMLCanvasElement[]} sources */
     async function createTextureFromSources(sources)
     {
-        const texture = Texture.CreateTextureFromSource(sources[0],
-        {
+        const texture = Texture.CreateTextureFromSource(sources[0], {
             size: [sources[0].width, sources[0].height, sources.length],
             textureBindingViewDimension: "cube"
         });
 
         for (let [s, source] of sources.entries())
         {
-            await Texture.CopyImageToTexture(source,
-            {
+            await Texture.CopyImageToTexture(source, {
                 mipmaps: s === sources.length - 1,
                 destinationOrigin: [0, 0, s],
                 flipY: false,
@@ -152,7 +149,7 @@ import * as UWAL from "#/index";
     function render()
     {
         Cube.Rotation = settings.rotation;
-        Renderer.Render(scene);
+        Renderer.Render(Scene);
     }
 
     const observer = new ResizeObserver(entries =>
@@ -164,7 +161,7 @@ import * as UWAL from "#/index";
             Camera.AspectRatio = Renderer.AspectRatio;
             Camera.Position = [0, 1, 5];
             Camera.LookAt([0, 0, 0]);
-            scene.AddMainCamera(Camera);
+            Scene.AddMainCamera(Camera);
             Camera.UpdateWorldMatrix(true);
         }
 

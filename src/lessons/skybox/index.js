@@ -27,16 +27,15 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
-    const CubeGeometry = new UWAL.Geometries.Mesh();
+    const CubeGeometry = new UWAL.Geometries.Mesh("cube");
     const SkyboxPipeline = new Renderer.Pipeline();
     const CubePipeline = new Renderer.Pipeline();
     const Camera = new UWAL.PerspectiveCamera();
     const Cube = new UWAL.Mesh(CubeGeometry);
+    const Scene = new UWAL.Scene();
 
-    CubeGeometry.Primitive = "cube";
-    const scene = new UWAL.Scene();
     Cube.Scaling = 2;
-    scene.Add(Cube);
+    Scene.Add(Cube);
 
     const Texture = new (await UWAL.TextureUtils(Renderer));
     const sampler = Texture.CreateSampler({ filter: "linear" });
@@ -63,7 +62,8 @@ import * as UWAL from "#/index";
         [0, 1, UWAL.BINDINGS.CAMERA_MATRIX]
     );
 
-    await Renderer.AddPipeline(SkyboxPipeline, {
+    await Renderer.AddPipeline(SkyboxPipeline,
+    {
         depthStencil: SkyboxPipeline.CreateDepthStencilState(void 0, void 0, "less-equal"),
         fragment: SkyboxPipeline.CreateFragmentState(skyboxModule),
         vertex: SkyboxPipeline.CreateVertexState(skyboxModule)
@@ -94,7 +94,7 @@ import * as UWAL from "#/index";
         SkyboxPipeline.WriteBuffer(inverseViewProjectionBuffer, inverseViewProjection);
 
         CubePipeline.Active = true;
-        Renderer.Render(scene, false);
+        Renderer.Render(Scene, false);
 
         CubePipeline.Active = false;
         Renderer.Render();
@@ -109,7 +109,7 @@ import * as UWAL from "#/index";
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.AspectRatio = Renderer.AspectRatio;
-            scene.AddMainCamera(Camera);
+            Scene.AddMainCamera(Camera);
             Camera.Position = [0, 0, 4];
             Camera.LookAt(origin);
         }
