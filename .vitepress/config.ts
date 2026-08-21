@@ -4,7 +4,7 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "UWAL",
   description: "Unopinionated WebGPU Abstraction Library",
-  ignoreDeadLinks: true,
+  // ignoreDeadLinks: true,
   srcDir: ".vitepress",
   base: "/uwal/docs/",
   outDir: "./docs",

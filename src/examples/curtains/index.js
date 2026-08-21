@@ -117,7 +117,6 @@ export async function run(canvas)
 
         TextPipeline.DestroyPassEncoder = !!(Text.CameraMatrixBuffer = cameraBuffer);
         const [x, y] = Plane.Scaling = [scaleX + 0.36, 0.9, 1];
-        TextPipeline.UseTextureView = true;
         curtains.planeRatio.set([x / y]);
 
         Text.SetTranslation(
