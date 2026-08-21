@@ -33,10 +33,10 @@ struct Light
     specular: vec3f
 };
 
-@group(0) @binding(40) var<uniform> AmbientLight: AmbientLightUniforms;
-@group(0) @binding(41) var<uniform> DirectionalLight: DirectionalLightUniforms;
-@group(0) @binding(42) var<uniform> PointLight: PointLightUniforms;
-@group(0) @binding(43) var<uniform> SpotLight: SpotLightUniforms;
+@group(0) @binding(50) var<uniform> AmbientLight: AmbientLightUniforms;
+@group(0) @binding(51) var<uniform> DirectionalLight: DirectionalLightUniforms;
+@group(0) @binding(52) var<uniform> PointLight: PointLightUniforms;
+@group(0) @binding(53) var<uniform> SpotLight: SpotLightUniforms;
 
 fn GetLightDirection(lightPosition: vec3f, vertexWorldPosition: vec3f) -> vec3f
 {
