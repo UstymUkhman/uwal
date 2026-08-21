@@ -66,13 +66,14 @@ function Random(min?, max?): number;
 ```
 
 Get a pseudorandom float between `min` (inclusive) and `max` (exclusive).
+When `max` is omitted, it defaults to `min` while `min = 0`.
 
 #### Parameters
 
 | Parameter | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| `min?` | `number` | `0` | Lower limit. |
-| `max?` | `number` | `1` | Upper limit. |
+| `min?` | `number` | `1` | Lower or upper limit. |
+| `max?` | `number` | `undefined` | Upper limit. |
 
 #### Returns
 
@@ -85,17 +86,18 @@ Get a pseudorandom float between `min` (inclusive) and `max` (exclusive).
 ### RandomInt()
 
 ```ts
-function RandomInt(min, max): number;
+function RandomInt(min, max?): number;
 ```
 
-Get a pseudorandom integer between `min` (inclusive) and `max` (exclusive).
+Get a pseudorandom integer between `min` and `max` values (inclusive).
+When `max` is omitted, it defaults to `min` while `min = 0`.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `min` | `number` | Lower limit. |
-| `max` | `number` | Upper limit. |
+| `min` | `number` | Lower or upper limit. |
+| `max?` | `number` | Upper limit. |
 
 #### Returns
 
