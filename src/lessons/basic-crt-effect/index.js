@@ -9,6 +9,7 @@
  * @license MIT
  */
 
+import PostProcess from "./PostProcess.wgsl";
 import Instance from "./Instance.wgsl";
 import * as UWAL from "#/index";
 
@@ -32,16 +33,19 @@ import * as UWAL from "#/index";
     const { Mat3, Vec2 } = UWAL.MathUtils;
     const Color = new UWAL.Color(0x4c4c4c);
 
-    const Pipeline = new Renderer.Pipeline();
     const Camera = new UWAL.Camera2D(Renderer);
+    const ImagePipeline = new Renderer.Pipeline();
+    const Texture = new (await UWAL.TextureUtils());
 
+    const Sampler = Texture.CreateSampler({ filter: "linear" });
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(Color));
 
     const addScalar = (v, s, dst = Vec2.create()) => Vec2.add(v, [s, s], dst);
     const subScalar = (v, s, dst = Vec2.create()) => Vec2.sub(v, [s, s], dst);
 
-    const module = Pipeline.CreateShaderModule([UWAL.Shaders.ShapeVertexInstance, Instance]);
     const Geometry = new UWAL.Geometries.Shape({ segments: 24, radius: 0.5, innerRadius: 0.25 });
+    const module = ImagePipeline.CreateShaderModule([UWAL.Shaders.ShapeVertexInstance, Instance]);
+    const PostProcessPipeline = await Renderer.CreatePipeline([UWAL.Shaders.Fullscreen, PostProcess]);
 
     const euclideanModulo = (a, b, dst = UWAL.MathUtils.Vec2.create()) => Vec2.set(
         UWAL.MathUtils.EuclideanModulo(a[0], b[0]),
@@ -49,30 +53,33 @@ import * as UWAL from "#/index";
         dst
     );
 
-    await Renderer.AddPipeline(Pipeline, {
-        fragment: Pipeline.CreateFragmentState(module),
-        vertex: Pipeline.CreateVertexState(module, "vertexShape", [
-            Geometry.GetPositionBufferLayout(Pipeline),
-            Geometry.GetInstanceBufferLayout(Pipeline)
+    await Renderer.AddPipeline(ImagePipeline, {
+        fragment: ImagePipeline.CreateFragmentState(module),
+        vertex: ImagePipeline.CreateVertexState(module, "vertexShape", [
+            Geometry.GetPositionBufferLayout(ImagePipeline),
+            Geometry.GetInstanceBufferLayout(ImagePipeline)
         ])
     });
 
-    const colorsBuffer = Pipeline.WriteBufferData(Pipeline.CreateUniformBuffer("colors"), [0.1, 1]);
-    const { color, buffer: colorBuffer } = Pipeline.CreateStorageBuffer("color", INSTANCES * 4);
-    const cameraBuffer = Camera.SetRenderPipeline(Pipeline);
+    const colorsBuffer = ImagePipeline.WriteBufferData(ImagePipeline.CreateUniformBuffer("colors"), [0.1, 1]);
+    const { color, buffer: colorBuffer } = ImagePipeline.CreateStorageBuffer("color", INSTANCES * 4);
+    const cameraBuffer = Camera.SetRenderPipeline(ImagePipeline);
 
     const Shape = new UWAL.Shape(Geometry);
     Scene.AddMainCamera(Camera);
     Scene.Add(Shape);
 
     Shape.SetRenderPipeline(
-        Pipeline,
+        ImagePipeline,
         [cameraBuffer, colorBuffer, colorsBuffer],
         [UWAL.BINDINGS.CAMERA_MATRIX, 0, 1]
     );
 
     Shape.AddInstanceBuffer(INSTANCES, "vertexShape");
     const velocity = new Float16Array(INSTANCES * 2);
+
+    ImagePipeline.DestroyPassEncoder = true;
+    PostProcessPipeline.SetDrawParams(3);
 
     const translation = Vec2.create();
     const matrix = Mat3.identity();
@@ -98,10 +105,10 @@ import * as UWAL from "#/index";
             Mat3.copy(Shape.WorldMatrix, matrix);
         }
 
-        Pipeline.WriteBuffer(colorBuffer, color);
+        ImagePipeline.WriteBuffer(colorBuffer, color);
     }
 
-    function updateTransformMatrix(delta)
+    function updateTransform(delta)
     {
         const size = Vec2.create();
         const speed = Vec2.create();
@@ -133,10 +140,14 @@ import * as UWAL from "#/index";
 
     function render(time)
     {
-        const delta = time - lastTime;
+        updateTransform(time - lastTime);
         requestAnimationFrame(render);
-        updateTransformMatrix(delta);
-        Renderer.Render(Scene);
+        ImagePipeline.Active = true;
+
+        Renderer.Render(Scene, false);
+        ImagePipeline.Active = false;
+        Renderer.Render();
+
         lastTime = time;
     }
 
@@ -147,6 +158,15 @@ import * as UWAL from "#/index";
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
             Camera.Size = Renderer.CanvasSize;
+        }
+
+        if (
+            ImagePipeline.TextureView?.width  !== Renderer.CanvasSize[0] ||
+            ImagePipeline.TextureView?.height !== Renderer.CanvasSize[1]
+        ) {
+            ImagePipeline.TextureView?.destroy();
+            ImagePipeline.TextureView = Texture.CreateTexture({ size: Renderer.CanvasSize });
+            PostProcessPipeline.SetBindGroupFromResources([Sampler, ImagePipeline.TextureView]);
         }
 
         initializeObjects();
