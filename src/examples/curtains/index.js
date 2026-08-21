@@ -133,7 +133,7 @@ export async function run(canvas)
                 depthStencil: Pipeline.CreateDepthStencilState(),
                 vertex: Pipeline.CreateVertexState(module, "planeVertex", [
                     Geometry.GetPositionBufferLayout(Pipeline),
-                    Geometry.GetUVBufferLayout(Pipeline, "planeVertex")
+                    Geometry.GetUVBufferLayout(Pipeline)
                 ])
             }), [
                 cameraBuffer,

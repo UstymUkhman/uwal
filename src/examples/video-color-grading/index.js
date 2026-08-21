@@ -99,7 +99,13 @@ export async function run(canvas)
 
     async function start()
     {
-        await playVideo(); createSizeBuffer();
+        await playVideo();
+
+        sizeBuffer = VideoPipeline.WriteBufferData(
+            VideoPipeline.CreateUniformBuffer("size"),
+            [videoWidth, videoHeight]
+        );
+
         raf = requestAnimationFrame(render);
     }
 
@@ -122,13 +128,6 @@ export async function run(canvas)
 
             video.play().catch(reject);
         });
-    }
-
-    function createSizeBuffer()
-    {
-        const { size, buffer } = VideoPipeline.CreateUniformBuffer("size");
-        size.set([videoWidth, videoHeight]); sizeBuffer = buffer;
-        VideoPipeline.WriteBuffer(buffer, size);
     }
 
     function render()

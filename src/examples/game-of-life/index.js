@@ -81,31 +81,30 @@ export async function run(canvas)
 
     function start(size = 48)
     {
-        const ratio = Renderer.AspectRatio;
         const [width, height] = Renderer.CanvasSize;
+        const ratio = Renderer.AspectRatio;
 
-        const { grid, buffer: bufferGrid } =
-            RenderPipeline.CreateUniformBuffer("grid");
-
-        grid.set(width < height
+        const grid = width < height
             ? [size, Math.round(size / ratio)]
-            : [Math.round(size * ratio), size]
-        );
+            : [Math.round(size * ratio), size];
 
         const length = grid[0] * grid[1];
-        RenderPipeline.WriteBuffer(bufferGrid, grid);
+        const cellStateIn = new Float32Array(length);
 
-        const { cellStateIn, buffer: bufferIn } =
-            ComputePipeline.CreateStorageBuffer("cellStateIn", length);
+         for (let s = 0; s < cellStateIn.length; s++)
+             cellStateIn[s] = +(Math.random() > 0.6);
 
-        const { buffer: bufferOut } =
-            ComputePipeline.CreateStorageBuffer("cellStateOut", length);
+        const bufferGrid = RenderPipeline.WriteBufferData(
+            RenderPipeline.CreateUniformBuffer("grid")
+        , grid);
 
-        for (let s = 0; s < cellStateIn.length; s++)
-            cellStateIn[s] = +(Math.random() > 0.6);
+        const bufferIn = ComputePipeline.WriteBufferData(
+            ComputePipeline.CreateStorageBuffer("cellStateIn", length)
+        , cellStateIn);
 
-        ComputePipeline.WriteBuffer(bufferOut, cellStateIn);
-        ComputePipeline.WriteBuffer(bufferIn, cellStateIn);
+        const bufferOut = ComputePipeline.WriteBufferData(
+            ComputePipeline.CreateStorageBuffer("cellStateOut", length)
+        , cellStateIn);
 
         buffers.push(bufferGrid, bufferIn, bufferOut);
 
