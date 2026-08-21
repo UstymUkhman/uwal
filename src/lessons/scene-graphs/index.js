@@ -108,41 +108,32 @@ import Cube from "./Cube.wgsl";
     ];
 
     const CubeGeometry = new UWAL.Geometries.Mesh("cube", "uint16");
-    const CubePipeline = new Renderer.Pipeline();
     const Camera = new UWAL.PerspectiveCamera();
+    const Pipeline = new Renderer.Pipeline();
     const color = new UWAL.Color(0xffffff);
 
     const cabinetWidth = cabinetSize[width] + cabinetSpacing;
     const cameraOffsetX = cabinetWidth / 2 * (cabinets - 1) / 2 + 4;
-    const module = CubePipeline.CreateShaderModule([UWAL.Shaders.Mesh, Cube]);
+    const module = Pipeline.CreateShaderModule([UWAL.Shaders.Mesh, Cube]);
 
     const colorAttribute = { name: "color", format: "unorm8x4" };
-    const cameraBuffer = Camera.SetRenderPipeline(CubePipeline);
+    const cameraBuffer = Camera.SetRenderPipeline(Pipeline);
     const colorBuffer = createVertexColors(colorAttribute);
 
-    await Renderer.AddPipeline(CubePipeline,
+    await Renderer.AddPipeline(Pipeline,
     {
-        primitive: CubePipeline.CreatePrimitiveState(),
-        depthStencil: CubePipeline.CreateDepthStencilState(),
-        fragment: CubePipeline.CreateFragmentState(module, "cubeFragment"),
-        vertex: CubePipeline.CreateVertexState(module, "cubeVertex", [
-            CubeGeometry.GetPositionBufferLayout(CubePipeline),
-            CubePipeline.CreateVertexBufferLayout(colorAttribute, "cubeVertex")
+        primitive: Pipeline.CreatePrimitiveState(),
+        depthStencil: Pipeline.CreateDepthStencilState(),
+        fragment: Pipeline.CreateFragmentState(module, "cubeFragment"),
+        vertex: Pipeline.CreateVertexState(module, "cubeVertex", [
+            CubeGeometry.GetPositionBufferLayout(Pipeline),
+            Pipeline.CreateVertexBufferLayout(colorAttribute, "cubeVertex")
         ])
     });
 
-    const { color: drawerColor, buffer: drawerBuffer } = CubePipeline.CreateUniformBuffer("color");
-    const { color: handleColor, buffer: handleBuffer } = CubePipeline.CreateUniformBuffer("color");
-    const { color: cabinetColor, buffer: cabinetBuffer } = CubePipeline.CreateUniformBuffer("color");
-
-    drawerColor.set(color.rgba);
-    CubePipeline.WriteBuffer(drawerBuffer, drawerColor.buffer);
-
-    handleColor.set(color.Set(0x7f7f7f).rgba);
-    CubePipeline.WriteBuffer(handleBuffer, handleColor.buffer);
-
-    cabinetColor.set(color.Set(0xbfbfbf, 0.75).rgba);
-    CubePipeline.WriteBuffer(cabinetBuffer, cabinetColor.buffer);
+    const drawerBuffer = Pipeline.WriteBufferData(Pipeline.CreateUniformBuffer("color"), color.rgba);
+    const handleBuffer = Pipeline.WriteBufferData(Pipeline.CreateUniformBuffer("color"), color.Set(0x7f7f7f).rgba);
+    const cabinetBuffer = Pipeline.WriteBufferData(Pipeline.CreateUniformBuffer("color"), color.Set(0xbfbfbf, 0.75).rgba);
 
     Array.from({ length: cabinets }).forEach((_, c) => addCabinet(scene, c));
     const nodeButtons = addNodeGUI(gui.addFolder("Nodes"), scene);
@@ -193,9 +184,8 @@ import Cube from "./Cube.wgsl";
             data[v * 4 + 3] = 255;
         }
 
-        const { buffer } = CubePipeline.CreateVertexBuffer(attribute, vertices, "cubeVertex");
-        CubePipeline.WriteBuffer(buffer, data);
-        return buffer;
+        const { buffer } = Pipeline.CreateVertexBuffer(attribute, vertices, "cubeVertex");
+        return Pipeline.WriteBuffer(buffer, data);
     }
 
     function setCurrentNode(node)
@@ -231,12 +221,12 @@ import Cube from "./Cube.wgsl";
         const cube = new UWAL.Mesh(CubeGeometry, label, parent);
 
         cube.SetRenderPipeline(
-            CubePipeline,
+            Pipeline,
             [cameraBuffer, buffer],
             [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.MESH_COLOR]
         );
 
-        CubePipeline.AddVertexBuffers(colorBuffer);
+        Pipeline.AddVertexBuffers(colorBuffer);
         cube.Transform = transform;
         return cube;
     }

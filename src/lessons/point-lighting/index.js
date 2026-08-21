@@ -26,9 +26,9 @@ import createVertices from "../directional-lighting/F.js";
         alert(error);
     }
 
-    const FPipeline = new Renderer.Pipeline();
     const FGeometry = new UWAL.Geometries.Mesh();
     const Camera = new UWAL.PerspectiveCamera();
+    const FPipeline = new Renderer.Pipeline();
     const FMesh = new UWAL.Mesh(FGeometry);
 
     const scene = new UWAL.Scene();
@@ -39,10 +39,12 @@ import createVertices from "../directional-lighting/F.js";
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
     const module = FPipeline.CreateShaderModule([UWAL.Shaders.Mesh, UWAL.Shaders.Light, FShader]);
     const settings = { rotation: UWAL.MathUtils.DegreesToRadians(0.0), shininess: 30.0 };
-    const { color, buffer: colorBuffer } = FMesh.CreateColorBuffer(FPipeline);
 
     const Light = new UWAL.PointLight([-10, 30, 100]);
-    color.set(new UWAL.Color(0x33ff33).rgba);
+    const colorBuffer = FPipeline.WriteBufferData(
+        FMesh.CreateColorBuffer(FPipeline),
+        new UWAL.Color(0x33ff33).rgba
+    );
 
     gui.add(settings, "rotation", radToDegOptions);
     gui.add(settings, "shininess", { min: 1, max: 250 });
@@ -65,7 +67,6 @@ import createVertices from "../directional-lighting/F.js";
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
     FGeometry.CreatePositionBuffer(FPipeline, positionData);
 
-    FPipeline.WriteBuffer(colorBuffer, color.buffer);
     FPipeline.WriteBuffer(normalBuffer, normalData);
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);

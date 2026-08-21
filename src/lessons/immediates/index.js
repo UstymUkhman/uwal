@@ -31,7 +31,8 @@ import * as UWAL from "#/index";
     const Camera = new UWAL.OrthographicCamera(-1, 1, 1, aspect, -1, -aspect);
     const module = Pipeline.CreateShaderModule([UWAL.Shaders.ShapeVertex, Immediates]);
 
-    await Renderer.AddPipeline(Pipeline, {
+    await Renderer.AddPipeline(Pipeline,
+    {
         fragment: Pipeline.CreateFragmentState(module),
         vertex: Pipeline.CreateVertexState(module, "immediatesVertex", [
             Pipeline.CreateVertexBufferLayout({ name: "position", format: "float32x2" })
@@ -40,9 +41,9 @@ import * as UWAL from "#/index";
 
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new UWAL.Color(0x4c4c4c)));
     const { models, buffer: modelsBuffer } = Pipeline.CreateStorageBuffer("models", MODELS * 16);
-    const { materials, buffer: materialsBuffer } = Pipeline.CreateStorageBuffer("materials", 4 * 6);
 
-    materials.set([
+    const materialsBuffer = Pipeline.WriteBufferData(Pipeline.CreateStorageBuffer("materials", 4 * 6),
+    [
         1.0, 0.5, 0.5, 1.0, // Red
         0.5, 1.0, 0.5, 1.0, // Green
         0.5, 0.5, 1.0, 1.0, // Blue
@@ -52,7 +53,6 @@ import * as UWAL from "#/index";
     ]);
 
     Scene.AddMainCamera(Camera);
-    Pipeline.WriteBuffer(materialsBuffer, materials);
     const CameraMatrixBuffer = Camera.SetRenderPipeline(Pipeline);
 
     const Geometries = Array.from({ length: 3 }).map((_, g) =>
@@ -103,10 +103,10 @@ import * as UWAL from "#/index";
         return Geometry;
     });
 
-    for (let m = 0; m < MODELS; ++m)
+    for (let m = 0, materials = materialsBuffer.size / 64 - 1; m < MODELS; ++m)
     {
-        const materialIndex = UWAL.MathUtils.RandomInt(0, materials.length / 4 - 1);
         const geometryIndex = UWAL.MathUtils.RandomInt(0, Geometries.length - 1);
+        const materialIndex = UWAL.MathUtils.RandomInt(0, materials);
 
         const Geometry = Geometries[geometryIndex];
         const Shape = new UWAL.Shape(Geometry);

@@ -38,13 +38,14 @@ import createVertices from "./F.js";
 
     const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
     const module = FPipeline.CreateShaderModule([UWAL.Shaders.Mesh, UWAL.Shaders.Light, FShader]);
-    const { color, buffer: colorBuffer } = FMesh.CreateColorBuffer(FPipeline);
-
     const settings = { rotation: UWAL.MathUtils.DegreesToRadians(0) };
     const Light = new UWAL.DirectionalLight([-0.5, -0.7, -1]);
-
     gui.add(settings, "rotation", radToDegOptions);
-    color.set(new UWAL.Color(0x33ff33).rgba);
+
+    const colorBuffer = FPipeline.WriteBufferData(
+        FMesh.CreateColorBuffer(FPipeline),
+        new UWAL.Color(0x33ff33).rgba
+    );
 
     FMesh.SetRenderPipeline(await Renderer.AddPipeline(FPipeline,
         {
@@ -64,7 +65,6 @@ import createVertices from "./F.js";
     const normalBuffer = FPipeline.CreateVertexBuffer(normalData);
     FGeometry.CreatePositionBuffer(FPipeline, positionData);
 
-    FPipeline.WriteBuffer(colorBuffer, color.buffer);
     FPipeline.WriteBuffer(normalBuffer, normalData);
     FPipeline.AddVertexBuffers(normalBuffer);
     FGeometry.SetDrawParams(vertices);

@@ -29,18 +29,21 @@ import * as UWAL from "#/index";
     const INSTANCES = 200;
     const Scene = new UWAL.Scene();
 
+    const { Mat3, Vec2 } = UWAL.MathUtils;
     const Color = new UWAL.Color(0x4c4c4c);
+
     const Pipeline = new Renderer.Pipeline();
     const Camera = new UWAL.Camera2D(Renderer);
 
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(Color));
+
+    const addScalar = (v, s, dst = Vec2.create()) => Vec2.add(v, [s, s], dst);
+    const subScalar = (v, s, dst = Vec2.create()) => Vec2.sub(v, [s, s], dst);
+
     const module = Pipeline.CreateShaderModule([UWAL.Shaders.ShapeVertexInstance, Instance]);
     const Geometry = new UWAL.Geometries.Shape({ segments: 24, radius: 0.5, innerRadius: 0.25 });
 
-    const addScalar = (v, s, dst = UWAL.MathUtils.Vec2.create()) => UWAL.MathUtils.Vec2.add(v, [s, s], dst);
-    const subScalar = (v, s, dst = UWAL.MathUtils.Vec2.create()) => UWAL.MathUtils.Vec2.sub(v, [s, s], dst);
-
-    const euclideanModulo = (a, b, dst = UWAL.MathUtils.Vec2.create()) => UWAL.MathUtils.Vec2.set(
+    const euclideanModulo = (a, b, dst = UWAL.MathUtils.Vec2.create()) => Vec2.set(
         UWAL.MathUtils.EuclideanModulo(a[0], b[0]),
         UWAL.MathUtils.EuclideanModulo(a[1], b[1]),
         dst
@@ -54,7 +57,7 @@ import * as UWAL from "#/index";
         ])
     });
 
-    const colorsBuffer = Pipeline.SetBufferData(Pipeline.CreateUniformBuffer("colors"), [0.1, 1]);
+    const colorsBuffer = Pipeline.WriteBufferData(Pipeline.CreateUniformBuffer("colors"), [0.1, 1]);
     const { color, buffer: colorBuffer } = Pipeline.CreateStorageBuffer("color", INSTANCES * 4);
     const cameraBuffer = Camera.SetRenderPipeline(Pipeline);
 
@@ -69,13 +72,14 @@ import * as UWAL from "#/index";
     );
 
     Shape.AddInstanceBuffer(INSTANCES, "vertexShape");
-    const translation = UWAL.MathUtils.Vec2.create();
     const velocity = new Float16Array(INSTANCES * 2);
-    const matrix = UWAL.MathUtils.Mat3.identity();
+
+    const translation = Vec2.create();
+    const matrix = Mat3.identity();
 
     function initializeObjects()
     {
-        const { Mat3, Random } = UWAL.MathUtils;
+        const { Random } = UWAL.MathUtils;
         const [width, height] = Renderer.CanvasSize;
 
         for (let i = INSTANCES; i--; )
@@ -99,8 +103,8 @@ import * as UWAL from "#/index";
 
     function updateTransformMatrix(delta)
     {
-        const { Mat3, Vec2 } = UWAL.MathUtils;
-        const speed = Vec2.create(), size = Vec2.create();
+        const size = Vec2.create();
+        const speed = Vec2.create();
 
         for (let i = INSTANCES; i--; )
         {

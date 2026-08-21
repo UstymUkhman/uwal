@@ -58,19 +58,20 @@ import * as UWAL from "#/index";
 
     const shapes = Array.from({ length: 5 }).map(() =>
     {
-        const shape = new UWAL.Shape(geometry);
-        const uniform = shape.CreateColorBuffer(Pipeline);
+        const Shape = new UWAL.Shape(geometry);
 
-        uniform.color.set(color.Random().rgba);
-        Pipeline.WriteBuffer(uniform.buffer, uniform.color);
+        const colorBuffer = Pipeline.WriteBufferData(
+            Shape.CreateColorBuffer(Pipeline),
+            color.Random().rgba
+        );
 
-        shape.SetRenderPipeline(Pipeline,
-            [cameraMatrixBuffer, uniform.buffer],
+        Shape.SetRenderPipeline(Pipeline,
+            [cameraMatrixBuffer, colorBuffer],
             [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.SHAPE_COLOR]
         );
 
-        shape.Origin = [50, 75];
-        return shape;
+        Shape.Origin = [50, 75];
+        return Shape;
     });
 
     for (let s = -1; s < 4; ++s)
