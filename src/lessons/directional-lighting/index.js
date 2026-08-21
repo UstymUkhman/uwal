@@ -58,7 +58,7 @@ import createVertices from "./F.js";
             ])
         }),
         [Camera.SetRenderPipeline(FPipeline), colorBuffer, Light.SetRenderPipeline(FPipeline)],
-        [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.MESH_COLOR, UWAL.BINDINGS.DIRECTIONAL_LIGHT]
+        [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR, UWAL.BINDINGS.DIRECTIONAL_LIGHT]
     );
 
     const { positionData, normalData, vertices } = createVertices();

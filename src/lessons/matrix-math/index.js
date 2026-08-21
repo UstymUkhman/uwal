@@ -67,7 +67,7 @@ import * as UWAL from "#/index";
 
         Shape.SetRenderPipeline(Pipeline,
             [cameraMatrixBuffer, colorBuffer],
-            [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.SHAPE_COLOR]
+            [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR]
         );
 
         Shape.Origin = [50, 75];

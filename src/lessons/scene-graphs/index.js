@@ -223,7 +223,7 @@ import Cube from "./Cube.wgsl";
         cube.SetRenderPipeline(
             Pipeline,
             [cameraBuffer, buffer],
-            [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.MESH_COLOR]
+            [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR]
         );
 
         Pipeline.AddVertexBuffers(colorBuffer);

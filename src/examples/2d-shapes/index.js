@@ -88,7 +88,7 @@ export async function run(canvas)
 
                 shape.SetRenderPipeline(FlatMaterial.Pipeline,
                     [cameraBuffer, randomColor(uniform.at(-1))],
-                    [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.SHAPE_COLOR]
+                    [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR]
                 );
 
                 direction.push([UWAL.MathUtils.Random(-1), UWAL.MathUtils.Random(-1)]);
