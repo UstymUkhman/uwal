@@ -1,5 +1,6 @@
 struct CameraMatrixUniforms
 {
+    view: mat4x4f,
     world: mat4x4f,
     projection: mat4x4f,
     viewProjection: mat4x4f
