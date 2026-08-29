@@ -9,12 +9,6 @@ fn GetFlatFaceNormal(worldPosition: vec3f) -> vec3f
     return normalize(cross(fdy, fdx));
 }
 
-// Get default emissive color when not defined:
-fn GetEmissiveColor(uv: vec2f) -> vec3f
-{
-    return vec3f(0);
-}
-
 @fragment fn fragment() -> @location(0) vec4f
 {
     return vec4f(color.rgb + GetEmissiveColor(vec2f(0)), color.a);
