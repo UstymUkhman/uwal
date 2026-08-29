@@ -50,3 +50,5 @@
 | _Techniques 3D_ |
 | [Environment maps](https://webgpufundamentals.org/webgpu/lessons/webgpu-environment-maps.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#environment-maps) | [Code](./environment-maps/index.js) |
 | [SkyBox](https://webgpufundamentals.org/webgpu/lessons/webgpu-skybox.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#skybox) | [Code](./skybox/index.js) |
+| _Techniques Post Processing_ |
+| [Basic CRT Effect](https://webgpufundamentals.org/webgpu/lessons/webgpu-post-processing.html) | [Preview](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#basic-crt-effect) | [Code](./basic-crt-effect/index.js) |

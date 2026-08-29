@@ -26,17 +26,28 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
-    let lastTime = 0;
-    const INSTANCES = 200;
-    const Scene = new UWAL.Scene();
+    const settings =
+    {
+        effectAmount: 1,
+        bandMultiplier: 1,
+        cellBrightness: 1,
+        cellSize: 0.5
+    };
 
+    let lastTime = 0;
+    const Scene = new UWAL.Scene();
     const { Mat3, Vec2 } = UWAL.MathUtils;
+    const gui = new GUI(), INSTANCES = 200;
     const Color = new UWAL.Color(0x4c4c4c);
+
+    gui.add(settings, "effectAmount", 0, 1);
+    gui.add(settings, "bandMultiplier", 0.01, 2);
+    gui.add(settings, "cellBrightness", 0, 2);
+    gui.add(settings, "cellSize", 0, 1);
 
     const Camera = new UWAL.Camera2D(Renderer);
     const ImagePipeline = new Renderer.Pipeline();
     const Texture = new (await UWAL.TextureUtils());
-
     const Sampler = Texture.CreateSampler({ filter: "linear" });
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(Color));
 
@@ -63,6 +74,7 @@ import * as UWAL from "#/index";
 
     const colorsBuffer = ImagePipeline.WriteBufferData(ImagePipeline.CreateUniformBuffer("colors"), [0.1, 1]);
     const { color, buffer: colorBuffer } = ImagePipeline.CreateStorageBuffer("color", INSTANCES * 4);
+    const { effect, buffer: effectBuffer } = PostProcessPipeline.CreateUniformBuffer("effect");
     const cameraBuffer = Camera.SetRenderPipeline(ImagePipeline);
 
     const Shape = new UWAL.Shape(Geometry);
@@ -140,6 +152,14 @@ import * as UWAL from "#/index";
 
     function render(time)
     {
+        effect.cellSize.set([settings.cellSize]);
+        effect.amount.set([settings.effectAmount]);
+        effect.multiplier.set([settings.bandMultiplier]);
+        effect.cellBrightness.set([settings.cellBrightness]);
+
+        // Write both into the `GPUBuffer` by passing the `ArrayBuffer`:
+        PostProcessPipeline.WriteBuffer(effectBuffer, effect.amount.buffer);
+
         updateTransform(time - lastTime);
         requestAnimationFrame(render);
         ImagePipeline.Active = true;
@@ -166,7 +186,7 @@ import * as UWAL from "#/index";
         ) {
             ImagePipeline.TextureView?.destroy();
             ImagePipeline.TextureView = Texture.CreateTexture({ size: Renderer.CanvasSize });
-            PostProcessPipeline.SetBindGroupFromResources([Sampler, ImagePipeline.TextureView]);
+            PostProcessPipeline.SetBindGroupFromResources([Sampler, ImagePipeline.TextureView, effectBuffer]);
         }
 
         initializeObjects();
