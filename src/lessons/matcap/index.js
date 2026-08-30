@@ -25,7 +25,7 @@ import * as UWAL from "#/index";
     Scene.Add(Torus);
 
     const Texture = new (await UWAL.TextureUtils(Renderer));
-    const MatcapMaterial = new UWAL.MatcapMaterial(Renderer);
+    const MatcapMaterial = new UWAL.MatcapMaterial(Renderer, { flatShaded: true });
     const sampler = Texture.CreateSampler({ filter: "linear" });
     const position = [4, 0, -2.96], rotation = [0, 0, 0], origin = [0, 0, 0];
 
@@ -37,11 +37,12 @@ import * as UWAL from "#/index";
 
     await MatcapMaterial.AddPipeline({
         primitive: MatcapMaterial.Pipeline.CreatePrimitiveState(),
-        multisample: MatcapMaterial.Pipeline.CreateMultisampleState(),
+        // multisample: MatcapMaterial.Pipeline.CreateMultisampleState(),
         depthStencil: MatcapMaterial.Pipeline.CreateDepthStencilState(),
         vertex: { buffers: [
-            TorusGeometry.GetPositionBufferLayout(MatcapMaterial.Pipeline),
-            TorusGeometry.GetNormalBufferLayout(MatcapMaterial.Pipeline)
+            TorusGeometry.GetPositionBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry()),
+            TorusGeometry.GetNormalBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry()),
+            TorusGeometry.GetUVBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry())
         ]}
     });
 
@@ -55,7 +56,7 @@ import * as UWAL from "#/index";
         depthStencil: SkyboxPipeline.CreateDepthStencilState(void 0, void 0, "less-equal"),
         fragment: SkyboxPipeline.CreateFragmentState(skyboxModule),
         vertex: SkyboxPipeline.CreateVertexState(skyboxModule),
-        multisample: SkyboxPipeline.CreateMultisampleState()
+        // multisample: SkyboxPipeline.CreateMultisampleState()
     });
 
     SkyboxPipeline.SetBindGroupFromResources([sampler, view, inverseViewProjectionBuffer]);
@@ -97,7 +98,7 @@ import * as UWAL from "#/index";
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
-            Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
+            // Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             Camera.AspectRatio = Renderer.AspectRatio;
             Scene.AddMainCamera(Camera);
             Camera.LookAt(origin);

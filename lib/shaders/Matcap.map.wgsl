@@ -9,9 +9,12 @@
     @location(2) uv: vec2f
 ) -> @location(0) vec4f
 {
-    // let viewDirection = GetViewDirection(worldPosition);
-    // let matcapUV = GetMatcapUV(viewDirection, normal);
+    let viewDirection = GetViewDirection(worldPosition);
+    let matcapUV = GetMatcapUV(viewDirection, normal);
+    // let map = textureSample(colorMap, mapSampler, uv);
 
-    let map = textureSample(colorMap, mapSampler, uv) * color;
-    return vec4f(map.rgb + GetEmissiveColor(uv), map.a);
+    let albedo = /* map * */ color;
+    let rgb = albedo.rgb * vec3f(matcapUV, 0);
+
+    return vec4f(rgb + GetEmissiveColor(uv), albedo.a);
 }
