@@ -50,14 +50,16 @@ export async function run(canvas)
     const Texture = new (await UWAL.TextureUtils(Renderer));
     const WireMaterial = new UWAL.WireframeMaterial(Renderer);
 
+    const baseModule = BasePipeline.CreateShaderModule([
+        UWAL.Shaders.Light, UWAL.Shaders.Mesh, UWAL.Shaders.Normals, Primitive
+    ]);
+
     await WireMaterial.AddPipeline({
         multisample: WireMaterial.Pipeline.CreateMultisampleState(),
         vertex: { buffers: [Geometry.GetPositionBufferLayout(WireMaterial.Pipeline)] }
     });
 
-    const baseModule = BasePipeline.CreateShaderModule([UWAL.Shaders.Light, UWAL.Shaders.Mesh, Primitive]);
     const wireResources = [void 0, WireMaterial.ColorBuffer, Camera.SetRenderPipeline(BasePipeline)];
-
     texture = await Texture.CopyImageToTexture(await Texture.CreateImageBitmap(UV));
     const { mode, buffer: modeBuffer } = BasePipeline.CreateUniformBuffer("mode");
     let baseResources = [modeBuffer, Texture.CreateSampler(), texture];
