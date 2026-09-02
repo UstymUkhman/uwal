@@ -15,6 +15,12 @@
 
     let albedo = /* map * */ color;
     let rgb = albedo.rgb * vec3f(matcapUV, 0);
+    var output = rgb + GetEmissiveColor(uv);
 
-    return vec4f(rgb + GetEmissiveColor(uv), albedo.a);
+    if (FLAT_SHADED)
+    {
+        output *= GetFlatFaceNormal(worldPosition);
+    }
+
+    return vec4f(output, albedo.a);
 }

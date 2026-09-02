@@ -1,3 +1,4 @@
+#include "Normals.wgsl";
 #include "Color.frag.wgsl";
 
 override FLAT_SHADED = false;
@@ -22,7 +23,14 @@ fn GetMatcapUV(viewDirection: vec3f, normal: vec3f) -> vec2f
 {
     let viewDirection = GetViewDirection(worldPosition);
     let matcapUV = GetMatcapUV(viewDirection, normal);
-    let rgb = color.rgb * vec3f(matcapUV, 0);
 
-    return vec4f(rgb + GetEmissiveColor(uv), color.a);
+    let rgb = color.rgb * vec3f(matcapUV, 0);
+    var output = rgb + GetEmissiveColor(uv);
+
+    if (FLAT_SHADED)
+    {
+        output *= GetFlatFaceNormal(worldPosition);
+    }
+
+    return vec4f(output, color.a);
 }
