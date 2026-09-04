@@ -3,29 +3,44 @@
 
 override FLAT_SHADED = false;
 
-fn GetViewDirection(worldPosition: vec3f) -> vec3f
-{
-    return normalize(-(CameraMatrix.view * vec4f(worldPosition, 1.0)).xyz);
-}
+@group(0) @binding(48) var matcapMap: texture_2d<f32>;
+@group(0) @binding(49) var matcapSampler: sampler;
 
-fn GetMatcapUV(viewDirection: vec3f, normal: vec3f) -> vec2f
+fn GetMatcapUV(direction: vec3f, normal: vec3f) -> vec2f
 {
-    let x = normalize(vec3f(viewDirection.z, 0, -viewDirection.x));
+    let x = normalize(vec3f(direction.z, 0, -direction.x));
     // `0.495` is used to remove artifacts caused by undersized matcap disks:
-	return vec2f(dot(x, normal), dot(cross(viewDirection, x), normal)) * 0.495 + 0.5;
+	return vec2f(dot(x, normal), dot(cross(direction, x), normal)) * 0.495 + 0.5;
 }
 
-@fragment fn fragmentNormalUV(
+@fragment fn fragmentMatcap(
     @location(0) worldPosition: vec3f,
-    @location(1) normal: vec3f,
-    @location(2) uv: vec2f
+    @location(1) viewPosition: vec3f,
+    @location(2) viewNormal: vec3f
 ) -> @location(0) vec4f
 {
-    let viewDirection = GetViewDirection(worldPosition);
-    let matcapUV = GetMatcapUV(viewDirection, normal);
+    let matcapUV = GetMatcapUV(normalize(viewPosition), normalize(viewNormal));
+    let matcap = textureSample(matcapMap, matcapSampler, matcapUV).rgb;
+    var output = matcap.rgb * color.rgb + GetEmissiveColor(vec2f(0));
 
-    let rgb = color.rgb * vec3f(matcapUV, 0);
-    var output = rgb + GetEmissiveColor(uv);
+    if (FLAT_SHADED)
+    {
+        output *= GetFlatFaceNormal(worldPosition);
+    }
+
+    return vec4f(output, color.a);
+}
+
+@fragment fn fragmentMatcapUV(
+    @location(0) worldPosition: vec3f,
+    @location(1) viewPosition: vec3f,
+    @location(2) viewNormal: vec3f,
+    @location(3) uv: vec2f
+) -> @location(0) vec4f
+{
+    let matcapUV = GetMatcapUV(normalize(viewPosition), normalize(viewNormal));
+    let matcap = textureSample(matcapMap, matcapSampler, matcapUV).rgb;
+    var output = matcap.rgb * color.rgb + GetEmissiveColor(uv);
 
     if (FLAT_SHADED)
     {

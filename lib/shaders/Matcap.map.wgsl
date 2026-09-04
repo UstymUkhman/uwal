@@ -3,19 +3,18 @@
 @group(0) @binding(41) var colorMap: texture_2d<f32>;
 @group(0) @binding(42) var mapSampler: sampler;
 
-@fragment fn fragmentNormalMap(
+@fragment fn fragmentMatcapMap(
     @location(0) worldPosition: vec3f,
-    @location(1) normal: vec3f,
-    @location(2) uv: vec2f
+    @location(1) viewPosition: vec3f,
+    @location(2) viewNormal: vec3f,
+    @location(3) uv: vec2f
 ) -> @location(0) vec4f
 {
-    let viewDirection = GetViewDirection(worldPosition);
-    let matcapUV = GetMatcapUV(viewDirection, normal);
-    // let map = textureSample(colorMap, mapSampler, uv);
+    let matcapUV = GetMatcapUV(normalize(viewPosition), normalize(viewNormal));
+    let matcap = textureSample(matcapMap, matcapSampler, matcapUV).rgb;
 
-    let albedo = /* map * */ color;
-    let rgb = albedo.rgb * vec3f(matcapUV, 0);
-    var output = rgb + GetEmissiveColor(uv);
+    let albedo = textureSample(colorMap, mapSampler, uv) * color;
+    var output = matcap.rgb * albedo.rgb + GetEmissiveColor(uv);
 
     if (FLAT_SHADED)
     {
