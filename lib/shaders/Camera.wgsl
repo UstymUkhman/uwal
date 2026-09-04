@@ -22,11 +22,16 @@ fn GetCameraPosition() -> vec3f
 }
 
 // Get rotation from camera's world matrix.
-fn GetCameraRotation() -> mat3x3f
+fn GetCameraRotation(withScale: bool) -> mat3x3f
 {
     let x = CameraMatrix.world[0].xyz;
     let y = CameraMatrix.world[1].xyz;
     let z = CameraMatrix.world[2].xyz;
+
+    if (withScale)
+    {
+        return mat3x3f(x, y, z);
+    }
 
     let scale = vec3f(length(x), length(y), length(z));
     return mat3x3f(x / scale.x, y / scale.y, z / scale.z);
@@ -36,4 +41,10 @@ fn GetCameraRotation() -> mat3x3f
 fn GetCameraDirection(worldPosition: vec3f) -> vec3f
 {
     return GetCameraPosition() - worldPosition;
+}
+
+// Compute the model-view normal matrix by transposing the camera's rotation without scale.
+fn GetCameraNormalMatrix() -> mat3x3f
+{
+    return transpose(GetCameraRotation(false));
 }

@@ -26,9 +26,9 @@ fn GetVertexClipSpace(position: vec2f) -> vec4f
 }
 
 // Orient vertex normals before passing them to the fragment shader.
-fn GetVertexNormal() -> vec3f
+fn GetVertexNormal(normal: vec3f) -> vec3f
 {
-    return ShapeMatrix.worldNormal * vec3f(0, 0, 1);
+    return ShapeMatrix.worldNormal * normal;
 }
 
 @vertex fn vertex(@location(0) position: vec2f) -> ShapeVertexPosition
@@ -54,7 +54,7 @@ struct ShapeVertexNormal
     return ShapeVertexNormal(
         GetVertexClipSpace(position),
         GetVertexWorldPosition(position),
-        ShapeMatrix.worldNormal * normal
+        GetVertexNormal(normal)
     );
 }
 
@@ -94,7 +94,7 @@ struct ShapeVertexNormalUV
     return ShapeVertexNormalUV(
         GetVertexClipSpace(position),
         GetVertexWorldPosition(position),
-        ShapeMatrix.worldNormal * normal,
+        GetVertexNormal(normal),
         uv
     );
 }
