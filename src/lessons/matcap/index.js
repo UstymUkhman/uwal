@@ -1,3 +1,4 @@
+import Matcap from "/assets/images/matcap.png";
 import Sky from "/assets/images/qwantani";
 import SkyBox from "./SkyBox.wgsl";
 import * as UWAL from "#/index";
@@ -15,20 +16,21 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
-    const TorusGeometry = new UWAL.Geometries.Mesh("torus");
+    const CubeGeometry = new UWAL.Geometries.Mesh({ name: "roundedCube", args: { radius: 0.04 } });
     const SkyboxPipeline = new Renderer.Pipeline();
     const Camera = new UWAL.PerspectiveCamera();
-    const Torus = new UWAL.Mesh(TorusGeometry);
+    const Cube = new UWAL.Mesh(CubeGeometry);
     const Scene = new UWAL.Scene();
 
-    Torus.Scaling = 2.5;
-    Scene.Add(Torus);
+    Cube.Scaling = 2;
+    Scene.Add(Cube);
 
     const Texture = new (await UWAL.TextureUtils(Renderer));
-    const MatcapMaterial = new UWAL.MatcapMaterial(Renderer, { flatShaded: true });
+    const MatcapMaterial = new UWAL.MatcapMaterial(Renderer);
     const sampler = Texture.CreateSampler({ filter: "linear" });
     const position = [4, 0, -2.96], rotation = [0, 0, 0], origin = [0, 0, 0];
 
+    const matcap = await Texture.CopyImageToTexture(await Texture.CreateImageBitmap(Matcap), { mipmaps: false });
     const skyboxModule = SkyboxPipeline.CreateShaderModule([UWAL.Shaders.Fullscreen, SkyBox]);
     const view = (await Texture.CreateCubeTexture(Sky)).createView({ dimension: "cube" });
 
@@ -40,15 +42,15 @@ import * as UWAL from "#/index";
         // multisample: MatcapMaterial.Pipeline.CreateMultisampleState(),
         depthStencil: MatcapMaterial.Pipeline.CreateDepthStencilState(),
         vertex: { buffers: [
-            TorusGeometry.GetPositionBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry()),
-            TorusGeometry.GetNormalBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry()),
-            TorusGeometry.GetUVBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry())
+            CubeGeometry.GetPositionBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry()),
+            CubeGeometry.GetNormalBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry()) //,
+            // CubeGeometry.GetUVBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry())
         ]}
     });
 
-    Torus.SetRenderPipeline(MatcapMaterial.Pipeline,
-        [Camera.SetRenderPipeline(MatcapMaterial.Pipeline),MatcapMaterial.ColorBuffer],
-        [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR]
+    Cube.SetRenderPipeline(MatcapMaterial.Pipeline,
+        [Camera.SetRenderPipeline(MatcapMaterial.Pipeline),MatcapMaterial.ColorBuffer, matcap, sampler],
+        [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR, UWAL.BINDINGS.MATCAP_COLOR_MAP, UWAL.BINDINGS.MATCAP_MAP_SAMPLER]
     );
 
     await Renderer.AddPipeline(SkyboxPipeline,
@@ -74,7 +76,7 @@ import * as UWAL from "#/index";
         rotation[1] = time * -2;
 
         Camera.Position = position;
-        Torus.Rotation = rotation;
+        Cube.Rotation = rotation;
         Camera.LookAt(origin);
 
         // Camera's `ViewProjectionMatrix` is updated by the `LookAt` method, but its `WorldMatrix` is not.
