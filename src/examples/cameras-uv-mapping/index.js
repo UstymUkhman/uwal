@@ -66,8 +66,8 @@ export async function run(canvas)
         ]}
     });
 
-    const { CAMERA_MATRIX, COLOR, COLOR_MAP, MAP_SAMPLER } = UWAL.BINDINGS;
-    const bindings = [CAMERA_MATRIX, COLOR, COLOR_MAP, MAP_SAMPLER];
+    const { CAMERA_MATRIX, COLOR, COLOR_MAP, COLOR_MAP_SAMPLER } = UWAL.BINDINGS;
+    const bindings = [CAMERA_MATRIX, COLOR, COLOR_MAP, COLOR_MAP_SAMPLER];
 
     perspectiveCube.SetRenderPipeline(FlatMaterial.Pipeline, [
         perspectiveCamera.SetRenderPipeline(FlatMaterial.Pipeline),
