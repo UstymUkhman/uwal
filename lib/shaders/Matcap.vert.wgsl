@@ -30,7 +30,8 @@ struct MeshVertexMatcap
 
     return MeshVertexMatcap(
         GetVertexClipSpace(position),
-        worldPosition.xyz, -(CameraMatrix.view * worldPosition).xyz,
+        worldPosition.xyz,
+        -(CameraMatrix.view * worldPosition).xyz,
         normalize(GetCameraNormalMatrix() * MeshMatrix.worldNormal * normal)
     );
 }
@@ -40,7 +41,7 @@ struct MeshVertexMatcapUV
     @builtin(position) position: vec4f,
     @location(0) worldPosition: vec3f,
     @location(1) viewPosition: vec3f,
-    @location(2) viewNormal: vec3f,
+    @location(2) worldNormal: vec3f,
     @location(3) uv: vec2f
 };
 
@@ -54,7 +55,9 @@ struct MeshVertexMatcapUV
 
     return MeshVertexMatcapUV(
         GetVertexClipSpace(position),
-        worldPosition.xyz, -(CameraMatrix.view * worldPosition).xyz,
-        normalize(GetCameraNormalMatrix() * MeshMatrix.worldNormal * normal), uv
+        worldPosition.xyz,
+        -(CameraMatrix.view * worldPosition).xyz,
+        MeshMatrix.worldNormal * normal,
+        uv
     );
 }

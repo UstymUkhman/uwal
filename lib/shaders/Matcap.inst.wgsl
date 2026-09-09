@@ -55,7 +55,7 @@ struct MeshVertexMatcapUV
     @builtin(position) position: vec4f,
     @location(0) worldPosition: vec3f,
     @location(1) viewPosition: vec3f,
-    @location(2) viewNormal: vec3f,
+    @location(2) worldNormal: vec3f,
     @location(3) uv: vec2f,
     @location(4) @interpolate(flat, either) instance: u32
 };
@@ -84,7 +84,7 @@ struct MeshVertexMatcapUV
         GetVertexClipSpace(position, instanceMatrix),
         worldPosition.xyz,
         -(CameraMatrix.view * worldPosition).xyz,
-        normalize(GetCameraNormalMatrix() * MeshMatrix.worldNormal * normal),
+        MeshMatrix.worldNormal * normal,
         uv,
         instance
     );
