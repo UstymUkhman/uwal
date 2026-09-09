@@ -1,7 +1,7 @@
 #include "Normals.wgsl";
 #include "Color.frag.wgsl";
 
-override FLAT_SHADED = false;
+override USE_NORMAL_MAP = false;
 
 @group(0) @binding(48) var matcapMap: texture_2d<f32>;
 @group(0) @binding(49) var matcapSampler: sampler;
@@ -19,33 +19,38 @@ fn GetMatcapUV(direction: vec3f, normal: vec3f) -> vec2f
     @location(2) viewNormal: vec3f
 ) -> @location(0) vec4f
 {
-    let matcapUV = GetMatcapUV(normalize(viewPosition), normalize(viewNormal));
-    let matcap = textureSample(matcapMap, matcapSampler, matcapUV).rgb;
-    var output = matcap.rgb * color.rgb + GetEmissiveColor(vec2f(0));
+    let normal = select(
+        normalize(viewNormal), normalize(
+            GetCameraNormalMatrix() *
+            GetFlatFaceNormal(worldPosition)
+        ), USE_FLAT_SHADED
+    );
 
-    if (FLAT_SHADED)
-    {
-        output *= GetFlatFaceNormal(worldPosition);
-    }
-
-    return vec4f(output, color.a);
+    let matcapUV = GetMatcapUV(normalize(viewPosition), normal);
+    let matcap = textureSample(matcapMap, matcapSampler, matcapUV);
+    return vec4f(matcap.rgb * color.rgb + GetEmissiveColor(vec2f(0)), color.a);
 }
 
 @fragment fn fragmentMatcapUV(
     @location(0) worldPosition: vec3f,
     @location(1) viewPosition: vec3f,
-    @location(2) viewNormal: vec3f,
+    @location(2) worldNormal: vec3f,
     @location(3) uv: vec2f
 ) -> @location(0) vec4f
 {
-    let matcapUV = GetMatcapUV(normalize(viewPosition), normalize(viewNormal));
-    let matcap = textureSample(matcapMap, matcapSampler, matcapUV).rgb;
-    var output = matcap.rgb * color.rgb + GetEmissiveColor(uv);
+    var normal = select(
+        GetViewNormal(worldNormal, worldPosition),
+        GetWorldNormal(worldNormal, worldPosition),
+        USE_NORMAL_MAP
+    );
 
-    if (FLAT_SHADED)
+    if (USE_NORMAL_MAP)
     {
-        output *= GetFlatFaceNormal(worldPosition);
+        let tbn = GetTangentBitangentNormalBasis(worldPosition, uv, normal);
+        normal = normalize(GetCameraNormalMatrix() * normalize(tbn * GetNormalMap(uv)));
     }
 
-    return vec4f(output, color.a);
+    let matcapUV = GetMatcapUV(normalize(viewPosition), normal);
+    let matcap = textureSample(matcapMap, matcapSampler, matcapUV);
+    return vec4f(matcap.rgb * color.rgb + GetEmissiveColor(uv), color.a);
 }

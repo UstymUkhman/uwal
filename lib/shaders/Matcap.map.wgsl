@@ -6,20 +6,25 @@
 @fragment fn fragmentMatcapMap(
     @location(0) worldPosition: vec3f,
     @location(1) viewPosition: vec3f,
-    @location(2) viewNormal: vec3f,
+    @location(2) worldNormal: vec3f,
     @location(3) uv: vec2f
 ) -> @location(0) vec4f
 {
-    let matcapUV = GetMatcapUV(normalize(viewPosition), normalize(viewNormal));
-    let matcap = textureSample(matcapMap, matcapSampler, matcapUV).rgb;
+    let normal = select(
+        GetViewNormal(worldNormal, worldPosition),
+        GetWorldNormal(worldNormal, worldPosition),
+        USE_NORMAL_MAP
+    );
 
-    let albedo = textureSample(colorMap, mapSampler, uv) * color;
-    var output = matcap.rgb * albedo.rgb + GetEmissiveColor(uv);
-
-    if (FLAT_SHADED)
+    if (USE_NORMAL_MAP)
     {
-        output *= GetFlatFaceNormal(worldPosition);
+        let tbn = GetTangentBitangentNormalBasis(worldPosition, uv, normal);
+        normal = normalize(GetCameraNormalMatrix() * normalize(tbn * GetNormalMap(uv)));
     }
 
-    return vec4f(output, albedo.a);
+    let matcapUV = GetMatcapUV(normalize(viewPosition), normal);
+    let albedo = textureSample(colorMap, mapSampler, uv) * color;
+    let matcap = textureSample(matcapMap, matcapSampler, matcapUV);
+
+    return vec4f(matcap.rgb * albedo.rgb + GetEmissiveColor(uv), albedo.a);
 }
