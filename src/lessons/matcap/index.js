@@ -1,4 +1,5 @@
 import Matcap from "/assets/images/matcap.png";
+import Normal from "/assets/images/normal.jpg";
 import Lines from "/assets/images/lines.png";
 import Sky from "/assets/images/qwantani";
 import SkyBox from "./SkyBox.wgsl";
@@ -23,7 +24,6 @@ import * as UWAL from "#/index";
 
     const SkyboxPipeline = new Renderer.Pipeline();
     const Camera = new UWAL.PerspectiveCamera();
-
     const Plane = new UWAL.Mesh(PlaneGeometry);
     const Disc = new UWAL.Mesh(DiscGeometry);
     const Cube = new UWAL.Mesh(CubeGeometry);
@@ -31,82 +31,98 @@ import * as UWAL from "#/index";
     const Scene = new UWAL.Scene();
     Scene.Add([Plane, Disc, Cube]);
     Cube.Scaling = 2;
+    let Skybox;
 
     const Texture = new (await UWAL.TextureUtils(Renderer));
-    const MatcapMaterial = new UWAL.MatcapMaterial(Renderer /*, { flatShaded: true } */);
-    const sampler = Texture.CreateSampler({ filter: "linear" });
     const WireframeMaterial = new UWAL.WireframeMaterial(Renderer);
     const FlatMaterial = new UWAL.FlatMaterial(Renderer, { colorMap: true });
-
-    const matcap = await Texture.CopyImageToTexture(await Texture.CreateImageBitmap(Matcap), { mipmaps: false });
-    const lines = await Texture.CopyImageToTexture(await Texture.CreateImageBitmap(Lines), { mipmaps: false });
+    const MatcapMaterial = new UWAL.MatcapMaterial(Renderer, { normalMap: true });
     const position = [4, 0, -2.96], rotation = [0, 0, 0], scaling = [2, 2, 1], origin = [0, 0, 0];
-    const skyboxModule = SkyboxPipeline.CreateShaderModule([UWAL.Shaders.Fullscreen, SkyBox]);
-    const view = (await Texture.CreateCubeTexture(Sky)).createView({ dimension: "cube" });
 
-    let { inverseViewProjection, buffer: inverseViewProjectionBuffer } =
-        SkyboxPipeline.CreateUniformBuffer("inverseViewProjection");
+    async function createMeshes()
+    {
+        const skyboxModule = SkyboxPipeline.CreateShaderModule([UWAL.Shaders.Fullscreen, SkyBox]);
 
-    await Promise.all([
-        WireframeMaterial.AddPipeline({
-            // multisample: WireMaterial.Pipeline.CreateMultisampleState(),
-            vertex: { buffers: [PlaneGeometry.GetPositionBufferLayout(WireframeMaterial.Pipeline)] }
-        }),
+        await Promise.all([
+            Renderer.AddPipeline(SkyboxPipeline, {
+                multisample: SkyboxPipeline.CreateMultisampleState(),
+                vertex: SkyboxPipeline.CreateVertexState(skyboxModule),
+                fragment: SkyboxPipeline.CreateFragmentState(skyboxModule),
+                depthStencil: SkyboxPipeline.CreateDepthStencilState(void 0, void 0, "less-equal"),
+            }),
 
-        FlatMaterial.AddPipeline({
-            // multisample: MatcapMaterial.Pipeline.CreateMultisampleState(),
-            depthStencil: FlatMaterial.Pipeline.CreateDepthStencilState(),
-            primitive: FlatMaterial.Pipeline.CreatePrimitiveState(void 0, "none"),
-            fragment: { targets: [FlatMaterial.Pipeline.CreateColorTargetState(UWAL.BLEND_STATE.ALPHA_ADDITIVE)] },
-            vertex: { buffers: [
-                DiscGeometry.GetPositionBufferLayout(FlatMaterial.Pipeline),
-                DiscGeometry.GetUVBufferLayout(FlatMaterial.Pipeline)
-            ]}
-        }),
+            WireframeMaterial.AddPipeline({
+                vertex: { buffers: [PlaneGeometry.GetPositionBufferLayout(WireframeMaterial.Pipeline)] }
+            }),
 
-        MatcapMaterial.AddPipeline({
-            primitive: MatcapMaterial.Pipeline.CreatePrimitiveState(),
-            // multisample: MatcapMaterial.Pipeline.CreateMultisampleState(),
-            depthStencil: MatcapMaterial.Pipeline.CreateDepthStencilState(),
-            vertex: { buffers: [
-                CubeGeometry.GetPositionBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry()),
-                CubeGeometry.GetNormalBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry()) //,
-                // CubeGeometry.GetUVBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry())
-            ]}
-        }),
+            FlatMaterial.AddPipeline({
+                depthStencil: FlatMaterial.Pipeline.CreateDepthStencilState(),
+                primitive: FlatMaterial.Pipeline.CreatePrimitiveState(void 0, "none"),
+                fragment: { targets: [FlatMaterial.Pipeline.CreateColorTargetState(UWAL.BLEND_STATE.ALPHA_ADDITIVE)] },
+                vertex: { buffers: [
+                    DiscGeometry.GetPositionBufferLayout(FlatMaterial.Pipeline),
+                    DiscGeometry.GetUVBufferLayout(FlatMaterial.Pipeline)
+                ]}
+            }),
 
-        Renderer.AddPipeline(SkyboxPipeline, {
-            // multisample: SkyboxPipeline.CreateMultisampleState(),
-            vertex: SkyboxPipeline.CreateVertexState(skyboxModule),
-            fragment: SkyboxPipeline.CreateFragmentState(skyboxModule),
-            depthStencil: SkyboxPipeline.CreateDepthStencilState(void 0, void 0, "less-equal"),
-        })
-    ]);
+            MatcapMaterial.AddPipeline({
+                primitive: MatcapMaterial.Pipeline.CreatePrimitiveState(),
+                depthStencil: MatcapMaterial.Pipeline.CreateDepthStencilState(),
+                vertex: { buffers: [
+                    CubeGeometry.GetPositionBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry()),
+                    CubeGeometry.GetNormalBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry()),
+                    CubeGeometry.GetUVBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry())
+                ]}
+            })
+        ]);
 
-    Plane.SetRenderPipeline(WireframeMaterial.Pipeline,
-        [Camera.SetRenderPipeline(FlatMaterial.Pipeline), WireframeMaterial.ColorBuffer],
-        [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR]
-    );
+        const bitmaps = await Promise.all([
+            Texture.CreateImageBitmap(Lines),
+            Texture.CreateImageBitmap(Normal),
+            Texture.CreateImageBitmap(Matcap)
+        ]);
 
-    Disc.SetRenderPipeline(FlatMaterial.Pipeline,
-        [Camera.MatrixBuffer, FlatMaterial.ColorBuffer, lines, sampler],
-        [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR, UWAL.BINDINGS.COLOR_MAP, UWAL.BINDINGS.COLOR_MAP_SAMPLER]
-    );
+        const [lines, normal, matcap] = await Promise.all(bitmaps.map(bitmap =>
+            Texture.CopyImageToTexture(bitmap, { mipmaps: false })
+        ));
 
-    Cube.SetRenderPipeline(MatcapMaterial.Pipeline,
-        [Camera.MatrixBuffer, MatcapMaterial.ColorBuffer, matcap, sampler],
-        [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR, UWAL.BINDINGS.MATCAP_COLOR_MAP, UWAL.BINDINGS.MATCAP_MAP_SAMPLER]
-    );
+        const commonBindings = [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR];
+        const cameraBuffer = Camera.SetRenderPipeline(FlatMaterial.Pipeline);
+        const sampler = Texture.CreateSampler({ filter: "linear" });
 
-    PlaneGeometry.CreateEdgeBuffer(WireframeMaterial.Pipeline, PlaneGeometry.Primitive?.cells, 4);
-    SkyboxPipeline.SetBindGroupFromResources([sampler, view, inverseViewProjectionBuffer]);
-    SkyboxPipeline.SetDrawParams(3);
+        Plane.SetRenderPipeline(WireframeMaterial.Pipeline,
+            [cameraBuffer, WireframeMaterial.ColorBuffer],
+            commonBindings
+        );
+
+        Disc.SetRenderPipeline(FlatMaterial.Pipeline,
+            [cameraBuffer, FlatMaterial.ColorBuffer, lines, sampler],
+            [...commonBindings, UWAL.BINDINGS.COLOR_MAP, UWAL.BINDINGS.COLOR_MAP_SAMPLER]
+        );
+
+        Cube.SetRenderPipeline(MatcapMaterial.Pipeline,
+            [cameraBuffer, MatcapMaterial.ColorBuffer, normal, sampler, matcap, sampler],
+            [
+                ...commonBindings,
+                UWAL.BINDINGS.NORMAL_COLOR_MAP,
+                UWAL.BINDINGS.NORMAL_MAP_SAMPLER,
+                UWAL.BINDINGS.MATCAP_COLOR_MAP,
+                UWAL.BINDINGS.MATCAP_MAP_SAMPLER
+            ]
+        );
+
+        Skybox = SkyboxPipeline.CreateUniformBuffer("inverseViewProjection");
+        const sky = (await Texture.CreateCubeTexture(Sky)).createView({ dimension: "cube" });
+        PlaneGeometry.CreateEdgeBuffer(WireframeMaterial.Pipeline, PlaneGeometry.Primitive?.cells, 4);
+        SkyboxPipeline.SetBindGroupFromResources([sampler, sky, Skybox.buffer]);
+        SkyboxPipeline.SetDrawParams(3);
+    }
 
     function render(time = 0)
     {
         time *= 0.001;
-        const x = Math.cos(time) + 1;
-        const y = Math.cos(time - Math.PI) + 1;
+        const x = Math.cos(time) * 0.5;
+        const y = Math.cos(time - Math.PI) * 0.5;
 
         time *= 0.1;
         const r = Math.cos(time);
@@ -119,8 +135,8 @@ import * as UWAL from "#/index";
         rotation[0] = time * -1;
         rotation[1] = time * -2;
 
-        scaling[0] = 2 + x * 0.5;
-        scaling[1] = 2 + y * 0.5;
+        scaling[0] = x + 2.5;
+        scaling[1] = y + 2.5;
 
         FlatMaterial.Color = [r, g, b];
         Camera.Position = position;
@@ -132,31 +148,36 @@ import * as UWAL from "#/index";
         // Camera's `ViewProjectionMatrix` is updated by the `LookAt` method, but its `WorldMatrix` is not.
         // In this case it's not important to get the initial direction correct because it's rotating anyway.
         // For a better precision, call `UpdateViewProjectionMatrix()` before inverting `ViewProjectionMatrix`.
-        inverseViewProjection = Camera.GetInverseViewProjectionMatrix(origin, inverseViewProjection);
-        SkyboxPipeline.WriteBuffer(inverseViewProjectionBuffer, inverseViewProjection);
+        Skybox.inverseViewProjection = Camera.GetInverseViewProjectionMatrix(origin, Skybox.inverseViewProjection);
+        SkyboxPipeline.WriteBuffer(Skybox.buffer, Skybox.inverseViewProjection);
 
-        MatcapMaterial.Pipeline.Active = false;
-        FlatMaterial.Pipeline.Active = false;
+        FlatMaterial.Pipeline.Active =
+        MatcapMaterial.Pipeline.Active =
+        WireframeMaterial.Pipeline.Active = false;
+
         Renderer.Render(false);
 
-        MatcapMaterial.Pipeline.Active = true;
-        FlatMaterial.Pipeline.Active = true;
+        FlatMaterial.Pipeline.Active =
+        MatcapMaterial.Pipeline.Active =
+        WireframeMaterial.Pipeline.Active = true;
+
         Renderer.Render(Scene);
 
         requestAnimationFrame(render);
     }
 
-    const observer = new ResizeObserver(entries =>
+    const observer = new ResizeObserver(async entries =>
     {
         for (const entry of entries)
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
-            // Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
+            Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             Camera.AspectRatio = Renderer.AspectRatio;
             Scene.AddMainCamera(Camera);
         }
 
+        await createMeshes();
         requestAnimationFrame(render);
     });
 
