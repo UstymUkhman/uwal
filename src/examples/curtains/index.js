@@ -136,7 +136,7 @@ export async function run(canvas)
                 ])
             }), [
                 cameraBuffer,
-                Texture.CreateSampler({ filter: "linear" }),
+                Texture.CreateSampler(),
                 TextPipeline.TextureView,
                 logo, buffer
             ],
@@ -170,8 +170,8 @@ export async function run(canvas)
             let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
             Renderer.SetCanvasSize(width, blockSize);
-            Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             Camera.AspectRatio = Renderer.AspectRatio;
+            Texture.CreateMultisampleTexture();
             Camera.Position = [0, 0, 1.5];
             Camera.UpdateWorldMatrix(true);
         }

@@ -82,7 +82,7 @@ import * as UWAL from "#/index";
                 CubeGeometry.GetPositionBufferLayout(CubePipeline)
             )
         }), [
-            Texture.CreateSampler({ filter: "linear" }),
+            Texture.CreateSampler(),
             texture.createView({ dimension: "cube" }),
             Camera.SetRenderPipeline(CubePipeline)
         ], [0, 1, UWAL.BINDINGS.CAMERA_MATRIX]

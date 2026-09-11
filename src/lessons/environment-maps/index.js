@@ -50,7 +50,7 @@ import * as UWAL from "#/index";
                 Geometry.GetNormalBufferLayout(Pipeline),
             ])
         }), [
-            Texture.CreateSampler({ filter: "linear" }),
+            Texture.CreateSampler(),
             texture.createView({ dimension: "cube" }),
             Camera.SetRenderPipeline(Pipeline)
         ],

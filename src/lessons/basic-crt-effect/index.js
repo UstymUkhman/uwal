@@ -45,10 +45,10 @@ import * as UWAL from "#/index";
     gui.add(settings, "cellBrightness", 0, 2);
     gui.add(settings, "cellSize", 0, 1);
 
+    const Sampler = Texture.CreateSampler();
     const Camera = new UWAL.Camera2D(Renderer);
     const ImagePipeline = new Renderer.Pipeline();
     const Texture = new (await UWAL.TextureUtils());
-    const Sampler = Texture.CreateSampler({ filter: "linear" });
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(Color));
 
     const addScalar = (v, s, dst = Vec2.create()) => Vec2.add(v, [s, s], dst);

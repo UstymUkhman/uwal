@@ -36,17 +36,15 @@ export async function run(canvas)
     const { Vec3 } = UWAL.MathUtils;
     const tempRotation = Vec3.create();
     let dropTimeout, dropTime = Infinity;
+    const sampler = Texture.CreateSampler();
 
     const orthographicPosition = Vec3.create();
     const orthographicRotation = Vec3.create();
-
     const nextPerspectiveRotation = Vec3.create();
     const nextOrthographicRotation = Vec3.create();
     const initialPerspectiveRotation = Vec3.create();
 
     const Texture = new (await UWAL.TextureUtils(Renderer));
-    const sampler = Texture.CreateSampler({ filter: "linear" });
-
     const CubeGeometry = new UWAL.Geometries.Mesh("cube", "uint16");
     const FlatMaterial = new UWAL.FlatMaterial(Renderer, { colorMap: true });
 
@@ -182,7 +180,9 @@ export async function run(canvas)
         {
             let { inlineSize: width, blockSize: height } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
+
             Renderer.SetCanvasSize(width, height);
+            Texture.CreateMultisampleTexture();
 
             orthographicCamera.Bottom = height;
             orthographicCamera.Right = width;
@@ -204,8 +204,6 @@ export async function run(canvas)
             perspectiveCube.Scaling = [s, s, s];
             const os = (1 - (height - 1e3) / -400) * 36 + 72;
             orthographicCube.Scaling = [os * s, os * s, os * s];
-
-            Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             Vec3.set(0.2, orthoRotation, 0, orthographicRotation);
             Vec3.set(width - (nw * 250 + 100), oy, 0, orthographicPosition);
         }

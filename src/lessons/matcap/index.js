@@ -88,7 +88,7 @@ import * as UWAL from "#/index";
 
         const commonBindings = [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR];
         const cameraBuffer = Camera.SetRenderPipeline(FlatMaterial.Pipeline);
-        const sampler = Texture.CreateSampler({ filter: "linear" });
+        const sampler = Texture.CreateSampler();
 
         Plane.SetRenderPipeline(WireframeMaterial.Pipeline,
             [cameraBuffer, WireframeMaterial.ColorBuffer],
@@ -151,16 +151,10 @@ import * as UWAL from "#/index";
         Skybox.inverseViewProjection = Camera.GetInverseViewProjectionMatrix(origin, Skybox.inverseViewProjection);
         SkyboxPipeline.WriteBuffer(Skybox.buffer, Skybox.inverseViewProjection);
 
-        FlatMaterial.Pipeline.Active =
-        MatcapMaterial.Pipeline.Active =
-        WireframeMaterial.Pipeline.Active = false;
-
+        FlatMaterial.Pipeline.Active = false;
         Renderer.Render(false);
 
-        FlatMaterial.Pipeline.Active =
-        MatcapMaterial.Pipeline.Active =
-        WireframeMaterial.Pipeline.Active = true;
-
+        FlatMaterial.Pipeline.Active = true;
         Renderer.Render(Scene);
 
         requestAnimationFrame(render);
@@ -172,8 +166,8 @@ import * as UWAL from "#/index";
         {
             const { inlineSize, blockSize } = entry.contentBoxSize[0];
             Renderer.SetCanvasSize(inlineSize, blockSize);
-            Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             Camera.AspectRatio = Renderer.AspectRatio;
+            Texture.CreateMultisampleTexture();
             Scene.AddMainCamera(Camera);
         }
 

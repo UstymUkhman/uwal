@@ -250,9 +250,9 @@ export async function run(canvas)
             let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
             Renderer.SetCanvasSize(width, blockSize);
-            Renderer.MultisampleTexture = Texture.CreateMultisampleTexture();
             Camera.AspectRatio = Renderer.AspectRatio;
             Camera.AutoUpdateWorldMatrix = true;
+            Texture.CreateMultisampleTexture();
         }
 
         cancelAnimationFrame(raf), start();

@@ -37,8 +37,8 @@ import * as UWAL from "#/index";
     Cube.Scaling = 2;
     Scene.Add(Cube);
 
+    const sampler = Texture.CreateSampler();
     const Texture = new (await UWAL.TextureUtils(Renderer));
-    const sampler = Texture.CreateSampler({ filter: "linear" });
     const position = [0, 0, 0], rotation = [0, 0, 0], origin = [0, 0, 0];
 
     const cubeModule = CubePipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Envmap]);
