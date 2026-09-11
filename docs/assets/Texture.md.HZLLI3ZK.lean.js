@@ -1,0 +1,1 @@
+import{_ as t,o as a,c as r,a0 as s}from"./chunks/framework.BWm26kJ8.js";const u=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"Texture.md","filePath":"Texture.md"}'),o={name:"Texture.md"};function i(d,e,n,h,c,l){return a(),r("div",null,[...e[0]||(e[0]=[s("",159)])])}const k=t(o,[["render",i]]);export{u as __pageData,k as default};

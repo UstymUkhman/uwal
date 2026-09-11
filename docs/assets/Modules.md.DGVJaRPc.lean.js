@@ -1,0 +1,1 @@
+import{_ as a,o as t,c as l,a0 as i}from"./chunks/framework.BWm26kJ8.js";const d=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"Modules.md","filePath":"Modules.md"}'),r={name:"Modules.md"};function h(o,e,m,s,n,f){return t(),l("div",null,[...e[0]||(e[0]=[i("",2)])])}const u=a(r,[["render",h]]);export{d as __pageData,u as default};

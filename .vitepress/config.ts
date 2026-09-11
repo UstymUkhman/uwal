@@ -93,11 +93,7 @@ export default defineConfig({
             },
             {
               text: "Texture",
-              link: "/Texture-1.md"
-            },
-            {
-              text: "TEXTURE",
-              link: "/TEXTURE.md"
+              link: "/Texture.md"
             }]
           },
           { text: "MSDFText", link: "/MSDFText.md" },

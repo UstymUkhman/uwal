@@ -159,7 +159,7 @@ Optionally, reset the translation component of the matrix before inverting it.
 
 ###### See
 
-[SkyBox](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#skybox) lesson for reference.
+[SkyBox](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#skybox) for reference.
 
 <a id="lookat"></a>
 

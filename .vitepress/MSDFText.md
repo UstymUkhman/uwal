@@ -12,7 +12,7 @@ Utility class to write some text onto a `GPUBuffer` and then use a `GPUTexture` 
 #### See
 
 [MSDF Text](https://ustymukhman.github.io/uwal/dist/examples/examples.html#msdf-text) and
-[Curtains](https://ustymukhman.github.io/uwal/dist/examples/examples.html#curtains) examples for reference.
+[Curtains](https://ustymukhman.github.io/uwal/dist/examples/examples.html#curtains) for reference.
 
 #### Constructors
 

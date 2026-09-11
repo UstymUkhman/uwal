@@ -1,5 +1,34 @@
 [UWAL](Modules.md) / TextureUtils
 
+## Type Aliases
+
+<a id="usage"></a>
+
+### Usage
+
+```ts
+type Usage = Readonly<Record<"RENDER" | "STORAGE", GPUTextureUsageFlags>>;
+```
+
+#### Type Parameters
+
+| Type Parameter |
+| ------ |
+
+## Variables
+
+<a id="texture"></a>
+
+### TEXTURE
+
+```ts
+const TEXTURE: Readonly<Record<"STORAGE" | "RENDER", number>>;
+```
+
+Some utility bitmasks of the `GPUTextureUsage` flags.
+- `TEXTURE.RENDER` is the default usage when creating a texture.
+- `TEXTURE.STORAGE` is the default usage when creating a storage texture.
+
 ## Functions
 
 <a id="textureutils"></a>
@@ -18,13 +47,13 @@ function TextureUtils(Renderer?): Promise<Texture & () => Texture>;
 
 #### Returns
 
-`Promise`\<[`Texture`](Texture-1.md#texture-1) & () => [`Texture`](Texture-1.md#texture-1)\>
+`Promise`\<[`Texture`](Texture.md#texture) & () => [`Texture`](Texture.md#texture)\>
 
-A promise of the [Texture](./Texture-1) class.
+A promise of the [Texture](./Texture) class.
 
 #### See
 
-[Texture](./Texture-1) class for method reference.
+[Texture](./Texture) class for method reference.
 
 #### Example
 
