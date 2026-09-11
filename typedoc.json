@@ -35,7 +35,6 @@
         "lib/lights/SpotLight.js",
         "lib/textures/index.js",
         "lib/textures/Texture.js",
-        "lib/textures/Constants.js",
         "lib/text/MSDFText.js",
         "lib/utils/Math.js",
         "lib/Errors.js"
