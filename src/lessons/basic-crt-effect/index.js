@@ -9,17 +9,20 @@
  * @license MIT
  */
 
-import PostProcess from "./PostProcess.wgsl";
 import Instance from "./Instance.wgsl";
+import Compute from "./Compute.wgsl";
 import * as UWAL from "#/index";
 
 (async function(canvas)
 {
     /** @type {Renderer} */ let Renderer;
+    /** @type {Computation} */ let Computation;
 
     try
     {
-        Renderer = new (await UWAL.Renderer(canvas, "Basic CRT Effect"));
+        UWAL.Device.SetRequiredFeatures("bgra8unorm-storage");
+        Computation = new (await UWAL.Computation("Basic CRT Effect"));
+        Renderer = new (await UWAL.Renderer(canvas, "Basic CRT Effect", { usage: GPUTextureUsage.STORAGE_BINDING }));
     }
     catch (error)
     {
@@ -34,18 +37,17 @@ import * as UWAL from "#/index";
         cellSize: 0.5
     };
 
-    let lastTime = 0;
     const Scene = new UWAL.Scene();
+    let lastTime = 0, gui = new GUI();
     const { Mat3, Vec2 } = UWAL.MathUtils;
-    const gui = new GUI(), INSTANCES = 200;
     const Color = new UWAL.Color(0x4c4c4c);
+    const INSTANCES = 200, WORKGROUP_DIMENSION = 16;
 
     gui.add(settings, "effectAmount", 0, 1);
     gui.add(settings, "bandMultiplier", 0.01, 2);
     gui.add(settings, "cellBrightness", 0, 2);
     gui.add(settings, "cellSize", 0, 1);
 
-    const Sampler = Texture.CreateSampler();
     const Camera = new UWAL.Camera2D(Renderer);
     const ImagePipeline = new Renderer.Pipeline();
     const Texture = new (await UWAL.TextureUtils());
@@ -53,10 +55,14 @@ import * as UWAL from "#/index";
 
     const addScalar = (v, s, dst = Vec2.create()) => Vec2.add(v, [s, s], dst);
     const subScalar = (v, s, dst = Vec2.create()) => Vec2.sub(v, [s, s], dst);
-
     const Geometry = new UWAL.Geometries.Shape({ segments: 24, radius: 0.5, innerRadius: 0.25 });
     const module = ImagePipeline.CreateShaderModule([UWAL.Shaders.ShapeVertexInstance, Instance]);
-    const PostProcessPipeline = await Renderer.CreatePipeline([UWAL.Shaders.Fullscreen, PostProcess]);
+
+    const PostProcessPipeline = await Computation.CreatePipeline({
+        constants: { WORKGROUP_DIMENSION: WORKGROUP_DIMENSION },
+        shader: `@group(1) @binding(0) var OutputTexture: texture_storage_2d<${Texture.PreferredStorageFormat}, write>;
+            ${Compute}`
+    });
 
     const euclideanModulo = (a, b, dst = UWAL.MathUtils.Vec2.create()) => Vec2.set(
         UWAL.MathUtils.EuclideanModulo(a[0], b[0]),
@@ -89,10 +95,6 @@ import * as UWAL from "#/index";
 
     Shape.AddInstanceBuffer(INSTANCES, "vertexShape");
     const velocity = new Float16Array(INSTANCES * 2);
-
-    ImagePipeline.DestroyPassEncoder = true;
-    PostProcessPipeline.SetDrawParams(3);
-
     const translation = Vec2.create();
     const matrix = Mat3.identity();
 
@@ -159,15 +161,12 @@ import * as UWAL from "#/index";
 
         // Write both into the `GPUBuffer` by passing the `ArrayBuffer`:
         PostProcessPipeline.WriteBuffer(effectBuffer, effect.amount.buffer);
+        PostProcessPipeline.SetBindGroupFromResources(Renderer.CurrentTexture, 0, 1);
 
         updateTransform(time - lastTime);
         requestAnimationFrame(render);
-        ImagePipeline.Active = true;
-
-        Renderer.Render(Scene, false);
-        ImagePipeline.Active = false;
-        Renderer.Render();
-
+        Renderer.Render(Scene);
+        Computation.Compute();
         lastTime = time;
     }
 
@@ -186,7 +185,8 @@ import * as UWAL from "#/index";
         ) {
             ImagePipeline.TextureView?.destroy();
             ImagePipeline.TextureView = Texture.CreateTexture({ size: Renderer.CanvasSize });
-            PostProcessPipeline.SetBindGroupFromResources([Sampler, ImagePipeline.TextureView, effectBuffer]);
+            Computation.Workgroups = Renderer.CanvasSize.map(size => size / WORKGROUP_DIMENSION);
+            PostProcessPipeline.SetBindGroupFromResources([Texture.CreateSampler(), effectBuffer, ImagePipeline.TextureView]);
         }
 
         initializeObjects();
