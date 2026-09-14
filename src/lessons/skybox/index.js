@@ -37,7 +37,6 @@ import * as UWAL from "#/index";
     Cube.Scaling = 2;
     Scene.Add(Cube);
 
-    const sampler = Texture.CreateSampler();
     const Texture = new (await UWAL.TextureUtils(Renderer));
     const position = [0, 0, 0], rotation = [0, 0, 0], origin = [0, 0, 0];
 
@@ -47,6 +46,8 @@ import * as UWAL from "#/index";
 
     let { inverseViewProjection, buffer: inverseViewProjectionBuffer } =
         SkyboxPipeline.CreateUniformBuffer("inverseViewProjection");
+
+    const sampler = Texture.CreateSampler();
 
     Cube.SetRenderPipeline(await Renderer.AddPipeline(CubePipeline,
         {

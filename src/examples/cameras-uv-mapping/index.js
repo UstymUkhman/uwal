@@ -36,10 +36,10 @@ export async function run(canvas)
     const { Vec3 } = UWAL.MathUtils;
     const tempRotation = Vec3.create();
     let dropTimeout, dropTime = Infinity;
-    const sampler = Texture.CreateSampler();
 
     const orthographicPosition = Vec3.create();
     const orthographicRotation = Vec3.create();
+
     const nextPerspectiveRotation = Vec3.create();
     const nextOrthographicRotation = Vec3.create();
     const initialPerspectiveRotation = Vec3.create();
@@ -69,12 +69,12 @@ export async function run(canvas)
 
     perspectiveCube.SetRenderPipeline(FlatMaterial.Pipeline, [
         perspectiveCamera.SetRenderPipeline(FlatMaterial.Pipeline),
-        FlatMaterial.ColorBuffer, texture, sampler
+        FlatMaterial.ColorBuffer, texture, Texture.CreateSampler()
     ], bindings);
 
     orthographicCube.SetRenderPipeline(FlatMaterial.Pipeline, [
         orthographicCamera.SetRenderPipeline(FlatMaterial.Pipeline),
-        FlatMaterial.ColorBuffer, texture, sampler
+        FlatMaterial.ColorBuffer, texture, Texture.CreateSampler()
     ], bindings);
 
     CubeGeometry.AddUVBuffer(FlatMaterial.Pipeline, new Float32Array([
