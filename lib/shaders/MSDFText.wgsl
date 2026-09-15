@@ -1,7 +1,7 @@
 /**
- * @description This shader is adapted from WebGPU Samples "Text Rendering MSDF".
+ * This shader is adapted from WebGPU Samples "Text Rendering MSDF".
  * {@link https://webgpu.github.io/webgpu-samples/?sample=textRenderingMsdf#msdfText.wgsl}
- * @see https://github.com/Chlumsky/msdfgen/issues/22#issuecomment-234958005
+ * @see {@link https://github.com/Chlumsky/msdfgen/issues/22#issuecomment-234958005}
  */
 
 #include "Camera.wgsl";
@@ -13,7 +13,7 @@ const VERTEX = array(
     vec2f(1,  0)
 );
 
-struct char
+struct CharUniforms
 {
     coords: vec2f,
     extent: vec2f,
@@ -21,7 +21,7 @@ struct char
     offset: vec2f
 };
 
-struct text
+struct TextUniforms
 {
     alpha: f32,
     scale: f32,
@@ -36,18 +36,14 @@ struct MSDFTextVertexOutput
     @builtin(position) position: vec4f
 };
 
-@group(0) @binding(0) var<storage> Text: text;
-@group(0) @binding(1) var Sampler: sampler;
-@group(0) @binding(2) var Texture: texture_2d<f32>;
-@group(0) @binding(3) var<storage> Characters: array<char>;
+@group(0) @binding(0) var Sampler: sampler;
+@group(0) @binding(1) var Texture: texture_2d<f32>;
+@group(0) @binding(2) var<storage> Text: TextUniforms;
+@group(0) @binding(3) var<storage> Characters: array<CharUniforms>;
 
-@vertex fn vertex(
-    @builtin(vertex_index) index: u32,
-    @builtin(instance_index) instance: u32
-) -> MSDFTextVertexOutput
+@vertex fn vertex(@builtin(vertex_index) index: u32, @builtin(instance_index) instance: u32) -> MSDFTextVertexOutput
 {
     var output: MSDFTextVertexOutput;
-
     let vertexPosition = VERTEX[index];
     let textElement = Text.chars[instance];
 
