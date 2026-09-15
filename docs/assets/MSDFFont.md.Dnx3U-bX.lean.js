@@ -1,0 +1,1 @@
+import{_ as a,o as t,c as s,a0 as i}from"./chunks/framework.BWm26kJ8.js";const u=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"MSDFFont.md","filePath":"MSDFFont.md"}'),r={name:"MSDFFont.md"};function n(d,e,h,o,l,c){return t(),s("div",null,[...e[0]||(e[0]=[i("",76)])])}const k=a(r,[["render",n]]);export{u as __pageData,k as default};

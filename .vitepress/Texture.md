@@ -10,30 +10,6 @@ Utility class to create and manage textures and samplers.
 
 #### Methods
 
-<a id="createsampler"></a>
-
-##### CreateSampler()
-
-```ts
-CreateSampler(descriptor?): GPUSampler;
-```
-
-Create a new sampler from the `descriptor` object.
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `descriptor?` | `GPUSamplerDescriptor` & `SamplerDescriptor` | `GPUSamplerDescriptor` object extended with optional properties: `addressModeUV` for width and height; `addressMode` is for all 3 dimensions; `minMagFilter` for min and mag, and `filter` for min, mag and `mipmapFilter`. |
-
-###### Returns
-
-`GPUSampler`
-
-###### See
-
-[https://www.w3.org/TR/webgpu/#dom-gpudevice-createsampler](https://www.w3.org/TR/webgpu/#dom-gpudevice-createsampler)
-
 <a id="createtexture"></a>
 
 ##### CreateTexture()
@@ -97,11 +73,15 @@ Create a new storage texture.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `descriptor` | `Pick`\<`Partial`\<`GPUTextureDescriptor`\>, `"format"` \| `"usage"` \| `"size"`\> & `Omit`\<`GPUTextureDescriptor`, `"format"` \| `"usage"` \| `"size"`\> | `GPUTextureDescriptor` object with optional `format`, `usage` and `size` properties which default to [Device.PreferredCanvasFormat](./Device#preferredcanvasformat), [TEXTURE.STORAGE](./TextureUtils.html#texture), and [Renderer.CanvasSize](./Renderer#canvassize) respectively. |
+| `descriptor` | `Pick`\<`Partial`\<`GPUTextureDescriptor`\>, `"format"` \| `"usage"` \| `"size"`\> & `Omit`\<`GPUTextureDescriptor`, `"format"` \| `"usage"` \| `"size"`\> | `GPUTextureDescriptor` object with optional `format`, `usage` and `size` properties which default to [Device.PreferredCanvasFormat](./Device#preferredcanvasformat), [TEXTURE.STORAGE](./TextureUtils.html#texture), and [Renderer.CanvasSize](./Renderer#canvassize) when [Renderer](#renderer) is provided. |
 
 ###### Returns
 
 `GPUTexture`
+
+###### Throws
+
+`ERROR.DESCRIPTOR_SIZE_NOT_FOUND` if [Renderer](#renderer) and `size` parameter are not provided.
 
 <a id="createtexturefromsource"></a>
 
@@ -124,6 +104,30 @@ properties are authomatically calculated if not defined explicitly in the `descr
 ###### Returns
 
 `GPUTexture`
+
+<a id="createsampler"></a>
+
+##### CreateSampler()
+
+```ts
+CreateSampler(descriptor?): GPUSampler;
+```
+
+Create a new sampler from the `descriptor` object.
+
+###### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `descriptor?` | `GPUSamplerDescriptor` & `SamplerDescriptor` | `GPUSamplerDescriptor` object extended with optional properties: `addressModeUV` for width and height; `addressMode` is for all 3 dimensions; `minMagFilter` for min and mag, and `filter` for min, mag and `mipmapFilter`. Defaults to `{filter: "linear"}`. |
+
+###### Returns
+
+`GPUSampler`
+
+###### See
+
+[https://www.w3.org/TR/webgpu/#dom-gpudevice-createsampler](https://www.w3.org/TR/webgpu/#dom-gpudevice-createsampler)
 
 <a id="importexternaltexture"></a>
 
@@ -213,37 +217,6 @@ Create and assign a multisampled texture to the [Renderer.MultisampleTexture](./
 
 `ERROR.RENDERER_NOT_FOUND` if [Renderer](#renderer) is not provided.
 
-<a id="copyimagetotexture"></a>
-
-##### CopyImageToTexture()
-
-```ts
-CopyImageToTexture(source, options?): Promise<GPUTexture>;
-```
-
-Copy an image source into a texture and optionally generate mipmaps for it.
-If `options.texture` is not provided, a new `GPUTexture` is created by default.
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `source` | `GPUCopyExternalImageSource` | Image source. |
-| `options?` | `Partial`\<`GPUExtent3DDict`\> & `Partial`\<`Record`\<`"size"`, `Iterable`\<`number`, `any`, `any`\>\>\> & `CopyImageOptions` | Defaults to `{create: true, flipY: true}`. |
-
-###### Returns
-
-`Promise`\<`GPUTexture`\>
-
-###### See
-
-[https://www.w3.org/TR/webgpu/#dom-gpuqueue-copyexternalimagetotexture](https://www.w3.org/TR/webgpu/#dom-gpuqueue-copyexternalimagetotexture)
-
-###### Throws
-
-`ERROR.TEXTURE_NOT_FOUND` if called without `options.texture` when
-`options.mipmaps` is `true` or `undefined` and `options.create` is falsy.
-
 <a id="createcubetexture"></a>
 
 ##### CreateCubeTexture()
@@ -284,6 +257,37 @@ and [SkyBox](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#skybox
 ###### Throws
 
 `ERROR.RENDERER_NOT_FOUND` if [Renderer](#renderer) is not provided.
+
+<a id="copyimagetotexture"></a>
+
+##### CopyImageToTexture()
+
+```ts
+CopyImageToTexture(source, options?): Promise<GPUTexture>;
+```
+
+Copy an image source into a texture and optionally generate mipmaps for it.
+If `options.texture` is not provided, a new `GPUTexture` is created by default.
+
+###### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `source` | `GPUCopyExternalImageSource` | Image source. |
+| `options?` | `Partial`\<`GPUExtent3DDict`\> & `Partial`\<`Record`\<`"size"`, `Iterable`\<`number`, `any`, `any`\>\>\> & `CopyImageOptions` | Defaults to `{create: true, flipY: true}`. |
+
+###### Returns
+
+`Promise`\<`GPUTexture`\>
+
+###### See
+
+[https://www.w3.org/TR/webgpu/#dom-gpuqueue-copyexternalimagetotexture](https://www.w3.org/TR/webgpu/#dom-gpuqueue-copyexternalimagetotexture)
+
+###### Throws
+
+`ERROR.TEXTURE_NOT_FOUND` if called without `options.texture` when
+`options.mipmaps` is `true` or `undefined` and `options.create` is falsy.
 
 <a id="copytexturetotexture"></a>
 

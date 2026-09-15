@@ -6,8 +6,9 @@
 
 ### MSDFText
 
-Utility class to write some text onto a `GPUBuffer` and then use a `GPUTexture` to output it to a `canvas`.
-**Note:** This class will probably get deprecated once [HTML in Canvas](https://html-in-canvas.dev/) is widely adopted.
+Utility class to write some text into a storage `GPUBuffer`. When combined with the `MSDFText` shader,
+the buffer content can be outputted to a screen or into a `GPUTexture`. **Note:** This class will
+probably be deprecated once [HTML in Canvas](https://html-in-canvas.dev/) gets widely adopted.
 
 #### See
 
@@ -28,7 +29,7 @@ new MSDFText(label?): MSDFText;
 
 | Parameter | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| `label?` | `string` | `"MSDFText"` | Text name |
+| `label?` | `string` | `"MSDFText"` | Text label. |
 
 ###### Returns
 
@@ -41,21 +42,21 @@ new MSDFText(label?): MSDFText;
 ##### CreateRenderPipeline()
 
 ```ts
-CreateRenderPipeline(Renderer, descriptor?): Promise<RenderPipelineInstance>;
+CreateRenderPipeline(Renderer, descriptor?): Promise<PipelineInstance>;
 ```
 
-Create an internal pipeline to render text.
+Create an internal render pipeline to output the text.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `Renderer` | `RenderStage` | `Renderer` instance to create the pipeline |
-| `descriptor?` | `PipelineDescriptor` & `RenderPipelineState` & `Record`\<`"renderBundleDescriptor"`, `RenderBundleDescriptor` \| `undefined`\> & `Record`\<`"colorTargets"`, `GPUColorTargetState` \| `GPUColorTargetState`[] \| `undefined`\> | Additional pipeline settings |
+| `Renderer` | `RenderStage` | `Renderer` instance to create the pipeline. |
+| `descriptor?` | `PipelineDescriptor` & `RenderPipelineState` & `Record`\<`"renderBundleDescriptor"`, `RenderBundleDescriptor` \| `undefined`\> & `Record`\<`"colorTargets"`, `GPUColorTargetState` \| `GPUColorTargetState`[] \| `undefined`\> | Optional pipeline descriptor. |
 
 ###### Returns
 
-`Promise`\<`RenderPipelineInstance`\>
+`Promise`\<`PipelineInstance`\>
 
 <a id="loadfont"></a>
 
@@ -63,9 +64,9 @@ Create an internal pipeline to render text.
 
 ```ts
 LoadFont(
-   url, 
+   source, 
    generated?, 
-requestOptions?): Promise<MSDFFont>;
+requestOptions?): Promise<void>;
 ```
 
 Load and use an [MSDFFont](./MSDFFont).
@@ -74,17 +75,21 @@ Load and use an [MSDFFont](./MSDFFont).
 
 | Parameter | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| `url` | `string` | `undefined` | URL to load the font from |
-| `generated?` | `boolean` | `false` | Whether the font was generated with [this tool](https://msdf-bmfont.donmccurdy.com/) |
-| `requestOptions?` | `RequestInit` | `undefined` | Optional `fetch` request options |
+| `source` | `string` | `undefined` | Font source path. |
+| `generated?` | `boolean` | `false` | Whether the font was generated [here](https://msdf-bmfont.donmccurdy.com/). |
+| `requestOptions?` | `RequestInit` | `undefined` | `fetch` request options. |
 
 ###### Returns
 
-`Promise`\<`MSDFFont`\>
+`Promise`\<`void`\>
 
 ###### See
 
-https://github.com/UstymUkhman/uwal/issues/9
+[https://github.com/UstymUkhman/uwal/issues/9](https://github.com/UstymUkhman/uwal/issues/9)
+
+###### Throws
+
+`ERROR.PIPELINE_NOT_FOUND` if called before [CreateRenderPipeline](#createrenderpipeline).
 
 <a id="write"></a>
 
@@ -92,43 +97,49 @@ https://github.com/UstymUkhman/uwal/issues/9
 
 ```ts
 Write(
-   string, 
+   text, 
    color?, 
    scale?, 
    centered?): GPUBuffer;
 ```
 
-Write a text string to a `GPUBuffer`.
+Write a text string into a storage `GPUBuffer`.
 
 ###### Parameters
 
 | Parameter | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| `string` | `string` | `undefined` | String to write |
-| `color?` | `ColorValue` | `0x000000` | Text color |
-| `scale?` | `number` | `0.01` | Text scale |
-| `centered?` | `boolean` | `false` | Set to `true` to center the text |
+| `text` | `string` | `undefined` | Text to write. |
+| `color?` | `ColorValue` | `0x000000` | Text color. |
+| `scale?` | `number` | `0.01` | Text scale. |
+| `centered?` | `boolean` | `false` | Whether the text should be centered. |
 
 ###### Returns
 
 `GPUBuffer`
+
+###### Throws
+
+`ERROR.PIPELINE_NOT_FOUND` if called before [CreateRenderPipeline](#createrenderpipeline),
+`ERROR.FONT_NOT_FOUND` if called before [LoadFont](#loadfont), and `ERROR.CAMERA_BUFFER_NOT_FOUND`
+if a `PerspectiveCamera` buffer hasn't been set yet with [CameraMatrixBuffer](#cameramatrixbuffer).
 
 <a id="settranslation"></a>
 
 ##### SetTranslation()
 
 ```ts
-SetTranslation(translation, textBuffer): void;
+SetTranslation(translation, buffer): void;
 ```
 
-Set the text translation matrix.
+Set the text translation.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `translation` | `Float32Array`\<`ArrayBufferLike`\> | Translation matrix |
-| `textBuffer` | `GPUBuffer` | Text buffer to update |
+| `translation` | `Float32Array`\<`ArrayBufferLike`\> | Translation matrix. |
+| `buffer` | `GPUBuffer` | Text buffer to update. |
 
 ###### Returns
 
@@ -139,7 +150,7 @@ Set the text translation matrix.
 ##### SetColor()
 
 ```ts
-SetColor(color, textBuffer): void;
+SetColor(color, buffer): void;
 ```
 
 Set the text color.
@@ -148,8 +159,8 @@ Set the text color.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `color` | `ColorValue` | Color value |
-| `textBuffer` | `GPUBuffer` | Text buffer to update |
+| `color` | `ColorValue` | Color value. |
+| `buffer` | `GPUBuffer` | Text buffer to update. |
 
 ###### Returns
 
@@ -160,7 +171,7 @@ Set the text color.
 ##### SetScale()
 
 ```ts
-SetScale(scale, textBuffer): void;
+SetScale(scale, buffer): void;
 ```
 
 Set the text scale.
@@ -169,8 +180,8 @@ Set the text scale.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `scale` | `number` | Scale value |
-| `textBuffer` | `GPUBuffer` | Text buffer to update |
+| `scale` | `number` | Scale value. |
+| `buffer` | `GPUBuffer` | Text buffer to update. |
 
 ###### Returns
 
@@ -181,17 +192,17 @@ Set the text scale.
 ##### Clear()
 
 ```ts
-Clear(textBuffer?): void;
+Clear(buffer?): void;
 ```
 
-Destroy the text buffer and reset its color and scale.
-Remove the pipeline's bind groups and reset its render bundles.
+Destroy the text buffer and reset its color and scale values.
+Remove pipeline's bind groups and reset its render bundles.
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `textBuffer?` | `GPUBuffer` | Text buffer to remove |
+| `buffer?` | `GPUBuffer` | Text buffer to remove. |
 
 ###### Returns
 
@@ -205,8 +216,7 @@ Remove the pipeline's bind groups and reset its render bundles.
 Destroy(): void;
 ```
 
-Remove the rendering pipeline, destroy the font, and reset the internal state.
-Only unlinking is performed; the `Destroy` method on the removed pipeline is not called.
+Destroy and remove the rendering pipeline, destroy the font, and reset the internal state.
 
 ###### Returns
 
@@ -221,20 +231,20 @@ Only unlinking is performed; the `Destroy` method on the removed pipeline is not
 ###### Set Signature
 
 ```ts
-set CameraMatrixBuffer(cameraBuffer): void;
+set CameraMatrixBuffer(buffer): void;
 ```
 
-Set a `PrerspectiveCamera` buffer to render the text.
+Set a `PerspectiveCamera` buffer to render the text.
 
 ###### See
 
-https://github.com/UstymUkhman/uwal/issues/9
+[https://github.com/UstymUkhman/uwal/issues/9](https://github.com/UstymUkhman/uwal/issues/9)
 
 ###### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `cameraBuffer` | `GPUBuffer` | Camera buffer |
+| `buffer` | `GPUBuffer` | Camera buffer. |
 
 ###### Returns
 
@@ -254,38 +264,4 @@ get Pipeline(): RenderPipelineInstance | undefined;
 
 `RenderPipelineInstance` \| `undefined`
 
-Pipeline used for text rendering.
-
-<a id="font"></a>
-
-##### Font
-
-###### Get Signature
-
-```ts
-get Font(): MSDFFont | undefined;
-```
-
-###### Returns
-
-`MSDFFont` \| `undefined`
-
-[MSDFFont](./MSDFFont) instance.
-
-###### Set Signature
-
-```ts
-set Font(font): void;
-```
-
-Dynamically set the text font. Called internaly by the [LoadFont](#loadfont) method.
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `font` | `MSDFFont` | [MSDFFont](./MSDFFont) to use |
-
-###### Returns
-
-`void`
+Internal pipeline used to render the text.
