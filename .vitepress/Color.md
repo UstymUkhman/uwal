@@ -34,7 +34,8 @@ new Color(
    hexOrRed?, 
    green?, 
    blue?, 
-   alpha?): Color;
+   alpha?
+): Color;
 ```
 
 Create a new color from a single hex value or using 3 or 4 channel components.

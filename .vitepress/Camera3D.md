@@ -49,7 +49,8 @@ Update the camera's view projection matrix every time the world matrix is update
 new Camera3D(
    near?, 
    far?, 
-   label?): Camera3D;
+   label?
+): Camera3D;
 ```
 
 ###### Parameters

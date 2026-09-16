@@ -26,7 +26,8 @@ A light used to radiate from one point in one direction, along a cone increasing
 new SpotLight(
    position?, 
    color?, 
-   label?): SpotLight;
+   label?
+): SpotLight;
 ```
 
 ###### Parameters

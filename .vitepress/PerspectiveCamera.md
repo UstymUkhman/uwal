@@ -27,7 +27,8 @@ new PerspectiveCamera(
    fov?, 
    near?, 
    far?, 
-   rendererAspect?): PerspectiveCamera;
+   rendererAspect?
+): PerspectiveCamera;
 ```
 
 ###### Parameters

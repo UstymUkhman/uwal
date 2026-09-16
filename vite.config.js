@@ -1,4 +1,4 @@
-import { name, version } from "./package.json" with { type: "json" };
+import * as LIB from "./package.json" with { type: "json" };
 import terser from "@rollup/plugin-terser";
 import { minifySync } from "oxc-minify";
 import { defineConfig } from "vite";
@@ -49,7 +49,7 @@ export default({ mode }) =>
             outDir: "build",
             lib:
             {
-                name: name.toUpperCase(),
+                name: LIB.name.toUpperCase(),
                 entry: resolve("lib/index.js")
             }
         } : {
@@ -87,7 +87,7 @@ export default({ mode }) =>
 
         define:
         {
-            VERSION: JSON.stringify(version)
+            VERSION: JSON.stringify(LIB.version)
         },
 
         resolve:

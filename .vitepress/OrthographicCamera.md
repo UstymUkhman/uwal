@@ -29,7 +29,8 @@ new OrthographicCamera(
    top?, 
    rendererRight?, 
    bottom?, 
-   left?): OrthographicCamera;
+   left?
+): OrthographicCamera;
 ```
 
 ###### Parameters

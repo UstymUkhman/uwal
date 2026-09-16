@@ -137,7 +137,8 @@ Create a new sampler from the `descriptor` object.
 ImportExternalTexture(
    source, 
    colorSpace?, 
-   label?): GPUExternalTexture;
+   label?
+): GPUExternalTexture;
 ```
 
 Create a new `GPUExternalTexture` from a video source.
@@ -167,7 +168,8 @@ Create a new `GPUExternalTexture` from a video source.
 CreateImageBitmap(
    source, 
    options?, 
-requestOptions?): Promise<ImageBitmap>;
+   requestOptions?
+): Promise<ImageBitmap>;
 ```
 
 Create a bitmap image from a valid source path.
@@ -196,7 +198,8 @@ Create a bitmap image from a valid source path.
 CreateMultisampleTexture(
    force?, 
    sampleCount?, 
-   label?): void;
+   label?
+): void;
 ```
 
 Create and assign a multisampled texture to the [Renderer.MultisampleTexture](./Renderer#multisampletexture).
@@ -227,7 +230,8 @@ CreateCubeTexture(
    bitmapOptions?, 
    textureDescriptor?, 
    copyOptions?, 
-requestOptions?): Promise<GPUTexture>;
+   requestOptions?
+): Promise<GPUTexture>;
 ```
 
 Create a `"cube"` texture from `6` image sources. All images **must** have the same dimensions.

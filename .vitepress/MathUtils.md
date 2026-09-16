@@ -38,7 +38,8 @@ Double PI, defined as `Math.PI * 2`.
 function Clamp(
    value, 
    min?, 
-   max?): number;
+   max?
+): number;
 ```
 
 Constrain a number between `min` and `max` values (inclusive).
@@ -113,7 +114,8 @@ When `max` is omitted, it defaults to `min` while `min = 0`.
 function SmoothStep(
    value, 
    min?, 
-   max?): number;
+   max?
+): number;
 ```
 
 Perform Hermite interpolation between two values.
@@ -141,7 +143,8 @@ Adapted from GLSL's [smoothstep](https://registry.khronos.org/OpenGL-Refpages/gl
 function SmootherStep(
    value, 
    min?, 
-   max?): number;
+   max?
+): number;
 ```
 
 A variation on the [SmoothStep](#smoothstep) function that has zero 1st and 2nd order derivatives at `x = 0` and `x = 1`.
@@ -193,7 +196,8 @@ Adapted from three.js' [extractRotation](https://github.com/mrdoob/three.js/blob
 function GetMat4Rotation(
    src, 
    dst?, 
-order?): Float32Array<ArrayBufferLike>;
+   order?
+): Float32Array<ArrayBufferLike>;
 ```
 
 Get matrix rotation as Euler angles, assuming the upper 3x3 matrix is a pure rotation matrix.

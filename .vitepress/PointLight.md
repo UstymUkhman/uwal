@@ -30,7 +30,8 @@ A light used to radiate from one point in all directions.
 new PointLight(
    position?, 
    color?, 
-   label?): PointLight;
+   label?
+): PointLight;
 ```
 
 ###### Parameters

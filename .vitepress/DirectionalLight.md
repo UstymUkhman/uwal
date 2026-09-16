@@ -26,7 +26,8 @@ A light used to radiate in a specific direction. It is positioned infinitely far
 new DirectionalLight(
    direction?, 
    color?, 
-   label?): DirectionalLight;
+   label?
+): DirectionalLight;
 ```
 
 ###### Parameters

@@ -80,7 +80,8 @@ Callback with a [GPUDeviceLostInfo](https://www.w3.org/TR/webgpu/#gpudevicelosti
 static CreateQuerySet(
    type, 
    count, 
-label?): Promise<GPUQuerySet | undefined>;
+   label?
+): Promise<GPUQuerySet | undefined>;
 ```
 
 Create and cache a new `GPUQuerySet`.
@@ -109,7 +110,8 @@ Create and cache a new `GPUQuerySet`.
 static Destroy(
    buffers?, 
    textures?, 
-   querySets?): void;
+   querySets?
+): void;
 ```
 
 Remove initialized `GPUAdapter` and `GPUDevice` instances, reset internal state, and

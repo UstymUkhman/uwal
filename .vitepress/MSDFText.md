@@ -66,7 +66,8 @@ Create an internal render pipeline to output the text.
 LoadFont(
    source, 
    generated?, 
-requestOptions?): Promise<void>;
+   requestOptions?
+): Promise<void>;
 ```
 
 Load and use an [MSDFFont](./MSDFFont).
@@ -100,7 +101,8 @@ Write(
    text, 
    color?, 
    scale?, 
-   centered?): GPUBuffer;
+   centered?
+): GPUBuffer;
 ```
 
 Write a text string into a storage `GPUBuffer`.
