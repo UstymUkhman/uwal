@@ -5,11 +5,9 @@ import { defineConfig } from "vite";
 import glsl from "vite-plugin-glsl";
 import { resolve } from "path";
 
-export default({ mode }) =>
+export default({ mode }, Name = LIB.name.toUpperCase()) =>
 {
-    const config = mode !== "lib" && { base: "./" };
-
-    const plugins = mode !== "lib" && [] ||
+    const plugins = ["lessons", "examples"].includes(mode) && [] ||
     [
         terser(
         {
@@ -43,16 +41,90 @@ export default({ mode }) =>
         }
     ];
 
-    const build = mode === "lib"
-        ? {
+    const build = mode === "core" ?
+        {
             sourcemap: true,
             outDir: "build",
             lib:
             {
-                name: LIB.name.toUpperCase(),
+                name: Name,
+                fileName: `${LIB.name}.core`,
+                entry: resolve("lib/core.js")
+            }
+        }
+        : mode === "utils" ?
+        {
+            emptyOutDir: false,
+            sourcemap: true,
+            outDir: "build",
+            lib:
+            {
+                name: `${Name} Utils`,
+                fileName: `${LIB.name}.utils`,
+                entry: resolve("lib/utils/export.js")
+            }
+        }
+        : mode === "materials" ?
+        {
+            emptyOutDir: false,
+            sourcemap: true,
+            outDir: "build",
+            lib:
+            {
+                name: `${Name} Materials`,
+                fileName: `${LIB.name}.materials`,
+                entry: resolve("lib/materials/index.js")
+            }
+        }
+        : mode === "lights" ?
+        {
+            emptyOutDir: false,
+            sourcemap: true,
+            outDir: "build",
+            lib:
+            {
+                name: `${Name} Lights`,
+                fileName: `${LIB.name}.lights`,
+                entry: resolve("lib/lights/index.js")
+            }
+        }
+        : mode === "shaders" ?
+        {
+            emptyOutDir: false,
+            sourcemap: true,
+            outDir: "build",
+            lib:
+            {
+                name: `${Name} Shaders`,
+                fileName: `${LIB.name}.shaders`,
+                entry: resolve("lib/shaders/index.js")
+            }
+        }
+        : mode === "text" ?
+        {
+            emptyOutDir: false,
+            sourcemap: true,
+            outDir: "build",
+            lib:
+            {
+                name: `${Name} MSDF Text`,
+                fileName: `${LIB.name}.text`,
+                entry: resolve("lib/text/index.js")
+            }
+        }
+        : mode === "lib" ?
+        {
+            emptyOutDir: false,
+            sourcemap: true,
+            outDir: "build",
+            lib:
+            {
+                name: Name,
                 entry: resolve("lib/index.js")
             }
-        } : {
+        }
+        :
+        {
             outDir: resolve(`dist/${mode}`),
             rollupOptions:
             {
@@ -72,7 +144,7 @@ export default({ mode }) =>
     return defineConfig(
     {
         build,
-        ...config,
+        base: "./",
 
         plugins:
         [

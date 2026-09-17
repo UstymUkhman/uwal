@@ -36,6 +36,42 @@
       "import": "./build/uwal.js",
       "require": "./build/uwal.umd.cjs",
       "default": "./build/uwal.js"
+    },
+    "./core": {
+      "types": "./types/core.d.ts",
+      "import": "./build/uwal.core.js",
+      "require": "./build/uwal.core.umd.cjs",
+      "default": "./build/uwal.core.js"
+    },
+    "./utils": {
+      "types": "./types/utils/export.d.ts",
+      "import": "./build/uwal.utils.js",
+      "require": "./build/uwal.utils.umd.cjs",
+      "default": "./build/uwal.utils.js"
+    },
+    "./materials": {
+      "types": "./types/materials/index.d.ts",
+      "import": "./build/uwal.materials.js",
+      "require": "./build/uwal.materials.umd.cjs",
+      "default": "./build/uwal.materials.js"
+    },
+    "./lights": {
+      "types": "./types/lights/index.d.ts",
+      "import": "./build/uwal.lights.js",
+      "require": "./build/uwal.lights.umd.cjs",
+      "default": "./build/uwal.lights.js"
+    },
+    "./shaders": {
+      "types": "./types/shaders/index.d.ts",
+      "import": "./build/uwal.shaders.js",
+      "require": "./build/uwal.shaders.umd.cjs",
+      "default": "./build/uwal.shaders.js"
+    },
+    "./text": {
+      "types": "./types/text/index.d.ts",
+      "import": "./build/uwal.text.js",
+      "require": "./build/uwal.text.umd.cjs",
+      "default": "./build/uwal.text.js"
     }
   },
   "directories": {
@@ -72,8 +108,12 @@
     "build:lessons": "bun run build --mode lessons",
     "build:examples": "bun run build --mode examples",
     "build:types": "bun run tsc -p ./lib && tsc-alias",
-    "build:lib": "bun run build:types && bun run build --mode lib",
-    "build:pages": "bun run build:lessons && bun run build:examples"
+    "build:pages": "bun run build:lessons && bun run build:examples",
+    "build:core": "bun run build --mode core && bun run build --mode utils",
+    "build:shaders": "bun run build --mode shaders && bun run build --mode text",
+    "build:materials": "bun run build --mode materials && bun run build --mode lights",
+    "build:addons": "bun run build:core && bun run build:materials && bun run build:shaders",
+    "build:lib": "bun run build:types && bun run build:addons && bun run build --mode lib"
   },
   "devDependencies": {
     "@rollup/plugin-terser": "^1.0.0",

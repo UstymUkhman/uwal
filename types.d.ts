@@ -13,11 +13,11 @@ export * as Shaders from "./types/shaders";
 
 export
 {
-    Device, Scene,
-    Renderer, Computation,
-    Node, Node2D, Mesh, Shape,
-    MeshGeometry, ShapeGeometry,
+    PerspectiveCamera, OrthographicCamera, Camera2D,
     BINDINGS, BLEND_STATE, ERROR_CAUSE,
-    PerspectiveCamera, OrthographicCamera, Camera2D
+    MeshGeometry, ShapeGeometry,
+    Node, Node2D, Mesh, Shape,
+    Renderer, Computation,
+    Device, Scene
 }
 from "./types/core";
