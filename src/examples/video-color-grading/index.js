@@ -34,7 +34,7 @@ export async function run(canvas)
         UWAL.Shaders.Fullscreen, SinCity
     ]);
 
-    const Texture = new (await UWAL.TextureUtils());
+    const Texture = new (await UWAL.Texture());
     const videoSampler = Texture.CreateSampler();
 
     video.playsinline = video.loop = true;

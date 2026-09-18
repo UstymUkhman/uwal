@@ -27,7 +27,7 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
-    const CubeGeometry = new UWAL.Geometries.Mesh("cube");
+    const CubeGeometry = new UWAL.MeshGeometry("cube");
     const CubePipeline = new Renderer.Pipeline();
     const Camera = new UWAL.PerspectiveCamera();
     const Cube = new UWAL.Mesh(CubeGeometry);
@@ -60,7 +60,7 @@ import * as UWAL from "#/index";
     gui.add(settings.rotation, "2", radToDeg).name("rotation.z");
 
     const module = CubePipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Cubemap]);
-    const Texture = new (await UWAL.TextureUtils(Renderer));
+    const Texture = new (await UWAL.Texture(Renderer));
     Cube.Transform = [void 0, settings.rotation, 2];
 
     const texture = await createTextureFromSources([

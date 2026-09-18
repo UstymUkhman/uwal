@@ -42,7 +42,7 @@ import * as UWAL from "#/index";
     const { Pipeline } = FlatMaterial, scene = new UWAL.Scene(), color = new UWAL.Color();
 
     const cameraMatrixBuffer = Camera.SetRenderPipeline(Pipeline);
-    const geometry = new UWAL.Geometries.Shape({ radius: 75, indexFormat: "uint32" });
+    const geometry = new UWAL.ShapeGeometry({ radius: 75, indexFormat: "uint32" });
     const settings = { translation: [150, 100], rotation: 0.5236, scale: [1, 1], objects: 1 };
     await FlatMaterial.AddPipeline({ vertex: { buffers: [geometry.GetPositionBufferLayout(Pipeline)] } });
 

@@ -98,7 +98,7 @@ import * as UWAL from "#/index";
             );
 
         // Use radius to store the amout of vertices:
-        const Geometry = new UWAL.Geometries.Shape({ radius: vertices.length / 2 });
+        const Geometry = new UWAL.ShapeGeometry({ radius: vertices.length / 2 });
         Geometry.VertexData = new Float32Array(vertices);
         return Geometry;
     });

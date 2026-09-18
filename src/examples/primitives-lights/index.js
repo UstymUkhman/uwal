@@ -41,13 +41,13 @@ export async function run(canvas)
     const position = Vec3.create();
     const direction = Vec2.create();
 
-    const Geometry = new UWAL.Geometries.Mesh();
+    const Geometry = new UWAL.MeshGeometry();
     const BasePipeline = new Renderer.Pipeline();
     const spotDirection = Vec2.create(-0.85, -1);
     const pointDirection = Vec2.create(0.85, -1);
 
     let wireBindings, pointX, pointZ, spotX, spotZ;
-    const Texture = new (await UWAL.TextureUtils(Renderer));
+    const Texture = new (await UWAL.Texture(Renderer));
     const WireMaterial = new UWAL.WireframeMaterial(Renderer);
 
     const baseModule = BasePipeline.CreateShaderModule([
@@ -118,7 +118,7 @@ export async function run(canvas)
                     ? { name, vertexEntry: "baseVertex", normals: true, uvs: true }
                     : { name, args: n === 2 ? { nx: 10, quads: true } : { closed: true } };
 
-                const Geometry = new UWAL.Geometries.Mesh(Primitive, "uint16");
+                const Geometry = new UWAL.MeshGeometry(Primitive, "uint16");
                 const mesh = new UWAL.Mesh(Geometry);
 
                 if (n < 3)

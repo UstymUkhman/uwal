@@ -34,7 +34,7 @@ export async function run(canvas)
         alert(error);
     }
 
-    const Texture = new (await UWAL.TextureUtils(Renderer)), WORKGROUP_DIMENSION = 8;
+    const Texture = new (await UWAL.Texture(Renderer)), WORKGROUP_DIMENSION = 8;
 
     canvas.removeEventListener("mouseenter", onOver);
     canvas.removeEventListener("touchstart", onOver);

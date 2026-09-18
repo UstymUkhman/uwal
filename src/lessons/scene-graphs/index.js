@@ -107,7 +107,7 @@ import Cube from "./Cube.wgsl";
         drawerSize[depth] + 4,
     ];
 
-    const CubeGeometry = new UWAL.Geometries.Mesh("cube", "uint16");
+    const CubeGeometry = new UWAL.MeshGeometry("cube", "uint16");
     const Camera = new UWAL.PerspectiveCamera();
     const Pipeline = new Renderer.Pipeline();
     const color = new UWAL.Color(0xffffff);

@@ -27,7 +27,7 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
-    const CubeGeometry = new UWAL.Geometries.Mesh("cube");
+    const CubeGeometry = new UWAL.MeshGeometry("cube");
     const SkyboxPipeline = new Renderer.Pipeline();
     const CubePipeline = new Renderer.Pipeline();
     const Camera = new UWAL.PerspectiveCamera();
@@ -37,7 +37,7 @@ import * as UWAL from "#/index";
     Cube.Scaling = 2;
     Scene.Add(Cube);
 
-    const Texture = new (await UWAL.TextureUtils(Renderer));
+    const Texture = new (await UWAL.Texture(Renderer));
     const position = [0, 0, 0], rotation = [0, 0, 0], origin = [0, 0, 0];
 
     const cubeModule = CubePipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Envmap]);
