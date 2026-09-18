@@ -26,9 +26,9 @@ import createVertices from "../directional-lighting/F.js";
         alert(error);
     }
 
-    const FGeometry = new UWAL.MeshGeometry();
     const Camera = new UWAL.PerspectiveCamera();
     const FPipeline = new Renderer.Pipeline();
+    const FGeometry = new UWAL.MeshGeometry();
     const FMesh = new UWAL.Mesh(FGeometry);
 
     const scene = new UWAL.Scene();
