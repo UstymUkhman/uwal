@@ -33,9 +33,8 @@
         "lib/lights/DirectionalLight.js",
         "lib/lights/PointLight.js",
         "lib/lights/SpotLight.js",
-        "lib/textures/index.js",
-        "lib/textures/Texture.js",
         "lib/text/MSDFText.js",
+        "lib/utils/Texture.js",
         "lib/utils/Math.js",
         "lib/Errors.js"
     ],

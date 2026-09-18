@@ -44,8 +44,8 @@ export async function run(canvas)
     const nextOrthographicRotation = Vec3.create();
     const initialPerspectiveRotation = Vec3.create();
 
-    const Texture = new (await UWAL.TextureUtils(Renderer));
-    const CubeGeometry = new UWAL.Geometries.Mesh("cube", "uint16");
+    const Texture = new (await UWAL.Texture(Renderer));
+    const CubeGeometry = new UWAL.MeshGeometry("cube", "uint16");
     const FlatMaterial = new UWAL.FlatMaterial(Renderer, { colorMap: true });
 
     texture = await Texture.CopyImageToTexture(await Texture.CreateImageBitmap(Dice));

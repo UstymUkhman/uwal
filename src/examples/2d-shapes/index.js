@@ -30,7 +30,7 @@ export async function run(canvas)
     }
 
     const color = new UWAL.Color(0x331a4d);
-    const DummyGeometry = new UWAL.Geometries.Shape();
+    const DummyGeometry = new UWAL.ShapeGeometry();
     const spin = [], speed = [], direction = [], uniform = [];
 
     const FlatMaterial = new UWAL.FlatMaterial(Renderer, void 0, UWAL.Shaders.Shape);
@@ -82,7 +82,7 @@ export async function run(canvas)
             {
                 const radius = UWAL.MathUtils.Random(50, 100);
                 const inner = UWAL.MathUtils.Random(0.75, 0.95) * radius;
-                const shape = new UWAL.Shape(new UWAL.Geometries.Shape({ segments, radius, innerRadius: inner * r }));
+                const shape = new UWAL.Shape(new UWAL.ShapeGeometry({ segments, radius, innerRadius: inner * r }));
 
                 uniform.push(shape.CreateColorBuffer(FlatMaterial.Pipeline));
 

@@ -139,8 +139,8 @@ static SetRequiredFeatures(features): Promise<Set<GPUFeatureName>>;
 
 Set optional [features](https://www.w3.org/TR/webgpu/#features) when requesting a `GPUDevice`.
 The request will fail if the `GPUAdapter` cannot provide them.
-Must be called **before** initializing the [Renderer](./Renderer), [Computation](./Computation),
-or [TextureUtils](./TextureUtils) or the [CreateQuerySet](#createqueryset) method call.
+Must be invoked **before** instantiating [Renderer](./Renderer), [Computation](./Computation),
+or [Texture](./Texture), and before calling the [CreateQuerySet](#createqueryset) method.
 
 ###### Parameters
 
@@ -193,8 +193,8 @@ set static RequiredLimits(requiredLimits): void;
 
 Set optional device [limits](https://www.w3.org/TR/webgpu/#limits) when requesting a `GPUDevice`.
 The request will fail if the `GPUAdapter` cannot provide them.
-Must be called **before** initializing the [Renderer](./Renderer), [Computation](./Computation),
-or [TextureUtils](./TextureUtils) or the [CreateQuerySet](#createqueryset) method call.
+Must be invoked **before** instantiating [Renderer](./Renderer), [Computation](./Computation),
+or [Texture](./Texture), and before calling the [CreateQuerySet](#createqueryset) method.
 
 ###### Parameters
 

@@ -7,15 +7,17 @@ export { ComputePipelineInstance as ComputePipeline } from "./types/pipelines/Co
 export { RenderPipelineInstance as RenderPipeline } from "./types/pipelines/RenderPipeline";
 export { AmbientLight, DirectionalLight, PointLight, SpotLight } from "./types/lights";
 export { FlatMaterial, MatcapMaterial, WireframeMaterial } from "./types/materials";
-export { OrthographicCamera, PerspectiveCamera, Camera2D } from "./types/cameras";
-export { BLEND_STATE, BUFFER, BINDINGS } from "./types/pipelines/Constants";
-export { Node, Node2D, Mesh, Shape } from "./types/primitives";
-export { TextureUtils, TEXTURE } from "./types/textures";
-export { Renderer, Computation } from "./types/stages";
-export { MathUtils, Color } from "./types/utils";
-export * as Geometries from "./types/geometries";
-export { ERROR_CAUSE } from "./types/Errors";
+export { Color, Texture, MathUtils } from "./types/utils/export";
+export { default as MSDFText } from "./types/text";
 export * as Shaders from "./types/shaders";
-export { MSDFText } from "./types/text";
-export { Device } from "./types/Device";
-export { Scene } from "./types/Scene";
+
+export
+{
+    PerspectiveCamera, OrthographicCamera, Camera2D,
+    BINDINGS, BLEND_STATE, ERROR_CAUSE,
+    MeshGeometry, ShapeGeometry,
+    Node, Node2D, Mesh, Shape,
+    Renderer, Computation,
+    Device, Scene
+}
+from "./types/core";

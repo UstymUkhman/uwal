@@ -18,9 +18,9 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
-    const DiscGeometry = new UWAL.Geometries.Mesh({ name: "disc", args: { segments: 64, radius: 1.5 } });
-    const PlaneGeometry = new UWAL.Geometries.Mesh({ name: "plane", args: { nx: 10, quads: true } });
-    const CubeGeometry = new UWAL.Geometries.Mesh({ name: "roundedCube", args: { radius: 0.04 } });
+    const DiscGeometry = new UWAL.MeshGeometry({ name: "disc", args: { segments: 64, radius: 1.5 } });
+    const PlaneGeometry = new UWAL.MeshGeometry({ name: "plane", args: { nx: 10, quads: true } });
+    const CubeGeometry = new UWAL.MeshGeometry({ name: "roundedCube", args: { radius: 0.04 } });
 
     const SkyboxPipeline = new Renderer.Pipeline();
     const Camera = new UWAL.PerspectiveCamera();
@@ -28,12 +28,12 @@ import * as UWAL from "#/index";
     const Disc = new UWAL.Mesh(DiscGeometry);
     const Cube = new UWAL.Mesh(CubeGeometry);
 
+    let Skybox, lastTime = 0, time = 0;
     const Scene = new UWAL.Scene();
     Scene.Add([Plane, Disc, Cube]);
     Cube.Scaling = 2;
-    let Skybox;
 
-    const Texture = new (await UWAL.TextureUtils(Renderer));
+    const Texture = new (await UWAL.Texture(Renderer));
     const WireframeMaterial = new UWAL.WireframeMaterial(Renderer);
     const FlatMaterial = new UWAL.FlatMaterial(Renderer, { colorMap: true });
     const MatcapMaterial = new UWAL.MatcapMaterial(Renderer, { normalMap: true });
@@ -118,13 +118,13 @@ import * as UWAL from "#/index";
         SkyboxPipeline.SetDrawParams(3);
     }
 
-    function render(time = 0)
+    function render(delta)
     {
-        time *= 0.001;
+        time += (delta - lastTime) * 1e-4;
+
         const x = Math.cos(time) * 0.5;
         const y = Math.cos(time - Math.PI) * 0.5;
 
-        time *= 0.1;
         const r = Math.cos(time);
         const g = Math.sin(time - 0.5235);
         const b = Math.sin(time - 2.618);
@@ -158,6 +158,7 @@ import * as UWAL from "#/index";
         Renderer.Render(Scene);
 
         requestAnimationFrame(render);
+        lastTime = delta;
     }
 
     const observer = new ResizeObserver(async entries =>

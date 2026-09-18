@@ -26,7 +26,7 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
-    const Geometry = new UWAL.Geometries.Mesh("cube");
+    const Geometry = new UWAL.MeshGeometry("cube");
     const Camera = new UWAL.PerspectiveCamera();
     const Pipeline = new Renderer.Pipeline();
     const Cube = new UWAL.Mesh(Geometry);
@@ -37,7 +37,7 @@ import * as UWAL from "#/index";
     Scene.Add(Cube);
 
     const module = Pipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Envmap]);
-    const Texture = new (await UWAL.TextureUtils(Renderer));
+    const Texture = new (await UWAL.Texture(Renderer));
     const texture = await Texture.CreateCubeTexture(Market);
 
     Cube.SetRenderPipeline(await Renderer.AddPipeline(Pipeline,

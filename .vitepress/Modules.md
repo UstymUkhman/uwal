@@ -13,7 +13,6 @@
 - [PointLight](PointLight.md)
 - [SpotLight](SpotLight.md)
 - [MSDFText](MSDFText.md)
-- [Texture](Texture.md)
-- [TextureUtils](TextureUtils.md)
 - [Color](Color.md)
 - [MathUtils](MathUtils.md)
+- [Texture](Texture.md)

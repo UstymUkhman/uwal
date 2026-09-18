@@ -49,13 +49,13 @@ import * as UWAL from "#/index";
     gui.add(settings, "cellSize", 0, 1);
 
     const Camera = new UWAL.Camera2D(Renderer);
+    const Texture = new (await UWAL.Texture());
     const ImagePipeline = new Renderer.Pipeline();
-    const Texture = new (await UWAL.TextureUtils());
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(Color));
 
     const addScalar = (v, s, dst = Vec2.create()) => Vec2.add(v, [s, s], dst);
     const subScalar = (v, s, dst = Vec2.create()) => Vec2.sub(v, [s, s], dst);
-    const Geometry = new UWAL.Geometries.Shape({ segments: 24, radius: 0.5, innerRadius: 0.25 });
+    const Geometry = new UWAL.ShapeGeometry({ segments: 24, radius: 0.5, innerRadius: 0.25 });
     const module = ImagePipeline.CreateShaderModule([UWAL.Shaders.ShapeVertexInstance, Instance]);
 
     const PostProcessPipeline = await Computation.CreatePipeline({

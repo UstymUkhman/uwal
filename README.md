@@ -57,7 +57,7 @@ Given that WebGPU APIs are quite verbose and the UWAL library is fairly modular,
 | &nbsp;&nbsp;&nbsp;&nbsp;+ 3D Meshes                      | 269.93kb | 58.51kb |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ Lights | 273.23kb | 59.45kb |
 | &nbsp;&nbsp;&nbsp;&nbsp;+ MSDF Text                      | 281.66kb | 62.19kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ TextureUtils                   | 327.94kb | 72.51kb |
+| &nbsp;&nbsp;&nbsp;&nbsp;+ Texture                        | 327.94kb | 72.51kb |
 | Total                                                    | 355.90kb | 79.70kb |
 
 ## Diagram
@@ -120,10 +120,10 @@ flowchart TD
   MESH --> APP
   ND   --> APP
 
-  TextureUtils --> APP
-  MathUtils    --> APP
-  Shaders      --> APP
-  Constants    --> APP
+  Texture   --> APP
+  MathUtils --> APP
+  Shaders   --> APP
+  Constants --> APP
 ```
 
 ## Examples

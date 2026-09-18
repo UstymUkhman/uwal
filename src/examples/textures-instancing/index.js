@@ -34,7 +34,7 @@ export async function run(canvas)
     const scene = new UWAL.Scene();
     const radius = 128, textures = 256;
     const Pipeline = new Renderer.Pipeline();
-    const Geometry = new UWAL.Geometries.Shape({ radius });
+    const Geometry = new UWAL.ShapeGeometry({ radius });
 
     let spawnTimeout, textureIndex, lastTexture = textures - 1;
     let textureUpdate = 512, lastRender = performance.now() - textureUpdate;
@@ -70,7 +70,7 @@ export async function run(canvas)
     async function createTexture()
     {
         Storage = Pipeline.CreateStorageBuffer("visible", textures);
-        const Texture = new (await UWAL.TextureUtils());
+        const Texture = new (await UWAL.Texture());
 
         texture = await Texture.CopyImageToTexture(
             await Texture.CreateImageBitmap(Logo),

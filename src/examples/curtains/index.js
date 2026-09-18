@@ -36,7 +36,7 @@ export async function run(canvas)
         alert(error);
     }
 
-    const Geometry = new UWAL.Geometries.Mesh({ name: "plane", args: { nx: 50, ny: 37 } });
+    const Geometry = new UWAL.MeshGeometry({ name: "plane", args: { nx: 50, ny: 37 } });
     const Camera = new UWAL.PerspectiveCamera(35);
 
     const Pipeline = new Renderer.Pipeline();
@@ -54,7 +54,7 @@ export async function run(canvas)
     });
 
     const cameraBuffer = Camera.SetRenderPipeline(Pipeline);
-    const Texture = new (await UWAL.TextureUtils(Renderer));
+    const Texture = new (await UWAL.Texture(Renderer));
 
     const mousePosition = UWAL.MathUtils.Vec2.create();
     const lastPosition = UWAL.MathUtils.Vec2.create();

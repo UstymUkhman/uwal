@@ -1,12 +1,43 @@
 [UWAL](Modules.md) / Texture
 
+## Type Aliases
+
+<a id="usage"></a>
+
+### Usage
+
+```ts
+type Usage = Readonly<Record<"RENDER" | "STORAGE", GPUTextureUsageFlags>>;
+```
+
+`GPUTextureUsageFlags` utility bitmasks:
+- `Usage.RENDER` is the default usage when creating a texture.
+- `Usage.STORAGE` is the default usage when creating a storage texture.
+
+#### Type Parameters
+
+| Type Parameter |
+| ------ |
+
 ## Classes
 
 <a id="texture"></a>
 
 ### Texture
 
-Utility class to create and manage textures and samplers.
+Utility class to create and manage textures and samplers.<br> Upon instantiation, it returns a promise of itself.
+
+#### Param
+
+**Renderer**
+
+Optional `Renderer` instance required in some methods.
+
+#### Example
+
+```ts
+const Texture = new (await UWAL.Texture());
+```
 
 #### Methods
 
@@ -24,7 +55,7 @@ Create a new texture from the `descriptor` object.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `descriptor` | `Pick`\<`Partial`\<`GPUTextureDescriptor`\>, `"format"` \| `"usage"`\> & `Omit`\<`GPUTextureDescriptor`, `"format"` \| `"usage"`\> | `GPUTextureDescriptor` object with optional `format` and `usage` properties which default to [Device.PreferredCanvasFormat](./Device#preferredcanvasformat) and [TEXTURE.RENDER](./TextureUtils.html#texture), respectively. |
+| `descriptor` | `Pick`\<`Partial`\<`GPUTextureDescriptor`\>, `"format"` \| `"usage"`\> & `Omit`\<`GPUTextureDescriptor`, `"format"` \| `"usage"`\> | `GPUTextureDescriptor` object with optional `format` and `usage` properties which default to [Device.PreferredCanvasFormat](./Device#preferredcanvasformat) and [Usage.RENDER](#usage), respectively. |
 
 ###### Returns
 
@@ -73,7 +104,7 @@ Create a new storage texture.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `descriptor` | `Pick`\<`Partial`\<`GPUTextureDescriptor`\>, `"format"` \| `"usage"` \| `"size"`\> & `Omit`\<`GPUTextureDescriptor`, `"format"` \| `"usage"` \| `"size"`\> | `GPUTextureDescriptor` object with optional `format`, `usage` and `size` properties which default to [Device.PreferredCanvasFormat](./Device#preferredcanvasformat), [TEXTURE.STORAGE](./TextureUtils.html#texture), and [Renderer.CanvasSize](./Renderer#canvassize) when [Renderer](#renderer) is provided. |
+| `descriptor` | `Pick`\<`Partial`\<`GPUTextureDescriptor`\>, `"format"` \| `"usage"` \| `"size"`\> & `Omit`\<`GPUTextureDescriptor`, `"format"` \| `"usage"` \| `"size"`\> | `GPUTextureDescriptor` object with optional `format`, `usage` and `size` properties which default to [Device.PreferredCanvasFormat](./Device#preferredcanvasformat), [Usage.STORAGE](#usage), and [Renderer.CanvasSize](./Renderer#canvassize) when [Renderer](#renderer) is provided. |
 
 ###### Returns
 

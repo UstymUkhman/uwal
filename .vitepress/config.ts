@@ -38,27 +38,6 @@ export default defineConfig({
           { text: "Scene", link: "/Scene.md" },
           { text: "Color", link: "/Color.md" },
           {
-            text: "Cameras",
-            collapsed: true,
-            items:
-            [{
-              text: "Camera2D",
-              link: "/Camera2D.md"
-            },
-            {
-              text: "Camera3D",
-              link: "/Camera3D.md"
-            },
-            {
-              text: "OrthographicCamera",
-              link: "/OrthographicCamera.md"
-            },
-            {
-              text: "PerspectiveCamera",
-              link: "/PerspectiveCamera.md"
-            }]
-          },
-          {
             text: "Lights",
             collapsed: true,
             items:
@@ -84,18 +63,27 @@ export default defineConfig({
             }]
           },
           {
-            text: "Textures",
+            text: "Cameras",
             collapsed: true,
             items:
             [{
-              text: "TextureUtils",
-              link: "/TextureUtils.md"
+              text: "Camera2D",
+              link: "/Camera2D.md"
             },
             {
-              text: "Texture",
-              link: "/Texture.md"
+              text: "Camera3D",
+              link: "/Camera3D.md"
+            },
+            {
+              text: "OrthographicCamera",
+              link: "/OrthographicCamera.md"
+            },
+            {
+              text: "PerspectiveCamera",
+              link: "/PerspectiveCamera.md"
             }]
           },
+          { text: "Texture", link: "/Texture.md" },
           { text: "MSDFText", link: "/MSDFText.md" },
           { text: "MathUtils", link: "/MathUtils.md" },
           { text: "Errors", link: "/Errors.md" }
