@@ -36,7 +36,23 @@ export default defineConfig({
         [
           { text: "Device", link: "/Device.md" },
           { text: "Scene", link: "/Scene.md" },
-          { text: "Color", link: "/Color.md" },
+          {
+            text: "Utils",
+            collapsed: true,
+            items:
+            [{
+              text: "Color",
+              link: "/Color.md"
+            },
+            {
+              text: "Texture",
+              link: "/Texture.md"
+            },
+            {
+              text: "MathUtils",
+              link: "/MathUtils.md"
+            }]
+          },
           {
             text: "Lights",
             collapsed: true,
@@ -83,9 +99,7 @@ export default defineConfig({
               link: "/PerspectiveCamera.md"
             }]
           },
-          { text: "Texture", link: "/Texture.md" },
           { text: "MSDFText", link: "/MSDFText.md" },
-          { text: "MathUtils", link: "/MathUtils.md" },
           { text: "Errors", link: "/Errors.md" }
         ]
       }

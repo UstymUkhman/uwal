@@ -45,9 +45,11 @@ To check the installation was successful, let's walkthrough a basic WebGPU progr
 ### Preview
 
 ```js
-// Import some utility shaders and WebGPU renderer from UWAL and rename
-// the latter one to `RenderStage` to use `Renderer` variable locally.
-import { Shaders, Renderer as RenderStage } from "uwal";
+// Import the WebGPU renderer from UWAL and rename it to
+// `RenderStage` to use the `Renderer` variable locally.
+import { Renderer as RenderStage } from "uwal/core";
+// Import a utility shader to fill the canvas.
+import { Fullscreen } from "uwal/shaders";
 
 // Create a simple WGSL shader to output canvas coordinates as a
 // linear gradient from the bottom-left to the top-right corner.
@@ -80,7 +82,7 @@ struct VertexOutput
 // is the default one when creating a render pipeline.
 @fragment fn fragment(@location(0) texCoord: vec2f) -> @location(0) vec4f
 {
-    // Output current pixel color.
+    // Output the current pixel color.
     return vec4f(texCoord, 0, 1);
 }`;
 
@@ -94,7 +96,7 @@ const Renderer = new (await RenderStage(canvas));
 // Create a new render pipeline using two shaders and
 // automatically add it to the renderer for it to use.
 const RenderPipeline = await Renderer.CreatePipeline([
-    Shaders.Fullscreen, Gradient
+    Fullscreen, Gradient
 ]);
 
 // Set the `canvas` element to the full size of the page.
