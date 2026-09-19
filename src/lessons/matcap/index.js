@@ -2,7 +2,6 @@ import Matcap from "/assets/images/matcap.png";
 import Normal from "/assets/images/normal.jpg";
 import Lines from "/assets/images/lines.png";
 import Sky from "/assets/images/qwantani";
-import SkyBox from "./SkyBox.wgsl";
 import * as UWAL from "#/index";
 
 (async function(canvas)
@@ -22,17 +21,17 @@ import * as UWAL from "#/index";
     const PlaneGeometry = new UWAL.MeshGeometry({ name: "plane", args: { nx: 10, quads: true } });
     const CubeGeometry = new UWAL.MeshGeometry({ name: "roundedCube", args: { radius: 0.04 } });
 
-    const SkyboxPipeline = new Renderer.Pipeline();
     const Camera = new UWAL.PerspectiveCamera();
     const Plane = new UWAL.Mesh(PlaneGeometry);
     const Disc = new UWAL.Mesh(DiscGeometry);
     const Cube = new UWAL.Mesh(CubeGeometry);
 
-    let Skybox, lastTime = 0, time = 0;
     const Scene = new UWAL.Scene();
     Scene.Add([Plane, Disc, Cube]);
+    let lastTime = 0, time = 0;
     Cube.Scaling = 2;
 
+    const Skybox = new UWAL.Skybox(Renderer, Camera);
     const Texture = new (await UWAL.Texture(Renderer));
     const WireframeMaterial = new UWAL.WireframeMaterial(Renderer);
     const FlatMaterial = new UWAL.FlatMaterial(Renderer, { colorMap: true });
@@ -41,15 +40,8 @@ import * as UWAL from "#/index";
 
     async function createMeshes()
     {
-        const skyboxModule = SkyboxPipeline.CreateShaderModule([UWAL.Shaders.Fullscreen, SkyBox]);
-
         await Promise.all([
-            Renderer.AddPipeline(SkyboxPipeline, {
-                multisample: SkyboxPipeline.CreateMultisampleState(),
-                vertex: SkyboxPipeline.CreateVertexState(skyboxModule),
-                fragment: SkyboxPipeline.CreateFragmentState(skyboxModule),
-                depthStencil: SkyboxPipeline.CreateDepthStencilState(void 0, void 0, "less-equal"),
-            }),
+            Skybox.CreatePipeline(),
 
             WireframeMaterial.AddPipeline({
                 vertex: { buffers: [PlaneGeometry.GetPositionBufferLayout(WireframeMaterial.Pipeline)] }
@@ -111,11 +103,8 @@ import * as UWAL from "#/index";
             ]
         );
 
-        Skybox = SkyboxPipeline.CreateUniformBuffer("inverseViewProjection");
-        const sky = (await Texture.CreateCubeTexture(Sky)).createView({ dimension: "cube" });
         PlaneGeometry.CreateEdgeBuffer(WireframeMaterial.Pipeline, PlaneGeometry.Primitive?.cells, 4);
-        SkyboxPipeline.SetBindGroupFromResources([sampler, sky, Skybox.buffer]);
-        SkyboxPipeline.SetDrawParams(3);
+        Skybox.SetCubeTextureView(await Texture.CreateCubeTexture(Sky), sampler);
     }
 
     function render(delta)
@@ -145,14 +134,8 @@ import * as UWAL from "#/index";
         Disc.Rotation[2] = time;
         Camera.LookAt(origin);
 
-        // Camera's `ViewProjectionMatrix` is updated by the `LookAt` method, but its `WorldMatrix` is not.
-        // In this case it's not important to get the initial direction correct because it's rotating anyway.
-        // For a better precision, call `UpdateViewProjectionMatrix()` before inverting `ViewProjectionMatrix`.
-        Skybox.inverseViewProjection = Camera.GetInverseViewProjectionMatrix(origin, Skybox.inverseViewProjection);
-        SkyboxPipeline.WriteBuffer(Skybox.buffer, Skybox.inverseViewProjection);
-
         FlatMaterial.Pipeline.Active = false;
-        Renderer.Render(false);
+        Skybox.Render();
 
         FlatMaterial.Pipeline.Active = true;
         Renderer.Render(Scene);

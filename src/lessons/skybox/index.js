@@ -11,7 +11,6 @@
 
 import Envmap from "../environment-maps/Envmap.wgsl";
 import Market from "/assets/images/leadenhall";
-import SkyBox from "./SkyBox.wgsl";
 import * as UWAL from "#/index";
 
 (async function(canvas)
@@ -27,27 +26,24 @@ import * as UWAL from "#/index";
         alert(error);
     }
 
+    const Texture = new (await UWAL.Texture(Renderer));
     const CubeGeometry = new UWAL.MeshGeometry("cube");
     const SkyboxPipeline = new Renderer.Pipeline();
     const CubePipeline = new Renderer.Pipeline();
     const Camera = new UWAL.PerspectiveCamera();
-    const Cube = new UWAL.Mesh(CubeGeometry);
-    const Scene = new UWAL.Scene();
 
+    const Skybox = new UWAL.Skybox(Renderer, Camera);
+    const Cube = new UWAL.Mesh(CubeGeometry);
+    const sampler = Texture.CreateSampler();
+
+    const Scene = new UWAL.Scene();
+    await Skybox.CreatePipeline();
     Cube.Scaling = 2;
     Scene.Add(Cube);
 
-    const Texture = new (await UWAL.Texture(Renderer));
     const position = [0, 0, 0], rotation = [0, 0, 0], origin = [0, 0, 0];
-
     const cubeModule = CubePipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Envmap]);
-    const skyboxModule = SkyboxPipeline.CreateShaderModule([UWAL.Shaders.Fullscreen, SkyBox]);
-    const view = (await Texture.CreateCubeTexture(Market)).createView({ dimension: "cube" });
-
-    let { inverseViewProjection, buffer: inverseViewProjectionBuffer } =
-        SkyboxPipeline.CreateUniformBuffer("inverseViewProjection");
-
-    const sampler = Texture.CreateSampler();
+    const view = Skybox.SetCubeTextureView(await Texture.CreateCubeTexture(Market), sampler);
 
     Cube.SetRenderPipeline(await Renderer.AddPipeline(CubePipeline,
         {
@@ -56,22 +52,12 @@ import * as UWAL from "#/index";
             primitive: CubePipeline.CreatePrimitiveState(),
             vertex: CubePipeline.CreateVertexState(cubeModule, "vertexNormal", [
                 CubeGeometry.GetPositionBufferLayout(CubePipeline),
-                CubeGeometry.GetNormalBufferLayout(CubePipeline),
+                CubeGeometry.GetNormalBufferLayout(CubePipeline)
             ])
         }),
         [sampler, view, Camera.SetRenderPipeline(CubePipeline)],
         [0, 1, UWAL.BINDINGS.CAMERA_MATRIX]
     );
-
-    await Renderer.AddPipeline(SkyboxPipeline,
-    {
-        depthStencil: SkyboxPipeline.CreateDepthStencilState(void 0, void 0, "less-equal"),
-        fragment: SkyboxPipeline.CreateFragmentState(skyboxModule),
-        vertex: SkyboxPipeline.CreateVertexState(skyboxModule)
-    });
-
-    SkyboxPipeline.SetBindGroupFromResources([sampler, view, inverseViewProjectionBuffer]);
-    SkyboxPipeline.SetDrawParams(3);
 
     function render(time)
     {
@@ -88,17 +74,11 @@ import * as UWAL from "#/index";
         Cube.Rotation = rotation;
         Camera.LookAt(origin);
 
-        // Camera's `ViewProjectionMatrix` is updated by the `LookAt` method, but its `WorldMatrix` is not.
-        // In this case it's not important to get the initial direction correct because it's rotating anyway.
-        // For a better precision, call `UpdateViewProjectionMatrix()` before inverting `ViewProjectionMatrix`.
-        inverseViewProjection = Camera.GetInverseViewProjectionMatrix(origin, inverseViewProjection);
-        SkyboxPipeline.WriteBuffer(inverseViewProjectionBuffer, inverseViewProjection);
-
         CubePipeline.Active = true;
         Renderer.Render(Scene, false);
 
         CubePipeline.Active = false;
-        Renderer.Render();
+        Skybox.Render(true);
 
         requestAnimationFrame(render);
     }
