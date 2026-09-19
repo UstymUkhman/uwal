@@ -61,7 +61,7 @@ export default({ mode }, Name = LIB.name.toUpperCase()) =>
             {
                 name: `${Name} Utils`,
                 fileName: `${LIB.name}.utils`,
-                entry: resolve("lib/utils/export.js")
+                entry: resolve("lib/utils/main.js")
             }
         }
         : mode === "materials" ?

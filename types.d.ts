@@ -7,7 +7,7 @@ export { ComputePipelineInstance as ComputePipeline } from "./types/pipelines/Co
 export { RenderPipelineInstance as RenderPipeline } from "./types/pipelines/RenderPipeline";
 export { AmbientLight, DirectionalLight, PointLight, SpotLight } from "./types/lights";
 export { FlatMaterial, MatcapMaterial, WireframeMaterial } from "./types/materials";
-export { Color, Texture, MathUtils } from "./types/utils/export";
+export { Color, Texture, MathUtils } from "./types/utils/main";
 export { default as MSDFText } from "./types/text";
 export * as Shaders from "./types/shaders";
 

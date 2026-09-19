@@ -44,7 +44,7 @@
       "default": "./build/uwal.core.js"
     },
     "./utils": {
-      "types": "./types/utils/export.d.ts",
+      "types": "./types/utils/main.d.ts",
       "import": "./build/uwal.utils.js",
       "require": "./build/uwal.utils.umd.cjs",
       "default": "./build/uwal.utils.js"
