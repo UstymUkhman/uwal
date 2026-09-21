@@ -37,12 +37,12 @@ new MSDFText(label?): MSDFText;
 
 #### Methods
 
-<a id="createrenderpipeline"></a>
+<a id="createpipeline"></a>
 
-##### CreateRenderPipeline()
+##### CreatePipeline()
 
 ```ts
-CreateRenderPipeline(Renderer, descriptor?): Promise<PipelineInstance>;
+CreatePipeline(Renderer, descriptor?): Promise<PipelineInstance>;
 ```
 
 Create an internal render pipeline to output the text.
@@ -90,7 +90,7 @@ Load and use an [MSDFFont](./MSDFFont).
 
 ###### Throws
 
-`ERROR.PIPELINE_NOT_FOUND` if called before [CreateRenderPipeline](#createrenderpipeline).
+`ERROR.PIPELINE_NOT_FOUND` if called before [CreatePipeline](#createpipeline).
 
 <a id="write"></a>
 
@@ -122,7 +122,7 @@ Write a text string into a storage `GPUBuffer`.
 
 ###### Throws
 
-`ERROR.PIPELINE_NOT_FOUND` if called before [CreateRenderPipeline](#createrenderpipeline),
+`ERROR.PIPELINE_NOT_FOUND` if called before [CreatePipeline](#createpipeline),
 `ERROR.FONT_NOT_FOUND` if called before [LoadFont](#loadfont), and `ERROR.CAMERA_BUFFER_NOT_FOUND`
 if a `PerspectiveCamera` buffer hasn't been set yet with [CameraMatrixBuffer](#cameramatrixbuffer).
 
@@ -218,7 +218,7 @@ Remove pipeline's bind groups and reset its render bundles.
 Destroy(): void;
 ```
 
-Destroy and remove the rendering pipeline, destroy the font, and reset the internal state.
+Destroy and remove the render pipeline, destroy the font, and reset the internal state.
 
 ###### Returns
 

@@ -40,7 +40,7 @@ type Camera =
 ### Scene
 
 Content manager for objects rendered onto the `canvas` element.
-Used to add, search, update, and remove nodes, 2D shapes, and 3D meshes within the rendering pipeline.
+Used to add, search, update, and remove nodes, 2D shapes, and 3D meshes within the render pipeline.
 
 #### Properties
 
@@ -230,4 +230,4 @@ get WorldMatrix(): Float32Array<ArrayBufferLike>;
 `Float32Array`\<`ArrayBufferLike`\>
 
 The world matrix of the scene. Its use is discouraged since this
-getter is called internally when updating the camera's view projection matrix.
+getter is called internally when updating the camera's view-projection matrix.

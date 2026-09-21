@@ -3,6 +3,7 @@
 - [Device](Device.md)
 - [Errors](Errors.md)
 - [Scene](Scene.md)
+- [Skybox](Skybox.md)
 - [Camera2D](Camera2D.md)
 - [Camera3D](Camera3D.md)
 - [OrthographicCamera](OrthographicCamera.md)

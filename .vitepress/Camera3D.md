@@ -37,7 +37,7 @@ Defaults to bounding sphere.
 AutoUpdateWorldMatrix: boolean = false;
 ```
 
-Update the camera's view projection matrix every time the world matrix is updated.
+Update the camera's view-projection matrix every time the world matrix is updated.
 
 #### Constructors
 
@@ -83,7 +83,7 @@ UpdateWorldMatrix(force?): void;
 
 Update the camera's world matrix buffer.
 When the [AutoUpdateWorldMatrix](#autoupdateworldmatrix) or `force` is `true`,
-the camera's world and view projection matrices are also updated.
+the camera's world and view-projection matrices are also updated.
 
 ###### Parameters
 
@@ -141,7 +141,11 @@ This method also updates the camera's frustum planes used in cull testing.
 ##### GetInverseViewProjectionMatrix()
 
 ```ts
-GetInverseViewProjectionMatrix(translation?, dst?): Float32Array<ArrayBufferLike>;
+GetInverseViewProjectionMatrix(
+   update?, 
+   translation?, 
+   dst?
+): Float32Array<ArrayBufferLike>;
 ```
 
 Compute the inverse of the camera's view-projection matrix.
@@ -151,6 +155,7 @@ Optionally, reset the translation component of the matrix before inverting it.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
+| `update?` | `boolean` | Whether to update the `ViewProjectionMatrix` before inverting it. |
 | `translation?` | `Float32Array`\<`ArrayBufferLike`\> | If passed, set the matrix translation to this vector. |
 | `dst?` | `Float32Array`\<`ArrayBufferLike`\> | Destination matrix. A new one is created if omitted. |
 
@@ -160,7 +165,8 @@ Optionally, reset the translation component of the matrix before inverting it.
 
 ###### See
 
-[SkyBox](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#skybox) for reference.
+[Skybox / Materials](https://ustymukhman.github.io/uwal/dist/examples/examples.html#skybox-materials)
+and [SkyBox](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#skybox) for reference.
 
 <a id="lookat"></a>
 
@@ -256,7 +262,7 @@ get ViewProjectionMatrix(): Float32Array<ArrayBufferLike>;
 
 `Float32Array`\<`ArrayBufferLike`\>
 
-Camera's view projection matrix.
+Camera's view-projection matrix.
 
 <a id="matrixbuffer"></a>
 

@@ -1,0 +1,1 @@
+import{_ as a,o as t,c as s,a0 as i}from"./chunks/framework.BWm26kJ8.js";const k=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"Skybox.md","filePath":"Skybox.md"}'),r={name:"Skybox.md"};function n(h,e,d,o,l,p){return t(),s("div",null,[...e[0]||(e[0]=[i("",61)])])}const u=a(r,[["render",n]]);export{k as __pageData,u as default};

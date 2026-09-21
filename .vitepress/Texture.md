@@ -25,7 +25,7 @@ type Usage = Readonly<Record<"RENDER" | "STORAGE", GPUTextureUsageFlags>>;
 
 ### Texture
 
-Utility class to create and manage textures and samplers.<br> Upon instantiation, it returns a promise of itself.
+Utility class to create and manage textures and samplers.<br>Upon instantiation, it returns a promise of itself.
 
 #### Param
 
@@ -189,7 +189,8 @@ Create a new `GPUExternalTexture` from a video source.
 ###### See
 
  - [https://www.w3.org/TR/webgpu/#dom-gpudevice-importexternaltexture](https://www.w3.org/TR/webgpu/#dom-gpudevice-importexternaltexture)
- - [Video Color Grading](https://ustymukhman.github.io/uwal/dist/examples/examples.html#video-color-grading) for reference.
+ - [Video Color Grading](https://ustymukhman.github.io/uwal/dist/examples/examples.html#video-color-grading)
+for reference.
 
 <a id="createimagebitmap"></a>
 
@@ -286,8 +287,9 @@ that as the destination when copying bitmaps with `flipY` option set to `false`.
 ###### See
 
  - [https://www.w3.org/TR/webgpu/#dom-gputextureviewdimension-cube](https://www.w3.org/TR/webgpu/#dom-gputextureviewdimension-cube)
- - [Environment maps](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#environment-maps)
-and [SkyBox](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#skybox) for reference.
+ - [Skybox / Materials](https://ustymukhman.github.io/uwal/dist/examples/examples.html#skybox-materials),
+[Environment maps](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#environment-maps) and
+[SkyBox](https://ustymukhman.github.io/uwal/dist/lessons/lessons.html#skybox) for reference.
 
 ###### Throws
 
