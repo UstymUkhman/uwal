@@ -44,7 +44,7 @@ export async function run(canvas)
         Renderer.CreateDepthStencilAttachment()
     );
 
-    const Pipeline = await Characters.CreateRenderPipeline(Renderer);
+    const Pipeline = await Characters.CreatePipeline(Renderer);
     Characters.CameraMatrixBuffer = Camera.SetRenderPipeline(Pipeline);
 
     // alpha & scale (4) + color (4) + transform (16) + x & y (2):

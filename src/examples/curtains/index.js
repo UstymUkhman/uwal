@@ -49,7 +49,7 @@ export async function run(canvas)
     const module = Pipeline.CreateShaderModule([UWAL.Shaders.MeshVertex, Curtains]);
     const { curtains, buffer } = Pipeline.CreateUniformBuffer("curtains");
 
-    const TextPipeline = await Text.CreateRenderPipeline(Renderer, {
+    const TextPipeline = await Text.CreatePipeline(Renderer, {
         multisample: Pipeline.CreateMultisampleState()
     });
 

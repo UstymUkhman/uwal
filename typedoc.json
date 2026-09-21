@@ -21,8 +21,9 @@
 
     "entryPoints":
     [
-        "lib/Device.js",
         "lib/Scene.js",
+        "lib/Skybox.js",
+        "lib/Device.js",
         "lib/utils/Math.js",
         "lib/utils/Color.js",
         "lib/utils/Texture.js",

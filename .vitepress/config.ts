@@ -100,6 +100,7 @@ export default defineConfig({
             }]
           },
           { text: "MSDFText", link: "/MSDFText.md" },
+          { text: "Skybox", link: "/Skybox.md" },
           { text: "Errors", link: "/Errors.md" }
         ]
       }
