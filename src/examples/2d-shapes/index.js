@@ -33,7 +33,7 @@ export async function run(canvas)
     const DummyGeometry = new UWAL.ShapeGeometry();
     const spin = [], speed = [], direction = [], uniform = [];
 
-    const FlatMaterial = new UWAL.FlatMaterial(Renderer, void 0, UWAL.Shaders.Shape);
+    const FlatMaterial = new UWAL.FlatMaterial(Renderer, UWAL.Shaders.Shape);
     const cameraBuffer = Camera.SetRenderPipeline(FlatMaterial.Pipeline);
     Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(color));
 

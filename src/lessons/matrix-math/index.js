@@ -38,7 +38,7 @@ import * as UWAL from "#/index";
     const Camera = new UWAL.Camera2D();
     const gui = new GUI().onChange(render);
     const { vertexData, indexData } = createVertices();
-    const FlatMaterial = new UWAL.FlatMaterial(Renderer, void 0, UWAL.Shaders.Shape);
+    const FlatMaterial = new UWAL.FlatMaterial(Renderer, UWAL.Shaders.Shape);
     const { Pipeline } = FlatMaterial, scene = new UWAL.Scene(), color = new UWAL.Color();
 
     const cameraMatrixBuffer = Camera.SetRenderPipeline(Pipeline);

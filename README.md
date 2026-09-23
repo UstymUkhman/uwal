@@ -48,17 +48,17 @@ bun add uwal
 
 ## Weight
 
-Given that WebGPU APIs are quite verbose and the UWAL library is fairly modular, with tree shaking applied in a build step, the bundle size may vary considerably. As a guide, below are the module sizes split by common usage purposes. For example, a fragment shader animation or a path tracer may need only `Device & Shaders` modules, which will also include `Render` and `Compute` pipelines, while a particle animation can leverage the `Shape` class, that also provides instancing. On the other hand, a 3D application will most likely use the `Mesh` class, its primitives, and lights, while the `MSDFText` class can be included to print strings to a render target to apply further text manipulations.
+Given that WebGPU APIs are quite verbose and the UWAL library is fairly modular, with tree shaking applied in a build step, the bundle size may vary considerably. For example, a fragment shader animation or a path tracer may need only a render and a compute pipeline from the `core` module, amounting to about 52 kb gzipped. When color, texture, and math utilities are added on top of this, the total bundle size starts at around 68 kb gzipped. As a guide, below are the modules provided by the library and their sizes, but keep in mind that you might need only some parts of them, like with the `core` example above.
 
-| Module                                                   | Minified | Gzipped |
-| :------------------------------------------------------- | -------: | ------: |
-| Device & Shaders                                         | 261.31kb | 55.56kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ 2D Shapes                      | 268.42kb | 58.12kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ 3D Meshes                      | 269.93kb | 58.51kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ Lights | 273.23kb | 59.45kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ MSDF Text                      | 281.66kb | 62.19kb |
-| &nbsp;&nbsp;&nbsp;&nbsp;+ Texture                        | 327.94kb | 72.51kb |
-| Total                                                    | 355.90kb | 79.70kb |
+| Module         |  Minified |  Gzipped |
+| :------------- | --------: | -------: |
+| uwal/core      | 244.86 kb | 58.75 kb |
+| uwal/utils     |  56.69 kb | 15.76 kb |
+| uwal/materials |  58.73 kb | 12.99 kb |
+| uwal/shaders   |  36.25 kb |  4.08 kb |
+| uwal/lights    |  40.50 kb | 10.31 kb |
+| uwal/text      |  55.43 kb | 15.54 kb |
+| uwal           | 311.41 kb | 69.97 kb |
 
 ## Diagram
 
@@ -92,9 +92,10 @@ flowchart TD
   MAT  --> APP
   RP   --> APP
 
-  Lights   --> APP
-  Color    --> APP
-  MSDFText --> APP
+  Lights    --> APP
+  Skybox    --> APP
+  Shaders   --> APP
+  Constants --> APP
 
   ND2[Node2D]
   GEO[Geometries]
@@ -120,10 +121,10 @@ flowchart TD
   MESH --> APP
   ND   --> APP
 
+  Color     --> APP
   Texture   --> APP
   MathUtils --> APP
-  Shaders   --> APP
-  Constants --> APP
+  MSDFText  --> APP
 ```
 
 ## Examples
