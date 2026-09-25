@@ -48,7 +48,7 @@ bun add uwal
 
 ## Weight
 
-Given that WebGPU APIs are quite verbose and the UWAL library is fairly modular, with tree shaking applied in a build step, the bundle size may vary considerably. For example, a fragment shader animation or a path tracer may need only a render and a compute pipeline from the `core` module, amounting to about 52 kb gzipped. When color, texture, and math utilities are added on top of this, the total bundle size starts at around 68 kb gzipped. As a guide, below are the modules provided by the library and their sizes, but keep in mind that you might need only some parts of them, like with the `core` example above.
+Given that WebGPU APIs are quite verbose and the UWAL library is fairly modular, with tree shaking applied in a build step, the bundle size may vary considerably. For example, a fragment shader animation or a path tracer may require only a render and a compute pipeline from the `uwal/core` module, starting at about 52 kb gzipped. When color, texture, and math utilities are added on top of that, the initial bundle size grows to around 68 kb gzipped. As a guide, below are the modules provided by the library and their sizes, but, just like with the example above, only some parts of them might actually be required.
 
 | Module         |  Minified |  Gzipped |
 | :------------- | --------: | -------: |
