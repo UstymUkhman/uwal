@@ -16,7 +16,7 @@ import * as UWAL from "#/index";
 /** @type {GPUTexture} */ let texture;
 /** @type {ResizeObserver} */ let observer;
 
-/** @type {Scene} */ const scene = new UWAL.Scene();
+/** @type {Scene} */ const Scene = new UWAL.Scene();
 const perspectiveCamera = new UWAL.PerspectiveCamera();
 const orthographicCamera = new UWAL.OrthographicCamera();
 
@@ -86,8 +86,8 @@ export async function run(canvas)
         0.25, 0  , 0.5 , 0  , 0.25, 0.5, 0.5 , 0.5  // Right
     ]));
 
-    scene.Add([perspectiveCamera, orthographicCamera]);
-    scene.Add([perspectiveCube, orthographicCube]);
+    Scene.Add([perspectiveCamera, orthographicCamera]);
+    Scene.Add([perspectiveCube, orthographicCube]);
 
     function clean()
     {
@@ -153,8 +153,8 @@ export async function run(canvas)
             perspectiveCube.Transform = [[0, UWAL.MathUtils.Lerp(0, 4, smootherTime), 0], tempRotation];
             perspectiveCube.Visible = !(orthographicCube.Visible = false);
 
-            scene.MainCamera = perspectiveCamera;
-            Renderer.Render(scene, false);
+            Scene.MainCamera = perspectiveCamera;
+            Renderer.Render(Scene, false);
         }
 
         // Orthographic Cube:
@@ -169,8 +169,8 @@ export async function run(canvas)
             orthographicCube.Transform = [[px, UWAL.MathUtils.Lerp(py, nextOrthoY, smootherTime), pz], tempRotation];
             orthographicCube.Visible = !(perspectiveCube.Visible = false);
 
-            scene.MainCamera = orthographicCamera;
-            Renderer.Render(scene);
+            Scene.MainCamera = orthographicCamera;
+            Renderer.Render(Scene);
         }
     }
 
@@ -222,7 +222,7 @@ export function destroy()
     cancelAnimationFrame(raf);
     observer.disconnect();
     Renderer.Destroy();
-    scene.Destroy();
+    Scene.Destroy();
     UWAL.Device.Destroy(
         undefined,
         texture

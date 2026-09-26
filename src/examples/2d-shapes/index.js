@@ -15,7 +15,7 @@ import * as UWAL from "#/index";
 /** @type {ResizeObserver} */ let observer;
 
 const Camera = new UWAL.Camera2D();
-const scene = new UWAL.Scene();
+const Scene = new UWAL.Scene();
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
@@ -49,7 +49,7 @@ export async function run(canvas)
         speed.splice(0);
         uniform.splice(0);
         direction.splice(0);
-        scene.Children.splice(0);
+        Scene.Children.splice(0);
         cancelAnimationFrame(raf);
     }
 
@@ -102,7 +102,7 @@ export async function run(canvas)
                 speed.push(UWAL.MathUtils.Random(1, 10));
                 spin.push(UWAL.MathUtils.Random(0, 0.1));
 
-                scene.Add(shape);
+                Scene.Add(shape);
             }
         }
     }
@@ -111,9 +111,9 @@ export async function run(canvas)
     {
         const [width, height] = Renderer.CanvasSize;
         raf = requestAnimationFrame(render);
-        Renderer.Render(scene);
+        Renderer.Render(Scene);
 
-        scene.Traverse(shape =>
+        Scene.Traverse(shape =>
         {
             const { Min, Max } = shape.BoundingBox, [x, y] = shape.Position, dir = direction[s];
 
@@ -131,7 +131,7 @@ export async function run(canvas)
         {
             let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
-            !scene.MainCamera && scene.AddMainCamera(Camera);
+            !Scene.MainCamera && Scene.AddMainCamera(Camera);
             Renderer.SetCanvasSize(width, blockSize);
             Camera.Size = Renderer.CanvasSize;
         }
@@ -149,6 +149,6 @@ export function destroy()
     observer.disconnect();
     Renderer.Destroy();
     Camera.Destroy();
-    scene.Destroy();
+    Scene.Destroy();
     UWAL.Device.Destroy();
 }

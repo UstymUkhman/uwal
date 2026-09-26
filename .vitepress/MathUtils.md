@@ -179,7 +179,7 @@ Adapted from three.js' [extractRotation](https://github.com/mrdoob/three.js/blob
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `src` | `Float32Array`\<`ArrayBufferLike`\> | Matrix to extract rotation. |
+| `src` | `Float32Array`\<`ArrayBufferLike`\> | Matrix to copy the rotation from. |
 | `dst?` | `Float32Array`\<`ArrayBufferLike`\> | Destination matrix. |
 
 #### Returns
@@ -200,14 +200,14 @@ function GetMat4Rotation(
 ): Float32Array<ArrayBufferLike>;
 ```
 
-Get matrix rotation as Euler angles, assuming the upper 3x3 matrix is a pure rotation matrix.
+Get the matrix rotation as Euler angles, assuming the upper 3x3 matrix is a pure rotation matrix.
 Adapted from OGL's [fromRotationMatrix](https://github.com/oframe/ogl/blob/385ce65c352c70734a36dc98c787fdd1d30ddb3b/src/math/functions/EulerFunc.js) function.
 
 #### Parameters
 
 | Parameter | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| `src` | `Float32Array`\<`ArrayBufferLike`\> | `undefined` | Matrix to extract rotation. |
+| `src` | `Float32Array`\<`ArrayBufferLike`\> | `undefined` | Matrix to get the rotation from. |
 | `dst?` | `Float32Array`\<`ArrayBufferLike`\> | `...` | Destination vector. |
 | `order?` | `string` | `"XYZ"` | Rotation order. |
 
@@ -221,22 +221,22 @@ Adapted from OGL's [fromRotationMatrix](https://github.com/oframe/ogl/blob/385ce
 
 ***
 
-<a id="getmat4scale"></a>
+<a id="getmaxaxisscale"></a>
 
-### GetMat4Scale()
+### GetMaxAxisScale()
 
 ```ts
-function GetMat4Scale(src): number;
+function GetMaxAxisScale(src): number;
 ```
 
-Get maximum scale on a matrix axis.
+Get the maximum scale on a matrix axis.
 Adapted from OGL's [getMaxScaleOnAxis](https://github.com/oframe/ogl/blob/385ce65c352c70734a36dc98c787fdd1d30ddb3b/src/math/functions/Mat4Func.js#L524-L540) function.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `src` | `Float32Array`\<`ArrayBufferLike`\> | Matrix to extract scale. |
+| `src` | `Float32Array`\<`ArrayBufferLike`\> | Matrix to get the scale from. |
 
 #### Returns
 

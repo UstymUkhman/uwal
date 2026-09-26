@@ -17,6 +17,7 @@ import Logo from "/assets/images/logo.jpg";
 /** @type {ResizeObserver} */ let observer;
 
 const Camera = new UWAL.Camera2D();
+const Scene = new UWAL.Scene();
 let Storage, texture;
 
 /** @param {HTMLCanvasElement} canvas */
@@ -31,7 +32,6 @@ export async function run(canvas)
         alert(error);
     }
 
-    const scene = new UWAL.Scene();
     const radius = 128, textures = 256;
     const Pipeline = new Renderer.Pipeline();
     const Geometry = new UWAL.ShapeGeometry({ radius });
@@ -52,7 +52,7 @@ export async function run(canvas)
     function clean()
     {
         cancelAnimationFrame(raf);
-        scene.Children.splice(1)[0]?.Destroy();
+        Scene.Children.splice(1)[0]?.Destroy();
         spawnTimeout = clearTimeout(spawnTimeout);
         lastRender = performance.now() - (textureUpdate = 512);
     }
@@ -93,7 +93,7 @@ export async function run(canvas)
             [UWAL.BINDINGS.CAMERA_MATRIX, 0, 1, 2, 3]
         );
 
-        scene.Add(shape);
+        Scene.Add(shape);
         shape.UpdateWorldMatrix();
         shape.AddInstanceBuffer(textures);
 
@@ -132,7 +132,7 @@ export async function run(canvas)
         Storage.visible[textureIndex] = 1;
 
         Pipeline.WriteBuffer(Storage.buffer, Storage.visible);
-        Renderer.Render(scene);
+        Renderer.Render(Scene);
     }
 
     observer = new ResizeObserver(entries =>
@@ -141,7 +141,7 @@ export async function run(canvas)
         {
             let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
             width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
-            !scene.MainCamera && scene.AddMainCamera(Camera);
+            !Scene.MainCamera && Scene.AddMainCamera(Camera);
             Renderer.SetCanvasSize(width, blockSize);
             Camera.Size = Renderer.CanvasSize;
         }
@@ -159,6 +159,7 @@ export function destroy()
     observer.disconnect();
     Renderer.Destroy();
     Camera.Destroy();
+    Scene.Destroy();
     UWAL.Device.Destroy(
         Storage.buffer,
         texture

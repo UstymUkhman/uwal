@@ -17,7 +17,7 @@ import * as UWAL from "#/index";
 /** @type {GPUTexture} */ let texture;
 /** @type {ResizeObserver} */ let observer;
 const Camera = new UWAL.PerspectiveCamera();
-/** @type {Scene} */ const scene = new UWAL.Scene();
+/** @type {Scene} */ const Scene = new UWAL.Scene();
 
 /** @param {HTMLCanvasElement} canvas */
 export async function run(canvas)
@@ -77,8 +77,8 @@ export async function run(canvas)
         ])
     });
 
-    scene.Add(grid);
-    scene.AddMainCamera(Camera);
+    Scene.Add(grid);
+    Scene.AddMainCamera(Camera);
     Camera.Position = [-8, 4, 8];
 
     const baseBindings = (wireBindings = [
@@ -239,7 +239,7 @@ export async function run(canvas)
 
         lastTime = time;
         Camera.LookAt(origin);
-        Renderer.Render(scene);
+        Renderer.Render(Scene);
         raf = requestAnimationFrame(render);
     }
 
@@ -268,7 +268,7 @@ export function destroy()
     observer.disconnect();
     Renderer.Destroy();
     Camera.Destroy();
-    scene.Destroy();
+    Scene.Destroy();
     UWAL.Device.Destroy(
         undefined,
         texture

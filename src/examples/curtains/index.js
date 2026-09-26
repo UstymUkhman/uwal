@@ -42,7 +42,7 @@ export async function run(canvas)
     const Pipeline = new Renderer.Pipeline();
     let maxDelta = 4, delta = 0, time = 0;
 
-    const scene = new UWAL.Scene("Curtains");
+    const Scene = new UWAL.Scene("Curtains");
     const Plane = new UWAL.Mesh(Geometry);
     const Text = new UWAL.MSDFText();
 
@@ -70,9 +70,9 @@ export async function run(canvas)
     canvas.addEventListener("touchmove", onMove);
 
     await Text.LoadFont(FontURL);
-    scene.AddMainCamera(Camera);
+    Scene.AddMainCamera(Camera);
     curtainsBuffer = buffer;
-    scene.Add(Plane);
+    Scene.Add(Plane);
 
     function onMove()
     {
@@ -158,7 +158,7 @@ export async function run(canvas)
         Renderer.Render(false);
 
         Pipeline.Active = true;
-        Renderer.Render(scene);
+        Renderer.Render(Scene);
 
         raf = requestAnimationFrame(render);
     }
