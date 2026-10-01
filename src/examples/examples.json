@@ -38,5 +38,9 @@
     {
         "name": "Curtains",
         "slug": "curtains"
+    },
+    {
+        "name": "Skybox / Materials",
+        "slug": "skybox-materials"
     }
 ]
