@@ -38,13 +38,13 @@ export async function run(canvas)
         alert(error);
     }
 
-    const position = [0, 0, 0], rotation = [0, 0, 0], scaling = [1.25, 1.25, 1], origin = [0, 0, 0];
+    const Labels = [], position = [0, 0, 0], rotation = [0, 0, 0], scaling = [1.25, 1.25, 1], origin = [0, 0, 0];
     const DiscGeometry = new UWAL.MeshGeometry({ name: "disc", args: { segments: 64, radius: 1.5 } });
     const PlaneGeometry = new UWAL.MeshGeometry({ name: "plane", args: { nx: 10, quads: true } });
     const CubeGeometry = new UWAL.MeshGeometry({ name: "roundedCube", args: { radius: 0.04 } });
-    const FlatMaterial = new UWAL.FlatMaterial(Renderer, { colorMap: true });
 
-    let dist = 5, lastTime = 0, time = UWAL.MathUtils.HPI;
+    let time = UWAL.MathUtils.HPI, lastTime = 0, dist = 0, lastDist = 0, timeout;
+    const FlatMaterial = new UWAL.FlatMaterial(Renderer, { colorMap: true });
     const Texture = new (await UWAL.Texture(Renderer));
     const Skybox = new UWAL.Skybox(Renderer, Camera);
 
@@ -57,47 +57,168 @@ export async function run(canvas)
     Disc.Scaling = [0.5, 0.5, 1];
     Scene.AddMainCamera(Camera);
 
-    async function start()
+    async function start(labels = dist !== lastDist)
     {
-        const sampler = Texture.CreateSampler();
-        SkyboxPipeline = await Skybox.CreatePipeline();
-        const depthStencil = SkyboxPipeline.CreateDepthStencilState();
+        if (raf && labels)
+        {
+            Renderer.RemovePipeline(
+                MaterialPipelines.pop()
+            );
 
-        const cameraBuffer = Camera.SetRenderPipeline(FlatMaterial.Pipeline);
-        Skybox.SetCubeTextureView(await Texture.CreateCubeTexture(Sky), sampler);
-        const commonBindings = [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR];
-        const colorTarget = SkyboxPipeline.CreateColorTargetState(UWAL.BLEND_STATE.ALPHA_ADDITIVE);
+            for (let l = Labels.length; l--; )
+                Labels[l].Destroy();
 
-        await createMeshes(cameraBuffer, sampler, commonBindings, depthStencil, colorTarget);
+            Scene.Remove(Labels);
+            Labels.splice(0);
+        }
+        else if (!raf)
+        {
+            SkyboxPipeline = await Skybox.CreatePipeline();
+            const sky = await Texture.CreateCubeTexture(Sky);
+            Skybox.SetCubeTextureView(sky, Texture.CreateSampler());
+        }
 
+        const Common = {
+            sampler: Texture.CreateSampler(),
+            depthStencil: SkyboxPipeline.CreateDepthStencilState(),
+            bindings: [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR],
+            cameraBuffer: Camera.SetRenderPipeline(FlatMaterial.Pipeline),
+            colorTarget: SkyboxPipeline.CreateColorTargetState(UWAL.BLEND_STATE.ALPHA_ADDITIVE)
+        };
+
+        if (labels)
+        {
+            lastDist = dist;
+            await createLabels(Common);
+        }
+
+        !raf && await createMeshes(Common);
         raf = requestAnimationFrame(render);
     }
 
-    async function createMeshes(cameraBuffer, sampler, commonBindings, depthStencil, colorTarget)
+    async function createLabels(Common)
+    {
+        const WHITE = 0xffffff;
+        const Text = new UWAL.MSDFText();
+        const Geometry = new UWAL.MeshGeometry("quad");
+
+        const fov = UWAL.MathUtils.DegreesToRadians(Camera.FieldOfView);
+        const Material = new UWAL.FlatMaterial(Renderer, { colorMap: true });
+        const TextCamera = new UWAL.PerspectiveCamera(void 0, void 0, void 0, Renderer);
+
+        const TextPipeline = await Text.CreatePipeline(Renderer, { depthStencil: Common.depthStencil });
+        SkyboxPipeline.DestroyPassEncoder = TextPipeline.DestroyPassEncoder = true;
+        Text.CameraMatrixBuffer = TextCamera.SetRenderPipeline(TextPipeline);
+
+        togglePipelines(false);
+        await Text.LoadFont(FontURL);
+
+        let flat = Text.Write("Flat", WHITE);
+        let matcap = Text.Write("Matcap", WHITE);
+        let wireframe = Text.Write("Wireframe", WHITE);
+
+        MaterialPipelines.push(await Material.AddPipeline({
+            depthStencil: Common.depthStencil,
+            fragment: { targets: [Common.colorTarget] },
+            primitive: Material.Pipeline.CreatePrimitiveState(void 0, "front"),
+
+            vertex: { buffers: [
+                Geometry.GetPositionBufferLayout(Material.Pipeline),
+                Geometry.GetUVBufferLayout(Material.Pipeline)
+            ]}
+        }));
+
+        const translation = UWAL.MathUtils.Mat4.identity();
+        const height = Math.tan(fov * 0.5) * 2.0 * dist;
+        const width = Renderer.AspectRatio * height;
+
+        for (let l = 0; l < 2; ++l)
+        {
+            const Label = new UWAL.Mesh(Geometry);
+
+            TextPipeline.TextureView = Texture.CreateStorageTexture({ usage: GPUTextureUsage.RENDER_ATTACHMENT });
+
+            Label.SetRenderPipeline(Material.Pipeline,
+                [Common.cameraBuffer, Material.ColorBuffer, TextPipeline.TextureView, Common.sampler],
+                [...Common.bindings, UWAL.BINDINGS.COLOR_MAP, UWAL.BINDINGS.COLOR_MAP_SAMPLER]
+            );
+
+            if (innerWidth <= 960)
+            {
+                UWAL.MathUtils.Mat4.translation([l && -2.25 || 0.25, 3, -10], translation);
+                Text.SetTranslation(translation, wireframe);
+
+                UWAL.MathUtils.Mat4.translation([l && 0.85 || -1.65, 3, -10], translation);
+                Text.SetTranslation(translation, flat);
+
+                UWAL.MathUtils.Mat4.translation([l && -2 || 0.5, -0.5, -10], translation);
+                Text.SetTranslation(translation, matcap);
+            }
+            else
+            {
+                const z = dist < 5 && -8 || -9;
+                const y = dist < 5 && 1.65 || 1.5;
+                const x = l ? dist < 5 && [-5, 3.5] || [-4.62, 3] : dist < 5 && [3, -5] || [2.6, -4.62];
+
+                UWAL.MathUtils.Mat4.translation([x[0], y, z], translation);
+                Text.SetTranslation(translation, wireframe);
+
+                UWAL.MathUtils.Mat4.translation([-0.4, y, z], translation);
+                Text.SetTranslation(translation, flat);
+
+                UWAL.MathUtils.Mat4.translation([x[1], y, z], translation);
+                Text.SetTranslation(translation, matcap);
+            }
+
+            Label.Position[2] = (l * 2 - 1) * -0.01;
+            Label.Rotation[1] = Math.PI * (~l + 2);
+            Label.Scaling = [width, -height, 1];
+            Labels.push(Label);
+
+            Scene.Add(Label);
+            Skybox.Render();
+            Text.Clear();
+
+            flat = Text.Write("Flat", WHITE);
+            matcap = Text.Write("Matcap", WHITE);
+            wireframe = Text.Write("Wireframe", WHITE);
+        }
+
+        Renderer.RemovePipeline(TextPipeline);
+        Renderer.Render(Scene);
+
+        wireframe.destroy();
+        matcap.destroy();
+        flat.destroy();
+    }
+
+    async function createMeshes(Common)
     {
         const MatcapMaterial = new UWAL.MatcapMaterial(Renderer, { normalMap: true });
         const WireframeMaterial = new UWAL.WireframeMaterial(Renderer);
 
         const [, , , ...imageBitmaps] = await Promise.all(
         [
-            MatcapMaterial.AddPipeline({ vertex: { buffers: [
+            MatcapMaterial.AddPipeline({
+                depthStencil: Common.depthStencil,
+                primitive: MatcapMaterial.Pipeline.CreatePrimitiveState(),
+
+                vertex: { buffers: [
                     CubeGeometry.GetPositionBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry()),
                     CubeGeometry.GetNormalBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry()),
                     CubeGeometry.GetUVBufferLayout(MatcapMaterial.Pipeline, MatcapMaterial.GetVertexEntry())
-                ]},
-
-                primitive: MatcapMaterial.Pipeline.CreatePrimitiveState(),
-                depthStencil
+                ]}
             }),
 
-            FlatMaterial.AddPipeline({ vertex: { buffers: [
+            FlatMaterial.AddPipeline({
+                depthStencil: Common.depthStencil,
+                fragment: { targets: [Common.colorTarget] },
+                primitive: FlatMaterial.Pipeline.CreatePrimitiveState(void 0, "none"),
+
+                vertex: { buffers: [
                     DiscGeometry.GetPositionBufferLayout(FlatMaterial.Pipeline),
                     DiscGeometry.GetUVBufferLayout(FlatMaterial.Pipeline)
-                ]},
-
-                primitive: FlatMaterial.Pipeline.CreatePrimitiveState(void 0, "none"),
-                fragment: { targets: [colorTarget] },
-                depthStencil
+                ]}
             }),
 
             WireframeMaterial.AddPipeline({ vertex: { buffers: [
@@ -114,18 +235,18 @@ export async function run(canvas)
         ));
 
         Plane.SetRenderPipeline(WireframeMaterial.Pipeline,
-            [cameraBuffer, WireframeMaterial.ColorBuffer], commonBindings
+            [Common.cameraBuffer, WireframeMaterial.ColorBuffer], Common.bindings
         );
 
         Disc.SetRenderPipeline(FlatMaterial.Pipeline,
-            [cameraBuffer, FlatMaterial.ColorBuffer, lines, sampler],
-            [...commonBindings, UWAL.BINDINGS.COLOR_MAP, UWAL.BINDINGS.COLOR_MAP_SAMPLER]
+            [Common.cameraBuffer, FlatMaterial.ColorBuffer, lines, Common.sampler],
+            [...Common.bindings, UWAL.BINDINGS.COLOR_MAP, UWAL.BINDINGS.COLOR_MAP_SAMPLER]
         );
 
         Cube.SetRenderPipeline(MatcapMaterial.Pipeline,
-            [cameraBuffer, MatcapMaterial.ColorBuffer, normal, sampler, matcap, sampler],
+            [Common.cameraBuffer, MatcapMaterial.ColorBuffer, normal, Common.sampler, matcap, Common.sampler],
             [
-                ...commonBindings,
+                ...Common.bindings,
                 UWAL.BINDINGS.NORMAL_COLOR_MAP,
                 UWAL.BINDINGS.NORMAL_MAP_SAMPLER,
                 UWAL.BINDINGS.MATCAP_COLOR_MAP,
@@ -134,7 +255,7 @@ export async function run(canvas)
         );
 
         PlaneGeometry.CreateEdgeBuffer(WireframeMaterial.Pipeline, PlaneGeometry.Primitive?.cells, 4);
-        MaterialPipelines.push(WireframeMaterial.Pipeline, FlatMaterial.Pipeline, MatcapMaterial.Pipeline);
+        MaterialPipelines.unshift(WireframeMaterial.Pipeline, FlatMaterial.Pipeline, MatcapMaterial.Pipeline);
     }
 
     function togglePipelines(active)
@@ -167,11 +288,8 @@ export async function run(canvas)
         Disc.Rotation[2] = time;
         Camera.LookAt(origin);
 
-        SkyboxPipeline.DestroyPassEncoder = true;
-        togglePipelines(false);
-        Skybox.Render();
-
         SkyboxPipeline.DestroyPassEncoder = false;
+        togglePipelines(false);
         Skybox.Render();
 
         togglePipelines(true);
@@ -211,8 +329,9 @@ export async function run(canvas)
             }
         }
 
+        clearTimeout(timeout);
         cancelAnimationFrame(raf);
-        raf && (raf = requestAnimationFrame(render)) || start();
+        timeout = setTimeout(start, 50);
     });
 
     observer.observe(document.body);
@@ -226,5 +345,6 @@ export function destroy()
     Renderer.Destroy();
     Camera.Destroy();
     Scene.Destroy();
+    raf = void 0;
     UWAL.Device.Destroy();
 }
