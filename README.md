@@ -52,13 +52,13 @@ Given that WebGPU APIs are quite verbose and the UWAL library is fairly modular,
 
 | Module         |  Minified |  Gzipped |
 | :------------- | --------: | -------: |
-| uwal/core      | 244.87 kb | 58.75 kb |
+| uwal/core      | 244.86 kb | 58.75 kb |
 | uwal/utils     |  57.01 kb | 15.82 kb |
 | uwal/materials |  58.73 kb | 12.99 kb |
 | uwal/shaders   |  36.25 kb |  4.08 kb |
 | uwal/lights    |  40.50 kb | 10.31 kb |
-| uwal/text      |  55.43 kb | 15.54 kb |
-| uwal           | 311.74 kb | 70.03 kb |
+| uwal/text      |  55.40 kb | 15.53 kb |
+| uwal           | 311.70 kb | 70.02 kb |
 
 ## Diagram
 

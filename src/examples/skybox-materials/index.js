@@ -129,8 +129,8 @@ export async function run(canvas)
         }));
 
         const translation = UWAL.MathUtils.Mat4.identity();
-        const height = Math.tan(fov * 0.5) * 2.0 * dist;
-        const width = Renderer.AspectRatio * height;
+        const height = Math.tan(fov * 0.5) * 2 * dist;
+        const width = Camera.AspectRatio * height;
 
         for (let l = 0; l < 2; ++l)
         {
@@ -173,8 +173,8 @@ export async function run(canvas)
             Label.Position[2] = (l * 2 - 1) * -0.01;
             Label.Rotation[1] = Math.PI * (~l + 2);
             Label.Scaling = [width, -height, 1];
-            Labels.push(Label);
 
+            Labels.push(Label);
             Scene.Add(Label);
             Skybox.Render();
             Text.Clear();
@@ -184,12 +184,13 @@ export async function run(canvas)
             wireframe = Text.Write("Wireframe", WHITE);
         }
 
-        Renderer.RemovePipeline(TextPipeline);
         Renderer.Render(Scene);
-
         wireframe.destroy();
         matcap.destroy();
         flat.destroy();
+
+        Renderer.RemovePipeline(TextPipeline);
+        SkyboxPipeline.DestroyPassEncoder = false;
     }
 
     async function createMeshes(Common)
@@ -288,7 +289,6 @@ export async function run(canvas)
         Disc.Rotation[2] = time;
         Camera.LookAt(origin);
 
-        SkyboxPipeline.DestroyPassEncoder = false;
         togglePipelines(false);
         Skybox.Render();
 
