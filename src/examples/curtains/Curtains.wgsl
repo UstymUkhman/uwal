@@ -1,17 +1,16 @@
 struct Curtains
 {
     mouse: vec2f,
-    deltaTime: vec2f,
-    planeRatio: f32
+    delta: vec2f,
+    ratio: f32
 };
 
 struct Plane
 {
     @builtin(position) position: vec4f,
-    @location(0) originalPosition: vec4f,
-    @location(1) vertexPosition: vec4f,
-    @location(2) textureCoords: vec2f,
-    @location(3) textCoords: vec2f
+    @location(0) origin: vec4f,
+    @location(1) vertex: vec4f,
+    @location(2) uvs: vec2f
 };
 
 const LAVENDER = vec3f(0.9, 0.9, 0.98);
@@ -30,62 +29,44 @@ fn getNormal(o: vec3f, p: vec3f) -> vec3f
 }
 
 @vertex fn planeVertex(
-    @location(0) position: vec4f,
+    @location(0) origin: vec4f,
     @location(1) uv: vec2f
 ) -> Plane
 {
-    var vertex = position;
-    let ratio = vertex.y - 0.5;
-    let time = curtains.deltaTime.y;
-    let delta = curtains.deltaTime.x;
+    var vertex = origin;
+    let ratio = vertex.y + 0.5;
+    let delta = curtains.delta.x;
+    var dampingX = curtains.mouse.x;
+    let dampingY = curtains.mouse.y;
+    let time = curtains.delta.y * 0.0015;
 
-    var attenuation = vec2f(
-        (2 - abs(curtains.mouse.x - vertex.x)) / 2,
-        curtains.mouse.y / -2 + 0.5
-    );
+    let dist = distance(vec2f(dampingX, 0), vec2f(vertex.x, 0));
+    let wave = cos((1 / (cos(dist) - 2) - time) * 35);
+    dampingX = 1 - abs(dampingX - vertex.x) / 2;
 
-    if (curtains.mouse.y <= -1)
-    {
-        attenuation.y += (curtains.mouse.y + 1) * 1.5;
-    }
-
-    attenuation.y = clamp(attenuation.y, 0, 1);
-
-    let dist = distance(vec2f(curtains.mouse.x, 0), vec2f(vertex.x, 0));
-    let wave = cos((1 / (cos(dist) - 2) - time * 0.0015) * 35);
-    let strength = ratio * wave * delta * attenuation.x * attenuation.y;
-
+    let strength = ratio * wave * delta * dampingX * dampingY;
     vertex.x += strength * abs(ratio) * sign(vertex.x) * 0.01;
     vertex.z += strength * 0.1;
 
-    var plane: Plane;
-    var textCoords = (vertex.xy + 1) * 0.5;
-    textCoords = vec2f(textCoords.x, 1 - textCoords.y);
-
-    plane.position = GetVertexClipSpace(vertex);
-    plane.originalPosition = position;
-    plane.vertexPosition = vertex;
-    plane.textCoords = textCoords;
-    plane.textureCoords = uv;
-
-    return plane;
+    return Plane(
+        GetVertexClipSpace(vertex),
+        origin, vertex, vec2f(1 - uv.x, uv.y)
+    );
 }
 
 @fragment fn fragment(plane: Plane) -> @location(0) vec4f
 {
-    // Background Gradient:
-    let time = sin(curtains.deltaTime.y * 0.005);
-    let top = mix(LAVENDER, LAVENDER_BLUSH, time);
-    let bottom = mix(LAVENDER, LAVENDER_BLUSH, -time);
-
-    var coords = plane.textureCoords;
-    let s = smoothstep(0f, 1f, coords.y);
+    // Background:
+    let time = sin(curtains.delta.y * 0.005);
+    let top = mix(LAVENDER, LAVENDER_BLUSH, -time);
+    let bottom = mix(LAVENDER, LAVENDER_BLUSH, time);
+    let s = smoothstep(0f, 1f, plane.uvs.y);
     let background = mix(top, bottom, s);
 
-    // UWAL Logo:
-    let center = vec2f(0.5, 0.75);
-    let scale = 1 / vec2f(0.5 / curtains.planeRatio, 0.5);
-    let uv = (coords - center) * scale + center;
+    // Logo:
+    let center = vec2f(0.5, 0.25);
+    let scale = 1 / vec2f(0.5 / curtains.ratio, 0.5);
+    let uv = (plane.uvs - center) * scale + center;
     let logo = textureSample(Logo, Sampler, uv);
 
     var color = vec4f(mix(background, logo.rgb, logo.a), 1);
@@ -95,15 +76,14 @@ fn getNormal(o: vec3f, p: vec3f) -> vec3f
         color = vec4f(background, 1);
     }
 
-    // Text Texture:
-    coords = plane.textCoords * 3 - 1;
-    let text = textureSample(Text, Sampler, coords);
+    // Text:
+    let text = textureSample(Text, Sampler, plane.uvs);
     color = vec4f(mix(color.rgb, text.rgb, text.a), 1);
 
     // Lighting:
     let intensity = 0.35;
     let ambient = color.rgb * (1 - intensity);
-    let normal = getNormal(plane.originalPosition.xyz, plane.vertexPosition.xyz);
+    let normal = getNormal(plane.origin.xyz, plane.vertex.xyz);
     let light = smoothstep(0.45, 1, dot(normal, normalize(vec3f(0.3, 0.3, 1))));
 
     return vec4f(color.rgb * light * intensity + ambient, 1);

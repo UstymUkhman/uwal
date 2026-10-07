@@ -18,7 +18,6 @@ import FontURL from "/assets/fonts/Roboto-Regular.json?url";
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
 /** @type {GPUBuffer} */ let textBuffer;
-/** @type {GPUTexture} */ let textTexture;
 /** @type {ResizeObserver} */ let observer;
 /** @type {GPUBuffer} */ let curtainsBuffer;
 
@@ -37,11 +36,10 @@ export async function run(canvas)
     }
 
     const Geometry = new UWAL.MeshGeometry({ name: "plane", args: { nx: 50, ny: 37 } });
-    const Camera = new UWAL.PerspectiveCamera(35);
+    const Camera = new UWAL.PerspectiveCamera(35.0);
+    let maxDelta = 4.0, delta = 0.0, time = 0.0;
 
     const Pipeline = new Renderer.Pipeline();
-    let maxDelta = 4, delta = 0, time = 0;
-
     const Scene = new UWAL.Scene("Curtains");
     const Plane = new UWAL.Mesh(Geometry);
     const Text = new UWAL.MSDFText();
@@ -61,7 +59,7 @@ export async function run(canvas)
 
     const logo = await Texture.CopyImageToTexture(
         await Texture.CreateImageBitmap(Logo),
-        { mipmaps: false }
+        { mipmaps: false, flipY: false }
     );
 
     canvas.removeEventListener("mousemove", onMove);
@@ -85,42 +83,41 @@ export async function run(canvas)
         mousePosition[1] = UWAL.MathUtils.Lerp(mousePosition[1], y, 0.3);
 
         x = mousePosition[0] / canvas.offsetWidth * 2 - 1;
-        y = mousePosition[1] / canvas.offsetHeight * -2 + 1;
+        y = (mousePosition[1] / canvas.offsetHeight + 1) / 2;
 
         curtains.mouse.set([x, y]);
 
         x = mousePosition[0] - lastPosition[0];
         y = mousePosition[1] - lastPosition[1];
 
-        const delta = Math.min(Math.hypot(x, y), 4);
-        if (maxDelta <= delta) maxDelta = delta;
+        maxDelta = UWAL.MathUtils.Clamp(Math.hypot(x, y), maxDelta, 4);
     }
 
     function clear()
     {
         Text.Clear(textBuffer);
-        textTexture?.destroy();
         cancelAnimationFrame(raf);
+        TextPipeline.TextureView?.destroy();
     }
 
     async function start()
     {
-        const [width] = Renderer.BaseCanvasSize;
-        const size = (width - 360) / 1268;
-        const scaleX = size * 1.14;
-        const textY = size * 1.25;
-        const textZ = size * 4.6;
-
-        TextPipeline.TextureView = textTexture = Texture.CreateStorageTexture({
+        TextPipeline.TextureView = Texture.CreateStorageTexture({
             usage: GPUTextureUsage.RENDER_ATTACHMENT
         });
 
-        TextPipeline.DestroyPassEncoder = !!(Text.CameraMatrixBuffer = cameraBuffer);
-        const [x, y] = Plane.Scaling = [scaleX + 0.36, 0.9, 1];
-        curtains.planeRatio.set([x / y]);
+        const fov = UWAL.MathUtils.DegreesToRadians(Camera.FieldOfView);
+        const scale = +(Renderer.BaseCanvasSize[0] <= 960) + 1;
+        const height = Math.tan(fov * 0.5) * 2 * 1.45;
+        const width = Camera.AspectRatio * height;
+
+        Text.CameraMatrixBuffer = cameraBuffer;
+        TextPipeline.DestroyPassEncoder = true;
+        Plane.Scaling = [-width, -height, 1];
+        curtains.ratio.set([width / height]);
 
         Text.SetTranslation(
-            UWAL.MathUtils.Mat4.translation([0, textY - 2, textZ - 9]),
+            UWAL.MathUtils.Mat4.translation([0, scale * -0.5 - 0.25, scale * -3 - 2]),
             textBuffer = Text.Write("Unopinionated WebGPU Abstraction Library", 0, 0.0025, true)
         );
 
@@ -151,8 +148,8 @@ export async function run(canvas)
         delta += (maxDelta - delta) * 0.02;
         maxDelta += maxDelta * -0.01;
 
-        curtains.deltaTime.set([delta, time++]);
-        Pipeline.WriteBuffer(buffer, curtains.deltaTime.buffer);
+        curtains.delta.set([delta, time++]);
+        Pipeline.WriteBuffer(buffer, curtains.delta.buffer);
 
         Pipeline.Active = false;
         Renderer.Render(false);
@@ -191,5 +188,5 @@ export function destroy()
     UWAL.Device.Destroy([
         curtainsBuffer,
         textBuffer
-    ], textTexture);
+    ]);
 }
