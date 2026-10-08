@@ -90,7 +90,7 @@ export async function run(canvas)
                 Renderer.ResolutionBuffer,
                 Storage.buffer
             ],
-            [UWAL.BINDINGS.CAMERA_MATRIX, 0, 1, 2, 3]
+            [UWAL.BINDINGS.CAMERA_MATRIX, 0]
         );
 
         Scene.Add(shape);
@@ -102,18 +102,19 @@ export async function run(canvas)
 
     function setTranslationData(shape)
     {
-        const matrix = UWAL.MathUtils.Mat3.copy(shape.WorldMatrix);
-        const translation = UWAL.MathUtils.Vec2.create();
         const [x, y] = Renderer.CanvasSize;
+        const { Mat3, Random } = UWAL.MathUtils;
+        const matrix = Mat3.copy(shape.WorldMatrix);
+        const translation = UWAL.MathUtils.Vec2.create();
 
         for (let t = textures; t--; )
         {
-            translation.set([UWAL.MathUtils.Random(x), UWAL.MathUtils.Random(y)]);
-            UWAL.MathUtils.Mat3.translate(matrix, translation, matrix);
-            UWAL.MathUtils.Mat3.rotate(matrix, UWAL.MathUtils.Random(UWAL.MathUtils.HPI), matrix);
+            translation.set([Random(x), Random(y)]);
+            Mat3.translate(matrix, translation, matrix);
+            Mat3.rotate(matrix, Random(UWAL.MathUtils.HPI), matrix);
 
             shape.SetInstanceMatrix(matrix, t, false);
-            UWAL.MathUtils.Mat3.copy(shape.WorldMatrix, matrix);
+            Mat3.copy(shape.WorldMatrix, matrix);
         }
 
         shape.UpdateInstanceBuffer();

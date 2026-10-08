@@ -284,9 +284,9 @@ export async function run(canvas)
 
         FlatMaterial.Color = [r, g, b];
         Camera.Position = position;
+        Disc.Rotation[2] = -time;
         Cube.Rotation = rotation;
         Plane.Scaling = scaling;
-        Disc.Rotation[2] = time;
         Camera.LookAt(origin);
 
         togglePipelines(false);

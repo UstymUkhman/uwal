@@ -74,16 +74,16 @@ export async function run(canvas)
 
     function onMove()
     {
-        UWAL.MathUtils.Vec2.copy(mousePosition, lastPosition);
-
         let x = event.touches?.[0].clientX ?? event.offsetX;
         let y = event.touches?.[0].clientY ?? event.offsetY;
+
+        UWAL.MathUtils.Vec2.copy(mousePosition, lastPosition);
 
         mousePosition[0] = UWAL.MathUtils.Lerp(mousePosition[0], x, 0.3);
         mousePosition[1] = UWAL.MathUtils.Lerp(mousePosition[1], y, 0.3);
 
-        x = mousePosition[0] / canvas.offsetWidth * 2 - 1;
-        y = (mousePosition[1] / canvas.offsetHeight + 1) / 2;
+        x =  mousePosition[0] / canvas.offsetWidth  * -2  + 1; // 1.0 -> -1.0
+        y = (mousePosition[1] / canvas.offsetHeight +  1) / 2; // 0.5 ->  1.0
 
         curtains.mouse.set([x, y]);
 

@@ -36,17 +36,18 @@ fn getNormal(o: vec3f, p: vec3f) -> vec3f
     var vertex = origin;
     let ratio = vertex.y + 0.5;
     let delta = curtains.delta.x;
+
     var dampingX = curtains.mouse.x;
     let dampingY = curtains.mouse.y;
     let time = curtains.delta.y * 0.0015;
 
     let dist = distance(vec2f(dampingX, 0), vec2f(vertex.x, 0));
-    let wave = cos((1 / (cos(dist) - 2) - time) * 35);
+    let wave = cos((1 / (sin(dist) - 2) - time) * 35);
     dampingX = 1 - abs(dampingX - vertex.x) / 2;
 
-    let strength = ratio * wave * delta * dampingX * dampingY;
-    vertex.x += strength * abs(ratio) * sign(vertex.x) * 0.01;
-    vertex.z += strength * 0.1;
+    let strength = ratio * wave * delta * dampingX * dampingY * 0.005;
+    vertex.x += strength * abs(ratio) * sign(vertex.x);
+    vertex.z += strength * 12;
 
     return Plane(
         GetVertexClipSpace(vertex),
@@ -83,8 +84,9 @@ fn getNormal(o: vec3f, p: vec3f) -> vec3f
     // Lighting:
     let intensity = 0.35;
     let ambient = color.rgb * (1 - intensity);
+    let lightPosition = normalize(vec3f(0.3, 0.3, 1));
     let normal = getNormal(plane.origin.xyz, plane.vertex.xyz);
-    let light = smoothstep(0.45, 1, dot(normal, normalize(vec3f(0.3, 0.3, 1))));
+    let light = smoothstep(0.45, 1, dot(normal, lightPosition));
 
     return vec4f(color.rgb * light * intensity + ambient, 1);
 }
