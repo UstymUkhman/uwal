@@ -25,7 +25,7 @@ type Usage = Readonly<Record<"RENDER" | "STORAGE", GPUTextureUsageFlags>>;
 
 ### Texture
 
-Utility class to create and manage textures and samplers.<br>Upon instantiation, it returns a promise of itself.
+Utility class to create and manage textures and samplers. Upon instantiation, it returns a promise of itself.
 
 #### Param
 
