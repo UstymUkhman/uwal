@@ -15,60 +15,46 @@ import Screen from "./Screen.wgsl";
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
 /** @type {GPUBuffer} */ let screenBuffer;
-/** @type {ResizeObserver} */ let observer;
 
-/** @param {HTMLCanvasElement} canvas */
-export async function run(canvas)
+try
 {
-    try
-    {
-        Renderer = new (await UWAL.Renderer(canvas, "Screen Shader"));
-    }
-    catch (error)
-    {
-        alert(error);
-    }
+    const canvas = document.getElementById("preview");
+    Renderer = new (await UWAL.Renderer(canvas, "Screen Shader"));
+}
+catch (error)
+{
+    alert(error);
+}
 
-    const RenderPipeline = await Renderer.CreatePipeline([UWAL.Shaders.Fullscreen, Screen]);
-    const { screen, buffer } = RenderPipeline.CreateUniformBuffer("screen");
+const RenderPipeline = await Renderer.CreatePipeline([UWAL.Shaders.Fullscreen, Screen]);
+const { screen, buffer } = RenderPipeline.CreateUniformBuffer("screen");
 
-    RenderPipeline.SetBindGroupFromResources(buffer);
-    screen.color.set(new UWAL.Color(0x005a9c).rgb);
-    RenderPipeline.SetDrawParams(6);
-    screenBuffer = buffer;
+RenderPipeline.SetBindGroupFromResources(buffer);
+screen.color.set(new UWAL.Color(0x005a9c).rgb);
+RenderPipeline.SetDrawParams(6);
+screenBuffer = buffer;
 
-    function render(time)
-    {
-        // By passing `screen.time.buffer`, we're also
-        // writing the `screen.color` value to the GPUBuffer:
-        RenderPipeline.WriteBuffer(buffer, screen.time.buffer);
+function render(time)
+{
+    // By passing `screen.time.buffer`, we're also
+    // writing the `screen.color` value to the GPUBuffer:
+    RenderPipeline.WriteBuffer(buffer, screen.time.buffer);
 
-        raf = requestAnimationFrame(render);
-        screen.time.set([time * 0.001]);
-        Renderer.Render();
-    }
+    raf = requestAnimationFrame(render);
+    screen.time.set([time * 0.001]);
+    Renderer.Render();
+}
 
-    observer = new ResizeObserver(entries =>
-    {
-        for (const entry of entries)
-        {
-            let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
-            width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
-            Renderer.SetCanvasSize(width, blockSize);
-        }
-
-        cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(render);
-    });
-
-    observer.observe(document.body);
+export function resize(width)
+{
+    Renderer.SetCanvasSize(width, innerHeight);
+    ~cancelAnimationFrame(raf) && render();
 }
 
 export function destroy()
 {
     UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
-    observer.disconnect();
     Renderer.Destroy();
     UWAL.Device.Destroy(screenBuffer);
 }

@@ -12,152 +12,140 @@ import * as UWAL from "#/index";
 import Texture from "./Texture.wgsl";
 import Logo from "/assets/images/logo.jpg";
 
-/** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
-/** @type {ResizeObserver} */ let observer;
-
 const Camera = new UWAL.Camera2D();
 const Scene = new UWAL.Scene();
-let Storage, texture;
+Scene.AddMainCamera(Camera);
+let Storage, texture, raf;
 
-/** @param {HTMLCanvasElement} canvas */
-export async function run(canvas)
+try
 {
-    try
+    const canvas = document.getElementById("preview");
+    Renderer = new (await UWAL.Renderer(canvas, "Textures / Instancing"));
+}
+catch (error)
+{
+    alert(error);
+}
+
+const radius = 128, textures = 256;
+const Pipeline = new Renderer.Pipeline();
+const Geometry = new UWAL.ShapeGeometry({ radius });
+
+let spawnTimeout, textureIndex, lastTexture = textures - 1;
+let textureUpdate = 512, lastRender = performance.now() - textureUpdate;
+
+Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new UWAL.Color(0x19334c)));
+const module = Pipeline.CreateShaderModule([UWAL.Shaders.ShapeVertexInstance, Texture]);
+
+await Renderer.AddPipeline(Pipeline,
+{
+    fragment: Pipeline.CreateFragmentState(module),
+    vertex: Pipeline.CreateVertexState(module, void 0, [
+        Geometry.GetPositionBufferLayout(Pipeline),
+        Geometry.GetInstanceBufferLayout(Pipeline)
+    ])
+});
+
+function clean()
+{
+    cancelAnimationFrame(raf);
+    Scene.Children.splice(1)[0]?.Destroy();
+    spawnTimeout = clearTimeout(spawnTimeout);
+    lastRender = performance.now() - (textureUpdate = 512);
+}
+
+async function start()
+{
+    setTranslationData(createShape(await createTexture()));
+    raf = requestAnimationFrame(render);
+
+    spawnTimeout = setTimeout(() =>
+        textureUpdate = ~(textureIndex = -1)
+    , textureUpdate * 3);
+}
+
+async function createTexture()
+{
+    Storage = Pipeline.CreateStorageBuffer("visible", textures);
+    const Texture = new (await UWAL.Texture());
+
+    texture = await Texture.CopyImageToTexture(
+        await Texture.CreateImageBitmap(Logo),
+        { mipmaps: false }
+    );
+
+    return Texture.CreateSampler();
+}
+
+function createShape(sampler)
+{
+    const shape = new UWAL.Shape(Geometry);
+
+    shape.SetRenderPipeline(Pipeline,
+    [
+        Camera.SetRenderPipeline(Pipeline),
+        sampler, texture,
+        Renderer.ResolutionBuffer,
+        Storage.buffer
+    ], [
+        UWAL.BINDINGS.CAMERA_MATRIX, 0
+    ]);
+
+    Scene.Add(shape);
+    shape.UpdateWorldMatrix();
+    shape.AddInstanceBuffer(textures);
+
+    return shape;
+}
+
+function setTranslationData(shape)
+{
+    const [x, y] = Renderer.CanvasSize;
+    const { Mat3, Random } = UWAL.MathUtils;
+    const matrix = Mat3.copy(shape.WorldMatrix);
+    const translation = UWAL.MathUtils.Vec2.create();
+
+    for (let t = textures; t--; )
     {
-        Renderer = new (await UWAL.Renderer(canvas, "Textures / Instancing"));
-    }
-    catch (error)
-    {
-        alert(error);
-    }
+        translation.set([Random(x), Random(y)]);
+        Mat3.translate(matrix, translation, matrix);
+        Mat3.rotate(matrix, Random(UWAL.MathUtils.HPI), matrix);
 
-    const radius = 128, textures = 256;
-    const Pipeline = new Renderer.Pipeline();
-    const Geometry = new UWAL.ShapeGeometry({ radius });
-
-    let spawnTimeout, textureIndex, lastTexture = textures - 1;
-    let textureUpdate = 512, lastRender = performance.now() - textureUpdate;
-    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new UWAL.Color(0x19334c)));
-    const module = Pipeline.CreateShaderModule([UWAL.Shaders.ShapeVertexInstance, Texture]);
-
-    await Renderer.AddPipeline(Pipeline, {
-        fragment: Pipeline.CreateFragmentState(module),
-        vertex: Pipeline.CreateVertexState(module, void 0, [
-            Geometry.GetPositionBufferLayout(Pipeline),
-            Geometry.GetInstanceBufferLayout(Pipeline)
-        ])
-    });
-
-    function clean()
-    {
-        cancelAnimationFrame(raf);
-        Scene.Children.splice(1)[0]?.Destroy();
-        spawnTimeout = clearTimeout(spawnTimeout);
-        lastRender = performance.now() - (textureUpdate = 512);
-    }
-
-    async function start()
-    {
-        setTranslationData(createShape(await createTexture()));
-        raf = requestAnimationFrame(render);
-
-        spawnTimeout = setTimeout(() =>
-            textureUpdate = ~(textureIndex = -1)
-        , textureUpdate * 3);
-    }
-
-    async function createTexture()
-    {
-        Storage = Pipeline.CreateStorageBuffer("visible", textures);
-        const Texture = new (await UWAL.Texture());
-
-        texture = await Texture.CopyImageToTexture(
-            await Texture.CreateImageBitmap(Logo),
-            { mipmaps: false }
-        );
-
-        return Texture.CreateSampler();
-    }
-
-    function createShape(sampler)
-    {
-        const shape = new UWAL.Shape(Geometry);
-
-        shape.SetRenderPipeline(Pipeline, [
-                Camera.SetRenderPipeline(Pipeline),
-                sampler, texture,
-                Renderer.ResolutionBuffer,
-                Storage.buffer
-            ],
-            [UWAL.BINDINGS.CAMERA_MATRIX, 0]
-        );
-
-        Scene.Add(shape);
-        shape.UpdateWorldMatrix();
-        shape.AddInstanceBuffer(textures);
-
-        return shape;
-    }
-
-    function setTranslationData(shape)
-    {
-        const [x, y] = Renderer.CanvasSize;
-        const { Mat3, Random } = UWAL.MathUtils;
-        const matrix = Mat3.copy(shape.WorldMatrix);
-        const translation = UWAL.MathUtils.Vec2.create();
-
-        for (let t = textures; t--; )
-        {
-            translation.set([Random(x), Random(y)]);
-            Mat3.translate(matrix, translation, matrix);
-            Mat3.rotate(matrix, Random(UWAL.MathUtils.HPI), matrix);
-
-            shape.SetInstanceMatrix(matrix, t, false);
-            Mat3.copy(shape.WorldMatrix, matrix);
-        }
-
-        shape.UpdateInstanceBuffer();
-    }
-
-    function render(time)
-    {
-        raf = requestAnimationFrame(render);
-        if (time - lastRender < textureUpdate) return;
-
-        textureUpdate
-            ? Storage.visible.fill(0) && (textureIndex = UWAL.MathUtils.RandomInt(0, lastTexture))
-            : ++textureIndex === lastTexture && cancelAnimationFrame(raf);
-
-        lastRender = time;
-        Storage.visible[textureIndex] = 1;
-
-        Pipeline.WriteBuffer(Storage.buffer, Storage.visible);
-        Renderer.Render(Scene);
+        shape.SetInstanceMatrix(matrix, t, false);
+        Mat3.copy(shape.WorldMatrix, matrix);
     }
 
-    observer = new ResizeObserver(entries =>
-    {
-        for (const entry of entries)
-        {
-            let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
-            width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
-            !Scene.MainCamera && Scene.AddMainCamera(Camera);
-            Renderer.SetCanvasSize(width, blockSize);
-            Camera.Size = Renderer.CanvasSize;
-        }
+    shape.UpdateInstanceBuffer();
+}
 
-        clean(), start();
-    });
+function render(time)
+{
+    raf = requestAnimationFrame(render);
+    if (time - lastRender < textureUpdate) return;
 
-    observer.observe(document.body);
+    textureUpdate
+        ? Storage.visible.fill(0) && (textureIndex = UWAL.MathUtils.RandomInt(0, lastTexture))
+        : ++textureIndex === lastTexture && cancelAnimationFrame(raf);
+
+    lastRender = time;
+    Storage.visible[textureIndex] = 1;
+
+    Pipeline.WriteBuffer(Storage.buffer, Storage.visible);
+    Renderer.Render(Scene);
+}
+
+export function resize(width)
+{
+    Renderer.SetCanvasSize(width, innerHeight);
+    Camera.Size = Renderer.CanvasSize;
+    clean(), start();
 }
 
 export function destroy()
 {
     UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
-    observer.disconnect();
     Renderer.Destroy();
     Camera.Destroy();
     Scene.Destroy();

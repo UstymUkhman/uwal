@@ -9,160 +9,141 @@
  * @license MIT
  */
 
-import Compute from "./Compute.wgsl";
-import Render from "./Render.wgsl";
 import * as UWAL from "#/index";
+import Render from "./Render.wgsl";
+import Compute from "./Compute.wgsl";
 
 /** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
 /** @type {Computation} */ let Computation;
-/** @type {ResizeObserver} */ let observer;
 /** @type {GPUBuffer[]} */ const buffers = [];
 
-/** @param {HTMLCanvasElement} canvas */
-export async function run(canvas)
+try
 {
-    try
-    {
-        Renderer = new (await UWAL.Renderer(canvas, "Game Of Life Renderer"));
-        Computation = new (await UWAL.Computation("Game Of Life Computation"));
-    }
-    catch (error)
-    {
-        alert(error);
-    }
+    const canvas = document.getElementById("preview");
+    Renderer = new (await UWAL.Renderer(canvas, "Game Of Life Renderer"));
+    Computation = new (await UWAL.Computation("Game Of Life Computation"));
+}
+catch (error)
+{
+    alert(error);
+}
 
-    const RenderPipeline = new Renderer.Pipeline();
-    const ComputePipeline = new Computation.Pipeline();
+const RenderPipeline = new Renderer.Pipeline();
+const ComputePipeline = new Computation.Pipeline();
+const WORKGROUP_SIZE = 8, RENDER_LOOP_INTERVAL = 200;
+let step = 0, lastRender = performance.now() - RENDER_LOOP_INTERVAL;
+const computeVertex = GPUShaderStage.COMPUTE | GPUShaderStage.VERTEX;
 
-    const WORKGROUP_SIZE = 8, RENDER_LOOP_INTERVAL = 200;
-    let step = 0, lastRender = performance.now() - RENDER_LOOP_INTERVAL;
-    const computeVertex = GPUShaderStage.COMPUTE | GPUShaderStage.VERTEX;
+Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new UWAL.Color(0x000066)));
 
-    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(new UWAL.Color(0x000066)));
+const layout = ComputePipeline.CreatePipelineLayout(ComputePipeline.CreateBindGroupLayout([
+    Computation.CreateBufferBindingLayout("uniform", false, 0, computeVertex | GPUShaderStage.FRAGMENT),
+    Computation.CreateBufferBindingLayout("read-only-storage", false, 0, computeVertex),
+    Computation.CreateBufferBindingLayout("storage")
+]));
 
-    const layout = ComputePipeline.CreatePipelineLayout(ComputePipeline.CreateBindGroupLayout([
-        Computation.CreateBufferBindingLayout("uniform", false, 0, computeVertex | GPUShaderStage.FRAGMENT),
-        Computation.CreateBufferBindingLayout("read-only-storage", false, 0, computeVertex),
-        Computation.CreateBufferBindingLayout("storage")
-    ]));
+const renderModule = RenderPipeline.CreateShaderModule(Render);
+const { layout: vertexLayout, buffer: vertexBuffer } = RenderPipeline.CreateVertexBuffer("position", 6);
+await Computation.AddPipeline(ComputePipeline, { layout, module: ComputePipeline.CreateShaderModule(Compute) });
 
-    const renderModule = RenderPipeline.CreateShaderModule(Render);
+await Renderer.AddPipeline(RenderPipeline, { layout,
+    fragment: RenderPipeline.CreateFragmentState(renderModule),
+    vertex: RenderPipeline.CreateVertexState(renderModule, void 0, vertexLayout)
+});
 
-    await Computation.AddPipeline(ComputePipeline, { layout,
-        module: ComputePipeline.CreateShaderModule(Compute)
-    });
+RenderPipeline.WriteBuffer(vertexBuffer, new Float32Array([
+    -0.8, -0.8, //     4_____ 2, 3
+     0.8, -0.8, //     |    /|
+     0.8,  0.8, //     |   / |
+     0.8,  0.8, //     |  /  |
+    -0.8,  0.8, //     | /   |
+    -0.8, -0.8  // 0, 5|/____|1
+]));
 
-    const { layout: vertexLayout, buffer: vertexBuffer } =
-        RenderPipeline.CreateVertexBuffer("position", 6);
+RenderPipeline.SetVertexBuffers(vertexBuffer);
 
-    await Renderer.AddPipeline(RenderPipeline, { layout,
-        fragment: RenderPipeline.CreateFragmentState(renderModule),
-        vertex: RenderPipeline.CreateVertexState(renderModule, void 0, vertexLayout)
-    });
+function clean()
+{
+    cancelAnimationFrame(raf);
+    buffers.forEach(buffer => buffer?.destroy());
+    lastRender = performance.now() - RENDER_LOOP_INTERVAL;
+}
 
-    RenderPipeline.WriteBuffer(vertexBuffer, new Float32Array([
-         -0.8, -0.8, //     4_____ 2, 3
-          0.8, -0.8, //     |    /|
-          0.8,  0.8, //     |   / |
-          0.8,  0.8, //     |  /  |
-         -0.8,  0.8, //     | /   |
-         -0.8, -0.8  // 0, 5|/____|1
-    ]));
+function start(size = 48)
+{
+    const [width, height] = Renderer.CanvasSize;
+    const ratio = Renderer.AspectRatio;
 
-    RenderPipeline.SetVertexBuffers(vertexBuffer);
+    const grid = width < height
+        ? [size, Math.round(size / ratio)]
+        : [Math.round(size * ratio), size];
 
-    function clean()
-    {
-        cancelAnimationFrame(raf);
-        buffers.forEach(buffer => buffer?.destroy());
-        lastRender = performance.now() - RENDER_LOOP_INTERVAL;
-    }
+    const length = grid[0] * grid[1];
+    const cellStateIn = new Float32Array(length);
 
-    function start(size = 48)
-    {
-        const [width, height] = Renderer.CanvasSize;
-        const ratio = Renderer.AspectRatio;
+    for (let s = 0; s < cellStateIn.length; s++)
+        cellStateIn[s] = +(Math.random() > 0.6);
 
-        const grid = width < height
-            ? [size, Math.round(size / ratio)]
-            : [Math.round(size * ratio), size];
+    const bufferGrid = RenderPipeline.WriteBufferData(
+        RenderPipeline.CreateUniformBuffer("grid")
+    , grid);
 
-        const length = grid[0] * grid[1];
-        const cellStateIn = new Float32Array(length);
+    const bufferIn = ComputePipeline.WriteBufferData(
+        ComputePipeline.CreateStorageBuffer("cellStateIn", length)
+    , cellStateIn);
 
-         for (let s = 0; s < cellStateIn.length; s++)
-             cellStateIn[s] = +(Math.random() > 0.6);
+    const bufferOut = ComputePipeline.WriteBufferData(
+        ComputePipeline.CreateStorageBuffer("cellStateOut", length)
+    , cellStateIn);
 
-        const bufferGrid = RenderPipeline.WriteBufferData(
-            RenderPipeline.CreateUniformBuffer("grid")
-        , grid);
+    buffers.push(bufferGrid, bufferIn, bufferOut);
 
-        const bufferIn = ComputePipeline.WriteBufferData(
-            ComputePipeline.CreateStorageBuffer("cellStateIn", length)
-        , cellStateIn);
+    Computation.Workgroups = [
+        Math.ceil(grid[0] / WORKGROUP_SIZE),
+        Math.ceil(grid[1] / WORKGROUP_SIZE)
+    ];
 
-        const bufferOut = ComputePipeline.WriteBufferData(
-            ComputePipeline.CreateStorageBuffer("cellStateOut", length)
-        , cellStateIn);
+    const bindGroups = [
+        ComputePipeline.CreateBindGroup(
+            ComputePipeline.CreateBindGroupEntries([
+                bufferGrid, bufferIn, bufferOut
+            ])
+        ),
 
-        buffers.push(bufferGrid, bufferIn, bufferOut);
+        ComputePipeline.CreateBindGroup(
+            ComputePipeline.CreateBindGroupEntries([
+                bufferGrid, bufferOut, bufferIn
+            ])
+        )
+    ];
 
-        Computation.Workgroups = [
-            Math.ceil(grid[0] / WORKGROUP_SIZE),
-            Math.ceil(grid[1] / WORKGROUP_SIZE)
-        ];
+    ComputePipeline.SetBindGroups(bindGroups);
+    RenderPipeline.SetBindGroups(bindGroups);
+    RenderPipeline.SetDrawParams(6, length);
+    raf = requestAnimationFrame(render);
+}
 
-        const bindGroups = [
-            ComputePipeline.CreateBindGroup(
-                ComputePipeline.CreateBindGroupEntries([
-                    bufferGrid, bufferIn, bufferOut
-                ])
-            ),
+function render(time)
+{
+    raf = requestAnimationFrame(render);
+    if (time - lastRender < RENDER_LOOP_INTERVAL) return;
 
-            ComputePipeline.CreateBindGroup(
-                ComputePipeline.CreateBindGroupEntries([
-                    bufferGrid, bufferOut, bufferIn
-                ])
-            )
-        ];
+    const encoder = Computation.CreateCommandEncoder();
+    ComputePipeline.SetActiveBindGroups(step % 2);
+    Computation.Compute(false);
 
-        ComputePipeline.SetBindGroups(bindGroups);
-        RenderPipeline.SetBindGroups(bindGroups);
+    Renderer.CommandEncoder = encoder;
+    RenderPipeline.SetActiveBindGroups(++step % 2);
 
-        RenderPipeline.SetDrawParams(6, length);
-        raf = requestAnimationFrame(render);
-    }
+    Renderer.Render();
+    lastRender = time;
+}
 
-    function render(time)
-    {
-        raf = requestAnimationFrame(render);
-        if (time - lastRender < RENDER_LOOP_INTERVAL) return;
-
-        const encoder = Computation.CreateCommandEncoder();
-        ComputePipeline.SetActiveBindGroups(step % 2);
-        Computation.Compute(false);
-
-        Renderer.CommandEncoder = encoder;
-        RenderPipeline.SetActiveBindGroups(++step % 2);
-
-        Renderer.Render();
-        lastRender = time;
-    }
-
-    observer = new ResizeObserver(entries =>
-    {
-        for (const entry of entries)
-        {
-            let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
-            width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
-            Renderer.SetCanvasSize(width, blockSize);
-        }
-
-        clean(), start();
-    });
-
-    observer.observe(document.body);
+export function resize(width)
+{
+    Renderer.SetCanvasSize(width, innerHeight);
+    clean(), start();
 }
 
 export function destroy()
@@ -170,7 +151,6 @@ export function destroy()
     UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
     Computation.Destroy();
-    observer.disconnect();
     Renderer.Destroy();
     UWAL.Device.Destroy(buffers);
 }

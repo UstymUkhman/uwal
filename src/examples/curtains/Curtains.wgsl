@@ -16,10 +16,10 @@ struct Plane
 const LAVENDER = vec3f(0.9, 0.9, 0.98);
 const LAVENDER_BLUSH = vec3f(1, 0.94, 0.96);
 
-@group(0) @binding(0) var Sampler: sampler;
-@group(0) @binding(1) var Text: texture_2d<f32>;
-@group(0) @binding(2) var Logo: texture_2d<f32>;
-@group(0) @binding(3) var<uniform> curtains: Curtains;
+@group(0) @binding(0) var<uniform> curtains: Curtains;
+@group(0) @binding(1) var Logo: texture_2d<f32>;
+@group(0) @binding(2) var Text: texture_2d<f32>;
+@group(0) @binding(3) var Sampler: sampler;
 
 fn getNormal(o: vec3f, p: vec3f) -> vec3f
 {

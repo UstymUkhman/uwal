@@ -10,143 +10,129 @@
 
 import * as UWAL from "#/index";
 
-/** @type {number} */ let raf;
 /** @type {Renderer} */ let Renderer;
-/** @type {ResizeObserver} */ let observer;
-
 const Camera = new UWAL.Camera2D();
 const Scene = new UWAL.Scene();
+/** @type {number} */ let raf;
+Scene.AddMainCamera(Camera);
 
-/** @param {HTMLCanvasElement} canvas */
-export async function run(canvas)
+try
 {
-    try
+    const canvas = document.getElementById("preview");
+    Renderer = new (await UWAL.Renderer(canvas, "2D Shapes"));
+}
+catch (error)
+{
+    alert(error);
+}
+
+const color = new UWAL.Color(0x331a4d);
+const DummyGeometry = new UWAL.ShapeGeometry();
+const spin = [], speed = [], direction = [], uniform = [];
+
+const FlatMaterial = new UWAL.FlatMaterial(Renderer, UWAL.Shaders.Shape);
+const cameraBuffer = Camera.SetRenderPipeline(FlatMaterial.Pipeline);
+Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(color));
+
+await FlatMaterial.AddPipeline({ vertex: { buffers: [
+    DummyGeometry.GetPositionBufferLayout(FlatMaterial.Pipeline)
+]}});
+
+DummyGeometry.Destroy();
+
+function clean()
+{
+    spin.splice(0);
+    speed.splice(0);
+    uniform.splice(0);
+    direction.splice(0);
+    Scene.Children.splice(0);
+    cancelAnimationFrame(raf);
+}
+
+function start()
+{
+    createRandomShapes();
+    raf = requestAnimationFrame(render);
+}
+
+function randomColor(uniform)
+{
+    const rnd = UWAL.MathUtils.Random;
+
+    color.rgb = [rnd(0.3, 1), rnd(0.2, 1), rnd(0.4, 1)];
+    uniform.color.set(color.rgba);
+
+    FlatMaterial.Pipeline.WriteBuffer(uniform.buffer, uniform.color);
+    return uniform.buffer;
+}
+
+function createRandomShapes()
+{
+    const [width, height] = Renderer.CanvasSize;
+
+    for (let s = 3; s <= 12; s++)
     {
-        Renderer = new (await UWAL.Renderer(canvas, "2D Shapes"));
-    }
-    catch (error)
-    {
-        alert(error);
-    }
+        const segments = s === 11 && 64 || s;
 
-    const color = new UWAL.Color(0x331a4d);
-    const DummyGeometry = new UWAL.ShapeGeometry();
-    const spin = [], speed = [], direction = [], uniform = [];
-
-    const FlatMaterial = new UWAL.FlatMaterial(Renderer, UWAL.Shaders.Shape);
-    const cameraBuffer = Camera.SetRenderPipeline(FlatMaterial.Pipeline);
-    Renderer.CreatePassDescriptor(Renderer.CreateColorAttachment(color));
-
-    await FlatMaterial.AddPipeline({
-        vertex: { buffers: [DummyGeometry.GetPositionBufferLayout(FlatMaterial.Pipeline)] }
-    });
-
-    DummyGeometry.Destroy();
-
-    function clean()
-    {
-        spin.splice(0);
-        speed.splice(0);
-        uniform.splice(0);
-        direction.splice(0);
-        Scene.Children.splice(0);
-        cancelAnimationFrame(raf);
-    }
-
-    function start()
-    {
-        createRandomShapes();
-        raf = requestAnimationFrame(render);
-    }
-
-    function randomColor(uniform)
-    {
-        const rnd = UWAL.MathUtils.Random;
-
-        color.rgb = [rnd(0.3, 1), rnd(0.2, 1), rnd(0.4, 1)];
-        uniform.color.set(color.rgba);
-
-        FlatMaterial.Pipeline.WriteBuffer(uniform.buffer, uniform.color);
-        return uniform.buffer;
-    }
-
-    function createRandomShapes()
-    {
-        const [width, height] = Renderer.CanvasSize;
-
-        for (let s = 3; s <= 12; s++)
+        for (let r = 0; r < 2; r++)
         {
-            const segments = s === 11 && 64 || s;
+            const radius = UWAL.MathUtils.Random(50, 100);
+            const inner = UWAL.MathUtils.Random(0.75, 0.95) * radius;
+            const shape = new UWAL.Shape(new UWAL.ShapeGeometry({ segments, radius, innerRadius: inner * r }));
 
-            for (let r = 0; r < 2; r++)
-            {
-                const radius = UWAL.MathUtils.Random(50, 100);
-                const inner = UWAL.MathUtils.Random(0.75, 0.95) * radius;
-                const shape = new UWAL.Shape(new UWAL.ShapeGeometry({ segments, radius, innerRadius: inner * r }));
+            uniform.push(shape.CreateColorBuffer(FlatMaterial.Pipeline));
 
-                uniform.push(shape.CreateColorBuffer(FlatMaterial.Pipeline));
+            shape.SetRenderPipeline(FlatMaterial.Pipeline,
+                [cameraBuffer, randomColor(uniform.at(-1))],
+                [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR]
+            );
 
-                shape.SetRenderPipeline(FlatMaterial.Pipeline,
-                    [cameraBuffer, randomColor(uniform.at(-1))],
-                    [UWAL.BINDINGS.CAMERA_MATRIX, UWAL.BINDINGS.COLOR]
-                );
+            direction.push([UWAL.MathUtils.Random(-1), UWAL.MathUtils.Random(-1)]);
+            shape.Rotation = UWAL.MathUtils.Random(0, UWAL.MathUtils.TAU);
 
-                direction.push([UWAL.MathUtils.Random(-1), UWAL.MathUtils.Random(-1)]);
-                shape.Rotation = UWAL.MathUtils.Random(0, UWAL.MathUtils.TAU);
+            shape.Position = [
+                UWAL.MathUtils.Random(radius,  width - radius),
+                UWAL.MathUtils.Random(radius, height - radius)
+            ];
 
-                shape.Position = [
-                    UWAL.MathUtils.Random(radius,  width - radius),
-                    UWAL.MathUtils.Random(radius, height - radius)
-                ];
+            speed.push(UWAL.MathUtils.Random(1, 10));
+            spin.push(UWAL.MathUtils.Random(0, 0.1));
 
-                speed.push(UWAL.MathUtils.Random(1, 10));
-                spin.push(UWAL.MathUtils.Random(0, 0.1));
-
-                Scene.Add(shape);
-            }
+            Scene.Add(shape);
         }
     }
+}
 
-    function render(_, s = 0)
+function render(_, s = 0)
+{
+    const [width, height] = Renderer.CanvasSize;
+    raf = requestAnimationFrame(render);
+    Renderer.Render(Scene);
+
+    Scene.Traverse(shape =>
     {
-        const [width, height] = Renderer.CanvasSize;
-        raf = requestAnimationFrame(render);
-        Renderer.Render(Scene);
+        const { Min, Max } = shape.BoundingBox, [x, y] = shape.Position, dir = direction[s];
 
-        Scene.Traverse(shape =>
-        {
-            const { Min, Max } = shape.BoundingBox, [x, y] = shape.Position, dir = direction[s];
+        if (Min[0] <= 0 || Max[0] >= width)  { dir[0] *= -1; randomColor(uniform[s]); }
+        if (Min[1] <= 0 || Max[1] >= height) { dir[1] *= -1; randomColor(uniform[s]); }
 
-            if (Min[0] <= 0 || Max[0] >= width)  { dir[0] *= -1; randomColor(uniform[s]); }
-            if (Min[1] <= 0 || Max[1] >= height) { dir[1] *= -1; randomColor(uniform[s]); }
-
-            shape.Position = [x + dir[0] * speed[s], y + dir[1] * speed[s]];
-            shape.Rotation += spin[s++];
-        });
-    }
-
-    observer = new ResizeObserver(entries =>
-    {
-        for (const entry of entries)
-        {
-            let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
-            width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
-            !Scene.MainCamera && Scene.AddMainCamera(Camera);
-            Renderer.SetCanvasSize(width, blockSize);
-            Camera.Size = Renderer.CanvasSize;
-        }
-
-        clean(), start();
+        shape.Position = [x + dir[0] * speed[s], y + dir[1] * speed[s]];
+        shape.Rotation += spin[s++];
     });
+}
 
-    observer.observe(document.body);
+export function resize(width)
+{
+    Renderer.SetCanvasSize(width, innerHeight);
+    Camera.Size = Renderer.CanvasSize;
+    clean(), start();
 }
 
 export function destroy()
 {
     UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
-    observer.disconnect();
     Renderer.Destroy();
     Camera.Destroy();
     Scene.Destroy();

@@ -13,185 +13,165 @@ import Font from "/assets/fonts/Matrix-Code-NFI.json";
 import FontImage from "/assets/fonts/Matrix-Code-NFI.png";
 import FontURL from "/assets/fonts/Matrix-Code-NFI.json?url";
 
-/** @type {MSDFText} */ const Characters = new UWAL.MSDFText();
-/** @type {GPUBuffer[]} */ const buffers = [];
-/** @type {ResizeObserver} */ let observer;
-/** @type {Renderer} */ let Renderer;
 /** @type {number} */ let raf;
+/** @type {Renderer} */ let Renderer;
+const Characters = new UWAL.MSDFText();
+/** @type {GPUBuffer[]} */ const buffers = [];
+const canvas = document.getElementById("preview");
 
-/** @param {HTMLCanvasElement} canvas */
-export async function run(canvas)
+try
 {
-    try
+    Renderer = new (await UWAL.Renderer(canvas, "MSDF Text"));
+}
+catch (error)
+{
+    alert(error);
+}
+
+const data = new Float32Array(5);
+const dark = new UWAL.Color(0x2e3440);
+const light = new UWAL.Color(0x88c0d0);
+
+const position = { x: -1.0, y: -1.0 };
+let rows = 0, columns = 0, delays = [];
+const Camera = new UWAL.PerspectiveCamera();
+
+Renderer.CreatePassDescriptor(
+    Renderer.CreateColorAttachment(dark),
+    Renderer.CreateDepthStencilAttachment()
+);
+
+const Pipeline = await Characters.CreatePipeline(Renderer);
+Characters.CameraMatrixBuffer = Camera.SetRenderPipeline(Pipeline);
+
+// alpha & scale (4) + color (4) + transform (16) + x & y (2):
+let bufferOffset = Float32Array.BYTES_PER_ELEMENT * 6 + 2;
+const colorOffset = Float32Array.BYTES_PER_ELEMENT * 4;
+bufferOffset *= Float32Array.BYTES_PER_ELEMENT;
+
+canvas.addEventListener("mouseenter", onOver);
+canvas.addEventListener("touchstart", onOver);
+canvas.addEventListener("mousemove", onOver);
+canvas.addEventListener("touchmove", onOver);
+canvas.addEventListener("mouseleave", onOut);
+canvas.addEventListener("touchend", onOut);
+
+await Characters.LoadFont(FontURL, true);
+
+function clean()
+{
+    buffers.forEach(buffer => buffer.destroy());
+    Pipeline.ClearRenderBundles();
+    cancelAnimationFrame(raf);
+    buffers.splice(0);
+    delays.splice(0);
+}
+
+function start()
+{
+    createCharGrid();
+    data.set([1, ...light.rgba]);
+    raf = requestAnimationFrame(render);
+}
+
+function createCharGrid()
+{
+    const [width, height] = Renderer.BaseCanvasSize;
+    const ids = Font.chars.map(({ id }) => id);
+
+    const charWidth = width / 24;
+    rows = Math.ceil(height / 40);
+    columns = Math.ceil(charWidth);
+
+    dark.Set(0x5e81ac, 0.25);
+    let x = charWidth / 8;
+
+    if (height <= 880)
     {
-        Renderer = new (await UWAL.Renderer(canvas, "MSDF Text"));
+        let add = height / 40;
+        add = 23 - add | 0;
+        columns += add - 1;
+        x += add / 10;
+        rows += add;
     }
-    catch (error)
+
+    for (let i = 0, l = rows * columns; i < l; ++i)
     {
-        alert(error);
+        const c = i % columns, r = i / columns | 0;
+        delays.push(UWAL.MathUtils.RandomInt(1, 240));
+
+        buffers.push(Characters.Write(String.fromCharCode(ids[UWAL.MathUtils.RandomInt(0, 90)]), dark));
+        Characters.SetTranslation(UWAL.MathUtils.Mat4.translation([-x + c * 0.25, 4.65 - r * 0.4, -8]), buffers[i]);
     }
+}
 
-    const data = new Float32Array(5);
-    const dark = new UWAL.Color(0x2e3440);
-    const light = new UWAL.Color(0x88c0d0);
+function onOver(event)
+{
+    if (!position) return;
 
-    const position = { x: -1.0, y: -1.0 };
-    let rows = 0, columns = 0, delays = [];
-    const Camera = new UWAL.PerspectiveCamera();
+    position.x = (event.touches?.[0].clientX ?? event.offsetX) / canvas.offsetWidth;
+    position.y = (event.touches?.[0].clientY ?? event.offsetY) / canvas.offsetHeight;
 
-    Renderer.CreatePassDescriptor(
-        Renderer.CreateColorAttachment(dark),
-        Renderer.CreateDepthStencilAttachment()
-    );
+    position.x += (0.5 - position.x) * 0.05;
+    position.y -= position.y * 0.06;
+}
 
-    const Pipeline = await Characters.CreatePipeline(Renderer);
-    Characters.CameraMatrixBuffer = Camera.SetRenderPipeline(Pipeline);
+function onOut()
+{
+    position.x = position.y = -1;
+}
 
-    // alpha & scale (4) + color (4) + transform (16) + x & y (2):
-    let bufferOffset = Float32Array.BYTES_PER_ELEMENT * 6 + 2;
-    const colorOffset = Float32Array.BYTES_PER_ELEMENT * 4;
-    bufferOffset *= Float32Array.BYTES_PER_ELEMENT;
+function render()
+{
+    Renderer.Render();
+    const { AspectRatio } = Renderer;
+    raf = requestAnimationFrame(render);
 
-    canvas.removeEventListener("mouseenter", onOver);
-    canvas.removeEventListener("touchstart", onOver);
-    canvas.removeEventListener("mousemove", onOver);
-    canvas.removeEventListener("touchmove", onOver);
-    canvas.removeEventListener("mouseleave", onOut);
-    canvas.removeEventListener("touchend", onOut);
-
-    canvas.addEventListener("mouseenter", onOver);
-    canvas.addEventListener("touchstart", onOver);
-    canvas.addEventListener("mousemove", onOver);
-    canvas.addEventListener("touchmove", onOver);
-    canvas.addEventListener("mouseleave", onOut);
-    canvas.addEventListener("touchend", onOut);
-
-    await Characters.LoadFont(FontURL, true);
-
-    function clean()
+    for (let d = 0, l = delays.length; d < l; ++d)
     {
-        buffers.forEach(buffer => buffer.destroy());
-        Pipeline.ClearRenderBundles();
-        cancelAnimationFrame(raf);
-        buffers.splice(0);
-        delays.splice(0);
-    }
+        const dx = (position.x - (d % columns) / columns) * AspectRatio;
+        const dy = position.y - (d / columns | 0) / rows;
 
-    function start()
-    {
-        createCharGrid();
-        data.set([1, ...light.rgba]);
-        raf = requestAnimationFrame(render);
-    }
+        let minDelay = 120, maxDelay = 240;
+        let dist = dx * dx + dy * dy;
 
-    function createCharGrid()
-    {
-        const [width, height] = Renderer.BaseCanvasSize;
-        const ids = Font.chars.map(({ id }) => id);
+        data.set(dark.rgba, 1);
 
-        const charWidth = width / 24;
-        rows = Math.ceil(height / 40);
-        columns = Math.ceil(charWidth);
-
-        dark.Set(0x5e81ac, 0.25);
-        let x = charWidth / 8;
-
-        if (height <= 880)
+        if (dist < 0.04)
         {
-            let add = height / 40;
-            add = 23 - add | 0;
-            columns += add - 1;
-            x += add / 10;
-            rows += add;
+            data.set(light.rgb, 1);
+            dist = (0.04 - dist) * 25;
+
+            delays[d] -= dist * delays[d] - 1 | 0;
+            minDelay  -= dist * (minDelay * 0.5) | 0;
+            maxDelay  -= dist * (maxDelay * 0.5) | 0;
+
+            dist *= 1.2; data[4] = dist ** 2 + 0.2;
         }
 
-        for (let i = 0, l = rows * columns; i < l; ++i)
+        if (!--delays[d])
         {
-            const c = i % columns, r = i / columns | 0;
-            delays.push(UWAL.MathUtils.RandomInt(1, 240));
-
-            buffers.push(Characters.Write(String.fromCharCode(ids[UWAL.MathUtils.RandomInt(0, 90)]), dark));
-            Characters.SetTranslation(UWAL.MathUtils.Mat4.translation([-x + c * 0.25, 4.65 - r * 0.4, -8]), buffers[i]);
-        }
-    }
-
-    function onOver(event)
-    {
-        if (!position) return;
-
-        position.x = (event.touches?.[0].clientX ?? event.offsetX) / canvas.offsetWidth;
-        position.y = (event.touches?.[0].clientY ?? event.offsetY) / canvas.offsetHeight;
-
-        position.x += (0.5 - position.x) * 0.05;
-        position.y -= position.y * 0.06;
-    }
-
-    function onOut()
-    {
-        position.x = position.y = -1;
-    }
-
-    function render()
-    {
-        Renderer.Render();
-        const { AspectRatio } = Renderer;
-        raf = requestAnimationFrame(render);
-
-        for (let d = 0, l = delays.length; d < l; ++d)
-        {
-            const dx = (position.x - (d % columns) / columns) * AspectRatio;
-            const dy = position.y - (d / columns | 0) / rows;
-
-            let minDelay = 120, maxDelay = 240;
-            let dist = dx * dx + dy * dy;
-
-            data.set(dark.rgba, 1);
-
-            if (dist < 0.04)
-            {
-                data.set(light.rgb, 1);
-                dist = (0.04 - dist) * 25;
-
-                delays[d] -= dist * delays[d] - 1 | 0;
-                minDelay  -= dist * (minDelay * 0.5) | 0;
-                maxDelay  -= dist * (maxDelay * 0.5) | 0;
-
-                dist *= 1.2; data[4] = dist ** 2 + 0.2;
-            }
-
-            if (!--delays[d])
-            {
-                data[0] = UWAL.MathUtils.RandomInt(0, 90);
-                delays[d] = UWAL.MathUtils.RandomInt(minDelay, maxDelay);
-                Pipeline.WriteBuffer(buffers[d], data, bufferOffset, 0, 1);
-            }
-
-            Pipeline.WriteBuffer(buffers[d], data, colorOffset, 1, 4);
-        }
-    }
-
-    observer = new ResizeObserver(entries =>
-    {
-        for (const entry of entries)
-        {
-            let { inlineSize: width, blockSize } = entry.contentBoxSize[0];
-            width = (width <= 960 && width) || width - Math.max(width * 0.15, 240);
-            Renderer.SetCanvasSize(width, blockSize);
-            Camera.AspectRatio = Renderer.AspectRatio;
-            Camera.UpdateWorldMatrix();
+            data[0] = UWAL.MathUtils.RandomInt(0, 90);
+            delays[d] = UWAL.MathUtils.RandomInt(minDelay, maxDelay);
+            Pipeline.WriteBuffer(buffers[d], data, bufferOffset, 0, 1);
         }
 
-        clean(), start();
-    });
+        Pipeline.WriteBuffer(buffers[d], data, colorOffset, 1, 4);
+    }
+}
 
-    observer.observe(document.body);
+export function resize(width)
+{
+    Renderer.SetCanvasSize(width, innerHeight);
+    Camera.AspectRatio = Renderer.AspectRatio;
+    Camera.UpdateWorldMatrix();
+    clean(), start();
 }
 
 export function destroy()
 {
     UWAL.Device.OnLost = () => void 0;
     cancelAnimationFrame(raf);
-    observer.disconnect();
     Characters.Destroy();
     Renderer.Destroy();
     UWAL.Device.Destroy(buffers);

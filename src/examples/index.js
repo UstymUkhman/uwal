@@ -7,6 +7,12 @@ let runningType = null;
 /** @type {HTMLAnchorElement} */
 let currentAnchor = null;
 
+const examples = new Set();
+
+let canvasWidth = innerWidth;
+
+let resizeCurrent = undefined;
+
 let mobile = innerWidth <= 960;
 
 /** @type {() => void} */
@@ -17,11 +23,6 @@ const examplesTitle = document.title;
 const aside = (
     /** @type {HTMLElement} */
     (document.getElementsByClassName("examples")[0])
-);
-
-const canvas = (
-    /** @type {HTMLCanvasElement} */
-    (document.getElementById("preview"))
 );
 
 const iframe = (
@@ -89,6 +90,14 @@ function cleanExample()
     currentAnchor?.classList.remove("active");
 }
 
+function resizeCanvas()
+{
+    mobile = innerWidth <= 960;
+    canvasWidth = innerWidth + -(
+        !mobile && Math.max(innerWidth * 0.15, 240)
+    );
+}
+
 function showComponents()
 {
     listButton.innerHTML = '&#62;';
@@ -109,14 +118,13 @@ function runUpdates(example, type)
         return showComponents();
     }
 
-    return !example
-        ? cleanExample()
-        : ~destroyCurrent() && true;
+    return !example ? cleanExample() : ~destroyCurrent() && true;
 }
 
 async function runExample()
 {
     const example = location.hash.slice(1);
+    if (examples.has(example)) return location.reload();
 
     if (runUpdates(example, "example"))
     {
@@ -126,12 +134,14 @@ async function runExample()
         if (!currentExample) return true;
 
         const anchor = document.querySelector(`a[data-example="${example}"]`);
-        const { run, destroy } = await import(`./${example}/index.js`);
+        const { resize, destroy } = await import(`./${example}/index.js`);
         updateAnchor(currentExample.name, anchor);
 
         destroyCurrent = destroy;
         runningType = "example";
-        run(canvas);
+        resizeCurrent = resize;
+        examples.add(example);
+        resize?.(canvasWidth);
     }
 };
 
@@ -173,18 +183,18 @@ addEventListener("hashchange", () =>
 
 addEventListener("resize", () =>
 {
-    mobile = innerWidth <= 960;
+    resizeCanvas();
+    resizeCurrent?.(canvasWidth);
+
     if (!location.hash.slice(1)) return;
 
-    if (innerWidth > 960)
-        aside.classList.remove("hidden");
-    else
+    if (mobile)
     {
-        listButton.innerHTML = '&#62;';
         aside.classList.add("hidden");
+        listButton.innerHTML = '&#62;';
     }
+    else aside.classList.remove("hidden");
 }, false);
 
-createExamples("demos");
-createExamples("examples");
-runExample() && runDemo();
+~createExamples("demos") && createExamples("examples");
+~resizeCanvas() && runExample() && runDemo();
